@@ -6,10 +6,10 @@ import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalStatusDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.model.jpa.Skill;
+import school.faang.user_service.model.jpa.User;
+import school.faang.user_service.model.jpa.goal.Goal;
+import school.faang.user_service.model.jpa.goal.GoalStatus;
 
 @Mapper(componentModel = "spring", uses = GoalInvitationMapper.class)
 public interface GoalMapper {

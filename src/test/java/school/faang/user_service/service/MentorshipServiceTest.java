@@ -8,10 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.model.jpa.User;
 import school.faang.user_service.mapper.UserMapperImpl;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.jpa.UserRepository;
 
 
 import java.util.ArrayList;

@@ -1,8 +1,8 @@
 package school.faang.user_service.util;
 
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.model.jpa.Skill;
+import school.faang.user_service.model.jpa.recommendation.Recommendation;
+import school.faang.user_service.model.jpa.recommendation.SkillOffer;
 
 import java.util.List;
 

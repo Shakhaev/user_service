@@ -3,7 +3,7 @@ package school.faang.user_service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import school.faang.user_service.dto.RecommendationDto;
-import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.model.jpa.recommendation.Recommendation;
 
 @Mapper(componentModel = "spring", uses = SkillOfferMapper.class)
 public interface RecommendationMapper {
