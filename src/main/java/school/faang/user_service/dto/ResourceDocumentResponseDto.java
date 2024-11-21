@@ -1,4 +1,4 @@
-package school.faang.user_service.client.dto;
+package school.faang.user_service.dto;
 
 public record ResourceDocumentResponseDto(
         Long resourceId,

@@ -26,6 +26,11 @@ spring:
         follower-event-channel:
           name: follower_event
       database: 0
+  elasticsearch:
+    uris: http://localhost:9200
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
 server:
   port: 8080

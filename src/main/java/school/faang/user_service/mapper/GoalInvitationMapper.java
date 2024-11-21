@@ -2,12 +2,13 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.GoalInvitationResponseDto;
 import school.faang.user_service.dto.goal.RequestStatusDto;
 import school.faang.user_service.model.jpa.RequestStatus;
 import school.faang.user_service.model.jpa.goal.GoalInvitation;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface GoalInvitationMapper {
 
     @Mapping(source = "goal.id", target = "goalId")

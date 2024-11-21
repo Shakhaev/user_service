@@ -1,7 +1,8 @@
 package school.faang.user_service.model.search.user;
 
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -12,8 +13,9 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 import java.util.List;
 
 @Data
-@Document(indexName = "users")
+@Document(indexName = "user_documents")
 @Setting(settingPath = "elasticsearch/settings.json")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDocument {
 
     @Id
@@ -23,13 +25,13 @@ public class UserDocument {
             otherFields = {
                     @InnerField(suffix = "keyword", type = FieldType.Keyword),
             })
-    private String userName;
+    private String username;
 
     @MultiField(mainField = @Field(type = FieldType.Text, analyzer = "standard"),
             otherFields = {
                     @InnerField(suffix = "keyword", type = FieldType.Keyword),
             })
-    private String countryName;
+    private String country;
 
     @MultiField(mainField = @Field(type = FieldType.Text, analyzer = "standard"),
             otherFields = {
@@ -37,20 +39,23 @@ public class UserDocument {
             })
     private String city;
 
-    @Field(type = FieldType.Integer_Range)
+    @Field(type = FieldType.Integer)
     private Integer experience;
 
 
     @Field(type = FieldType.Nested)
     private List<GoalNested> goals;
 
-    @Field(type = FieldType.Nested)
+    @MultiField(mainField = @Field(type = FieldType.Text, analyzer = "standard"),
+    otherFields = {
+            @InnerField(suffix = "keyword", type = FieldType.Keyword),
+    })
     private List<String> skillNames;
 
     @Field(type = FieldType.Nested)
     private List<EventNested> events;
 
-    @Field(type = FieldType.Double_Range)
+    @Field(type = FieldType.Double)
     private Double averageRating;
 
 }

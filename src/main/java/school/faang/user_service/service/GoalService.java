@@ -174,11 +174,13 @@ public class GoalService {
 
     private void updateUsersInGoal(Goal persistanceGoal, UpdateGoalDto updateGoalDto) {
         log.debug("Updating users for goal with id: {}", persistanceGoal.getId());
+
         List<User> updatedUsers = userService.getAllUsersByIds(updateGoalDto.userIds());
         if (updatedUsers.isEmpty()) {
             log.warn("No users found for provided IDs: {}", updateGoalDto.userIds());
             throw new ResourceNotFoundException("User", "id", updateGoalDto.userIds());
         }
+
         List<User> oldUsers = persistanceGoal.getUsers();
         List<User> removedUsers = CollectionUtils.findMissingElements(oldUsers, updatedUsers);
         List<User> newUsers = CollectionUtils.findMissingElements(updatedUsers, oldUsers);
@@ -203,7 +205,7 @@ public class GoalService {
     private void setMentorIfProvided(Goal goal, Long mentorId) {
         if (mentorId != null) {
             log.debug("Setting mentor for goal with id: {}", goal.getId());
-            User user = userService.getUserById(mentorId);
+            User user = userService.findUserById(mentorId);
             goal.setMentor(user);
         }
     }

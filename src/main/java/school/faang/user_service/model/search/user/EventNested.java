@@ -1,5 +1,7 @@
 package school.faang.user_service.model.search.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import school.faang.user_service.model.jpa.event.EventStatus;
@@ -7,6 +9,7 @@ import school.faang.user_service.model.jpa.event.EventType;
 
 import java.time.LocalDateTime;
 
+@Data
 public class EventNested {
 
     @Field(type = FieldType.Keyword)
@@ -18,10 +21,12 @@ public class EventNested {
     @Field(type = FieldType.Text)
     private String description;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
 
     @Field(type = FieldType.Text)

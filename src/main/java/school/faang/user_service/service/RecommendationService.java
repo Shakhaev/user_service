@@ -60,8 +60,8 @@ public class RecommendationService {
     }
 
     private void establishRelations(Recommendation recommendation, RecommendationDto recommendationDto) {
-        User author = userService.getUserById(recommendationDto.authorId());
-        User receiver = userService.getUserById(recommendationDto.receiverId());
+        User author = userService.findUserById(recommendationDto.authorId());
+        User receiver = userService.findUserById(recommendationDto.receiverId());
         recommendation.setAuthor(author);
         recommendation.setReceiver(receiver);
         recommendation.setSkillOffers(buildSkillOffers(recommendation, recommendationDto));
