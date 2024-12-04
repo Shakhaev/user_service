@@ -269,6 +269,7 @@ class UserServiceTest {
                 .telegramChatId(1242142141241L)
                 .contactPreference(contactPreference)
                 .build();
+        firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
 
         User secondUser = User.builder()
                 .id(secondUserId)
@@ -277,6 +278,7 @@ class UserServiceTest {
                 .telegramChatId(90218421908421L)
                 .contactPreference(contactPreference)
                 .build();
+        secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
         UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, EMAIL);
         UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, EMAIL);
@@ -313,7 +315,6 @@ class UserServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .premium(expiredPremium)
-                .telegramChatId(90182590L)
                 .build();
         firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
 
@@ -321,7 +322,6 @@ class UserServiceTest {
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
-                .telegramChatId(893248953L)
                 .build();
         secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
