@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recommendation.RecommendationReseivedEvent;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class RecommendationReceivedEventPublisher implements MessagePublisher {
 
     @Override
     public void publish(Long recommendationId) {
-        RecommendationReseivedEvent event = new RecommendationReseivedEvent();
+        RecommendationReceivedEvent event = new RecommendationReceivedEvent();
         event.setId(recommendationId);
         try {
             String json = objectMapper.writeValueAsString(event);
