@@ -11,7 +11,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.service.implementations.GoalService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 

@@ -10,8 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.service.implementations.UserServiceImpl;
 import school.faang.user_service.validation.ValidationController;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class UserControllerTest {
     private UserController userController;
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @Mock
     private ValidationController validationController;
@@ -39,7 +39,7 @@ public class UserControllerTest {
     public void testGetUser() {
         Long id = 1L;
         UserDto userDto = new UserDto(1L);
-        when(userService.getUser(id)).thenReturn(userDto);
+        when(userServiceImpl.getUser(id)).thenReturn(userDto);
 
         UserDto result = userController.getUser(id);
 
@@ -52,7 +52,7 @@ public class UserControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         List<UserDto> usersDto = List.of(new UserDto(2L), new UserDto(3L));
         List<Long> ids = List.of(2L, 3L);
-        when(userService.getUsersByIds(ids)).thenReturn(usersDto);
+        when(userServiceImpl.getUsersByIds(ids)).thenReturn(usersDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType("application/json")

@@ -1,7 +1,6 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +22,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 
 import java.util.List;
 import java.util.Optional;
+import school.faang.user_service.service.implementations.SkillServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

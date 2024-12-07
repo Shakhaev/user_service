@@ -31,6 +31,8 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.implementations.RecommendationService;
+import school.faang.user_service.service.implementations.SkillOfferService;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {

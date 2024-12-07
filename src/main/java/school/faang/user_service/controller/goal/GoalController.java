@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
-import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.service.implementations.GoalService;
 
 import java.util.List;
 

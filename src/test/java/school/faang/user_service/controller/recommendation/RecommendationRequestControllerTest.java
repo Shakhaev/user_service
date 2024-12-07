@@ -12,7 +12,7 @@ import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.service.RecommendationRequestService;
+import school.faang.user_service.service.implementations.RecommendationRequestService;
 
 import java.util.ArrayList;
 import java.util.List;

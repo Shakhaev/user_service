@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.RecommendationService;
+import school.faang.user_service.service.implementations.RecommendationService;
 
 @Component
 public class RecommendationController {

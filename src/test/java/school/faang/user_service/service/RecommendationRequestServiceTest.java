@@ -24,6 +24,7 @@ import school.faang.user_service.service.filters.recommendation.request.Recommen
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import school.faang.user_service.service.implementations.RecommendationRequestService;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;

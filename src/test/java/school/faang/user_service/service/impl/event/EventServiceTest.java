@@ -16,7 +16,7 @@ import school.faang.user_service.mapper.EventMapperImpl;
 import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event_filter.Filter;
+import school.faang.user_service.service.filters.event.Filter;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import school.faang.user_service.service.implementations.EventServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

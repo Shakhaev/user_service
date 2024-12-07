@@ -29,9 +29,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
 
     /**
      * Database
@@ -43,7 +43,7 @@ dependencies {
     /**
      * Amazon S3
      */
-    implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.481")
 
     /**
      * Swagger
