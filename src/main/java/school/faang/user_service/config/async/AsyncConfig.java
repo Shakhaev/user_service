@@ -16,4 +16,9 @@ public class AsyncConfig {
     public ExecutorService removeExpiredPremiumAccess(){
         return Executors.newFixedThreadPool(numberOfThreads);
     }
+
+    @Bean
+    public ExecutorService removeExpiredEvent() {
+        return Executors.newFixedThreadPool(numberOfThreads);
+    }
 }

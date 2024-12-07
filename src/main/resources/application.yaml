@@ -52,5 +52,8 @@ application:
     threads-number: 20
     time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
     batch-size: 100
-
+  scheduler:
+    cron:
+      one_day: "0 0 0 1 * *"
+    batch-size: 100
 
