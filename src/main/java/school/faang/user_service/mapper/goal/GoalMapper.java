@@ -3,6 +3,7 @@ package school.faang.user_service.mapper.goal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
@@ -11,7 +12,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalMapper {
 
     @Mapping(source = "parent", target = "parentId")
@@ -34,7 +35,9 @@ public interface GoalMapper {
         if (skills == null) {
             return null;
         }
-        return skills.stream().map(Skill::getId).collect(Collectors.toList());
+        return skills.stream()
+                .map(Skill::getId)
+                .collect(Collectors.toList());
     }
 
     GoalStatus toGoalStatus(String goalStatus);

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
@@ -46,6 +48,8 @@ public class GoalServiceTest {
     private UserService userService;
     @Mock
     private SkillService skillService;
+
+    @Spy
     @InjectMocks
     private GoalService goalService;
 
@@ -53,38 +57,34 @@ public class GoalServiceTest {
     class TestCreate {
 
         long userId;
-        User userFromDb;
-        Optional<User> userFromDbOpt;
+        User user;
 
         long parentId;
-        Goal parentGoalFromDb;
-        Optional<Goal> parentGoalFromDbOpt;
+        Goal parentGoal;
 
         List<Long> skillToAchieveIds;
         GoalDto goalDto;
 
         Skill firstSkillFromDb;
         Skill secondSkillFromDb;
-        List<Skill> skillsToAchieveFromDb;
+        List<Skill> skillsToAchieve;
 
         @BeforeEach
         public void setup() {
             userId = 1L;
-            userFromDb = User.builder()
+            user = User.builder()
                     .id(userId)
                     .build();
-            userFromDbOpt = Optional.of(userFromDb);
 
             parentId = 1L;
-            parentGoalFromDb = Goal.builder()
+            parentGoal = Goal.builder()
                     .id(parentId)
                     .build();
-            parentGoalFromDbOpt = Optional.of(parentGoalFromDb);
 
             skillToAchieveIds = List.of(1L, 2L);
             firstSkillFromDb = Skill.builder().id(1L).build();
             secondSkillFromDb = Skill.builder().id(2L).build();
-            skillsToAchieveFromDb = List.of(firstSkillFromDb, secondSkillFromDb);
+            skillsToAchieve = List.of(firstSkillFromDb, secondSkillFromDb);
 
             goalDto = GoalDto.builder()
                     .parentId(parentId)
@@ -96,34 +96,57 @@ public class GoalServiceTest {
         public void testCreateGoal_Successfully() {
             Goal savedGoal = Goal.builder().id(2L).build();
             ArgumentCaptor<Goal> goalArgumentCaptor = ArgumentCaptor.forClass(Goal.class);
-            when(userService.findById(userId)).thenReturn(userFromDbOpt);
-            when(goalRepository.findById(parentId)).thenReturn(parentGoalFromDbOpt);
-            when(skillService.findByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieveFromDb);
+            when(userService.getUserById(userId)).thenReturn(user);
+            doReturn(parentGoal).when(goalService).getGoalById(parentId);
+            when(skillService.getSkillsByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieve);
             when(goalRepository.save(any(Goal.class))).thenReturn(savedGoal);
 
             goalService.create(userId, goalDto);
 
-            verify(goalValidator, times(1)).validateCreate(any(GoalDto.class), eq(userId), eq(userFromDbOpt), eq(parentGoalFromDbOpt), eq(skillsToAchieveFromDb));
+            verify(goalValidator, times(1)).validateCreate(any(GoalDto.class), any(User.class));
             verify(goalRepository, times(1)).save(goalArgumentCaptor.capture());
             Goal goal = goalArgumentCaptor.getValue();
             assertEquals(1, goal.getUsers().size());
             assertEquals(userId, goal.getUsers().get(0).getId());
-            assertEquals(parentGoalFromDb, goal.getParent());
-            assertEquals(skillsToAchieveFromDb, goal.getSkillsToAchieve());
+            assertEquals(parentGoal, goal.getParent());
+            assertEquals(skillsToAchieve, goal.getSkillsToAchieve());
             assertEquals(GoalStatus.ACTIVE, goal.getStatus());
             verify(goalMapper, times(1)).toDto(savedGoal);
         }
 
         @Test
         public void testCreate_NotValidData() {
-            when(userService.findById(userId)).thenReturn(userFromDbOpt);
-            when(goalRepository.findById(parentId)).thenReturn(parentGoalFromDbOpt);
-            when(skillService.findByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieveFromDb);
-            doThrow(IllegalArgumentException.class).when(goalValidator).validateCreate(goalDto, userId, userFromDbOpt, parentGoalFromDbOpt, skillsToAchieveFromDb);
+            when(userService.getUserById(userId)).thenReturn(user);
+            doReturn(parentGoal).when(goalService).getGoalById(parentId);
+            when(skillService.getSkillsByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieve);
+            doThrow(IllegalArgumentException.class).when(goalValidator).validateCreate(goalDto, user);
 
             Assertions.assertThrows(IllegalArgumentException.class, () -> goalService.create(userId, goalDto));
 
-            verify(goalValidator, times(1)).validateCreate(goalDto, userId, userFromDbOpt, parentGoalFromDbOpt, skillsToAchieveFromDb);
+            verify(goalValidator, times(1)).validateCreate(goalDto, user);
+        }
+    }
+
+    @Nested
+    class TestGetById {
+
+        long id = 1L;
+
+        @Test
+        public void testGetGoalById_Successfully() {
+            Goal goal = new Goal();
+            when(goalRepository.findById(id)).thenReturn(Optional.of(goal));
+
+            Goal goalById = goalService.getGoalById(id);
+
+            assertEquals(goal, goalById);
+        }
+
+        @Test
+        public void testGetGoalById_GoalNotExist() {
+            when(goalRepository.findById(id)).thenReturn(Optional.empty());
+
+            assertThrows(EntityNotFoundException.class, () -> goalService.getGoalById(id));
         }
     }
 
@@ -131,38 +154,34 @@ public class GoalServiceTest {
     class TestUpdate {
 
         long goalId;
-        Goal goalFromDb;
-        Optional<Goal> goalFromDbOpt;
+        Goal goal;
 
         long parentId;
-        Goal parentGoalFromDb;
-        Optional<Goal> parentGoalFromDbOpt;
+        Goal parentGoal;
 
         List<Long> skillToAchieveIds;
         GoalDto goalDto;
 
-        Skill firstSkillFromDb;
-        Skill secondSkillFromDb;
-        List<Skill> skillsToAchieveFromDb;
+        Skill firstSkill;
+        Skill secondSkill;
+        List<Skill> skillsToAchieve;
 
         @BeforeEach
         public void setup() {
             goalId = 2L;
-            goalFromDb = Goal.builder()
+            goal = Goal.builder()
                     .id(goalId)
                     .build();
-            goalFromDbOpt = Optional.of(goalFromDb);
 
             parentId = 1L;
-            parentGoalFromDb = Goal.builder()
+            parentGoal = Goal.builder()
                     .id(parentId)
                     .build();
-            parentGoalFromDbOpt = Optional.of(parentGoalFromDb);
 
             skillToAchieveIds = List.of(1L, 2L);
-            firstSkillFromDb = Skill.builder().id(1L).build();
-            secondSkillFromDb = Skill.builder().id(2L).build();
-            skillsToAchieveFromDb = List.of(firstSkillFromDb, secondSkillFromDb);
+            firstSkill = Skill.builder().id(1L).build();
+            secondSkill = Skill.builder().id(2L).build();
+            skillsToAchieve = List.of(firstSkill, secondSkill);
 
             goalDto = GoalDto.builder()
                     .parentId(parentId)
@@ -173,26 +192,28 @@ public class GoalServiceTest {
         @Test
         public void testUpdateGoal_Successfully() {
             ArgumentCaptor<Goal> goalArgumentCaptor = ArgumentCaptor.forClass(Goal.class);
-            when(goalRepository.findById(goalId)).thenReturn(goalFromDbOpt);
-            when(goalRepository.findById(parentId)).thenReturn(parentGoalFromDbOpt);
-            when(skillService.findByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieveFromDb);
+            doReturn(goal).when(goalService).getGoalById(goalId);
+            doReturn(parentGoal).when(goalService).getGoalById(parentId);
+            when(skillService.getSkillsByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieve);
 
             goalService.update(goalId, goalDto);
 
-            verify(goalValidator, times(1)).validateUpdate(goalId, goalFromDbOpt, goalDto, parentGoalFromDbOpt, skillsToAchieveFromDb);
+            verify(goalValidator, times(1)).validateUpdate(goal, goalDto);
             verify(goalRepository, times(1)).save(goalArgumentCaptor.capture());
             Goal goal = goalArgumentCaptor.getValue();
-            assertEquals(parentGoalFromDb, goal.getParent());
-            assertEquals(skillsToAchieveFromDb, goal.getSkillsToAchieve());
+            assertEquals(parentGoal, goal.getParent());
+            assertEquals(skillsToAchieve, goal.getSkillsToAchieve());
         }
 
         @Test
         public void testUpdate_GoalStatusChangeFromActiveToCompleted() {
-            Skill thirdSkill = Skill.builder().id(2L).build();
+            Skill thirdSkill = Skill.builder()
+                    .id(2L)
+                    .build();
 
             User firstUserFromDb = User.builder()
                     .id(1L)
-                    .skills(new ArrayList<>(List.of(firstSkillFromDb, thirdSkill)))
+                    .skills(new ArrayList<>(List.of(firstSkill, thirdSkill)))
                     .build();
             User secondUserFromDb = User.builder()
                     .id(2L)
@@ -206,12 +227,12 @@ public class GoalServiceTest {
                     .status(GoalStatus.COMPLETED.toString())
                     .build();
 
-            goalFromDb.setStatus(GoalStatus.ACTIVE);
-            goalFromDb.setUsers(usersFromDb);
+            goal.setStatus(GoalStatus.ACTIVE);
+            goal.setUsers(usersFromDb);
 
             ArgumentCaptor<Goal> goalArgumentCaptor = ArgumentCaptor.forClass(Goal.class);
-            when(goalRepository.findById(goalId)).thenReturn(goalFromDbOpt);
-            when(skillService.findByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieveFromDb);
+            doReturn(goal).when(goalService).getGoalById(goalId);
+            when(skillService.getSkillsByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieve);
 
             goalService.update(goalId, goalDto);
 
@@ -219,20 +240,20 @@ public class GoalServiceTest {
             Goal goal = goalArgumentCaptor.getValue();
             assertIterableEquals(usersFromDb, goal.getUsers());
             assertThat(usersFromDb).hasSameElementsAs(goal.getUsers());
-            goal.getUsers().forEach(user -> assertTrue(user.getSkills().containsAll(skillsToAchieveFromDb)));
-            assertEquals(skillsToAchieveFromDb, goal.getSkillsToAchieve());
+            goal.getUsers().forEach(user -> assertTrue(user.getSkills().containsAll(skillsToAchieve)));
+            assertEquals(skillsToAchieve, goal.getSkillsToAchieve());
         }
 
         @Test
         public void testUpdate_NotValidData() {
-            when(goalRepository.findById(goalId)).thenReturn(goalFromDbOpt);
-            when(goalRepository.findById(parentId)).thenReturn(parentGoalFromDbOpt);
-            when(skillService.findByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieveFromDb);
-            doThrow(IllegalArgumentException.class).when(goalValidator).validateUpdate(anyLong(), any(Optional.class), any(GoalDto.class), any(Optional.class), anyList());
+            doReturn(goal).when(goalService).getGoalById(goalId);
+            doReturn(parentGoal).when(goalService).getGoalById(parentId);
+            when(skillService.getSkillsByIdIn(skillToAchieveIds)).thenReturn(skillsToAchieve);
+            doThrow(IllegalArgumentException.class).when(goalValidator).validateUpdate(any(Goal.class), any(GoalDto.class));
 
             Assertions.assertThrows(IllegalArgumentException.class, () -> goalService.update(goalId, goalDto));
 
-            verify(goalValidator, times(1)).validateUpdate(goalId, goalFromDbOpt, goalDto, parentGoalFromDbOpt, skillsToAchieveFromDb);
+            verify(goalValidator, times(1)).validateUpdate(goal, goalDto);
         }
     }
 

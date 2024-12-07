@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalDto;
@@ -30,46 +31,51 @@ public class GoalService {
     private final SkillService skillService;
 
     public GoalDto create(long userId, GoalDto goalDto) {
-        Optional<User> user = userService.findById(userId);
-        Optional<Goal> parentGoalOpt = Optional.ofNullable(goalDto.getParentId())
-                .flatMap(goalRepository::findById);
+        User user = userService.getUserById(userId);
+        Goal parentGoalOpt = Optional.ofNullable(goalDto.getParentId())
+                .map(this::getGoalById)
+                .orElse(null);
         List<Skill> skills = Optional.ofNullable(goalDto.getSkillToAchieveIds())
-                .map(skillService::findByIdIn)
+                .map(skillService::getSkillsByIdIn)
                 .orElse(new ArrayList<>());
 
-        goalValidator.validateCreate(goalDto, userId, user, parentGoalOpt, skills);
+        goalValidator.validateCreate(goalDto, user);
 
         Goal goal = goalMapper.toEntity(goalDto);
 
-        goal.setUsers(List.of(user.get()));
-        goal.setParent(parentGoalOpt.orElse(null));
+        goal.setUsers(List.of(user));
+        goal.setParent(parentGoalOpt);
         goal.setSkillsToAchieve(skills);
         goal.setStatus(GoalStatus.ACTIVE);
 
         return goalMapper.toDto(goalRepository.save(goal));
     }
 
+    public Goal getGoalById(long id) {
+        return goalRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Goal with id %s not found".formatted(id))
+        );
+    }
+
     public GoalDto update(long goalId, GoalDto goalDto) {
-        Optional<Goal> goalOpt = goalRepository.findById(goalId);
-        Optional<Goal> parentGoalOpt = Optional.ofNullable(goalDto.getParentId())
-                .flatMap(goalRepository::findById);
+        Goal goal = getGoalById(goalId);
+        Goal parentGoal = Optional.ofNullable(goalDto.getParentId())
+                .map(this::getGoalById)
+                .orElse(null);
         List<Skill> skills = Optional.ofNullable(goalDto.getSkillToAchieveIds())
-                .map(skillService::findByIdIn)
+                .map(skillService::getSkillsByIdIn)
                 .orElse(new ArrayList<>());
 
-        goalValidator.validateUpdate(goalId, goalOpt, goalDto, parentGoalOpt, skills);
+        goalValidator.validateUpdate(goal, goalDto);
 
-        Goal goal = goalOpt.get();
         GoalStatus pastStatus = goal.getStatus();
         goalMapper.updateGoal(goal, goalDto);
 
-        goal.setParent(parentGoalOpt.orElse(null));
+        goal.setParent(parentGoal);
         goal.setSkillsToAchieve(skills);
 
         if (goalMapper.toGoalStatus(goalDto.getStatus()) == GoalStatus.COMPLETED && pastStatus == GoalStatus.ACTIVE) {
-            goal.getUsers().forEach(user -> {
-                addNewSkills(user, goal);
-            });
+            goal.getUsers().forEach(user -> addNewSkills(user, goal));
         }
         return goalMapper.toDto(goalRepository.save(goal));
     }
