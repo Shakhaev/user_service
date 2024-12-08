@@ -3,13 +3,7 @@ package school.faang.user_service.controller.recommendation;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
 import school.faang.user_service.validator.recommendation.ControllerRecommendationValidator;
@@ -17,8 +11,9 @@ import school.faang.user_service.validator.recommendation.ControllerRecommendati
 import java.util.List;
 
 @Slf4j
-@RestController
 @RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/v1/recommendation")
 public class RecommendationController {
     private final RecommendationService recommendationService;
     private final ControllerRecommendationValidator recommendationValidator;
@@ -30,7 +25,7 @@ public class RecommendationController {
         return recommendationService.updateRecommendation(updateRecommendationDto);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public RecommendationDto giveRecommendation(@RequestBody RecommendationDto recommendationDto) {
         log.info("A request has been received for a recommendation {}", recommendationDto);
         recommendationValidator.validateContentRecommendation(recommendationDto.getContent());

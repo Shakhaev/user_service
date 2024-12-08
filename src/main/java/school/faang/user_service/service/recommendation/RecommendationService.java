@@ -10,7 +10,7 @@ import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.publisher.RecommendationEventPublisher;
+import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
@@ -37,9 +37,9 @@ public class RecommendationService {
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
         log.info("Start of recommendation {} processing", recommendationDto);
-        serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
-        serviceRecommendationValidator.checkingTheSkillsOfRecommendation(recommendationDto.getSkillOffers());
-        serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
+        //serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
+        //serviceRecommendationValidator.checkingTheSkillsOfRecommendation(recommendationDto.getSkillOffers());
+        //serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
         log.info("A recommendation {} is being created", recommendationDto);
         recommendationRepository.create(
