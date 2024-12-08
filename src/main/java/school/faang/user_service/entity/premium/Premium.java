@@ -32,4 +32,10 @@ public class Premium {
     @Column(name = "end_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime endDate;
+
+    @Column(name = "premium_period")
+    private PremiumPeriod premiumPeriod;
+
+    @Column(name = "is_active",nullable = false)
+    private boolean isActive;
 }

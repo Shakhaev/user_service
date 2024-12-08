@@ -25,6 +25,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(name = "User.skills", attributeNodes = @NamedAttributeNode("skills"))
+@NamedEntityGraph(name = "User.premium", attributeNodes = @NamedAttributeNode("premium"))
 public class User {
 
     @Id
