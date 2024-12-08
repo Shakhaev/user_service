@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.UserForNotificationDto;
@@ -83,5 +84,11 @@ public class UserV1Controller {
     @PostMapping("/premium")
     public List<UserSubResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserSubResponseDto> registerUser(@RequestBody UserRegistrationDto userDto) {
+        UserSubResponseDto createdUser = userService.registerUser(userDto);
+        return ResponseEntity.ok(createdUser);
     }
 }

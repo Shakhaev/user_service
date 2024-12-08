@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,8 @@ import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.CountryService;
+import school.faang.user_service.service.PasswordService;
 import school.faang.user_service.service.S3Service;
 import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.util.ImageUtils;
@@ -48,6 +50,7 @@ public class UserService {
     private final ImageUtils imageUtils;
     private final AvatarService avatarService;
     private final CountryService countryService;
+    private final PasswordService passwordService;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -85,6 +88,7 @@ public class UserService {
 
         User user = userMapper.toEntity(userRegistrationDto);
         user.setCountry(country);
+        user.setPassword(passwordService.encodePassword(userRegistrationDto.password()));
 
         userRepository.save(user);
 

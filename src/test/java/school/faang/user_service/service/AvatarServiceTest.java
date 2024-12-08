@@ -4,97 +4,105 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.service.Integrations.avatar.AvatarService;
+import school.faang.user_service.util.ImageUtils;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AvatarServiceTest {
+class AvatarServiceTest {
 
     @InjectMocks
     private AvatarService avatarService;
 
+    @Mock
+    private S3Service s3Service;
+
+    @Mock
+    private ImageUtils imageUtils;
+
     @BeforeEach
     void setUp() {
-        setField(avatarService, "baseUrl", "https://avatars.dicebear.com");
-        setField(avatarService, "version", "v2");
+        ReflectionTestUtils.setField(avatarService, "baseUrl", "https://avatars.dicebear.com");
+        ReflectionTestUtils.setField(avatarService, "version", "v2");
+        ReflectionTestUtils.setField(avatarService, "styles", List.of("bottts", "avataaars"));
+        ReflectionTestUtils.setField(avatarService, "seedNames", List.of("user1", "user2"));
     }
 
     @Test
-    void testGetRandomAvatar_EmptyStyles() {
-        setField(avatarService, "styles", new ArrayList<>());  // Пустой список стилей
-        setField(avatarService, "seedNames", List.of("user1"));  // Список с seedNames
+    void generateAndUploadUserAvatars_success() throws IOException {
+        String userId = "123";
+        BufferedImage dummyImage = mock(BufferedImage.class);
+        BufferedImage resizedImageLarge = mock(BufferedImage.class);
+        BufferedImage resizedImageSmall = mock(BufferedImage.class);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, avatarService::getRandomAvatar);
-        assertTrue(exception.getMessage().contains("Failed to generate random avatar URL"));
-        assertNotNull(exception.getCause());
-        assertEquals(IllegalStateException.class, exception.getCause().getClass());
-        assertEquals("Styles list is empty or not configured properly.", exception.getCause().getMessage());
+        when(imageUtils.resizeImage(dummyImage, 1080)).thenReturn(resizedImageLarge);
+        when(imageUtils.resizeImage(dummyImage, 170)).thenReturn(resizedImageSmall);
+        when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImageLarge))).thenReturn("largeFileId");
+        when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImageSmall))).thenReturn("smallFileId");
+
+        UserProfilePic userProfilePic = avatarService.generateAndUploadUserAvatars(userId);
+
+        assertThat(userProfilePic).isNotNull();
+        assertThat(userProfilePic.getFileId()).isEqualTo("largeFileId");
+        assertThat(userProfilePic.getSmallFileId()).isEqualTo("smallFileId");
+
+        verify(s3Service, times(2)).uploadImage(any(), eq("avatars"), any(), any());
     }
 
     @Test
-    void testGetRandomAvatar_EmptySeedNames() {
-        setField(avatarService, "styles", List.of("bottts"));
-        setField(avatarService, "seedNames", new ArrayList<>());  // Пустой список seedNames
+    void generateAndUploadUserAvatars_invalidConfiguration_throwsException() {
+        ReflectionTestUtils.setField(avatarService, "styles", new ArrayList<>());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, avatarService::getRandomAvatar);
-        assertTrue(exception.getMessage().contains("Failed to generate random avatar URL"));
-        assertNotNull(exception.getCause());
-        assertEquals(IllegalStateException.class, exception.getCause().getClass());
-        assertEquals("Seed names list is empty or not configured properly.", exception.getCause().getMessage());
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> avatarService.generateAndUploadUserAvatars(null)
+        );
+        assertThat(exception.getMessage()).isEqualTo("Invalid DiceBear configuration");
     }
 
     @Test
-    void testGetRandomAvatar_EmptyBaseUrl() {
-        setField(avatarService, "baseUrl", "");  // Пустой baseUrl
-        setField(avatarService, "styles", List.of("bottts"));
-        setField(avatarService, "seedNames", List.of("user1"));
+    void uploadAvatar_success() throws IOException {
+        String userId = "123";
+        BufferedImage dummyImage = mock(BufferedImage.class);
+        BufferedImage resizedImage = mock(BufferedImage.class);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, avatarService::getRandomAvatar);
-        assertTrue(exception.getMessage().contains("Failed to generate random avatar URL"));
-        assertNotNull(exception.getCause());
-        assertEquals(IllegalStateException.class, exception.getCause().getClass());
-        assertEquals("Base URL is not configured properly.", exception.getCause().getMessage());
+        when(imageUtils.resizeImage(dummyImage, 1080)).thenReturn(resizedImage);
+        when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImage))).thenReturn("fileId");
+
+        String result = avatarService.uploadAvatar(dummyImage, userId, false);
+
+        assertThat(result).isEqualTo("fileId");
+        verify(imageUtils).resizeImage(dummyImage, 1080);
+        verify(s3Service).uploadImage(any(), eq("avatars"), any(), eq(resizedImage));
     }
 
     @Test
-    void testGetRandomAvatar_EmptyVersion() {
-        setField(avatarService, "version", "");  // Пустая версия
-        setField(avatarService, "styles", List.of("bottts"));
-        setField(avatarService, "seedNames", List.of("user1"));
+    void uploadAvatar_resizeFails_throwsException() throws IOException {
+        String userId = "123";
+        BufferedImage dummyImage = mock(BufferedImage.class);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, avatarService::getRandomAvatar);
-        assertTrue(exception.getMessage().contains("Failed to generate random avatar URL"));
-        assertNotNull(exception.getCause());
-        assertEquals(IllegalStateException.class, exception.getCause().getClass());
-        assertEquals("API version is not configured properly.", exception.getCause().getMessage());
-    }
+        when(imageUtils.resizeImage(dummyImage, 1080)).thenThrow(new IOException("Resize failed"));
 
-    @Test
-    void testGetRandomAvatar_Success() {
-        setField(avatarService, "styles", List.of("bottts", "avataaars"));
-        setField(avatarService, "seedNames", List.of("user1", "user2"));
-
-        String avatarUrl = avatarService.getRandomAvatar();
-
-        assertNotNull(avatarUrl);
-        assertTrue(avatarUrl.contains("https://avatars.dicebear.com"));
-        assertTrue(avatarUrl.contains("/v2/"));
-        assertTrue(avatarUrl.contains("/svg?seed="));
-    }
-
-    @Test
-    void testGetRandomAvatar_RuntimeException() {
-        setField(avatarService, "styles", null);
-        setField(avatarService, "seedNames", List.of("user1"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, avatarService::getRandomAvatar);
-        assertTrue(exception.getMessage().contains("Failed to generate random avatar URL"));
-        assertTrue(exception.getCause() instanceof IllegalStateException);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> avatarService.uploadAvatar(dummyImage, userId, false)
+        );
+        assertThat(exception.getMessage()).isEqualTo("Failed to process and upload avatar");
+        verify(imageUtils).resizeImage(dummyImage, 1080);
     }
 }

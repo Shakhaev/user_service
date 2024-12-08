@@ -66,6 +66,7 @@ public interface UserMapper {
     User toEntity(UserDto userDto);
 
     @Mapping(target = "country", ignore = true)
+    @Mapping(target = "password", ignore = true)
     User toEntity(UserRegistrationDto userRegistrationDto);
 
     List<UserDto> toDtos(List<User> users);
