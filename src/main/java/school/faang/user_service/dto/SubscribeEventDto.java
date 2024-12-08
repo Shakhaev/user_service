@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class SubscribeEventDto{
 public class SubscribeEventDto {
     private long followerId;
     private long followeeId;

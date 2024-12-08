@@ -38,11 +38,8 @@ public class SubscriptionService {
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
-    }
-  
         followerEventPublisher.publish(new SubscribeEventDto(followerId, followeeId, LocalDateTime.now()));
         log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
-
     }
 
     @Transactional
@@ -128,14 +125,15 @@ public class SubscriptionService {
             .collect(Collectors.toList());
     }
 
-    private void validateUserIds(Long followerId, Long followeeId) {
-        if (followerId == null || followeeId == null || followerId.equals(followeeId)) {
-            throw new InvalidUserIdException("Некорректные ID: ID не должны быть null и не должны совпадать.");
+
+        private void validateUserIds (Long followerId, Long followeeId){
+            if (followerId == null || followeeId == null || followerId.equals(followeeId)) {
+                throw new InvalidUserIdException("Некорректные ID: ID не должны быть null и не должны совпадать.");
+            }
+        }
+
+        private boolean isValidFilter (UserFilterDTO filter){
+            return filter.getExperienceMin() == null || filter.getExperienceMax() == null ||
+                filter.getExperienceMin() <= filter.getExperienceMax();
         }
     }
-
-    private boolean isValidFilter(UserFilterDTO filter) {
-        return filter.getExperienceMin() == null || filter.getExperienceMax() == null ||
-            filter.getExperienceMin() <= filter.getExperienceMax();
-    }
-}

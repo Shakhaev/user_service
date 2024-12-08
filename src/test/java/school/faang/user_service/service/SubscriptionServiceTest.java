@@ -30,7 +30,7 @@ class SubscriptionServiceTest {
 
     @Mock
     private UnfollowEventPublisher unfollowEventPublisher;
-  
+
     @Mock
     private FollowerEventPublisher followerEventPublisher;
 
@@ -49,8 +49,6 @@ class SubscriptionServiceTest {
         assertEquals("Некорректные ID: ID не должны быть null и не должны совпадать.", exception.getMessage());
     }
 
-
-
     @Test
 
     @DisplayName("Успешная отписка: Пользователь отписывается от другого пользователя")
@@ -64,7 +62,8 @@ class SubscriptionServiceTest {
 
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
         verify(unfollowEventPublisher).publish(any(SubscribeEventDto.class));
-      
+    }
+
     @DisplayName("Успешная подписка: Пользователь подписывается на другого пользователя")
     void followUser_ShouldFollowUser_WhenSubscriptionDoesNotExist() {
         Long followerId = 1L;
