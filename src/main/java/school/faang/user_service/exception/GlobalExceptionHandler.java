@@ -112,6 +112,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorMessage);
     }
 
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<String> handlePaymentFailedException(PaymentFailedException e) {
+        log.error("PaymentFailedException:", e);
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(PremiumPeriodNotFoundException.class)
+    public ResponseEntity<String> handlePremiumPeriodNotFoundException(PremiumPeriodNotFoundException e) {
+        log.error("PremiumPeriodNotFountException:", e);
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
     @ExceptionHandler(SkillResourceNotFoundException.class)
     public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
         log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
