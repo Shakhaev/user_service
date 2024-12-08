@@ -41,9 +41,6 @@ spring:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?
 
-  task:
-    scheduling:
-      cron-elastic-search-data-sync: 0 0/10 * * * ?
   security:
     oauth2:
       client:
