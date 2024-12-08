@@ -48,7 +48,3 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
-
-user-premium:
-  premium-score: 100
-
