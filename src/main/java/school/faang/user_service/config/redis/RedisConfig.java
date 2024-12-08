@@ -22,6 +22,8 @@ public class RedisConfig {
 
     private final RedisProperties redisProperties;
 
+    private static final String CREATE_CHANNEL_LOG_MESSAGE = "Создание ChannelTopic для канала: {}";
+
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getRedisHost(), redisProperties.getRedisPort());
@@ -33,16 +35,19 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic topicEventParticipation() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getTopicEventParticipation());
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getTopicEventParticipation());
         return new ChannelTopic(redisProperties.getTopicEventParticipation());
+    }
+
+    @Bean
     public ChannelTopic followerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getFollowerChannel());
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getFollowerChannel());
         return new ChannelTopic(redisProperties.getFollowerChannel());
     }
 
     @Bean
     public ChannelTopic unfollowerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowChannel());
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getUnfollowChannel());
         return new ChannelTopic(redisProperties.getUnfollowChannel());
     }
 

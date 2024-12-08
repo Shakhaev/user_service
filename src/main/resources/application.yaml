@@ -6,6 +6,12 @@ spring:
       channel:
         follower: follower_channel
         unfollow: unfollow_channel
+        mentorship-channel:
+          name: mentorship_channel
+        follower-event-channel:
+          name: follower_event
+        event-participation:
+          name: event_participation_channel
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -23,18 +29,6 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
-        event-participation:
-          name: event_participation_channel
 
 server:
   port: 8080
