@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -16,6 +17,9 @@ import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
@@ -27,11 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,12 +63,25 @@ class UserControllerTest {
     private String csvContent;
     private MockMultipartFile file;
 
+    private UserProfileSettingsDto userProfileSettingsDto;
+    private UserProfileSettingsResponseDto responseDto;
+    private Long userId = 1L;
+
     @BeforeEach
     void setUp() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
                 .getSystemResourceAsStream("students2.csv"));
         file = new MockMultipartFile("file", "test.csv", "text/csv", testCsv.getBytes());
+
+        userProfileSettingsDto = new UserProfileSettingsDto();
+        userProfileSettingsDto.setPreference(PreferredContact.EMAIL);
+
+        responseDto = UserProfileSettingsResponseDto.builder()
+                .id(1L)
+                .preference(PreferredContact.EMAIL)
+                .userId(1L)
+                .build();
     }
 
     @Test
@@ -163,7 +182,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
                         .file(file))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
+                .andExpect(jsonPath("$.countSuccessfullySavedUsers").value(1))
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
 
@@ -200,5 +219,45 @@ class UserControllerTest {
 
         verify(userService, times(1)).getUsersByIds(Arrays.asList(3L, 4L));
         verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void saveProfileSettingsShouldReturnOkWhenValidUserIdAndDto() throws Exception {
+        when(userService.saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class)))
+                .thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/{userId}/profile-settings", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userProfileSettingsDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.preference").value("EMAIL"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.userId").value(1));
+
+        verify(userService, times(1)).saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class));
+    }
+
+    @Test
+    public void saveProfileSettingsShouldReturnBadRequestWhenPreferenceIsNull() throws Exception {
+        userProfileSettingsDto.setPreference(null);
+
+        mockMvc.perform(post("/users/{userId}/profile-settings", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userProfileSettingsDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getProfileSettingsShouldReturnOkWhenValidUserId() throws Exception {
+        when(userService.getProfileSettings(userId)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/users/{userId}/profile-settings", userId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.preference").value("EMAIL"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.userId").value(1));
+
+        verify(userService, times(1)).getProfileSettings(userId);
     }
 }

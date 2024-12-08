@@ -12,20 +12,27 @@ import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfile;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserProfileSettingsMapper;
 import school.faang.user_service.parser.CsvParser;
+import school.faang.user_service.repository.UserProfileRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.validator.UserSettingsValidator;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,17 +54,25 @@ public class UserService {
     private final EventService eventService;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
+    private final UserProfileSettingsMapper userProfileSettingsMapper;
+    private final UserProfileRepository userProfileRepository;
+    private final UserSettingsValidator userSettingsValidator;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-                       UserMapper userMapper,
-                       PersonToUserMapper personToUserMapper,
-                       UserValidator userValidator,
-                       CountryService countryService,
-                       @Lazy MentorshipService mentorshipService,
-                       @Lazy EventService eventService,
-                       List<Filter<User, UserFilterDto>> userFilters,
-                       CsvParser parser) {
+    public UserService(
+            UserRepository userRepository,
+            UserMapper userMapper,
+            PersonToUserMapper personToUserMapper,
+            UserValidator userValidator,
+            CountryService countryService,
+            @Lazy MentorshipService mentorshipService,
+            @Lazy EventService eventService,
+            List<Filter<User, UserFilterDto>> userFilters,
+            CsvParser parser,
+            UserProfileRepository userProfileRepository,
+            UserProfileSettingsMapper userProfileSettingsMapper,
+            UserSettingsValidator userSettingsValidator
+    ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.personToUserMapper = personToUserMapper;
@@ -67,6 +82,9 @@ public class UserService {
         this.eventService = eventService;
         this.userFilters = userFilters;
         this.parser = parser;
+        this.userProfileRepository = userProfileRepository;
+        this.userProfileSettingsMapper = userProfileSettingsMapper;
+        this.userSettingsValidator = userSettingsValidator;
     }
 
     public boolean checkUserExistence(long userId) {
@@ -96,16 +114,21 @@ public class UserService {
     }
 
     public UserDto findUserDtoById(Long id) {
+        userValidator.validateUserById(id);
+
         return userMapper.toDto(findUserById(id));
     }
 
     @Transactional
     public UserDto deactivateProfile(long userId) {
+        userValidator.validateUserById(userId);
+
         User user = findUserById(userId);
         stopAllUserActivities(user);
         markUserAsInactive(user);
         stopMentorship(user);
         userRepository.save(user);
+
         return userMapper.toDto(user);
     }
 
@@ -155,6 +178,35 @@ public class UserService {
                     .map(userMapper::toDto)
                     .collect(Collectors.toList());
         }
+    }
+
+    @Transactional
+    public UserProfileSettingsResponseDto saveProfileSettings(Long userId, UserProfileSettingsDto userProfileSettingsDto) {
+        userValidator.validateUserById(userId);
+        UserProfile savedUserProfile;
+
+        Optional<UserProfile> existingUserProfile = userProfileRepository.findByUserId(userId);
+        UserProfile userProfile = userProfileSettingsMapper.toEntity(userProfileSettingsDto);
+
+        if (existingUserProfile.isPresent()) {
+            UserProfile userProfileExisting = existingUserProfile.get();
+            userProfileExisting.setPreference(userProfileSettingsDto.getPreference());
+            savedUserProfile = userProfileRepository.save(userProfileExisting);
+        } else {
+            userProfile.setUser(findUserById(userId));
+            savedUserProfile = userProfileRepository.save(userProfile);
+        }
+
+        return userProfileSettingsMapper.toDto(savedUserProfile);
+    }
+
+    public UserProfileSettingsResponseDto getProfileSettings(Long userId) {
+        userValidator.validateUserById(userId);
+        userSettingsValidator.validateUserProfileByUserId(userId);
+
+        Optional<UserProfile> userProfile = userProfileRepository.findByUserId(userId);
+
+        return userProfile.map(userProfileSettingsMapper::toDto).orElse(null);
     }
 
     private List<Person> parsePersons(InputStream inputStream) throws IOException {

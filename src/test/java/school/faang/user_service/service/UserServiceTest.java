@@ -18,15 +18,22 @@ import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfile;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserProfileSettingsMapper;
 import school.faang.user_service.parser.CsvParser;
+import school.faang.user_service.repository.UserProfileRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.validator.UserSettingsValidator;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +49,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,10 +57,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
     private final long userId = 1L;
 
     @Mock
@@ -109,8 +115,21 @@ class UserServiceTest {
     @Mock
     private Filter<User, UserFilterDto> userExperienceMaxFilter;
 
+    @Mock
+    private UserProfileRepository userProfileRepository;
+
+    @Mock
+    private UserProfileSettingsMapper userProfileSettingsMapper;
+
+    @Mock
+    private UserSettingsValidator userSettingsValidator;
+
     @InjectMocks
     private UserService userService;
+
+    private UserProfileSettingsDto userProfileSettingsDto;
+    private UserProfileSettingsResponseDto userProfileSettingsResponseDto;
+    private UserProfile userProfile;
 
     private User user;
     private UserDto dto;
@@ -121,6 +140,7 @@ class UserServiceTest {
     private List<Event> events;
     private InputStream inputStream;
     private List<Person> people;
+    private User secondUser = User.builder().id(1L).build();
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -159,7 +179,10 @@ class UserServiceTest {
                 countryService,
                 eventService,
                 parser,
-                userFilters
+                userFilters,
+                userProfileSettingsMapper,
+                userProfileRepository,
+                userSettingsValidator
         );
 
         country1 = Country.builder()
@@ -172,6 +195,16 @@ class UserServiceTest {
         mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
         mockUser = createMockUser("JohnDoe", "john.doe@example.com");
         people = List.of(mockPerson);
+
+        userProfileSettingsDto = new UserProfileSettingsDto();
+        userProfileSettingsDto.setPreference(PreferredContact.EMAIL);
+
+        userProfileSettingsResponseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, 1L);
+
+        userProfile = new UserProfile();
+        userProfile.setId(1L);
+        userProfile.setPreference(PreferredContact.EMAIL);
+        userProfile.setUser(secondUser);
     }
 
     @Test
@@ -707,7 +740,7 @@ class UserServiceTest {
 
         ProcessResultDto result = userService.importUsersFromCsv(inputStream);
 
-        assertEquals(1, result.getСountSuccessfullySavedUsers());
+        assertEquals(1, result.getCountSuccessfullySavedUsers());
         assertTrue(result.getErrors().isEmpty());
         verify(userRepository, times(1)).save(any(User.class));
     }
@@ -720,7 +753,7 @@ class UserServiceTest {
 
         ProcessResultDto result = userService.importUsersFromCsv(inputStream);
 
-        assertEquals(0, result.getСountSuccessfullySavedUsers());
+        assertEquals(0, result.getCountSuccessfullySavedUsers());
         assertFalse(result.getErrors().isEmpty());
         assertEquals(1, result.getErrors().size());
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
@@ -771,6 +804,93 @@ class UserServiceTest {
         verify(userRepository).findAllById(ids);
         verify(userMapper).toDto(List.of());
         verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    public void saveProfileSettingsShouldReturnDtoWhenProfileIsCreated() {
+        Long userId = 1L;
+
+        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(userProfileSettingsMapper.toEntity(userProfileSettingsDto)).thenReturn(userProfile);
+        when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
+        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(userProfileSettingsResponseDto);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(secondUser));
+
+        doNothing().when(userValidator).validateUserById(userId);
+
+        UserProfileSettingsResponseDto result = userService.saveProfileSettings(userId, userProfileSettingsDto);
+
+        assertNotNull(result);
+        assertEquals(PreferredContact.EMAIL, result.getPreference());
+        assertEquals(1L, result.getUserId());
+        assertEquals(1L, result.getId());
+
+        verify(userValidator, times(1)).validateUserById(userId);
+        verify(userProfileRepository, times(1)).findByUserId(userId);
+        verify(userProfileRepository, times(1)).save(userProfile);
+        verify(userProfileSettingsMapper, times(1)).toEntity(userProfileSettingsDto);
+        verify(userProfileSettingsMapper, times(1)).toDto(userProfile);
+    }
+
+    @Test
+    public void saveProfileSettingsShouldUpdateProfileWhenProfileExists() {
+        Long userId = 1L;
+
+        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.of(userProfile));
+        when(userProfileSettingsMapper.toEntity(userProfileSettingsDto)).thenReturn(userProfile);
+        when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
+        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(userProfileSettingsResponseDto);
+
+        doNothing().when(userValidator).validateUserById(userId);
+
+        UserProfileSettingsResponseDto result = userService.saveProfileSettings(userId, userProfileSettingsDto);
+
+        assertNotNull(result);
+        assertEquals(PreferredContact.EMAIL, result.getPreference());
+        assertEquals(1L, result.getUserId());
+        assertEquals(1L, result.getId());
+
+        verify(userValidator, times(1)).validateUserById(userId);
+        verify(userProfileRepository, times(1)).findByUserId(userId);
+        verify(userProfileRepository, times(1)).save(userProfile);
+        verify(userProfileSettingsMapper, times(1)).toEntity(userProfileSettingsDto);
+        verify(userProfileSettingsMapper, times(1)).toDto(userProfile);
+    }
+
+    @Test
+    void getProfileSettingsShouldReturnDtoWhenUserProfileExists() {
+        doNothing().when(userValidator).validateUserById(userId);
+        doNothing().when(userSettingsValidator).validateUserProfileByUserId(userId);
+
+        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.of(userProfile));
+
+        UserProfileSettingsResponseDto expectedDto = new UserProfileSettingsResponseDto(userId, userProfile.getPreference(), userId);
+        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(expectedDto);
+
+        UserProfileSettingsResponseDto result = userService.getProfileSettings(userId);
+
+        assertNotNull(result);
+        assertEquals(expectedDto, result);
+
+        verify(userValidator, times(1)).validateUserById(userId);
+        verify(userSettingsValidator, times(1)).validateUserProfileByUserId(userId);
+        verify(userProfileRepository, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    void getProfileSettingsShouldReturnNullWhenUserProfileDoesNotExist() {
+        doNothing().when(userValidator).validateUserById(userId);
+        doNothing().when(userSettingsValidator).validateUserProfileByUserId(userId);
+
+        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        UserProfileSettingsResponseDto result = userService.getProfileSettings(userId);
+
+        assertNull(result);
+
+        verify(userValidator, times(1)).validateUserById(userId);
+        verify(userSettingsValidator, times(1)).validateUserProfileByUserId(userId);
+        verify(userProfileRepository, times(1)).findByUserId(userId);
     }
 
     private Person createMockPerson(String firstName, String lastName, String email) {
