@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        event-participation:
+          name: event_participation_channel
 
 server:
   port: 8080
@@ -53,4 +55,8 @@ application:
     time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
     batch-size: 100
 
+  publisher-messages:
+    event-registration:
+      notification:
+        telegram: Hello, you were successful registered for the event
 
