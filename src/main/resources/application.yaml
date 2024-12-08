@@ -34,6 +34,20 @@ spring:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 505043354003-fr1slmod1spf1a49gr9ub46pto40u5b1.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - openid
+              - profile
+              - email
+              - https://www.googleapis.com/auth/calendar
+#            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+
 server:
   port: 8080
 
@@ -41,10 +55,27 @@ logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
+services:
+  s3:
+    endpoint: http://127.0.0.1:9000/
+    accessKey: user
+    secretKey: password
+    region: us-east-1
+    bucketName: corpbucket
+    isMocked: false
 
-payment-service:
-  host: localhost
-  port: 9080
+  payment-service:
+    host: http://localhost
+    port: 9080
+
+  user-service:
+    host: http://localhost
+    port: 8080
+
+  project-service:
+    host: localhost
+    port: 8082
+
+removeEventTime:
+  cron: 0 0 * * * *
+

@@ -1,5 +1,6 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.premium;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -35,6 +35,21 @@ dependencies {
     implementation("io.springfox:springfox-boot-starter:3.0.0")
 
     /**
+     * google calendar
+     */
+    implementation("com.google.api-client:google-api-client:2.0.0")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
+    implementation("com.google.apis:google-api-services-calendar:v3-rev20220715-2.0.0")
+
+    /**
+     * oauth2
+     */
+    implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.session:spring-session-jdbc")
+
+    /**
      * Database
      */
     implementation("org.liquibase:liquibase-core")
@@ -122,6 +137,11 @@ val jacocoInclude = listOf(
     "**/validator/**",
 //    "**/mapper/**"
 )
+
+val jacocoExclude = listOf(
+    "**/filter/**",
+)
+
 jacoco {
     toolVersion = "0.8.9"
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
@@ -148,6 +168,7 @@ tasks.jacocoTestReport {
     classDirectories.setFrom(
         sourceSets.main.get().output.asFileTree.matching {
             include(jacocoInclude)
+            exclude(jacocoExclude)
         }
     )
 }
@@ -160,6 +181,7 @@ tasks.jacocoTestCoverageVerification {
             classDirectories.setFrom(
                 sourceSets.main.get().output.asFileTree.matching {
                     include(jacocoInclude)
+                    exclude(jacocoExclude)
                 }
             )
             enabled = true
