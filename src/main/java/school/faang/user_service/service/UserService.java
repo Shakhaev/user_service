@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.events.BanUserEvent;
@@ -20,6 +22,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.UserServiceValidator;
+import school.faang.user_service.service.user.goal.GoalService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +37,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserContext userContext;
+    private final GoalService goalService;
+    private final MentorshipService mentorshipService;
     private final PersonMapper personMapper;
     private final UserServiceValidator validator;
     private final CsvMapper csvMapper;
@@ -83,6 +89,20 @@ public class UserService {
         return userRepository.findAllById(ids).stream()
                 .map(userMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public UserDto deactivateUser() {
+        User user = getUserById(userContext.getUserId());
+
+        user.setActive(false);
+        user.setGoals(null);
+        user.setOwnedEvents(null);
+        user.getMentees().forEach(mentee -> mentorshipService.deleteMentor(mentee.getId(), user.getId()));
+        goalService.getGoalsByMentorId(user.getId()).forEach(goal -> goal.setMentor(null));
+
+        userRepository.save(user);
+        return userMapper.toDto(user);
     }
 
     public boolean existsById(Long id) {
