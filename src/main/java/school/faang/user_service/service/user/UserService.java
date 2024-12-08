@@ -11,6 +11,7 @@ import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.Country;
+import school.faang.user_service.dto.user.UserForNotificationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -20,6 +21,7 @@ import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.S3Service;
 import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.util.ImageUtils;
 
@@ -67,6 +69,11 @@ public class UserService {
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new
                 EntityNotFoundException("User do not found by " + userId));
+    }
+
+    public UserForNotificationDto getUserByIdForNotification(long userId) {
+        User user = getUserById(userId);
+        return userMapper.toUserForNotificationDto(user);
     }
 
     public UserSubResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
