@@ -1,6 +1,7 @@
 package school.faang.user_service.service.premium;
 
 import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,8 @@ import school.faang.user_service.dto.client.PaymentResponse;
 import school.faang.user_service.dto.client.PaymentStatus;
 import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.dto.premium.PremiumDto;
-import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.ServiceConnectionFailedException;
-import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.mapper.premium.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.UserService;
