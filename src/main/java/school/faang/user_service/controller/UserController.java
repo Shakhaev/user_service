@@ -3,7 +3,7 @@ package school.faang.user_service.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.CsvFile;
 import school.faang.user_service.validator.UserValidator;
@@ -37,14 +40,14 @@ public class UserController {
     private final UserValidator userValidator;
 
     @PostMapping("/upload")
-    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) throws IOException{
+    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
         long fileSize = file.getSize();
         log.info("Received file: name = {}, size = {} bytes", filename, fileSize);
-            ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
-            log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
-                    filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
-            return ResponseEntity.ok(result);
+        ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
+        log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
+                filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{userId}")
@@ -57,6 +60,14 @@ public class UserController {
     public ResponseEntity<UserDto> deactivateProfile(@PathVariable @Positive long userId) {
         userValidator.validateUserById(userId);
         return ResponseEntity.ok(userService.deactivateProfile(userId));
+    }
+
+    @GetMapping("{userId}/contacts")
+    @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
+    public ResponseEntity<UserContactsDto> getUserContacts(
+            @PathVariable @Positive(message = "User id should be a positive integer") Long userId) {
+        log.info("Getting contacts of user with id {}", userId);
+        return ResponseEntity.ok(userService.getUserContacts(userId));
     }
 
     @GetMapping
@@ -78,5 +89,19 @@ public class UserController {
     @GetMapping("/ids")
     public List<UserDto> getUsersByIds(@RequestParam List<Long> ids) {
         return userService.getUsersByIds(ids);
+    }
+
+    @PutMapping("/{userId}/contact-preference")
+    @Operation(summary = "Update user's preferred contact method", description = "Update the preferred contact method of a user by ID")
+    @ApiResponse(responseCode = "200", description = "Preferred contact updated successfully")
+    public ResponseEntity<UserContactsDto> updateUserPreference(
+            @PathVariable @Positive(message = "User ID must be positive") Long userId,
+            @RequestParam("preference") @NotNull(message = "Preference must be provided") PreferredContact preference,
+            @RequestHeader("Current-User-Id") @NotNull(message = "Current User ID must be provided") Long currentUserId
+    ) {
+        userValidator.hasAccess(currentUserId, userId);
+
+        UserContactsDto updatedUser = userService.updateUserPreferredContact(userId, preference);
+        return ResponseEntity.ok(updatedUser);
     }
 }

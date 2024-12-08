@@ -8,33 +8,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.contact.ContactPreferenceService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
-
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -47,6 +49,8 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final CountryService countryService;
     private final EventService eventService;
+    private final ContactPreferenceService contactPreferenceService;
+    private final UserContactsMapper userContactsMapper;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
 
@@ -54,19 +58,23 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        PersonToUserMapper personToUserMapper,
+                       UserContactsMapper userContactsMapper,
                        UserValidator userValidator,
                        CountryService countryService,
                        @Lazy MentorshipService mentorshipService,
                        @Lazy EventService eventService,
+                       @Lazy ContactPreferenceService contactPreferenceService,
                        List<Filter<User, UserFilterDto>> userFilters,
                        CsvParser parser) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.userContactsMapper = userContactsMapper;
         this.personToUserMapper = personToUserMapper;
         this.userValidator = userValidator;
         this.countryService = countryService;
         this.mentorshipService = mentorshipService;
         this.eventService = eventService;
+        this.contactPreferenceService = contactPreferenceService;
         this.userFilters = userFilters;
         this.parser = parser;
     }
@@ -260,5 +268,20 @@ public class UserService {
                 person.getContactInfo().getAddress().getCountry());
         user.setCountry(country);
         return user;
+    }
+
+    @Transactional
+    public UserContactsDto updateUserPreferredContact(Long userId, PreferredContact contact) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found with id " + userId);
+        }
+        contactPreferenceService.updatePreference(userId, contact);
+        User user = userRepository.findById(userId).orElseThrow();
+        return userContactsMapper.toDto(user);
+    }
+
+    public UserContactsDto getUserContacts(Long userId) {
+        User user = findUserById(userId);
+        return userContactsMapper.toDto(user);
     }
 }

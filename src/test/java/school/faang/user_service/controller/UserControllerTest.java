@@ -2,20 +2,25 @@ package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.contact.PreferredContact;
+import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
@@ -27,6 +32,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -37,29 +47,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
+    private static final Long USER_ID = 1L;
+    private static final Long CURRENT_USER_ID = 2L;
+    private static final PreferredContact PREFERENCE = PreferredContact.EMAIL;
+    private static final String CHANNEL_NAME = "recommendation_request_channel";
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private MockMvc mockMvc;
-
     @Mock
     private UserService userService;
-
     @Mock
     private UserRepository userRepository;
-
     @Spy
     private UserMapper userMapper;
     @Mock
     private UserValidator userValidator;
-
     @InjectMocks
     private UserController userController;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String csvContent;
     private MockMultipartFile file;
 
     @BeforeEach
     void setUp() throws IOException {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).
+                setControllerAdvice(new GlobalExceptionHandler())
+                .build();
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
                 .getSystemResourceAsStream("students2.csv"));
         file = new MockMultipartFile("file", "test.csv", "text/csv", testCsv.getBytes());
@@ -200,5 +211,45 @@ class UserControllerTest {
 
         verify(userService, times(1)).getUsersByIds(Arrays.asList(3L, 4L));
         verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    @DisplayName("Update user's preferred contact method successfully")
+    void testUpdateUserPreference_Success() throws Exception {
+        UserContactsDto updatedUserContactsDto = UserContactsDto.builder()
+                .id(USER_ID)
+                .preference(PREFERENCE)
+                .build();
+
+        doNothing().when(userValidator).hasAccess(CURRENT_USER_ID, USER_ID);
+        when(userService.updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE))).thenReturn(updatedUserContactsDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/contact-preference", USER_ID)
+                        .param("preference", PREFERENCE.name())
+                        .header("Current-User-Id", String.valueOf(CURRENT_USER_ID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(USER_ID))
+                .andExpect(jsonPath("$.preference").value(PREFERENCE.name()));
+
+        verify(userValidator, times(1)).hasAccess(CURRENT_USER_ID, USER_ID);
+        verify(userService, times(1)).updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE));
+        verifyNoMoreInteractions(userValidator, userService);
+    }
+
+    @Test
+    @DisplayName("Update user's preferred contact method - Unauthorized")
+    void testUpdateUserPreference_Unauthorized() throws Exception {
+        doThrow(new SecurityException("Access denied")).when(userValidator).hasAccess(CURRENT_USER_ID, USER_ID);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/contact-preference", USER_ID)
+                        .param("preference", PREFERENCE.name())
+                        .header("Current-User-Id", String.valueOf(CURRENT_USER_ID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(userValidator, times(1)).hasAccess(CURRENT_USER_ID, USER_ID);
+        verify(userService, never()).updateUserPreferredContact(anyLong(), any(PreferredContact.class));
+        verifyNoMoreInteractions(userValidator, userService);
     }
 }

@@ -3,18 +3,20 @@ package school.faang.user_service.exception;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,7 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
+                errors.put(error.getField(), error.getDefaultMessage())
         );
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
@@ -90,6 +92,7 @@ public class GlobalExceptionHandler {
         log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleAllExceptions(IOException exception) {
         log.error("IOException exception: {}", exception.getMessage(), exception);
@@ -116,4 +119,35 @@ public class GlobalExceptionHandler {
         log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handeAccessDeniedException(AccessDeniedException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPreferredContactException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPreferredContact(InvalidPreferredContactException exception) {
+        log.error("InvalidPreferredContactException occurred: {}", exception.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(exception.getMessage())
+                .details("User attempted to set an invalid preferred contact method.")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @lombok.Builder
+    public static class ErrorResponse {
+        private LocalDateTime timestamp;
+        private String message;
+        private String details;
+    }
+
 }

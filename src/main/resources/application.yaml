@@ -20,13 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
-        user_ban-channel:
-          name: user_ban
+      channel:
+        recommendation-request-channel: recommendation_request_channel
 
 server:
   port: 8080

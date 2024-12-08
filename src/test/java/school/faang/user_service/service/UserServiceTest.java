@@ -23,9 +23,11 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.contact.ContactPreferenceService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
@@ -56,64 +58,50 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private final long userId = 1L;
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private UserMapper userMapper;
-
     @Mock
     private UserValidator userValidator;
-
     @Mock
     private MentorshipService mentorshipService;
-
     @Mock
     private EventService eventService;
-
     @Mock
     private CountryService countryService;
-
     @Mock
     private PersonToUserMapper personToUserMapper;
-
     @Mock
     private CsvParser parser;
-
     @Mock
     private Filter<User, UserFilterDto> userNameFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userAboutFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userEmailFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userContactFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userCountryFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userCityFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userPhoneFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userSkillFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userExperienceMinFilter;
-
     @Mock
     private Filter<User, UserFilterDto> userExperienceMaxFilter;
+    @Mock
+    private UserContactsMapper userContactsMapper;
+    @Mock
+    private ContactPreferenceService contactPreferenceService;
 
     @InjectMocks
     private UserService userService;
-
-    private final long userId = 1L;
     private User user;
     private User user1;
     private User mockUser;
@@ -157,12 +145,14 @@ class UserServiceTest {
                 userRepository,
                 userMapper,
                 personToUserMapper,
+                userContactsMapper,
                 userValidator,
-                mentorshipService,
                 countryService,
+                mentorshipService,
                 eventService,
-                parser,
-                userFilters
+                contactPreferenceService,
+                userFilters,
+                parser
         );
 
         country1 = Country.builder()
