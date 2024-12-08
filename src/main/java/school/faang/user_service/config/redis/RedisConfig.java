@@ -35,6 +35,15 @@ public class RedisConfig {
     public ChannelTopic topicEventParticipation() {
         log.info("Создание ChannelTopic для канала: {}", redisProperties.getTopicEventParticipation());
         return new ChannelTopic(redisProperties.getTopicEventParticipation());
+    public ChannelTopic followerChannel() {
+        log.info("Создание ChannelTopic для канала: {}", redisProperties.getFollowerChannel());
+        return new ChannelTopic(redisProperties.getFollowerChannel());
+    }
+
+    @Bean
+    public ChannelTopic unfollowerChannel() {
+        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowChannel());
+        return new ChannelTopic(redisProperties.getUnfollowChannel());
     }
 
     @Bean
