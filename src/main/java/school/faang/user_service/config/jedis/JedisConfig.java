@@ -15,6 +15,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import school.faang.user_service.listener.BanUserListener;
+
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
@@ -58,16 +59,15 @@ public class JedisConfig {
     public ChannelTopic banUserTopic() {
         return new ChannelTopic(banUserTopic);
     }
+
     @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
     }
-
     @Bean
     public ChannelTopic skillAcquiredTopic(){
         return new ChannelTopic(skillAcquiredTopic);
     }
-
     @Bean
     public RedisMessageListenerContainer redisContainer(JedisConnectionFactory jedisConnectionFactory,
                                                         MessageListenerAdapter banUserMessageListener) {
@@ -76,6 +76,7 @@ public class JedisConfig {
         container.addMessageListener(banUserMessageListener, banUserTopic());
         return container;
     }
+
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
