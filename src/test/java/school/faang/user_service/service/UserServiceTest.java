@@ -167,7 +167,7 @@ class UserServiceTest {
                 .build();
 
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
-                .getSystemResourceAsStream("students.csv"));
+                .getSystemResourceAsStream("students4.csv"));
         inputStream = new ByteArrayInputStream(testCsv.getBytes());
         mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
         mockUser = createMockUser("JohnDoe", "john.doe@example.com");
