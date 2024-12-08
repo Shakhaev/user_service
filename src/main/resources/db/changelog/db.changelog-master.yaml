@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V010_user_premium_add_column_premium_period.sql
   - include:
       file: db/changelog/changeset/user_V009_create_table_user_google_info.sql
+  - include:
+      file: db/changelog/changeset/user_V014__user_add_column_locale.sql
