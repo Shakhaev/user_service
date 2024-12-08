@@ -44,4 +44,9 @@ public class SkillController {
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
+
+    @GetMapping("/{skillId}")
+    public SkillDto getSkill(@PathVariable long skillId){
+        return skillService.getSkill(skillId);
+    }
 }

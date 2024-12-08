@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -83,6 +84,13 @@ public class SkillService {
 
     public void assignSkillToUser(long skillId, long receiverId) {
         skillRepository.assignSkillToUser(skillId, receiverId);
+    }
+    public SkillDto getSkill(long skillId){
+        return skillMapper.entityToDto(getSkillFromDb(skillId));
+    }
+
+    public Skill getSkillFromDb(long skillId){
+        return skillRepository.findById(skillId).orElseThrow(()-> new EntityNotFoundException("Такого скила нет в бд"));
     }
 
     public int countExisting(List<Long> ids) {
