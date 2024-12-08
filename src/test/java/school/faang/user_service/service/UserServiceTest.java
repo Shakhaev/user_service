@@ -13,16 +13,20 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.context.UserContext;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.CreateUserMapperImpl;
 import school.faang.user_service.mapper.PersonMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user.goal.GoalService;
 import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.UserServiceValidator;
@@ -35,8 +39,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,6 +82,15 @@ public class UserServiceTest {
     @Captor
     ArgumentCaptor<User> userCaptor;
 
+    @Mock
+    private UserContext userContext;
+
+    @Mock
+    private GoalService goalService;
+
+    @Mock
+    private MentorshipService mentorshipService;
+
     private long userId;
 
     private User user;
@@ -90,6 +107,8 @@ public class UserServiceTest {
 
         userId = 1L;
         user = new User();
+        userId = 1L;
+        user.setId(userId);
 
         userDto = new UserDto();
         userDto.setId(1L);
@@ -239,5 +258,46 @@ public class UserServiceTest {
         String result = userService.getAvatarUrl(1L);
 
         assertEquals(presignedUrl, result);
+    }
+
+    @Test
+    public void testDeactivateUser() {
+        Goal firstGoal = new Goal();
+        Goal secondGoal = new Goal();
+
+        List<Goal> goals = List.of(firstGoal, secondGoal);
+
+        User firstMentor = new User();
+        User secondMentor = new User();
+
+        firstMentor.setId(5L);
+        secondMentor.setId(7L);
+
+        User firstMentee = new User();
+        User secondMentee = new User();
+
+        firstMentee.setId(8L);
+        secondMentee.setId(9L);
+
+        firstGoal.setMentor(firstMentor);
+        firstGoal.setMentor(secondMentor);
+
+        user.setGoals(goals);
+        user.setOwnedEvents(List.of(new Event(), new Event()));
+        user.setActive(true);
+
+        user.setMentees(List.of(firstMentee, secondMentee));
+
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        doNothing().when(mentorshipService).deleteMentor(firstMentee.getId(), userId);
+        doNothing().when(mentorshipService).deleteMentor(secondMentee.getId(), userId);
+        when(goalService.getGoalsByMentorId(userId)).thenReturn(goals.stream());
+
+        userService.deactivateUser();
+
+        verify(userRepository).save(user);
+        assertNull(user.getGoals());
+        assertNull(user.getOwnedEvents());
+        assertFalse(user.isActive());
     }
 }
