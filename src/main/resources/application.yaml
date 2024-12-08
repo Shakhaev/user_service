@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        event-participation:
+          name: event_participation_channel
 
 server:
   port: 8080
@@ -48,5 +50,8 @@ application:
     max-month-limit-recommendation-request: 6
   skill:
     minOffersRequired: 3
-
+  publisher-messages:
+    event-registration:
+      notification:
+        telegram: Hello, you were successful registered for the event
 
