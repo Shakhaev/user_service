@@ -20,9 +20,10 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.model.person.Person;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
+import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.UserServiceValidator;
-import school.faang.user_service.service.user.goal.GoalService;
+
 
 import java.io.IOException;
 import java.io.InputStream;

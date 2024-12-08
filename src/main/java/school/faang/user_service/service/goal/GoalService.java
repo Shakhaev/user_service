@@ -11,6 +11,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.validator.GoalValidator;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -40,5 +41,8 @@ public class GoalService {
     }
     public void saveGoal(Goal goal){
         goalRepository.save(goal);
+    }
+    public Stream<Goal> getGoalsByMentorId(long mentorId) {
+        return goalRepository.findGoalsByMentorId(mentorId);
     }
 }

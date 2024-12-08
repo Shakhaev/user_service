@@ -12,13 +12,13 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import school.faang.user_service.listener.BanUserListener;
+
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
-
-    private final BanUserListener banUserListener;
-
     private final ObjectMapper objectMapper;
 
     @Value("${spring.data.redis.host}")
@@ -48,7 +48,7 @@ public class JedisConfig {
     }
 
     @Bean
-    public MessageListenerAdapter banUserMessageListener() {
+    public MessageListenerAdapter banUserMessageListener(BanUserListener banUserListener) {
         return new MessageListenerAdapter(banUserListener);
     }
 
@@ -56,16 +56,29 @@ public class JedisConfig {
     public ChannelTopic banUserTopic() {
         return new ChannelTopic(banUserTopic);
     }
+
     @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(JedisConnectionFactory jedisConnectionFactory) {
+    public RedisMessageListenerContainer redisContainer(JedisConnectionFactory jedisConnectionFactory,
+                                                        MessageListenerAdapter banUserMessageListener) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(banUserMessageListener(), banUserTopic());
+        container.addMessageListener(banUserMessageListener, banUserTopic());
         return container;
+    }
+
+    @Bean
+    public JedisPool jedisPool() {
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(10);
+        jedisPoolConfig.setMaxIdle(5);
+        jedisPoolConfig.setTestOnBorrow(true);
+        jedisPoolConfig.setJmxEnabled(false);
+
+        return new JedisPool(jedisPoolConfig, host, port);
     }
 }
