@@ -117,16 +117,4 @@ public class GlobalExceptionHandler {
         log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-
-//    @ExceptionHandler(JsonProcessingException.class)
-//    public ResponseEntity<Void> handleJsonProcessingException(JsonProcessingException ex) {
-//        log.error("Error processing JSON: {}", ex.getMessage(), ex);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @ExceptionHandler(RedisException.class)
-//    public ResponseEntity<Void> handleRedisException(RedisException ex) {
-//        log.error("Error with Redis: {}", ex.getMessage(), ex);
-//        return ResponseEntity.noContent().build();
-//    }
 }
