@@ -6,10 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
-import school.faang.user_service.dto.UserRegistrationDTO;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
@@ -46,7 +45,7 @@ public class UserService {
     private final UserProfilePicMapper userProfilePicMapper;
     private final ImageUtils imageUtils;
     private final AvatarService avatarService;
-    private final CountryRepository countryRepository;
+    private final CountryService countryService;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -70,26 +69,15 @@ public class UserService {
                 EntityNotFoundException("User do not found by " + userId));
     }
 
-    public UserSubResponseDto registerUser(UserRegistrationDTO userDto) {
-        if (userRepository.existsByEmail(userDto.email())) {
-            throw new DataValidationException("Пользователь с почтой " + userDto.email() + " уже зарегистрирован.");
+    public UserSubResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
+        if (userRepository.existsByEmail(userRegistrationDto.email())) {
+            throw new DataValidationException("Пользователь с почтой " + userRegistrationDto.email() + " уже зарегистрирован.");
         }
 
-        Country country = countryRepository.findById(userDto.countryId())
-                .orElseThrow(() -> new DataValidationException("Страна с ID " + userDto.countryId() + " не найдена"));
+        Country country = countryService.getCountryById(userRegistrationDto.countryId());
 
-
-        User user = User.builder()
-                .username(userDto.username())
-                .email(userDto.email())
-                .phone(userDto.phone())
-                .password(userDto.password())
-                .active(true)
-                .aboutMe(userDto.aboutMe())
-                .country(country)
-                .city(userDto.city())
-                .experience(userDto.experience())
-                .build();
+        User user = userMapper.toEntity(userRegistrationDto);
+        user.setCountry(country);
 
         userRepository.save(user);
 

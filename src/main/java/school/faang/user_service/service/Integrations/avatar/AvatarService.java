@@ -84,8 +84,8 @@ public class AvatarService {
         BufferedImage resizedImage = imageUtils.resizeImage(image, size);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIO.write(resizedImage, "png", outputStream); // Сохраняем изображение в поток
-            byte[] byteArray = outputStream.toByteArray(); // Получаем массив байтов
+            ImageIO.write(resizedImage, "png", outputStream);
+            byte[] byteArray = outputStream.toByteArray();
 
             MultipartFile multipartFile = new CustomMultipartFile(
                     "avatar",

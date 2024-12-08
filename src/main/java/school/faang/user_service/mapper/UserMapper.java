@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.MenteeResponseDto;
@@ -44,7 +45,6 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "mentors", ignore = true)
     @Mapping(target = "ownedEvents", ignore = true)
-
     @Mapping(target = "participatedEvents", ignore = true)
     @Mapping(target = "country", ignore = true)
     User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
@@ -60,6 +60,9 @@ public interface UserMapper {
                 .toList();
     }
     User toEntity(UserDto userDto);
+
+    @Mapping(target = "country", ignore = true)
+    User toEntity(UserRegistrationDto userRegistrationDto);
 
     List<UserDto> toDtos(List<User> users);
     @Named("mapSkillsToListId")

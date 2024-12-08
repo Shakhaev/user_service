@@ -57,7 +57,6 @@ public class CustomMultipartFile implements MultipartFile {
 
     @Override
     public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
-        // Можно реализовать сохранение на диск, если необходимо
     }
 }
 
