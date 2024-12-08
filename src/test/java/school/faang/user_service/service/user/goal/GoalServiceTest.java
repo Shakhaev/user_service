@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.goal.GoalService;
 
 import static org.mockito.Mockito.verify;
 
