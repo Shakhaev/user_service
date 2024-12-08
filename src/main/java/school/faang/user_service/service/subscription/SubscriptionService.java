@@ -2,12 +2,14 @@ package school.faang.user_service.service.subscription;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.messaging.ProjectFollowerEvent;
 import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SubscriptionUserMapper;
+import school.faang.user_service.messaging.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.subscription.filter.SubscriptionRequestFilter;
 
@@ -20,6 +22,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionUserMapper userMapper;
     private final List<SubscriptionRequestFilter> subscriptionRequestFilters;
+    private final FollowerEventPublisher followerEventPublisher;
 
     public SubscriptionRequestDto followUser(Long followerId, Long followeeId) {
         Boolean exists = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);

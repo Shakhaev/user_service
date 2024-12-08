@@ -20,6 +20,10 @@ spring:
     redis:
       port: 6379
       host: localhost
+      pool-config:
+        max-total: 10
+        max-idle: 5
+        min-idle: 0
       channels:
         mentorship-channel:
           name: mentorship_channel
