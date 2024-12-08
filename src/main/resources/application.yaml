@@ -25,6 +25,10 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        recommendation-channel:
+          name: recommendation_channel
+        ban_user_channel:
+          name: ban_user
 
 server:
   port: 8080

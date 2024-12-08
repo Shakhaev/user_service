@@ -33,6 +33,6 @@ public class BannerService {
                             return;
                         }
                 );
-        log.info("users success banned, users: {}", bannedUsers);
+        log.info("users success banned, users ids: {}", userIds);
     }
 }
