@@ -41,11 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -63,18 +59,21 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserMapper userMapper;
-    @Mock
-    private UserValidator userValidator;
+
     @Mock
     private MentorshipService mentorshipService;
     @Mock
-    private EventService eventService;
-    @Mock
     private CountryService countryService;
+    @Mock
+    private EventService eventService;
     @Mock
     private PersonToUserMapper personToUserMapper;
     @Mock
     private CsvParser parser;
+
+    @Mock
+    private UserValidator userValidator;
+
     @Mock
     private Filter<User, UserFilterDto> userNameFilter;
     @Mock
@@ -102,16 +101,16 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
     private User user;
+    private UserDto dto;
     private User user1;
     private User mockUser;
     private Person mockPerson;
     private Country country1;
     private List<Event> events;
-    private UserDto dto;
     private InputStream inputStream;
     private List<Person> people;
-
 
     @BeforeEach
     public void setUp() throws IOException {
