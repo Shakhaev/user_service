@@ -9,7 +9,10 @@ import school.faang.user_service.entity.MentorshipRequest;
 
 @Mapper(componentModel = "spring")
 public interface MentorshipRequestMapper {
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "requesterId", target = "requester.id")
+    @Mapping(source = "receiverId", target = "receiver.id")
     MentorshipRequest toEntity(MentorshipRequestDto dto);
 
     @Mapping(source = "requester.id", target = "requesterId")
