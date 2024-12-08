@@ -69,6 +69,6 @@ batch:
   size:
     eventBatch: 50
 
-redis:
-  topic:
-    mentorship-requested: mentorshipRequestedEventTopic
+channels:
+  redis:
+    mentorship-requested: "mentorship-requested-topic"

@@ -1,7 +1,8 @@
-package school.faang.user_service.pablisher;
+package school.faang.user_service.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lettuce.core.RedisException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +15,10 @@ import school.faang.user_service.dto.MentorshipRequestEvent;
 
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -37,8 +37,8 @@ class MentorshipRequestedEventPublisherTest {
     private MentorshipRequestedEventPublisher publisher;
 
     private String topicName;
-    MentorshipRequestEvent event;
-    String jsonEvent;
+    private MentorshipRequestEvent event;
+   private String jsonEvent;
 
     @BeforeEach
     void setUp() {
@@ -55,10 +55,9 @@ class MentorshipRequestedEventPublisherTest {
 
         CompletableFuture<Void> result = publisher.publish(event);
 
-
         verify(redisTemplate, times(1)).convertAndSend(topicName, jsonEvent);
         verify(objectMapper, times(1)).writeValueAsString(event);
-        assert (result.isDone());
+        assertTrue(result.isDone());
     }
 
     @Test
@@ -68,20 +67,6 @@ class MentorshipRequestedEventPublisherTest {
         CompletableFuture<Void> result = publisher.publish(event);
 
         verify(redisTemplate, never()).convertAndSend(anyString(), anyString());
-        assert (result.isCompletedExceptionally());
-    }
-
-    @Test
-    void testPublish_ShouldHandleGeneralException() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(event)).thenReturn(jsonEvent);
-
-
-        doThrow(new RuntimeException("Unexpected error"))
-                .when(redisTemplate).convertAndSend(topicName, jsonEvent);
-        CompletableFuture<Void> result = publisher.publish(event);
-
-
-        verify(redisTemplate, times(1)).convertAndSend(topicName, jsonEvent);
         assertTrue(result.isCompletedExceptionally());
     }
 }

@@ -118,20 +118,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException ex) {
-        log.error("Error processing JSON: {}", ex.getMessage(), ex);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("Failed to process JSON data: " + ex.getMessage());
-    }
-
-    @ExceptionHandler(RedisException.class)
-    public ResponseEntity<String> handleRedisException(RedisException ex) {
-        log.error("Error with Redis: {}", ex.getMessage(), ex);
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error occurred while communicating with Redis: " + ex.getMessage());
-    }
-
+//    @ExceptionHandler(JsonProcessingException.class)
+//    public ResponseEntity<Void> handleJsonProcessingException(JsonProcessingException ex) {
+//        log.error("Error processing JSON: {}", ex.getMessage(), ex);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @ExceptionHandler(RedisException.class)
+//    public ResponseEntity<Void> handleRedisException(RedisException ex) {
+//        log.error("Error with Redis: {}", ex.getMessage(), ex);
+//        return ResponseEntity.noContent().build();
+//    }
 }
