@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import school.faang.user_service.listener.BanUserListener;
 @Configuration
 @RequiredArgsConstructor
@@ -54,5 +56,15 @@ public class JedisConfig {
         container.setConnectionFactory(jedisConnectionFactory);
         container.addMessageListener(banUserMessageListener(), banUserTopic());
         return container;
+    }
+    @Bean
+    public JedisPool jedisPool() {
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(10);
+        jedisPoolConfig.setMaxIdle(5);
+        jedisPoolConfig.setTestOnBorrow(true);
+        jedisPoolConfig.setJmxEnabled(false);
+
+        return new JedisPool(jedisPoolConfig, host, port);
     }
 }
