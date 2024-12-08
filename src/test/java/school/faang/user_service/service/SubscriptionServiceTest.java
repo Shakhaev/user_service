@@ -13,6 +13,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.publisher.UnfollowEventPublisher;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.Arrays;
@@ -29,6 +30,9 @@ class SubscriptionServiceTest {
 
     @Mock
     private UnfollowEventPublisher unfollowEventPublisher;
+  
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -48,6 +52,7 @@ class SubscriptionServiceTest {
 
 
     @Test
+
     @DisplayName("Успешная отписка: Пользователь отписывается от другого пользователя")
     void unfollowUser_ShouldUnfollowUser_WhenSubscriptionExists() {
         Long followerId = 1L;
@@ -59,6 +64,19 @@ class SubscriptionServiceTest {
 
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
         verify(unfollowEventPublisher).publish(any(SubscribeEventDto.class));
+      
+    @DisplayName("Успешная подписка: Пользователь подписывается на другого пользователя")
+    void followUser_ShouldFollowUser_WhenSubscriptionDoesNotExist() {
+        Long followerId = 1L;
+        Long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
+
+        subscriptionService.followUser(followerId, followeeId);
+
+        verify(subscriptionRepository).followUser(followerId, followeeId);
+        verify(followerEventPublisher).publish(any(SubscribeEventDto.class));
+        verifyNoMoreInteractions(followerEventPublisher);
     }
 
     @Test
@@ -79,7 +97,7 @@ class SubscriptionServiceTest {
     @Test
     void getFollowers_ShouldReturnFilteredFollowers_WhenFilterIsValid() {
         Long userId = 1L;
-        UserFilterDTO filter = new UserFilterDTO(); // Добавьте нужные параметры фильтра
+        UserFilterDTO filter = new UserFilterDTO();
 
         User user1 = new User();
         user1.setId(1L);
@@ -125,7 +143,7 @@ class SubscriptionServiceTest {
     @Test
     void getFollowing_ShouldReturnFilteredFollowing_WhenFilterIsValid() {
         Long followeeId = 1L;
-        UserFilterDTO filter = new UserFilterDTO(); // Добавьте нужные параметры фильтра
+        UserFilterDTO filter = new UserFilterDTO();
 
         User user1 = new User();
         user1.setId(2L);

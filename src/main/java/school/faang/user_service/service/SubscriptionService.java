@@ -12,6 +12,7 @@ import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.exceptions.UnfollowException;
 import school.faang.user_service.publisher.UnfollowEventPublisher;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UnfollowEventPublisher unfollowEventPublisher;
+    private final FollowerEventPublisher followerEventPublisher;
 
     @Transactional
     public void followUser(Long followerId, Long followeeId) {
@@ -36,6 +38,11 @@ public class SubscriptionService {
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
+    }
+  
+        followerEventPublisher.publish(new SubscribeEventDto(followerId, followeeId, LocalDateTime.now()));
+        log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
+
     }
 
     @Transactional
