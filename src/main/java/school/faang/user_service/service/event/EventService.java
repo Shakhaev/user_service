@@ -4,13 +4,19 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
+import school.faang.user_service.config.RetryProperties;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
@@ -26,7 +32,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class EventService {
-
+    private final RetryProperties retryProperties;
     private final EventValidation eventValidation;
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -97,13 +103,24 @@ public class EventService {
         return eventRepository.findAllByUserId(userId);
     }
 
-    @Transactional
-    public void cancelUserOwnedEvents(long userId) {
+
+    @EventListener
+    @Retryable(retryFor = Exception.class,
+            maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
+            backoff = @Backoff(
+                    delayExpression = "#{@retryProperties.initialInterval}",
+                    multiplierExpression = "#{@retryProperties.multiplier}",
+                    maxDelayExpression = "#{@retryProperties.maxInterval}"
+            )
+    )
+    public void handleUserProfileDeactivatedEvent(UserProfileDeactivatedEvent systemEvent) {
+        long userId = systemEvent.getUserId();
         getEvents(userId).forEach(event -> {
             if (event.getStatus() == EventStatus.PLANNED || event.getStatus() == EventStatus.IN_PROGRESS) {
                 event.setStatus(EventStatus.CANCELED);
             }
         });
+        log.info("Events for user id: {} were canceled.", userId);
     }
 
     public void deleteCompletedAndCanceledEvents() {

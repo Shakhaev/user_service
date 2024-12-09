@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import school.faang.user_service.validator.UserValidator;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
@@ -45,6 +47,8 @@ public class RecommendationService {
                         recommendation.getAuthor().getId()
                 )
         );
+        log.info("Recommendation with id: {} was created successfully.", recommendation.getId());
+        log.info("Published Recommendation Received Event for user with id: {}", recommendation.getReceiver().getId());
 
         return recommendationMapper.toDto(recommendation);
     }

@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.domain.Address;
@@ -22,6 +23,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserContactsMapper;
@@ -58,6 +60,9 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -65,12 +70,6 @@ class UserServiceTest {
 
     @Mock
     private UserValidator userValidator;
-
-    @Mock
-    private MentorshipService mentorshipService;
-
-    @Mock
-    private EventService eventService;
 
     @Mock
     private CountryService countryService;
@@ -158,14 +157,13 @@ class UserServiceTest {
         );
 
         userService = new UserService(
+                eventPublisher,
                 userRepository,
                 userMapper,
                 personToUserMapper,
                 userContactsMapper,
                 userValidator,
-                mentorshipService,
                 countryService,
-                eventService,
                 parser,
                 userFilters
         );
@@ -302,10 +300,11 @@ class UserServiceTest {
     @Test
     void testDeactivateProfile_UserFound_DeactivatedSuccessful() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userValidator.isUserMentor(user)).thenReturn(true);
         when(userMapper.toDto(user)).thenReturn(new UserDto());
 
         UserDto result = userService.deactivateProfile(userId);
+
+        verify(eventPublisher, times(1)).publishEvent(any(UserProfileDeactivatedEvent.class));
 
         assertNotNull(result);
         assertFalse(user.isActive());
@@ -324,14 +323,16 @@ class UserServiceTest {
         long menteeId = setUpMentee().getId();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(new UserDto());
-        when(userValidator.isUserMentor(user)).thenReturn(true);
+        when(userMapper.toDto(user)).thenReturn(dto);
 
-        userService.deactivateProfile(userId);
+        UserDto result = userService.deactivateProfile(userId);
+
+        verify(userRepository, times(1)).save(user);
+        verify(userMapper, times(1)).toDto(user);
+        verify(eventPublisher, times(1)).publishEvent(any(UserProfileDeactivatedEvent.class));
 
         assertFalse(user.isActive());
-        verify(mentorshipService).moveGoalsToMentee(menteeId, userId);
-        verify(mentorshipService).deleteMentor(menteeId, userId);
+        assertEquals(result.getId(), userId);
     }
 
     @Test
