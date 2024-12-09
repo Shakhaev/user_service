@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        skill_acquire_channel:
+          name: skill_acquire
 
 server:
   port: 8080

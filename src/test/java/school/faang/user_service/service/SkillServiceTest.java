@@ -9,11 +9,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SkillDto;
+import school.faang.user_service.dto.skill.SkillAcquiredEvent;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.publisher.skill.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.user.UserService;
@@ -24,6 +26,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,6 +55,9 @@ public class SkillServiceTest {
 
     @InjectMocks
     private SkillService skillService;
+
+    @Mock
+    private SkillAcquiredEventPublisher skillAcquiredEventPublisher;
 
     public static SkillDto anySkillDto(String title) {
         SkillDto skill = new SkillDto();
@@ -124,5 +130,7 @@ public class SkillServiceTest {
                         , new SkillOffer()));
         skillService.acquireSkillFromOffers(anyLong(), anyLong());
         verify(skillRepository).assignSkillToUser(anyLong(), anyLong());
+        verify(skillAcquiredEventPublisher)
+                .publish(any(SkillAcquiredEvent.class));
     }
 }

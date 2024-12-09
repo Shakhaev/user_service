@@ -6,12 +6,14 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.SkillCandidateDto;
 import school.faang.user_service.dto.SkillDto;
+import school.faang.user_service.dto.skill.SkillAcquiredEvent;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.publisher.skill.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.user.UserService;
@@ -29,6 +31,7 @@ public class SkillService {
     private final SkillCandidateMapper skillCandidateMapper;
     private final SkillOfferRepository skillOfferRepository;
     private final UserService userService;
+    private final SkillAcquiredEventPublisher skillAcquiredEventPublisher;
 
     public SkillDto create(SkillDto skill) {
         validateSkill(skill);
@@ -66,6 +69,11 @@ public class SkillService {
                 guaranteeSkill.get().getGuarantees().add(guarantee);
                 skillRepository.save(guaranteeSkill.get());
             }
+            skillAcquiredEventPublisher.publish(SkillAcquiredEvent
+                    .builder()
+                    .userId(userId)
+                    .userId(userId)
+                    .build());
             return Optional.of(skillMapper.toDto(guaranteeSkill.get()));
         }
         return Optional.empty();
