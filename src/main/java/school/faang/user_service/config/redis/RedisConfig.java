@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -19,9 +18,6 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.port}")
     private int redisPort;
-
-    @Value("${spring.data.redis.channels.recommendation-channel.name}")
-    private String recommendationChannel;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -36,10 +32,5 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new StringRedisSerializer());
         return template;
-    }
-
-    @Bean
-    ChannelTopic recommendationTopic() {
-        return new ChannelTopic(recommendationChannel);
     }
 }

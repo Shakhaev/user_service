@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
@@ -24,21 +25,20 @@ public class RecommendationReceivedEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
-    private ChannelTopic recommendationTopic;
-    @Mock
     private ObjectMapper objectMapper;
     @InjectMocks
     private RecommendationReceivedEventPublisher publisher;
+    @Value("${spring.data.redis.channels.recommendation-channel.name}")
+    private String recommendationChannel;
 
     @Test
     public void testSuccessfulPublish() throws JsonProcessingException {
         RecommendationReceivedEvent event = prepareEvent();
         when(objectMapper.writeValueAsString(event)).thenReturn("some_json");
-        when(recommendationTopic.getTopic()).thenReturn("some_topic");
 
         publisher.publish(event);
 
-        verify(redisTemplate).convertAndSend(recommendationTopic.getTopic(), "some_json");
+        verify(redisTemplate).convertAndSend(recommendationChannel, "some_json");
     }
 
     @Test
