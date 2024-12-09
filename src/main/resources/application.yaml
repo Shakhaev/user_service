@@ -27,6 +27,8 @@ spring:
           name: follower_event
         user_ban-channel:
           name: user_ban
+        goal-completed-channel:
+          name: goal_completed
 
 server:
   port: 8080
