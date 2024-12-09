@@ -284,8 +284,8 @@ class UserServiceTest {
                 .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, EMAIL);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -329,8 +329,8 @@ class UserServiceTest {
                 .telegramChatId(893248953L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
@@ -432,7 +432,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUserProfileTest() {
+    public void getUserProfileTest() {
         Long userId = 1L;
         Long viewerId = 2L;
 
@@ -441,7 +441,6 @@ class UserServiceTest {
                 .username("test")
                 .email("test@example.com")
                 .telegramChatId(null)
-                .phone("1234567890")
                 .build();
 
         User user = User.builder()
