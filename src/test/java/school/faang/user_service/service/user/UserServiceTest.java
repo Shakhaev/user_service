@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.events.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -50,6 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,13 +79,13 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private ProfileViewEventPublisher profileViewEventPublisher;
-
     private List<UserFilter> userFilters;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
+
+    @Mock
+    private  ProfileViewEventPublisher profileViewEventPublisher;
 
     @Test
     void getUserTest() {
@@ -282,8 +284,8 @@ class UserServiceTest {
                 .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, "8778", UserDto.PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -319,7 +321,6 @@ class UserServiceTest {
                 .premium(expiredPremium)
                 .telegramChatId(90182590L)
                 .build();
-        firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
 
         User secondUser = User.builder()
                 .id(secondUserId)
@@ -327,10 +328,9 @@ class UserServiceTest {
                 .email("second@email.com")
                 .telegramChatId(893248953L)
                 .build();
-        secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
@@ -430,4 +430,58 @@ class UserServiceTest {
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
     }
+
+    @Test
+    public void testGetUserProfileTest() {
+        Long userId = 1L;
+        Long viewerId = 2L;
+
+        UserDto mockUser = UserDto.builder()
+                .id(userId)
+                .username("test")
+                .email("test@example.com")
+                .telegramChatId(null)
+                .phone("1234567890")
+                .build();
+
+        User user = User.builder()
+                .id(userId)
+                .username("test")
+                .email("test@example.com")
+                .telegramChatId(null)
+                .phone("1234567890")
+                .build();
+
+        User user1 = User.builder()
+                .id(userId)
+                .username("test1")
+                .email("test1@example.com")
+                .telegramChatId(null)
+                .phone("12345678901")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(viewerId)).thenReturn(Optional.of(user1));
+
+        UserDto result = userService.getUserProfile(userId, viewerId);
+
+        assertEquals(mockUser, result);
+        verify(profileViewEventPublisher, times(1)).publish(any(ProfileViewEvent.class));
+    }
+
+    @Test
+    public void testGetUserProfileUserNotFoundTest() {
+        Long userId = 1L;
+        Long viewerId = 2L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class, () -> userService.getUserProfile(userId, viewerId)
+        );
+        assertEquals(String.format(ErrorMessage.USER_NOT_FOUND, userId), exception.getMessage());
+
+        verify(profileViewEventPublisher, never()).publish(any(ProfileViewEvent.class));
+    }
+
 }
