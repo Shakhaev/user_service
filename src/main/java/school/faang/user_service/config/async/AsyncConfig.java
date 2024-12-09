@@ -1,22 +1,25 @@
 package school.faang.user_service.config.async;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import school.faang.user_service.properties.AsyncProperties;
 
 import java.util.concurrent.Executor;
 
 @Configuration
-@EnableAsync
+@RequiredArgsConstructor
 public class AsyncConfig {
-    @Bean()
+    private final AsyncProperties properties;
+
+    @Bean
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        executor.setThreadNamePrefix("AsyncThread-");
+        executor.setThreadNamePrefix(properties.getThreadNamePrefix());
+        executor.setCorePoolSize(properties.getCorePoolSize());
+        executor.setMaxPoolSize(properties.getMaxPoolSize());
+        executor.setQueueCapacity(properties.getQueueCapacity());
         executor.initialize();
         return executor;
     }

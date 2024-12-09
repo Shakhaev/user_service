@@ -31,8 +31,8 @@ spring:
       host: localhost
       channel:
         follower: follower_channel
-        mentorship:
-          accepted: mentorship_accepted_channel
+        skill: skill_channel
+        mentorship-channel: mentorship_channel
   servlet:
     multipart:
       max-file-size: 5MB
@@ -53,6 +53,12 @@ minio:
   accessKey: user
   secretKey: password
   bucketName: corpbucket
+
+async:
+  thread-name-prefix: AsyncThread-
+  core-pool-size: 5
+  max-pool-size: 10
+  queue_capacity: 25
 
 server:
   port: 8080

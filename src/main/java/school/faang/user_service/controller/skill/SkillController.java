@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -62,7 +63,11 @@ public class SkillController {
             @ApiResponse(responseCode = "400", description = "Invalid skill or user ID")
     })
     @PutMapping("/{userId}/offers/{skillId}")
-    public SkillDto acquireSkillFromOffers(@PathVariable long skillId, @PathVariable long userId) {
-        return skillService.acquireSkillFromOffers(skillId, userId);
+    public SkillDto acquireSkillFromOffers(
+            @PathVariable long skillId,
+            @PathVariable long userId,
+            @RequestHeader("x-user-id") long recommenderId
+    ) {
+        return skillService.acquireSkillFromOffers(skillId, userId, recommenderId);
     }
 }
