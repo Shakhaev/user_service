@@ -308,7 +308,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void testGetGoalsByUser_NoApplicableFilters() {
+    void testGetGoalsByUserNoApplicableFilters() {
         GoalFilterDto filters = new GoalFilterDto();
         GoalFilter mockFilter = mock(GoalFilter.class);
 
@@ -359,7 +359,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void testCompleteTheGoalSuccessfully() {
+    void testCompleteTheGoalSuccess() {
         when(userService.findUserById(userId)).thenReturn(setUpUser());
         when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
         when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
@@ -379,10 +379,32 @@ class GoalServiceTest {
     }
 
     @Test
-    void testCompleteTheGoalFailed() {
+    void testCompleteTheGoalThrowsEntityNotFoundExceptionIfUserNotFound() {
+        when(userService.findUserById(userId)).thenReturn(setUpUserWithoutId());
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.completeTheGoal(userId, goalId));
+    }
+
+    @Test
+    void testCompleteTheGoalThrowsEntityNotFoundExceptionIfGoalNotFound() {
         when(userService.findUserById(userId)).thenReturn(setUpUserWithoutGoals());
 
         assertThrows(EntityNotFoundException.class, () -> goalService.completeTheGoal(userId, goalId));
+    }
+
+    @Test
+    void testCompleteTheGoalIfGoalAlreadyCompleted() {
+        goalEntity.setStatus(GoalStatus.COMPLETED);
+        when(userService.findUserById(userId)).thenReturn(setUpUser());
+        when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
+        when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
+
+        GoalDto result = goalService.completeTheGoal(userId, goalId);
+
+        assertNotNull(result);
+        assertEquals(GoalStatus.COMPLETED, goalEntity.getStatus());
+        verify(goalRepository, never()).save(any(Goal.class));
+        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
     }
 
 
@@ -394,6 +416,13 @@ class GoalServiceTest {
     }
 
     private User setUpUserWithoutGoals() {
+        User user = new User();
+        user.setId(userId);
+        user.setGoals(Collections.emptyList());
+        return user;
+    }
+
+    private User setUpUserWithoutId() {
         User user = new User();
         user.setGoals(Collections.emptyList());
         return user;
