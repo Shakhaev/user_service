@@ -202,6 +202,4 @@ public class RecommendationService {
         log.info("Both RecommendationReceivedEvent and RecommendationEvent published for recommendationId={}", recommendationId);
 
     }
-
-
 }
