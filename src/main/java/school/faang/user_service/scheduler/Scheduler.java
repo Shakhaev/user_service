@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class Scheduler {
 
     private final EventService eventService;
+
     @Value("${scheduler.clear-events.batch-size}")
     private int batchSize;
 

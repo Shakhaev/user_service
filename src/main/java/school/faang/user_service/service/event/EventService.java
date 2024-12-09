@@ -123,7 +123,10 @@ public class EventService {
 
     public List<EventDto> getPastEventsIds() {
         return getEventsByFilter(
-                EventFilterDto.builder().dateTime(LocalDateTime.now()).build())
+                EventFilterDto
+                        .builder()
+                        .dateTime(LocalDateTime.now())
+                        .build())
                 .getBody();
     }
 }
