@@ -29,6 +29,12 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        recommendation-channel:
+          name: recommendation_channel
+
+  redis:
+    host: localhost
+    port: 6379
 
 server:
   port: 8080
@@ -62,3 +68,6 @@ services:
   user-service:
     host: http://localhost
     port: 8080
+
+thread-pool:
+  size: 5
