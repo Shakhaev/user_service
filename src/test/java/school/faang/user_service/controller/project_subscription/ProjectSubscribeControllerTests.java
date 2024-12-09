@@ -17,9 +17,6 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectSubscribeControllerTests {
-    private final static int SKILL_ID = 1;
-    private final static int USER_Id = 1;
-
     @InjectMocks
     private ProjectSubscribeController projectSubscribeController;
 

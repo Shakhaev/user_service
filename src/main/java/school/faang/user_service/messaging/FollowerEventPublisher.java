@@ -12,12 +12,12 @@ import school.faang.user_service.dto.messaging.ProjectFollowerEvent;
 @Slf4j
 public class FollowerEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ChannelTopic topic;
+    private final ChannelTopic followerEventChannel;
 
 
     public void publish(ProjectFollowerEvent message) {
-        log.info("Publishing message to topic: {}, message: {}", topic.getTopic(), message);
-        Long status = redisTemplate.convertAndSend(topic.getTopic(), message);
-        log.info("Published message to topic: {}, error status: {}", topic.getTopic(), status);
+        log.info("Publishing message to followerEventChannel: {}, message: {}", followerEventChannel.getTopic(), message);
+        Long status = redisTemplate.convertAndSend(followerEventChannel.getTopic(), message);
+        log.info("Published message to followerEventChannel: {}, error status: {}", followerEventChannel.getTopic(), status);
     }
 }

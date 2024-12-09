@@ -24,6 +24,10 @@ spring:
     redis:
       port: 6379
       host: localhost
+      pool-config:
+        max-idle: 5
+        min-idle: 0
+        max-total: 10
       elastic-search-key: elasticSearchScore
       channels:
         mentorship-channel:

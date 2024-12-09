@@ -16,6 +16,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import school.faang.user_service.listener.BanUserListener;
 
+import java.util.Objects;
+
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
@@ -23,9 +25,16 @@ public class JedisConfig {
 
     @Value("${spring.data.redis.host}")
     private String host;
-
     @Value("${spring.data.redis.port}")
     private int port;
+    @Value("${spring.data.redis.pool-config.max-idle}")
+    private int maxIdle;
+    @Value("${spring.data.redis.pool-config.max-total}")
+    private int maxTotal;
+    @Value("${spring.data.redis.pool-config.min-idle}")
+    private int minIdle;
+    @Value("${spring.data.redis.channels.follower-event-channel.name}")
+    private String folowerTopic;
     @Value("${spring.data.redis.channels.ban_user_topic.name}")
     private String banUserTopic;
     @Value("${spring.data.redis.channels.goal_completed_topic.name}")
@@ -34,7 +43,11 @@ public class JedisConfig {
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-        return new JedisConnectionFactory(redisStandaloneConfiguration);
+        JedisConnectionFactory factory = new JedisConnectionFactory(redisStandaloneConfiguration);
+        Objects.requireNonNull(factory.getPoolConfig()).setMaxIdle(maxIdle);
+        factory.getPoolConfig().setMaxTotal(maxTotal);
+        factory.getPoolConfig().setMinIdle(minIdle);
+        return factory;
     }
 
     @Bean
@@ -60,6 +73,11 @@ public class JedisConfig {
     @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
+    }
+
+    @Bean
+    public ChannelTopic followerEventChannel() {
+        return new ChannelTopic(folowerTopic);
     }
 
     @Bean
