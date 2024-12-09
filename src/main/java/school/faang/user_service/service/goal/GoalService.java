@@ -2,13 +2,14 @@ package school.faang.user_service.service.goal;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GoalService {
     private final GoalRepository goalRepository;
     private final UserService userService;
@@ -84,8 +86,10 @@ public class GoalService {
         }
 
         if (goal.getParentGoalId() != null) {
-            entity.setParent(goalRepository.findById(goal.getParentGoalId()).orElseThrow(() ->
-                    new EntityNotFoundException("Parent goal with id " + goal.getParentGoalId() + " does not exist")));
+            entity.setParent(goalRepository.findById(goal.getParentGoalId()).orElseThrow(() -> {
+                log.info("Parent goal with id {} does not exist", goal.getParentGoalId());
+                return new EntityNotFoundException("Parent goal with id " + goal.getParentGoalId() + " does not exist");
+            }));
         }
 
         goalRepository.save(entity);
@@ -112,13 +116,27 @@ public class GoalService {
     }
 
     public GoalDto completeTheGoal(long userId, long goalId) {
-        Goal goalToComplete = userService.findUserById(userId).getGoals().stream()
-                .filter(goal -> goal.getId().equals(goalId))
-                .findFirst().orElseThrow(() ->
-                        new EntityNotFoundException("Goal with id " + goalId + " does not exist"));
-        goalToComplete.setStatus(GoalStatus.COMPLETED);
-        goalRepository.save(goalToComplete);
-        goalCompletedEventPublisher.publish(new GoalCompletedEvent(userId, goalId, LocalDateTime.now()));
+        Goal goalToComplete = getGoalToComplete(userId, goalId);
+        if (!isGoalStatusCompleted(goalToComplete)) {
+            goalToComplete.setStatus(GoalStatus.COMPLETED);
+            goalRepository.save(goalToComplete);
+            goalCompletedEventPublisher.publish(new GoalCompletedEvent(userId, goalId, LocalDateTime.now()));
+        } else {
+            log.warn("User with id {} has already completed the goal with id {}", userId, goalId);
+        }
         return goalMapper.toDto(goalToComplete);
+    }
+
+    private Goal getGoalToComplete(long userId, long goalId) {
+        return userService.findUserById(userId).getGoals().stream()
+                .filter(goal -> goal.getId().equals(goalId))
+                .findFirst().orElseThrow(() -> {
+                    log.error("User with id {} does not have a goal with id {}", userId, goalId);
+                    return new EntityNotFoundException("User with id " + userId + " does not have a goal with id " + goalId);
+                });
+    }
+
+    private boolean isGoalStatusCompleted(Goal goal) {
+        return goal.getStatus() == GoalStatus.COMPLETED;
     }
 }

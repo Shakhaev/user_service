@@ -24,12 +24,12 @@ public class RedisConfig {
     @Bean
     public RedisMessageListenerContainer redisContainerConfig(
             RedisConnectionFactory connectionFactory,
-            UserBanListener userBanSubscriber
+            UserBanListener userBanListener
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
 
-        MessageListenerAdapter listenerAdapter = createListenerAdapter(userBanSubscriber);
+        MessageListenerAdapter listenerAdapter = createListenerAdapter(userBanListener);
 
         container.addMessageListener(listenerAdapter, new PatternTopic("user_ban"));
 
@@ -45,8 +45,8 @@ public class RedisConfig {
         return template;
     }
 
-    private MessageListenerAdapter createListenerAdapter(UserBanListener userBanSubscriber) {
-        MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(userBanSubscriber);
+    private MessageListenerAdapter createListenerAdapter(UserBanListener userBanListener) {
+        MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(userBanListener);
         listenerAdapter.setDefaultListenerMethod("onMessage");
         return listenerAdapter;
     }
