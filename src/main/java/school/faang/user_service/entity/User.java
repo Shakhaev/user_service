@@ -150,6 +150,7 @@ public class User {
 
     @Column(name = "messages")
     private long messages;
+
     @Column(name = "locale")
     private Locale locale;
 }

@@ -32,6 +32,8 @@ spring:
           name: follower_event2
         ban_user_topic:
           name: user_ban
+        goal_completed_topic:
+          name: goal_complete
 
   task:
     scheduling:

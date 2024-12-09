@@ -1,5 +1,6 @@
 package school.faang.user_service.config.jedis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,14 +11,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import school.faang.user_service.listener.BanUserListener;
+
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
-
-    private final BanUserListener banUserListener;
+    private final ObjectMapper objectMapper;
 
     @Value("${spring.data.redis.host}")
     private String host;
@@ -26,6 +28,8 @@ public class JedisConfig {
     private int port;
     @Value("${spring.data.redis.channels.ban_user_topic.name}")
     private String banUserTopic;
+    @Value("${spring.data.redis.channels.goal_completed_topic.name}")
+    private String goalCompletedTopic;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -37,11 +41,14 @@ public class JedisConfig {
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        serializer.setObjectMapper(objectMapper);
+        template.setValueSerializer(serializer);
         return template;
     }
 
     @Bean
-    public MessageListenerAdapter banUserMessageListener() {
+    public MessageListenerAdapter banUserMessageListener(BanUserListener banUserListener) {
         return new MessageListenerAdapter(banUserListener);
     }
 
@@ -51,12 +58,19 @@ public class JedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(JedisConnectionFactory jedisConnectionFactory) {
+    public ChannelTopic goalCompletedTopic() {
+        return new ChannelTopic(goalCompletedTopic);
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisContainer(JedisConnectionFactory jedisConnectionFactory,
+                                                        MessageListenerAdapter banUserMessageListener) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(banUserMessageListener(), banUserTopic());
+        container.addMessageListener(banUserMessageListener, banUserTopic());
         return container;
     }
+
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
