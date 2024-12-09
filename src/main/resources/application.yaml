@@ -12,6 +12,8 @@ spring:
           name: follower_event
         event-participation:
           name: event_participation_channel
+        search-appearance:
+          name: search_appearance_topic
 
   datasource:
     driver-class-name: org.postgresql.Driver

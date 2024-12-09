@@ -11,6 +11,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.exceptions.UnfollowException;
+import school.faang.user_service.publisher.UnfollowEventPublisher;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final UnfollowEventPublisher unfollowEventPublisher;
     private final FollowerEventPublisher followerEventPublisher;
 
     @Transactional
@@ -38,7 +40,6 @@ public class SubscriptionService {
         log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
         followerEventPublisher.publish(new SubscribeEventDto(followerId, followeeId, LocalDateTime.now()));
         log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
-
     }
 
     @Transactional
@@ -53,6 +54,8 @@ public class SubscriptionService {
         try {
             subscriptionRepository.unfollowUser(followerId, followeeId);
             log.info("Пользователь {} успешно отписался от пользователя {}.", followerId, followeeId);
+            unfollowEventPublisher.publish(new SubscribeEventDto(followerId, followeeId, LocalDateTime.now()));
+            log.info("Событие отписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
         } catch (Exception ex) {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
             throw new UnfollowException("Не удалось отписаться от пользователя.", ex);
@@ -122,14 +125,15 @@ public class SubscriptionService {
             .collect(Collectors.toList());
     }
 
-    private void validateUserIds(Long followerId, Long followeeId) {
-        if (followerId == null || followeeId == null || followerId.equals(followeeId)) {
-            throw new InvalidUserIdException("Некорректные ID: ID не должны быть null и не должны совпадать.");
+
+        private void validateUserIds (Long followerId, Long followeeId){
+            if (followerId == null || followeeId == null || followerId.equals(followeeId)) {
+                throw new InvalidUserIdException("Некорректные ID: ID не должны быть null и не должны совпадать.");
+            }
+        }
+
+        private boolean isValidFilter (UserFilterDTO filter){
+            return filter.getExperienceMin() == null || filter.getExperienceMax() == null ||
+                filter.getExperienceMin() <= filter.getExperienceMax();
         }
     }
-
-    private boolean isValidFilter(UserFilterDTO filter) {
-        return filter.getExperienceMin() == null || filter.getExperienceMax() == null ||
-            filter.getExperienceMin() <= filter.getExperienceMax();
-    }
-}
