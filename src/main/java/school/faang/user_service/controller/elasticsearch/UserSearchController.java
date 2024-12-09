@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/usersSearch")
 public class UserSearchController {
     private final UserSearchService userSearchService;
 

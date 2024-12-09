@@ -57,17 +57,19 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        skillValidator.validateUserSkillExist(skillId, userId);
-        skillValidator.validateSkillOfferCount(skillId, userId);
-
-        skillRepository.assignSkillToUser(skillId, userId);
-        Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
+//        skillValidator.validateUserSkillExist(skillId, userId);
+//        skillValidator.validateSkillOfferCount(skillId, userId);
+//
+//        skillRepository.assignSkillToUser(skillId, userId);
+//        Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
 
         SkillAcquiredEvent skillAcquiredEvent = new SkillAcquiredEvent(userId, skillId);
         skillAcquiredEventPublisher.publish(skillAcquiredEvent);
 
-        return skill.map(skillMapper::entityToDto)
-                .orElseThrow(() -> new DataValidationException("Скилл не найден"));
+        return new SkillDto();
+
+//        return skill.map(skillMapper::entityToDto)
+//                .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 
     public List<SkillRequest> findByRequestId(long requestId) {
