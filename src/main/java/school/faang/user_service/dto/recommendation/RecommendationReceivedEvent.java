@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecommendationReceivedEvent {
-    private Long id;
     private Long authorId;
     private Long recipientId;
+    private Long recommendationId;
 }
