@@ -314,6 +314,7 @@ class UserServiceTest {
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
+                .telegramChatId(90182590L)
                 .premium(expiredPremium)
                 .build();
         firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
@@ -322,6 +323,7 @@ class UserServiceTest {
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .telegramChatId(893248953L)
                 .build();
         secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
