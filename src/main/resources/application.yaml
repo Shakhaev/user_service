@@ -1,4 +1,14 @@
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      channel:
+        follower: follower_channel
+        unfollow: unfollow_channel
+       topic:
+        search-appearance: search_appearance_topic
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -15,16 +25,6 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      topic:
-        search-appearance: search_appearance_topic
-
-server:
-  port: 8080
 
 logging:
   level:
@@ -45,5 +45,9 @@ application:
     max-month-limit-recommendation-request: 6
   skill:
     minOffersRequired: 3
+  premium:
+    threads-number: 20
+    time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
+    batch-size: 100
 
 
