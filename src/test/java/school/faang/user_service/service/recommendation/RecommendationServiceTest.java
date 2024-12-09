@@ -16,7 +16,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
+import school.faang.user_service.publisher.recommendation.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -24,7 +24,6 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.RecommendationValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
