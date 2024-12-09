@@ -9,7 +9,7 @@ import school.faang.user_service.dto.events.ProfileViewEvent;
 @Component
 @RequiredArgsConstructor
 public class ProfileViewEventPublisher{
-    @Value("${spring.data.redis.channels.profile-view-channel.name}")
+    @Value("${spring.data.redis.channel.profile-view-channel.name}")
     private String profileView;
 
     private final RedisTemplate<String, Object> redisTemplate;

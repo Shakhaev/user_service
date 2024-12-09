@@ -20,17 +20,4 @@ public class UserDto {
     private String email;
     private Long telegramChatId;
     private PreferredContact preference;
-    private String phone;
-
-    public UserDto(Long id, String username, String email, Long telegramChatId) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.telegramChatId = telegramChatId;
-    }
-
-    public enum PreferredContact {
-        EMAIL, SMS, TELEGRAM
-    }
-
 }
