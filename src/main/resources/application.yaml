@@ -28,6 +28,14 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        goal-completed-channel: goal-completed
+        mentorship-channel: mentorship_channel
+        follower-event-channel: follower_event
+        event-start-event-channel: event-start-channel
+        event-start-reminder-event-channel: event-start-reminder-event-channel
+        recommendation-received-channel: recommendation-received
+        recommendation-event-channel: recommendation-event
+
 
 server:
   port: 8080
