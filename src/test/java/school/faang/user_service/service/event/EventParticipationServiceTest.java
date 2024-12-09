@@ -12,7 +12,7 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.ParticipantRegistrationException;
 import school.faang.user_service.mapper.UserDTOMapperImpl;
-import school.faang.user_service.publisher.RedisPublisher;
+import school.faang.user_service.publisher.EventRegistrationEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
@@ -36,7 +36,7 @@ class EventParticipationServiceTest {
     @Mock
     private EventParticipationRepository repository;
     @Mock
-    private RedisPublisher redisPublisher;
+    private EventRegistrationEventPublisher eventRegistrationEventPublisher;
     @Spy
     private UserDTOMapperImpl userDTOMapper;
 
@@ -53,7 +53,7 @@ class EventParticipationServiceTest {
 
         // then
         verify(repository).register(EVENT_ID, USER_ID);
-        verify(redisPublisher, times(1)).publish(any());
+        verify(eventRegistrationEventPublisher, times(1)).publish(any());
     }
 
     @Test

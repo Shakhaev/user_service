@@ -13,7 +13,7 @@ import school.faang.user_service.exceptions.ParticipantRegistrationException;
 import school.faang.user_service.mapper.UserDTOMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.publisher.RedisPublisher;
+import school.faang.user_service.publisher.EventRegistrationEventPublisher;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import java.util.List;
 public class EventParticipationService {
     private final UserRepository userRepository;
     private final EventParticipationRepository repository;
-    private final RedisPublisher redisPublisher;
+    private final EventRegistrationEventPublisher eventRegistrationEventPublisher;
     private final UserDTOMapper mapper;
 
     @Value("${application.publisher-messages.event-registration.notification.telegram}")
@@ -51,7 +51,7 @@ public class EventParticipationService {
                 .message(eventRegistrationMessage)
                 .telegramId(user.getTelegramId())
                 .build();
-        redisPublisher.publish(notificationDto);
+        eventRegistrationEventPublisher.publish(notificationDto);
     }
 
     public void unregister(Long eventId, Long userId){

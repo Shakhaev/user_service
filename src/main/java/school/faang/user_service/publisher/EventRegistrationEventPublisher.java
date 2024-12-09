@@ -10,7 +10,7 @@ import school.faang.user_service.dto.EventRegistrationNotificationDto;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class RedisPublisher implements MessagePublisher {
+public class EventRegistrationEventPublisher implements MessagePublisher {
     private RedisTemplate<String, Object> redisTemplate;
     private ChannelTopic topicEventParticipation;
 

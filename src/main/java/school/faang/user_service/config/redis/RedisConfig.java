@@ -23,7 +23,7 @@ public class RedisConfig {
 
     private final RedisProperties redisProperties;
 
-    @Value("${spring.data.redis.topic.search-appearance}")
+    @Value("${spring.data.redis.channel.search-appearance.name}")
     private String searchAppearanceTopicName;
 
     private static final String CREATE_CHANNEL_LOG_MESSAGE = "Создание ChannelTopic для канала: {}";
