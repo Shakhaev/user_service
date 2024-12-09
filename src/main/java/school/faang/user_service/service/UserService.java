@@ -16,23 +16,20 @@ import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserProfile;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.UserProfileSettingsMapper;
 import school.faang.user_service.parser.CsvParser;
-import school.faang.user_service.repository.UserProfileRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validator.UserSettingsValidator;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,9 +51,7 @@ public class UserService {
     private final EventService eventService;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
-    private final UserProfileSettingsMapper userProfileSettingsMapper;
-    private final UserProfileRepository userProfileRepository;
-    private final UserSettingsValidator userSettingsValidator;
+    private final ContactPreferenceRepository contactPreferenceRepository;
 
     @Autowired
     public UserService(
@@ -69,9 +64,7 @@ public class UserService {
             @Lazy EventService eventService,
             List<Filter<User, UserFilterDto>> userFilters,
             CsvParser parser,
-            UserProfileRepository userProfileRepository,
-            UserProfileSettingsMapper userProfileSettingsMapper,
-            UserSettingsValidator userSettingsValidator
+            ContactPreferenceRepository contactPreferenceRepository
     ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -82,9 +75,7 @@ public class UserService {
         this.eventService = eventService;
         this.userFilters = userFilters;
         this.parser = parser;
-        this.userProfileRepository = userProfileRepository;
-        this.userProfileSettingsMapper = userProfileSettingsMapper;
-        this.userSettingsValidator = userSettingsValidator;
+        this.contactPreferenceRepository = contactPreferenceRepository;
     }
 
     public boolean checkUserExistence(long userId) {
@@ -183,30 +174,37 @@ public class UserService {
     @Transactional
     public UserProfileSettingsResponseDto saveProfileSettings(Long userId, UserProfileSettingsDto userProfileSettingsDto) {
         userValidator.validateUserById(userId);
-        UserProfile savedUserProfile;
+        ContactPreference contactPreference;
 
-        Optional<UserProfile> existingUserProfile = userProfileRepository.findByUserId(userId);
-        UserProfile userProfile = userProfileSettingsMapper.toEntity(userProfileSettingsDto);
+        User user = userRepository.findById(userId).get();
+        Optional<ContactPreference> contactPreferenceExisting = contactPreferenceRepository.findByUserId(user.getId());
 
-        if (existingUserProfile.isPresent()) {
-            UserProfile userProfileExisting = existingUserProfile.get();
-            userProfileExisting.setPreference(userProfileSettingsDto.getPreference());
-            savedUserProfile = userProfileRepository.save(userProfileExisting);
+        if (contactPreferenceExisting.isPresent()) {
+            contactPreference = contactPreferenceExisting.get();
+            contactPreference.setPreference(userProfileSettingsDto.getPreference());
         } else {
-            userProfile.setUser(findUserById(userId));
-            savedUserProfile = userProfileRepository.save(userProfile);
+            contactPreference = ContactPreference.builder()
+                    .user(user)
+                    .preference(userProfileSettingsDto.getPreference())
+                    .build();
         }
 
-        return userProfileSettingsMapper.toDto(savedUserProfile);
+        ContactPreference savedContactPreference = contactPreferenceRepository.save(contactPreference);
+
+        return new UserProfileSettingsResponseDto(
+                savedContactPreference.getId(),
+                savedContactPreference.getPreference(),
+                userId
+        );
     }
 
     public UserProfileSettingsResponseDto getProfileSettings(Long userId) {
         userValidator.validateUserById(userId);
-        userSettingsValidator.validateUserProfileByUserId(userId);
+        userValidator.validateUserProfileByUserId(userId);
 
-        Optional<UserProfile> userProfile = userProfileRepository.findByUserId(userId);
+        User user = userRepository.findById(userId).get();
 
-        return userProfile.map(userProfileSettingsMapper::toDto).orElse(null);
+        return userMapper.toDto(contactPreferenceRepository.findByUserId(user.getId()).get());
     }
 
     private List<Person> parsePersons(InputStream inputStream) throws IOException {

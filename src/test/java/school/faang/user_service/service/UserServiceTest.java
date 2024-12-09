@@ -22,18 +22,16 @@ import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserProfile;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.UserProfileSettingsMapper;
 import school.faang.user_service.parser.CsvParser;
-import school.faang.user_service.repository.UserProfileRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validator.UserSettingsValidator;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.ByteArrayInputStream;
@@ -43,13 +41,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -116,20 +119,10 @@ class UserServiceTest {
     private Filter<User, UserFilterDto> userExperienceMaxFilter;
 
     @Mock
-    private UserProfileRepository userProfileRepository;
-
-    @Mock
-    private UserProfileSettingsMapper userProfileSettingsMapper;
-
-    @Mock
-    private UserSettingsValidator userSettingsValidator;
+    private ContactPreferenceRepository contactPreferenceRepository;
 
     @InjectMocks
     private UserService userService;
-
-    private UserProfileSettingsDto userProfileSettingsDto;
-    private UserProfileSettingsResponseDto userProfileSettingsResponseDto;
-    private UserProfile userProfile;
 
     private User user;
     private UserDto dto;
@@ -180,9 +173,7 @@ class UserServiceTest {
                 eventService,
                 parser,
                 userFilters,
-                userProfileSettingsMapper,
-                userProfileRepository,
-                userSettingsValidator
+                contactPreferenceRepository
         );
 
         country1 = Country.builder()
@@ -195,16 +186,6 @@ class UserServiceTest {
         mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
         mockUser = createMockUser("JohnDoe", "john.doe@example.com");
         people = List.of(mockPerson);
-
-        userProfileSettingsDto = new UserProfileSettingsDto();
-        userProfileSettingsDto.setPreference(PreferredContact.EMAIL);
-
-        userProfileSettingsResponseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, 1L);
-
-        userProfile = new UserProfile();
-        userProfile.setId(1L);
-        userProfile.setPreference(PreferredContact.EMAIL);
-        userProfile.setUser(secondUser);
     }
 
     @Test
@@ -807,90 +788,103 @@ class UserServiceTest {
     }
 
     @Test
-    public void saveProfileSettingsShouldReturnDtoWhenProfileIsCreated() {
+    void saveProfileSettingsShouldUpdateExistingPreference() {
         Long userId = 1L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+        User user = User.builder().id(userId).username("John Doe").email("john@example.com").build();
+        ContactPreference existingPreference = ContactPreference.builder().id(10L).user(user).preference(PreferredContact.SMS).build();
 
-        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(userProfileSettingsMapper.toEntity(userProfileSettingsDto)).thenReturn(userProfile);
-        when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
-        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(userProfileSettingsResponseDto);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(secondUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(contactPreferenceRepository.findByUserId(userId)).thenReturn(Optional.of(existingPreference));
+        when(contactPreferenceRepository.save(any(ContactPreference.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        doNothing().when(userValidator).validateUserById(userId);
+        UserProfileSettingsResponseDto response = userService.saveProfileSettings(userId, settingsDto);
 
-        UserProfileSettingsResponseDto result = userService.saveProfileSettings(userId, userProfileSettingsDto);
-
-        assertNotNull(result);
-        assertEquals(PreferredContact.EMAIL, result.getPreference());
-        assertEquals(1L, result.getUserId());
-        assertEquals(1L, result.getId());
-
-        verify(userValidator, times(1)).validateUserById(userId);
-        verify(userProfileRepository, times(1)).findByUserId(userId);
-        verify(userProfileRepository, times(1)).save(userProfile);
-        verify(userProfileSettingsMapper, times(1)).toEntity(userProfileSettingsDto);
-        verify(userProfileSettingsMapper, times(1)).toDto(userProfile);
+        assertEquals(PreferredContact.EMAIL, response.getPreference());
+        assertEquals(userId, response.getUserId());
+        verify(contactPreferenceRepository, times(1)).save(existingPreference);
+        assertEquals(PreferredContact.EMAIL, existingPreference.getPreference());
     }
 
     @Test
-    public void saveProfileSettingsShouldUpdateProfileWhenProfileExists() {
+    void saveProfileSettingsShouldCreateNewPreferenceIfNotExists() {
+        Long userId = 2L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+        User user = User.builder().id(userId).username("John Doe").email("john@example.com").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(contactPreferenceRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(contactPreferenceRepository.save(any(ContactPreference.class))).thenAnswer(invocation -> {
+            ContactPreference savedPreference = invocation.getArgument(0);
+            savedPreference.setId(20L);
+            return savedPreference;
+        });
+
+        UserProfileSettingsResponseDto response = userService.saveProfileSettings(userId, settingsDto);
+
+        assertEquals(PreferredContact.EMAIL, response.getPreference());
+        assertEquals(userId, response.getUserId());
+        verify(contactPreferenceRepository, times(1)).save(any(ContactPreference.class));
+    }
+
+    @Test
+    void saveProfileSettingsShouldThrowWhenUserNotFound() {
+        Long userId = 3L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> userService.saveProfileSettings(userId, settingsDto));
+
+        verify(contactPreferenceRepository, never()).save(any(ContactPreference.class));
+    }
+
+    @Test
+    void getProfileSettingsShouldReturnPreferencesForExistingUser() {
         Long userId = 1L;
+        User user = User.builder().id(userId).username("John Doe").email("john@example.com").build();
+        ContactPreference preference = ContactPreference.builder().id(10L).user(user).preference(PreferredContact.EMAIL).build();
+        UserProfileSettingsResponseDto expectedResponse = UserProfileSettingsResponseDto.builder().id(10L).preference(PreferredContact.EMAIL).userId(userId).build();
 
-        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.of(userProfile));
-        when(userProfileSettingsMapper.toEntity(userProfileSettingsDto)).thenReturn(userProfile);
-        when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
-        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(userProfileSettingsResponseDto);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(contactPreferenceRepository.findByUserId(userId)).thenReturn(Optional.of(preference));
+        when(userMapper.toDto(preference)).thenReturn(expectedResponse);
 
-        doNothing().when(userValidator).validateUserById(userId);
+        UserProfileSettingsResponseDto response = userService.getProfileSettings(userId);
 
-        UserProfileSettingsResponseDto result = userService.saveProfileSettings(userId, userProfileSettingsDto);
-
-        assertNotNull(result);
-        assertEquals(PreferredContact.EMAIL, result.getPreference());
-        assertEquals(1L, result.getUserId());
-        assertEquals(1L, result.getId());
-
+        assertEquals(expectedResponse, response);
         verify(userValidator, times(1)).validateUserById(userId);
-        verify(userProfileRepository, times(1)).findByUserId(userId);
-        verify(userProfileRepository, times(1)).save(userProfile);
-        verify(userProfileSettingsMapper, times(1)).toEntity(userProfileSettingsDto);
-        verify(userProfileSettingsMapper, times(1)).toDto(userProfile);
+        verify(userValidator, times(1)).validateUserProfileByUserId(userId);
+        verify(contactPreferenceRepository, times(1)).findByUserId(userId);
     }
 
     @Test
-    void getProfileSettingsShouldReturnDtoWhenUserProfileExists() {
-        doNothing().when(userValidator).validateUserById(userId);
-        doNothing().when(userSettingsValidator).validateUserProfileByUserId(userId);
+    void getProfileSettingsShouldThrowWhenUserNotFound() {
+        Long userId = 2L;
 
-        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.of(userProfile));
+        doThrow(new NoSuchElementException("User not found"))
+                .when(userValidator).validateUserById(userId);
 
-        UserProfileSettingsResponseDto expectedDto = new UserProfileSettingsResponseDto(userId, userProfile.getPreference(), userId);
-        when(userProfileSettingsMapper.toDto(userProfile)).thenReturn(expectedDto);
-
-        UserProfileSettingsResponseDto result = userService.getProfileSettings(userId);
-
-        assertNotNull(result);
-        assertEquals(expectedDto, result);
+        assertThrows(NoSuchElementException.class, () -> userService.getProfileSettings(userId));
 
         verify(userValidator, times(1)).validateUserById(userId);
-        verify(userSettingsValidator, times(1)).validateUserProfileByUserId(userId);
-        verify(userProfileRepository, times(1)).findByUserId(userId);
+        verify(userValidator, never()).validateUserProfileByUserId(userId);
+        verify(contactPreferenceRepository, never()).findByUserId(userId);
     }
 
     @Test
-    void getProfileSettingsShouldReturnNullWhenUserProfileDoesNotExist() {
-        doNothing().when(userValidator).validateUserById(userId);
-        doNothing().when(userSettingsValidator).validateUserProfileByUserId(userId);
+    void getProfileSettingsShouldThrowWhenUserProfileNotFound() {
+        Long userId = 3L;
+        User user = User.builder().id(userId).username("John Doe").email("john@example.com").build();
 
-        when(userProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(contactPreferenceRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
-        UserProfileSettingsResponseDto result = userService.getProfileSettings(userId);
-
-        assertNull(result);
+        assertThrows(NoSuchElementException.class, () -> userService.getProfileSettings(userId));
 
         verify(userValidator, times(1)).validateUserById(userId);
-        verify(userSettingsValidator, times(1)).validateUserProfileByUserId(userId);
-        verify(userProfileRepository, times(1)).findByUserId(userId);
+        verify(userValidator, times(1)).validateUserProfileByUserId(userId);
+        verify(contactPreferenceRepository, times(1)).findByUserId(userId);
     }
 
     private Person createMockPerson(String firstName, String lastName, String email) {

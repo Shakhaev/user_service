@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,25 +65,12 @@ class UserControllerTest {
     private String csvContent;
     private MockMultipartFile file;
 
-    private UserProfileSettingsDto userProfileSettingsDto;
-    private UserProfileSettingsResponseDto responseDto;
-    private Long userId = 1L;
-
     @BeforeEach
     void setUp() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
                 .getSystemResourceAsStream("students2.csv"));
         file = new MockMultipartFile("file", "test.csv", "text/csv", testCsv.getBytes());
-
-        userProfileSettingsDto = new UserProfileSettingsDto();
-        userProfileSettingsDto.setPreference(PreferredContact.EMAIL);
-
-        responseDto = UserProfileSettingsResponseDto.builder()
-                .id(1L)
-                .preference(PreferredContact.EMAIL)
-                .userId(1L)
-                .build();
     }
 
     @Test
@@ -222,42 +211,37 @@ class UserControllerTest {
     }
 
     @Test
-    public void saveProfileSettingsShouldReturnOkWhenValidUserIdAndDto() throws Exception {
-        when(userService.saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class)))
-                .thenReturn(responseDto);
+    void saveProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
 
-        mockMvc.perform(post("/users/{userId}/profile-settings", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userProfileSettingsDto)))
+        when(userService.saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/1/profile-settings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                        "preference": "EMAIL"
+                    }
+                """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.preference").value("EMAIL"))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.userId").value(1));
-
-        verify(userService, times(1)).saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class));
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
     }
 
     @Test
-    public void saveProfileSettingsShouldReturnBadRequestWhenPreferenceIsNull() throws Exception {
-        userProfileSettingsDto.setPreference(null);
+    void getProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
 
-        mockMvc.perform(post("/users/{userId}/profile-settings", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userProfileSettingsDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void getProfileSettingsShouldReturnOkWhenValidUserId() throws Exception {
         when(userService.getProfileSettings(userId)).thenReturn(responseDto);
 
-        mockMvc.perform(get("/users/{userId}/profile-settings", userId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/users/1/profile-settings"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.preference").value("EMAIL"))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.userId").value(1));
-
-        verify(userService, times(1)).getProfileSettings(userId);
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
     }
 }
