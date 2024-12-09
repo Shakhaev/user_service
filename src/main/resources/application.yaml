@@ -32,7 +32,8 @@ spring:
       channel:
         follower: follower_channel
         skill: skill_channel
-        mentorship-channel: mentorship_channel
+        mentorship:
+          accepted: mentorship_channel
   servlet:
     multipart:
       max-file-size: 5MB

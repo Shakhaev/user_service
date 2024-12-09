@@ -3,6 +3,7 @@ package school.faang.user_service.service.skill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -65,6 +66,7 @@ public class SkillService {
         return skillCandidateMapper.toSkillCandidateDtoList(skills);
     }
 
+    @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId, long recommenderId) {
         userValidator.validateUserExistence(userService.existsById(userId));
         Skill skill = skillValidator.skillAlreadyExists(skillId);
