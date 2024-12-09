@@ -29,7 +29,11 @@ spring:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event2
+          name: follower_event
+        ban_user_topic:
+          name: user_ban
+        goal_completed_topic:
+          name: goal_complete
   task:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?

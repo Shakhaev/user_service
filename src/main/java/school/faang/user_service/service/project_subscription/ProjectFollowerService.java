@@ -7,6 +7,7 @@ import school.faang.user_service.dto.messaging.ProjectFollowerEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.messaging.FollowerEventPublisher;
 import school.faang.user_service.repository.ProjectSubscriptionRepository;
+
 import java.util.Objects;
 
 @Service
@@ -16,13 +17,13 @@ public class ProjectFollowerService {
     private final ProjectSubscriptionRepository projectSubscriptionRepository;
     private final FollowerEventPublisher publisher;
 
-    public void followProject(ProjectFollowerEvent event) {
-        log.info("followProject called, event = {}", event);
-        if (Objects.equals(event.getFollowerId(), event.getFolloweeId())) {
+    public void followProject(long projectId, long followerId, long followeeId) {
+        log.info("followProject called, projectId = {}, followerId = {}", projectId, followerId);
+        if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot follow yourselves project");
         }
-        projectSubscriptionRepository.followProject(event.getFollowerId(), event.getProjectId());
+        projectSubscriptionRepository.followProject(followerId, projectId);
         log.info(" projectSubscriptionRepository followProject called without exception");
-        publisher.publish(event);
+        publisher.publish(new ProjectFollowerEvent(projectId, followerId, followeeId));
     }
 }

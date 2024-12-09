@@ -33,7 +33,7 @@ public class ProjectFollowerServiceTests {
         int followerId = 1;
         int followeeId = 1;
         assertThrows(DataValidationException.class,
-                () -> projectFollowerService.followProject(new ProjectFollowerEvent(projectId, followerId, followeeId)));
+                () -> projectFollowerService.followProject(projectId, followerId, followeeId));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ProjectFollowerServiceTests {
         int followerId = 1;
         int followeeId = 2;
 
-        projectFollowerService.followProject(new ProjectFollowerEvent(projectId, followerId, followeeId));
+        projectFollowerService.followProject(projectId, followerId, followeeId);
 
         verify(publisher, Mockito.times(1))
                 .publish(any(ProjectFollowerEvent.class));
