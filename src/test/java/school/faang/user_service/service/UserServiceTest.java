@@ -67,16 +67,7 @@ class UserServiceTest {
     private UserMapper userMapper;
 
     @Mock
-    private UserValidator userValidator;
-
-    @Mock
-    private MentorshipService mentorshipService;
-
-    @Mock
     private CountryService countryService;
-
-    @Mock
-    private EventService eventService;
 
     @Mock
     private PersonToUserMapper personToUserMapper;
@@ -86,9 +77,6 @@ class UserServiceTest {
 
     @Mock
     private CsvParser parser;
-
-    @Mock
-    private UserValidator userValidator;
 
     @Mock
     private Filter<User, UserFilterDto> userNameFilter;
@@ -168,7 +156,6 @@ class UserServiceTest {
                 userMapper,
                 personToUserMapper,
                 userContactsMapper,
-                userValidator,
                 countryService,
                 parser,
                 userFilters

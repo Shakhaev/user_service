@@ -44,7 +44,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final PersonToUserMapper personToUserMapper;
     private final UserContactsMapper userContactsMapper;
-    private final UserValidator userValidator;
     private final CountryService countryService;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
@@ -114,28 +113,6 @@ public class UserService {
         }
         user.setBanned(true);
         userRepository.save(user);
-    }
-
-    @Transactional
-    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
-        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
-            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    @Transactional
-    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
-        try (Stream<User> usersStream = userRepository.findAll().stream()) {
-            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
     }
 
     @Transactional
