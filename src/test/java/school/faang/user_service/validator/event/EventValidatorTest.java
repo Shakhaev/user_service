@@ -5,14 +5,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import school.faang.user_service.exception.partiсipation.EventNotFoundException;
-import school.faang.user_service.exception.partiсipation.ParticipationException;
-import school.faang.user_service.exception.partiсipation.UserNotFoundException;
+import school.faang.user_service.exception.participation.EventNotFoundException;
+import school.faang.user_service.exception.participation.ParticipationException;
+import school.faang.user_service.exception.participation.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EventValidatorTest {
 

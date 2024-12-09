@@ -10,12 +10,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.mapper.skill.SkillMapperImpl;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.scheduler.event.EventStartNotificationScheduler;
 import school.faang.user_service.service.event.event_filters.EventDateRangeFilter;
 import school.faang.user_service.service.event.event_filters.EventFilter;
 import school.faang.user_service.service.event.event_filters.EventLocationFilter;
@@ -25,14 +28,21 @@ import school.faang.user_service.service.event.event_filters.EventSkillsFilter;
 import school.faang.user_service.service.event.event_filters.EventTitleFilter;
 import school.faang.user_service.validator.event.EventServiceValidator;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,15 +52,21 @@ public class EventServiceTest {
     @Mock
     private EventRepository eventRepository;
     @Mock
+    private SkillRepository skillRepository;
+    @Mock
     private EventServiceValidator eventServiceValidator;
+    @Mock
+    private EventStartNotificationScheduler eventStartNotificationScheduler;
     @InjectMocks
     private EventService eventService;
 
     private EventMapperImpl eventMapper;
+    private SkillMapperImpl skillMapper;
 
     private User userJohn;
     private Event eventBaking;
     private Event eventCarFixing;
+    private User userJane;
 
     @BeforeEach
     void setUp() {
@@ -58,9 +74,12 @@ public class EventServiceTest {
                 new EventMaxAttendeesFilter(), new EventOwnerNameFilter(),
                 new EventSkillsFilter(), new EventLocationFilter());
         ReflectionTestUtils.setField(eventService, "eventFilters", eventFilters);
-        SkillMapperImpl skillMapper = new SkillMapperImpl();
+        skillMapper = new SkillMapperImpl();
         eventMapper = new EventMapperImpl(skillMapper);
-        eventService = new EventService(eventRepository, eventServiceValidator, eventMapper, eventFilters);
+        eventService = new EventService
+                (eventRepository, eventServiceValidator, eventMapper, eventFilters, skillRepository, eventStartNotificationScheduler);
+
+        ReflectionTestUtils.setField(eventService, "batchSize", 10);
     }
 
     @BeforeEach
@@ -78,7 +97,7 @@ public class EventServiceTest {
         userJohn.setUsername("John");
         userJohn.setSkills(new ArrayList<>(Set.of(bakingSkill, decoratingSkill)));
 
-        User userJane = new User();
+        userJane = new User();
         userJane.setId(2L);
         userJane.setUsername("Jane");
         userJane.setSkills(new ArrayList<>(Set.of(bakingSkill)));
@@ -98,7 +117,16 @@ public class EventServiceTest {
 
     @Test
     public void testCreateSavingEvent() {
+        eventBaking.setStartDate(LocalDateTime.now().plusDays(2));
+
         EventDto eventBakingDto = eventMapper.toDto(eventBaking);
+
+        SkillDto skillDto = new SkillDto();
+        skillDto.setId(1L);
+        skillDto.setTitle("Baking");
+        eventBakingDto.setRelatedSkills(List.of(skillDto));
+
+        when(skillRepository.findAllById(anyList())).thenReturn(List.of(skillMapper.toEntity(skillDto)));
 
         when(eventServiceValidator.validateUserId(eventBakingDto.getOwnerId())).thenReturn(userJohn);
         doNothing().when(eventServiceValidator).validateOwnerSkills(userJohn, eventBakingDto);
@@ -106,18 +134,43 @@ public class EventServiceTest {
         when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> {
             Event event = invocation.getArgument(0);
             event.setId(1L);
+            event.setAttendees(List.of(userJane));
             return event;
         });
 
-        eventService.create(eventBakingDto);
+        when(skillRepository.saveAll(anyList())).thenAnswer(invocation -> {
+            List<Skill> skills = invocation.getArgument(0);
+            skills.forEach(s -> s.setId(100L));
+            return skills;
+        });
+
+        EventDto result = eventService.create(eventBakingDto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertNotNull(result.getRelatedSkills());
+        assertEquals(1, result.getRelatedSkills().size());
+        assertEquals("Baking", result.getRelatedSkills().get(0).getTitle());
 
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(eventRepository, times(1)).save(eventCaptor.capture());
         Event capturedEvent = eventCaptor.getValue();
 
-        assertEquals(eventBakingDto.getOwnerId(), capturedEvent.getOwner().getId());
-        assertNotNull(capturedEvent.getId());
-        assertEquals(1L, capturedEvent.getId());
+        assertNotNull(capturedEvent.getRelatedSkills());
+        assertEquals(1, capturedEvent.getRelatedSkills().size());
+        assertEquals("Baking", capturedEvent.getRelatedSkills().get(0).getTitle());
+        verify(skillRepository, times(1)).saveAll(anyList());
+
+        ArgumentCaptor<Long> eventIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<List<Long>> attendeesCaptor = ArgumentCaptor.forClass((Class) List.class);
+        ArgumentCaptor<ZonedDateTime> zonedDateTimeCaptor = ArgumentCaptor.forClass(ZonedDateTime.class);
+
+        verify(eventStartNotificationScheduler, times(1))
+                .scheduleEventStartNotification(eventIdCaptor.capture(), attendeesCaptor.capture(), zonedDateTimeCaptor.capture());
+
+        assertEquals(1L, eventIdCaptor.getValue());
+        assertEquals(eventBaking.getAttendees().stream().map(User::getId).toList(), attendeesCaptor.getValue());
+        assertEquals(eventBaking.getStartDate(), zonedDateTimeCaptor.getValue().toLocalDateTime());
     }
 
     @Test
@@ -176,16 +229,32 @@ public class EventServiceTest {
         updatingEventDto.setMaxAttendees(40);
         updatingEventDto.setOwnerId(1L);
 
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("Cooking");
+        updatingEventDto.setRelatedSkills(List.of(skillDto));
+
         when(eventServiceValidator.validateEventId(updatingEventDto.getId())).thenReturn(eventBaking);
         when(eventServiceValidator.validateUserId(updatingEventDto.getOwnerId())).thenReturn(userJohn);
+
         Event event = eventMapper.toEntity(updatingEventDto);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        when(skillRepository.saveAll(anyList())).thenAnswer(invocation -> {
+            List<Skill> skills = invocation.getArgument(0);
+            skills.forEach(s -> s.setId(200L));
+            return skills;
+        });
 
         EventDto result = eventService.update(updatingEventDto);
 
         assertNotNull(result);
         assertEquals(updatingEventDto.getId(), result.getId());
-        verify(eventRepository).save(any(Event.class));
+        assertNotNull(result.getRelatedSkills());
+        assertEquals(1, result.getRelatedSkills().size());
+        assertEquals("Cooking", result.getRelatedSkills().get(0).getTitle());
+
+        verify(eventRepository, times(1)).save(any(Event.class));
+        verify(skillRepository, times(1)).saveAll(anyList());
     }
 
     @Test
@@ -214,5 +283,42 @@ public class EventServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(eventBakingDto, result.get(0));
+    }
+
+    @Test
+    public void testDeletePastEvents_whenEventsExist_shouldDeleteEvents() throws Exception {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(List.of(eventBaking, eventCarFixing));
+        doNothing().when(eventRepository).deleteAllById(any());
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+        result.get();
+
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, times(1)).deleteAllById(any());
+        assertTrue(result.isDone());
+        assertFalse(result.isCompletedExceptionally());
+    }
+
+    @Test
+    public void testDeletePastEvents_whenNoEventsExist_shouldNotDeleteEvents() throws Exception {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(List.of());
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+        result.get();
+
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, never()).deleteAllById(any());
+        assertTrue(result.isDone());
+        assertFalse(result.isCompletedExceptionally());
+    }
+
+    @Test
+    public void testDeletePastEvents_whenExceptionOccurs_shouldLogError() {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+
+        assertTrue(result.isCompletedExceptionally());
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
     }
 }

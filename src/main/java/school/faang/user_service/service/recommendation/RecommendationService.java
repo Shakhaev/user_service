@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.entity.Skill;
@@ -51,6 +51,11 @@ public class RecommendationService {
 
         Recommendation recommendation = recommendationMapper.toEntity(requestRecommendationDto);
         recommendation = processAndSaveRecommendation(recommendation);
+
+
+        createRecommendationPublisher(requestRecommendationDto.getAuthorId()
+                ,requestRecommendationDto.getReceiverId()
+                ,recommendation.getId());
 
         return recommendationMapper.toDto(recommendation);
     }
@@ -169,8 +174,8 @@ public class RecommendationService {
     private Recommendation processAndSaveRecommendation(Recommendation recommendation) {
         Recommendation finalRecommendation = recommendation;
         List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
-                .map(skillDto -> {
-                    Skill skill = getSkill(skillDto.getSkill().getId());
+                .map(skillOfferDto -> {
+                    Skill skill = getSkill(skillOfferDto.getSkill().getId());
                     return SkillOffer.builder()
                             .recommendation(finalRecommendation)
                             .skill(skill)
@@ -197,4 +202,6 @@ public class RecommendationService {
         log.info("Both RecommendationReceivedEvent and RecommendationEvent published for recommendationId={}", recommendationId);
 
     }
+
+
 }
