@@ -12,6 +12,7 @@ import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
+import school.faang.user_service.publisher.UnfollowEventPublisher;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -26,6 +27,9 @@ class SubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
+
+    @Mock
+    private UnfollowEventPublisher unfollowEventPublisher;
 
     @Mock
     private FollowerEventPublisher followerEventPublisher;
@@ -45,26 +49,34 @@ class SubscriptionServiceTest {
         assertEquals("Некорректные ID: ID не должны быть null и не должны совпадать.", exception.getMessage());
     }
 
-
-
     @Test
+
+    @DisplayName("Успешная отписка: Пользователь отписывается от другого пользователя")
+    void unfollowUser_ShouldUnfollowUser_WhenSubscriptionExists() {
+        Long followerId = 1L;
+        Long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
+
+        subscriptionService.unfollowUser(followerId, followeeId);
+
+        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+        verify(unfollowEventPublisher).publish(any(SubscribeEventDto.class));
+    }
+
     @DisplayName("Успешная подписка: Пользователь подписывается на другого пользователя")
     void followUser_ShouldFollowUser_WhenSubscriptionDoesNotExist() {
-        // Arrange
         Long followerId = 1L;
         Long followeeId = 2L;
 
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
 
-        // Act
         subscriptionService.followUser(followerId, followeeId);
 
-        // Assert
         verify(subscriptionRepository).followUser(followerId, followeeId);
         verify(followerEventPublisher).publish(any(SubscribeEventDto.class));
         verifyNoMoreInteractions(followerEventPublisher);
     }
-
 
     @Test
     void unfollowUser_ShouldThrowException_WhenSubscriptionDoesNotExist() {
@@ -84,7 +96,7 @@ class SubscriptionServiceTest {
     @Test
     void getFollowers_ShouldReturnFilteredFollowers_WhenFilterIsValid() {
         Long userId = 1L;
-        UserFilterDTO filter = new UserFilterDTO(); // Добавьте нужные параметры фильтра
+        UserFilterDTO filter = new UserFilterDTO();
 
         User user1 = new User();
         user1.setId(1L);
@@ -130,7 +142,7 @@ class SubscriptionServiceTest {
     @Test
     void getFollowing_ShouldReturnFilteredFollowing_WhenFilterIsValid() {
         Long followeeId = 1L;
-        UserFilterDTO filter = new UserFilterDTO(); // Добавьте нужные параметры фильтра
+        UserFilterDTO filter = new UserFilterDTO();
 
         User user1 = new User();
         user1.setId(2L);
