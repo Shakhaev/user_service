@@ -18,6 +18,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Data
 @Builder
@@ -25,6 +26,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(name = "User.skills", attributeNodes = @NamedAttributeNode("skills"))
+@NamedEntityGraph(name = "User.premium", attributeNodes = @NamedAttributeNode("premium"))
 public class User {
 
     @Id
@@ -145,4 +148,10 @@ public class User {
 
     @Column(name = "banned")
     private boolean banned;
+
+    @Column(name = "messages")
+    private long messages;
+
+    @Column(name = "locale")
+    private Locale locale;
 }
