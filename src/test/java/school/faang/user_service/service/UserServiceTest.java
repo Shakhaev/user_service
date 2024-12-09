@@ -43,17 +43,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
 
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +70,13 @@ class UserServiceTest {
     private UserValidator userValidator;
 
     @Mock
+    private MentorshipService mentorshipService;
+
+    @Mock
     private CountryService countryService;
+
+    @Mock
+    private EventService eventService;
 
     @Mock
     private PersonToUserMapper personToUserMapper;
@@ -82,6 +86,9 @@ class UserServiceTest {
 
     @Mock
     private CsvParser parser;
+
+    @Mock
+    private UserValidator userValidator;
 
     @Mock
     private Filter<User, UserFilterDto> userNameFilter;
@@ -116,17 +123,16 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private final long userId = 1L;
     private User user;
+    private UserDto dto;
     private User user1;
     private User mockUser;
     private Person mockPerson;
     private Country country1;
     private List<Event> events;
-    private UserDto dto;
     private InputStream inputStream;
     private List<Person> people;
-
+    private final long userId = 1L;
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -695,6 +701,20 @@ class UserServiceTest {
     }
 
     @Test
+    void testBanUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.banUser(1L);
+
+        assertTrue(user.getBanned());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
     void importUsersFromCsvSuccessfully() throws IOException {
         when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
@@ -721,6 +741,51 @@ class UserServiceTest {
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
 
         verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnUserDtosWhenUsersExist() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+
+        List<User> users = Arrays.asList(
+                User.builder().id(1L).username("John Doe").build(),
+                User.builder().id(2L).username("Jane Doe").build()
+        );
+
+        List<UserDto> expectedDtos = Arrays.asList(
+                UserDto.builder().id(1L).username("John Doe").build(),
+                UserDto.builder().id(2L).username("Jane Doe").build()
+        );
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        when(userMapper.toDto(users)).thenReturn(expectedDtos);
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedDtos, result);
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(users);
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnEmptyListWhenNoUsersExist() {
+        List<Long> ids = Arrays.asList(4L, 5L);
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userMapper.toDto(List.of())).thenReturn(List.of());
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(List.of());
+        verifyNoMoreInteractions(userRepository, userMapper);
     }
 
     @Test

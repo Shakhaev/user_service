@@ -74,6 +74,12 @@ public class UserController {
             @Valid UserFilterDto filter) {
         return userService.getPremiumUsers(filter);
     }
+
+    @GetMapping("/ids")
+    public List<UserDto> getUsersByIds(@RequestParam List<Long> ids) {
+        return userService.getUsersByIds(ids);
+    }
+
     @GetMapping("{userId}/contacts")
     @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
     public ResponseEntity<UserContactsDto> getUserContacts(
