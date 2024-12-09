@@ -6,6 +6,8 @@ spring:
       channel:
         follower: follower_channel
         unfollow: unfollow_channel
+       topic:
+        search-appearance: search_appearance_topic
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -23,9 +25,6 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
-server:
-  port: 8080
 
 logging:
   level:

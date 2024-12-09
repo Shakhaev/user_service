@@ -1,12 +1,13 @@
 package school.faang.user_service.config.redis;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -15,12 +16,16 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
 public class RedisConfig {
 
     private final RedisProperties redisProperties;
+  
+    @Value("${spring.data.redis.topic.search-appearance}")
+    private String searchAppearanceTopicName;
 
 
     @Bean
@@ -42,6 +47,11 @@ public class RedisConfig {
     public ChannelTopic unfollowerChannel() {
         log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowChannel());
         return new ChannelTopic(redisProperties.getUnfollowChannel());
+    }
+  
+    @Bean
+    public ChannelTopic createAppearanceTopic() {
+        return new ChannelTopic(searchAppearanceTopicName);
     }
 
     @Bean
