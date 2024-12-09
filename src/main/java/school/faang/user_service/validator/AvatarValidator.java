@@ -9,10 +9,13 @@ import school.faang.user_service.exception.InvalidFileFormatException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 
 @Component
 public class AvatarValidator {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final Set<String> SUPPORTED_CONTENT_TYPES = Set.of("image/jpeg", "image/jpg", "image/png", "image/gif");
 
     public void validateAvatarFile(MultipartFile avatarFile) {
         validateFileSize(avatarFile);
@@ -20,7 +23,7 @@ public class AvatarValidator {
         validateImageContent(avatarFile);
     }
 
-    public void validateUserAuthorization(Long currentUserId, Long userId) {
+    public void isAuthorized(Long currentUserId, Long userId) {
         if (!currentUserId.equals(userId)) {
             throw new AccessDeniedException("You are not authorized to update avatar");
         }
@@ -40,15 +43,12 @@ public class AvatarValidator {
     }
 
     private boolean isSupportedContentType(String contentType) {
-        return contentType.equals("image/jpeg") ||
-                contentType.equals("image/jpg") ||
-                contentType.equals("image/png") ||
-                contentType.equals("image/gif");
+        return SUPPORTED_CONTENT_TYPES.contains(contentType);
     }
 
     private void validateImageContent(MultipartFile file) {
-        try {
-            BufferedImage image = ImageIO.read(file.getInputStream());
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage image = ImageIO.read(inputStream);
             if (image == null) {
                 throw new InvalidFileFormatException("Uploaded file is not a valid image");
             }

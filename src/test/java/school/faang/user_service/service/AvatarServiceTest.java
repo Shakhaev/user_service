@@ -73,7 +73,7 @@ class AvatarServiceTest {
         MultipartFile mockMultipartFile = mock(MultipartFile.class);
 
         when(userService.findUserById(userId)).thenReturn(mockUser);
-        doNothing().when(avatarValidator).validateUserAuthorization(currentUserId, userId);
+        doNothing().when(avatarValidator).isAuthorized(currentUserId, userId);
         doNothing().when(avatarValidator).validateAvatarFile(mockMultipartFile);
 
         when(mockMultipartFile.getContentType()).thenReturn("image/jpeg");
@@ -125,7 +125,7 @@ class AvatarServiceTest {
         mockUser.setUserProfilePic(mockAvatar);
 
         when(userService.findUserById(userId)).thenReturn(mockUser);
-        doNothing().when(avatarValidator).validateUserAuthorization(currentUserId, userId);
+        doNothing().when(avatarValidator).isAuthorized(currentUserId, userId);
 
         avatarService.deleteUserAvatar(userId, currentUserId);
 
@@ -138,7 +138,7 @@ class AvatarServiceTest {
     @Test
     void deleteUserAvatar_AvatarNotFound() {
         when(userService.findUserById(userId)).thenReturn(mockUser);
-        doNothing().when(avatarValidator).validateUserAuthorization(currentUserId, userId);
+        doNothing().when(avatarValidator).isAuthorized(currentUserId, userId);
 
         Exception exception = assertThrows(AvatarNotFoundException.class, () -> {
             avatarService.deleteUserAvatar(userId, currentUserId);
