@@ -18,6 +18,7 @@ import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -53,6 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.entity.contact.PreferredContact.EMAIL;
 
 @ExtendWith({MockitoExtension.class})
 class UserServiceTest {
@@ -262,11 +264,14 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(1242142141241L)
+                .contactPreference(contactPreference)
                 .build();
 
         User secondUser = User.builder()
@@ -274,6 +279,7 @@ class UserServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(90218421908421L)
+                .contactPreference(contactPreference)
                 .build();
 
         UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, "8778", UserDto.PreferredContact.EMAIL);
@@ -313,6 +319,7 @@ class UserServiceTest {
                 .premium(expiredPremium)
                 .telegramChatId(90182590L)
                 .build();
+        firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
 
         User secondUser = User.builder()
                 .id(secondUserId)
@@ -320,9 +327,10 @@ class UserServiceTest {
                 .email("second@email.com")
                 .telegramChatId(893248953L)
                 .build();
+        secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, "8778", UserDto.PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
@@ -422,5 +430,4 @@ class UserServiceTest {
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
     }
-
 }

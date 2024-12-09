@@ -6,7 +6,6 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.pojo.user.Person;
-import school.faang.user_service.entity.contact.ContactPreference;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,7 +13,7 @@ import java.util.stream.Stream;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    @Mapping(target = "preference", expression = "java(mapPreference(user.getContactPreference()))")
+    @Mapping(target = "preference", source = "contactPreference.preference")
     UserDto toDto(User user);
 
     @Mapping(target = "username", expression = "java(person.getFirstName() + \" \" + person.getLastName())")
@@ -45,16 +44,5 @@ public interface UserMapper {
         }
 
         return aboutMe.toString().trim();
-    }
-
-    default UserDto.PreferredContact mapPreference(ContactPreference contactPreference) {
-        if (contactPreference == null) {
-            return null;
-        }
-        return switch (contactPreference.getPreference()) {
-            case EMAIL -> UserDto.PreferredContact.EMAIL;
-            case PHONE -> UserDto.PreferredContact.SMS;
-            case TELEGRAM -> UserDto.PreferredContact.TELEGRAM;
-        };
     }
 }
