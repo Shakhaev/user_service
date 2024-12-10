@@ -167,12 +167,10 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/{userId}/profile/{viewerId}")
+    @GetMapping("/{userId}/profile")
     public UserDto getUserProfile(
-            @PathVariable @Min(1) Long userId,
-            @PathVariable @Min(1) Long viewerId) {
-        return userService.getUserProfile(userId, viewerId);
+            @PathVariable @Min(1) Long userId) {
+        return userService.getUser(userId);
     }
-
 
 }
