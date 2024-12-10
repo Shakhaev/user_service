@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class SkillService {
 
     private final SkillRepository skillRepository;
@@ -57,19 +59,18 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-//        skillValidator.validateUserSkillExist(skillId, userId);
-//        skillValidator.validateSkillOfferCount(skillId, userId);
-//
-//        skillRepository.assignSkillToUser(skillId, userId);
-//        Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
+        skillValidator.validateUserSkillExist(skillId, userId);
+        skillValidator.validateSkillOfferCount(skillId, userId);
 
+        skillRepository.assignSkillToUser(skillId, userId);
+        Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
+
+        log.info("create and send SkillAcquiredEvent");
         SkillAcquiredEvent skillAcquiredEvent = new SkillAcquiredEvent(userId, skillId);
         skillAcquiredEventPublisher.publish(skillAcquiredEvent);
 
-        return new SkillDto();
-
-//        return skill.map(skillMapper::entityToDto)
-//                .orElseThrow(() -> new DataValidationException("Скилл не найден"));
+        return skill.map(skillMapper::entityToDto)
+                .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 
     public List<SkillRequest> findByRequestId(long requestId) {

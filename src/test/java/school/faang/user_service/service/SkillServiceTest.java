@@ -9,6 +9,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.publisher.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
 
@@ -33,6 +34,8 @@ public class SkillServiceTest {
 
     @Mock
     private SkillValidator skillValidator;
+    @Mock
+    private SkillAcquiredEventPublisher skillAcquiredEventPublisher;
 
     @Spy
     private SkillMapperImpl skillMapper;
