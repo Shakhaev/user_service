@@ -20,7 +20,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
-    @Value("${spring.data.redis.channels.user-ban-channel}")
+    @Value("${spring.data.redis.channel.user-ban-channel}")
     private String userBanTopic;
 
     private final RedisProperties redisProperties;
