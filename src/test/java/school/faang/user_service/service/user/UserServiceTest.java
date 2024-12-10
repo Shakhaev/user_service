@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -19,7 +20,6 @@ import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
-import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -30,6 +30,7 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.entity.contact.PreferredContact.EMAIL;
 
 @ExtendWith({MockitoExtension.class})
 class UserServiceTest {
@@ -75,6 +77,12 @@ class UserServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+
+    @Mock
+    private UserContext userContext;
 
     private List<UserFilter> userFilters;
 
@@ -103,7 +111,15 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
+        userService = new UserService(
+                userRepository,
+                userFilters,
+                userMapper,
+                userJiraMapper,
+                userJiraService,
+                profileViewEventPublisher,
+                userContext,
+                countryService);
     }
 
     @Test
@@ -260,28 +276,26 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
-        ContactPreference firstUserContactPreference = new ContactPreference();
-        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
-                .telegramChatId(90182590L)
-                .contactPreference(firstUserContactPreference)
+                .telegramChatId(1242142141241L)
+                .contactPreference(contactPreference)
                 .build();
 
-        ContactPreference secondUserContactPreference = new ContactPreference();
-        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
-                .telegramChatId(893248953L)
-                .contactPreference(secondUserContactPreference)
+                .telegramChatId(90218421908421L)
+                .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, EMAIL);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -310,28 +324,25 @@ class UserServiceTest {
         Premium expiredPremium = new Premium();
         expiredPremium.setEndDate(LocalDateTime.now().minusDays(1));
 
-        ContactPreference firstUserContactPreference = new ContactPreference();
-        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
+                .premium(expiredPremium)
                 .telegramChatId(90182590L)
-                .contactPreference(firstUserContactPreference)
                 .build();
+        firstUser.setContactPreference(new ContactPreference(1, firstUser, EMAIL));
 
-        ContactPreference secondUserContactPreference = new ContactPreference();
-        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(893248953L)
-                .contactPreference(secondUserContactPreference)
                 .build();
+        secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
@@ -431,5 +442,4 @@ class UserServiceTest {
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
     }
-
 }
