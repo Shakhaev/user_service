@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
 import school.faang.user_service.message.event.UsersBanEvent;
 import school.faang.user_service.exceptions.MessageMappingException;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user.UserService;
 
 import java.io.IOException;
 import java.util.List;
