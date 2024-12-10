@@ -12,7 +12,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.dto.events.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -30,7 +29,6 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
-import school.faang.user_service.redis.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -51,7 +49,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -79,13 +76,16 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+
+    @Mock
+    private UserContext userContext;
+
     private List<UserFilter> userFilters;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
-
-    @Mock
-    private  ProfileViewEventPublisher profileViewEventPublisher;
 
     @Test
     void getUserTest() {
@@ -109,7 +109,15 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, profileViewEventPublisher, countryService);
+        userService = new UserService(
+                userRepository,
+                userFilters,
+                userMapper,
+                userJiraMapper,
+                userJiraService,
+                profileViewEventPublisher,
+                userContext,
+                countryService);
     }
 
     @Test
@@ -432,57 +440,4 @@ class UserServiceTest {
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
     }
-
-    @Test
-    public void getUserProfileTest() {
-        Long userId = 1L;
-        Long viewerId = 2L;
-
-        UserDto mockUser = UserDto.builder()
-                .id(userId)
-                .username("test")
-                .email("test@example.com")
-                .telegramChatId(null)
-                .build();
-
-        User user = User.builder()
-                .id(userId)
-                .username("test")
-                .email("test@example.com")
-                .telegramChatId(null)
-                .phone("1234567890")
-                .build();
-
-        User user1 = User.builder()
-                .id(userId)
-                .username("test1")
-                .email("test1@example.com")
-                .telegramChatId(null)
-                .phone("12345678901")
-                .build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.findById(viewerId)).thenReturn(Optional.of(user1));
-
-        UserDto result = userService.getUserProfile(userId, viewerId);
-
-        assertEquals(mockUser, result);
-        verify(profileViewEventPublisher, times(1)).publish(any(ProfileViewEvent.class));
-    }
-
-    @Test
-    public void testGetUserProfileUserNotFoundTest() {
-        Long userId = 1L;
-        Long viewerId = 2L;
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class, () -> userService.getUserProfile(userId, viewerId)
-        );
-        assertEquals(String.format(ErrorMessage.USER_NOT_FOUND, userId), exception.getMessage());
-
-        verify(profileViewEventPublisher, never()).publish(any(ProfileViewEvent.class));
-    }
-
 }

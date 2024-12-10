@@ -22,8 +22,8 @@ import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.pojo.user.Person;
-import school.faang.user_service.redis.ProfileViewEventPublisher;
-import school.faang.user_service.dto.events.ProfileViewEvent;
+import school.faang.user_service.redis.event.ProfileViewEvent;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -50,12 +50,15 @@ public class UserService {
     private final UserJiraMapper userJiraMapper;
     private final UserJiraService userJiraService;
     private final ProfileViewEventPublisher profileViewEventPublisher;
+    private final UserContext userContext;
 
     private final CountryService countryService;
     private static final String FILE_TYPE = "text/csv";
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
+        ProfileViewEvent event = new ProfileViewEvent(userId, userContext.getUserId(), LocalDateTime.now());
+        profileViewEventPublisher.publish(event);
         return userMapper.toDto(findUserById(userId));
     }
 
@@ -162,16 +165,6 @@ public class UserService {
             log.error("Error processing CSV file", e);
             throw new RuntimeException("Error processing CSV file", e);
         }
-    }
-
-    @Transactional
-    public UserDto getUserProfile(Long userId, Long viewerId) {
-        UserDto profileDto = getUser(userId);
-        UserDto viewerDto = getUser(viewerId);
-        ProfileViewEvent profileViewEvent = new ProfileViewEvent(viewerDto.getUsername(), userId);
-        profileViewEventPublisher.publish(profileViewEvent);
-        log.info("Json sent : viewerId - " + profileViewEvent.getUsername() + ", profileId - " + profileViewEvent.getProfileId());
-        return profileDto;
     }
 
     private List<UserDto> saveUsers(List<Person> persons) {
