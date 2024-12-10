@@ -13,7 +13,7 @@ import school.faang.user_service.event.RecommendationReceivedEvent;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RecommendationReceivedEventPublisher implements MessagePublisher<RecommendationReceivedEvent> {
+public class RecommendationReceivedEventPublisher implements EventPublisher<RecommendationReceivedEvent> {
     private final RedisTemplate<String, Object> redisTemplate;
     private final RetryProperties retryProperties;
     private final RedisProperties redisProperties;
