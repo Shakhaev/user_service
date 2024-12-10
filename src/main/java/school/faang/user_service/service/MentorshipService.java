@@ -63,9 +63,9 @@ public class MentorshipService {
     @Retryable(retryFor = Exception.class,
             maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
             backoff = @Backoff(
-                    delayExpression = "#{@retryProperties.initialInterval}",
+                    delayExpression = "#{@retryProperties.initialDelay}",
                     multiplierExpression = "#{@retryProperties.multiplier}",
-                    maxDelayExpression = "#{@retryProperties.maxInterval}"
+                    maxDelayExpression = "#{@retryProperties.maxDelay}"
             )
     )
     public void handleUserProfileDeactivatedEvent(UserProfileDeactivatedEvent event) {

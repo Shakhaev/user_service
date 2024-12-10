@@ -8,8 +8,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 import school.faang.user_service.config.RetryProperties;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -108,9 +106,9 @@ public class EventService {
     @Retryable(retryFor = Exception.class,
             maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
             backoff = @Backoff(
-                    delayExpression = "#{@retryProperties.initialInterval}",
+                    delayExpression = "#{@retryProperties.initialDelay}",
                     multiplierExpression = "#{@retryProperties.multiplier}",
-                    maxDelayExpression = "#{@retryProperties.maxInterval}"
+                    maxDelayExpression = "#{@retryProperties.maxDelay}"
             )
     )
     public void handleUserProfileDeactivatedEvent(UserProfileDeactivatedEvent systemEvent) {
