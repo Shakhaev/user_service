@@ -3,7 +3,6 @@ package school.faang.user_service.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.UserService;
@@ -78,5 +78,13 @@ public class UserController {
     @GetMapping("/ids")
     public List<UserDto> getUsersByIds(@RequestParam List<Long> ids) {
         return userService.getUsersByIds(ids);
+    }
+
+    @GetMapping("{userId}/contacts")
+    @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
+    public ResponseEntity<UserContactsDto> getUserContacts(
+            @PathVariable @Positive (message = "User id should be a positive integer") Long userId) {
+        log.info("Getting contacts of user with id {}", userId);
+        return ResponseEntity.ok(userService.getUserContacts(userId));
     }
 }
