@@ -84,4 +84,9 @@ public class UserV1Controller {
     public List<UserSubResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
     }
+
+    @GetMapping("/phone/{phone}")
+    public UserForNotificationDto getUserByPhone(@PathVariable String phone) {
+        return userService.getUserByPhone(phone);
+    }
 }
