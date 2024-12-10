@@ -3,11 +3,10 @@ spring:
     redis:
       host: localhost
       port: 6379
-      channel:
-        follower: follower_channel
-        unfollow: unfollow_channel
-       topic:
+      topic:
         search-appearance: search_appearance_topic
+        follow: follower_channel
+        unfollow: unfollow_channel
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -49,5 +48,3 @@ application:
     threads-number: 20
     time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
     batch-size: 100
-
-

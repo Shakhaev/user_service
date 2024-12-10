@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -16,18 +17,23 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
 public class RedisConfig {
 
     private final RedisProperties redisProperties;
-  
+
     @Value("${spring.data.redis.topic.search-appearance}")
     private String searchAppearanceTopicName;
 
+    @Value("${spring.data.redis.topic.follow}")
+    private String followerChannel;
 
+    @Value("${spring.data.redis.topic.unfollow}")
+    private String unfollowerChannel;
+
+    // Создание подключения к Redis
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getRedisHost(), redisProperties.getRedisPort());
@@ -37,23 +43,29 @@ public class RedisConfig {
         return connectionFactory;
     }
 
+    // Основной канал для поиска появления
     @Bean
-    public ChannelTopic followerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getFollowerChannel());
-        return new ChannelTopic(redisProperties.getFollowerChannel());
-    }
-
-    @Bean
-    public ChannelTopic unfollowerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowChannel());
-        return new ChannelTopic(redisProperties.getUnfollowChannel());
-    }
-  
-    @Bean
+    @Primary
     public ChannelTopic createAppearanceTopic() {
+        log.info("Создание ChannelTopic для канала: {}", searchAppearanceTopicName);
         return new ChannelTopic(searchAppearanceTopicName);
     }
 
+    // Канал для подписчиков
+    @Bean
+    public ChannelTopic followerChannel() {
+        log.info("Создание ChannelTopic для канала: {}", followerChannel);
+        return new ChannelTopic(followerChannel);
+    }
+
+    // Канал для отписавшихся
+    @Bean
+    public ChannelTopic unfollowerChannel() {
+        log.info("Создание ChannelTopic для канала: {}", unfollowerChannel);
+        return new ChannelTopic(unfollowerChannel);
+    }
+
+    // Конфигурация RedisTemplate с кастомными сериализаторами
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         log.info("Создание RedisTemplate с кастомными сериализаторами.");
