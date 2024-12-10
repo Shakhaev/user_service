@@ -4,12 +4,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
@@ -18,13 +18,14 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.contact.ContactPreferenceRepository;
-import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
@@ -42,41 +43,16 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PersonToUserMapper personToUserMapper;
-    private final UserValidator userValidator;
-    private final MentorshipService mentorshipService;
+    private final UserContactsMapper userContactsMapper;
     private final CountryService countryService;
-    private final EventService eventService;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
+    private final UserValidator userValidator;
     private final ContactPreferenceRepository contactPreferenceRepository;
-
-    @Autowired
-    public UserService(
-            UserRepository userRepository,
-            UserMapper userMapper,
-            PersonToUserMapper personToUserMapper,
-            UserValidator userValidator,
-            CountryService countryService,
-            @Lazy MentorshipService mentorshipService,
-            @Lazy EventService eventService,
-            List<Filter<User, UserFilterDto>> userFilters,
-            CsvParser parser,
-            ContactPreferenceRepository contactPreferenceRepository
-    ) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.personToUserMapper = personToUserMapper;
-        this.userValidator = userValidator;
-        this.countryService = countryService;
-        this.mentorshipService = mentorshipService;
-        this.eventService = eventService;
-        this.userFilters = userFilters;
-        this.parser = parser;
-        this.contactPreferenceRepository = contactPreferenceRepository;
-    }
 
     public boolean checkUserExistence(long userId) {
         return userRepository.existsById(userId);
@@ -105,21 +81,16 @@ public class UserService {
     }
 
     public UserDto findUserDtoById(Long id) {
-        userValidator.validateUserById(id);
-
         return userMapper.toDto(findUserById(id));
     }
 
     @Transactional
     public UserDto deactivateProfile(long userId) {
-        userValidator.validateUserById(userId);
-
         User user = findUserById(userId);
         stopAllUserActivities(user);
         markUserAsInactive(user);
-        stopMentorship(user);
         userRepository.save(user);
-
+        publishUserProfileDeactivatedEvent(userId);
         return userMapper.toDto(user);
     }
 
@@ -135,6 +106,7 @@ public class UserService {
         }
 
         logProcessingSummary(persons.size(), successCount, errors.size());
+
         return new ProcessResultDto(successCount, errors);
     }
 
@@ -169,6 +141,11 @@ public class UserService {
                     .map(userMapper::toDto)
                     .collect(Collectors.toList());
         }
+    }
+
+    public UserContactsDto getUserContacts(Long userId) {
+        User user = findUserById(userId);
+        return userContactsMapper.toDto(user);
     }
 
     @Transactional
@@ -262,17 +239,13 @@ public class UserService {
 
     private void stopAllUserActivities(User user) {
         removeGoals(user);
-        eventService.cancelUserOwnedEvents(user.getId());
         removeOwnedEvents(user);
     }
 
-    private void stopMentorship(User user) {
-        if (userValidator.isUserMentor(user)) {
-            user.getMentees().forEach(mentee -> {
-                mentorshipService.moveGoalsToMentee(mentee.getId(), user.getId());
-                mentorshipService.deleteMentor(mentee.getId(), user.getId());
-            });
-        }
+    private void publishUserProfileDeactivatedEvent(Long userId) {
+        UserProfileDeactivatedEvent event = new UserProfileDeactivatedEvent(this, userId);
+        eventPublisher.publishEvent(event);
+        log.info("Published User Profile Deactivated Event for user with id: {}", userId);
     }
 
     private void markUserAsInactive(User user) {
@@ -282,7 +255,6 @@ public class UserService {
     private void removeGoals(User user) {
         user.getSetGoals().removeIf(goal -> goal.getUsers().isEmpty());
     }
-
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
         for (Filter<User, UserFilterDto> filter : userFilters) {
@@ -296,7 +268,6 @@ public class UserService {
     private void removeOwnedEvents(User user) {
         user.getOwnedEvents().removeIf(event -> event.getStatus() == EventStatus.CANCELED);
     }
-
 
     private String generateRandomPassword() {
         return UUID.randomUUID().toString();

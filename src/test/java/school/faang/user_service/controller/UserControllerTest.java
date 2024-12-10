@@ -3,24 +3,28 @@ package school.faang.user_service.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.contact.PreferredContact;
+import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
@@ -31,6 +35,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -43,31 +48,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest
+@ContextConfiguration(classes = {UserController.class})
 class UserControllerTest {
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
+    private UserController userController;
+
+    @MockBean
     private UserService userService;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
     @Spy
     private UserMapper userMapper;
-    @Mock
+    @MockBean
     private UserValidator userValidator;
 
-    @InjectMocks
-    private UserController userController;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String csvContent;
     private MockMultipartFile file;
 
     @BeforeEach
     void setUp() throws IOException {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
                 .getSystemResourceAsStream("students2.csv"));
         file = new MockMultipartFile("file", "test.csv", "text/csv", testCsv.getBytes());
@@ -221,10 +229,10 @@ class UserControllerTest {
         mockMvc.perform(post("/users/1/profile-settings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                    {
-                        "preference": "EMAIL"
-                    }
-                """))
+                                    {
+                                        "preference": "EMAIL"
+                                    }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()))
                 .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
@@ -243,5 +251,40 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(responseDto.getId()))
                 .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
                 .andExpect(jsonPath("$.userId").value(userId));
+    }
+
+    @DisplayName("Get user contacts success")
+    void testGetUserContactsSuccess() throws Exception {
+        Long userId = 1L;
+        UserContactsDto dto = UserContactsDto.builder()
+                .id(1L)
+                .email("email")
+                .phone("phone")
+                .build();
+        when(userService.getUserContacts(userId)).thenReturn(dto);
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.phone").value("phone"));
+    }
+
+    @Test
+    @DisplayName("Get user contacts fail: Negative project id")
+    void testGetUserContacts_NegativeProjectId_Fail() throws Exception {
+        Long userId = -1L;
+
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("User id should be a positive integer")));
+    }
+
+    @Test
+    @DisplayName("Get user contacts fail: null project id")
+    void testGetUserContacts_nullProjectId_Fail() throws Exception {
+        Long userId = null;
+
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isNotFound());
     }
 }

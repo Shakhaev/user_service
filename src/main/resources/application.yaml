@@ -20,13 +20,17 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
-        user-ban-channel:
-          name: user_ban
+      channel:
+        mentorship-channel: mentorship_channel
+        follower-channel: follower_event
+        recommendation-channel: recommendation_channel
+        user_ban-channel: user_ban
+
+  retry:
+    maxAttempts: 3
+    initialDelay: 1000
+    multiplier: 2
+    maxDelay: 10000
 
 server:
   port: 8080

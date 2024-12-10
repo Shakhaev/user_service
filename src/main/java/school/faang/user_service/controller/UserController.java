@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
@@ -105,5 +106,13 @@ public class UserController {
             Long userId
     ) {
         return ResponseEntity.ok(userService.getProfileSettings(userId));
+    }
+
+    @GetMapping("/{userId}/contacts")
+    @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
+    public ResponseEntity<UserContactsDto> getUserContacts(
+            @PathVariable @Positive (message = "User id should be a positive integer") Long userId) {
+        log.info("Getting contacts of user with id {}", userId);
+        return ResponseEntity.ok(userService.getUserContacts(userId));
     }
 }
