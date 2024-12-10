@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
@@ -27,7 +29,9 @@ public class SubscriptionController {
 
     @PostMapping("/{followerId}/follow/{followeeId}")
     public ResponseEntity<Void> followUser(@Valid @PathVariable long followerId, @Valid @PathVariable long followeeId) {
+        log.info("Received request to subscribe user #{} to user #{}.", followerId, followeeId);
         subscriptionService.followUser(followerId, followeeId);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
