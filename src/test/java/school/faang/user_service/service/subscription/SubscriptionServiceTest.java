@@ -10,15 +10,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.event.FollowerEvent;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.redis.event.UserFollowerEvent;
 import school.faang.user_service.redis.publisher.FollowerEventPublisher;
-import school.faang.user_service.redis.publisher.UserFollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
@@ -57,9 +56,6 @@ public class SubscriptionServiceTest {
     @Mock
     UserService userService;
 
-    @Mock
-    UserFollowerEventPublisher eventPublisher;
-
     SubscriptionService subscriptionService;
 
     private UserFilterDto filter;
@@ -85,12 +81,12 @@ public class SubscriptionServiceTest {
 
         subscriptionService = new SubscriptionService(subscriptionRepository,
                 userMapper, userFilters, subscriptionValidation, userValidator,
-                userService, followerEventPublisher,eventPublisher);
+                userService, followerEventPublisher);
     }
 
     @Test
     public void followUserTest() {
-        ArgumentCaptor<FollowerEvent> followerEventCaptor = ArgumentCaptor.forClass(FollowerEvent.class);
+        ArgumentCaptor<UserFollowerEvent> followerEventCaptor = ArgumentCaptor.forClass(UserFollowerEvent.class);
         followerId = 1L;
         followeeId = 2L;
         boolean isExists = true;
@@ -107,9 +103,9 @@ public class SubscriptionServiceTest {
         verify(subscriptionRepository).followUser(followerId, followeeId);
         verify(followerEventPublisher, times(1)).publish(followerEventCaptor.capture());
 
-        FollowerEvent eventToSend = followerEventCaptor.getValue();
-        assertEquals(followerId, eventToSend.getActorId());
-        assertEquals(followeeId, eventToSend.getReceiverId());
+        UserFollowerEvent eventToSend = followerEventCaptor.getValue();
+        assertEquals(followerId, eventToSend.getFollowerId());
+        assertEquals(followeeId, eventToSend.getFolloweeId());
     }
 
     @Test
