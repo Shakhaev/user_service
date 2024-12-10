@@ -11,6 +11,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.config.RedisProperties;
 import school.faang.user_service.dto.MentorshipRequestEvent;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,10 +21,9 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class MentorshipRequestedEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisProperties redisProperties;
     private final ObjectMapper objectMapper;
-
-    @Value("${channels.redis.mentorship-requested}")
-    private String mentorshipRequestedTopicName;
+    private String mentorship_request;
 
     @Retryable(
             value = {JsonProcessingException.class, RedisException.class, Exception.class},
@@ -34,7 +34,7 @@ public class MentorshipRequestedEventPublisher {
     public CompletableFuture<Void> publish(MentorshipRequestEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
-            redisTemplate.convertAndSend(mentorshipRequestedTopicName, json);
+            redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), json);
             log.info("Successfully published mentorship request event to Redis topic.");
             return CompletableFuture.completedFuture(null);
         } catch (JsonProcessingException e) {

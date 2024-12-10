@@ -20,6 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      channel:
+        mentorship_request: "mentorship_request_channel"
       channels:
         mentorship-channel:
           name: mentorship_channel
@@ -71,6 +73,5 @@ batch:
   size:
     eventBatch: 50
 
-channels:
-  redis:
-    mentorship-requested: "mentorship-requested-topic"
+
+

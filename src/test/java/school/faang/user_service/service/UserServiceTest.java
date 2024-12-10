@@ -775,7 +775,7 @@ class UserServiceTest {
 
     private Person createMockPerson(String firstName, String lastName, String email) {
         Address address = new Address("123 Street", "New York", "NY", "Country1", "10001");
-        ContactInfo contactInfo = new ContactInfo(email, "999999999", address);
+        ContactInfo contactInfo = new ContactInfo(email, "111222333", address);
         Education education = new Education("CS", 4, "SE", 3.8);
 
         return Person.builder()
@@ -792,7 +792,7 @@ class UserServiceTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("randomPassword");
-        user.setPhone("999999999");
+        user.setPhone("111222333");
         return user;
     }
 }
