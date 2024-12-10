@@ -30,11 +30,11 @@ spring:
       port: 6379
       host: localhost
       channel:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel: follower_event
+        follower: follower_channel
+        profile-view: profile_view_channel
+        mentorship:
+          accepted: mentorship_accepted_channel
         user-ban: user_ban
-
   servlet:
     multipart:
       max-file-size: 5MB

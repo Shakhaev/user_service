@@ -11,12 +11,14 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.FollowerEvent;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.redis.publisher.FollowerEventPublisher;
+import school.faang.user_service.redis.publisher.UserFollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
@@ -32,6 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.entity.contact.PreferredContact.EMAIL;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -53,6 +56,9 @@ public class SubscriptionServiceTest {
 
     @Mock
     UserService userService;
+
+    @Mock
+    UserFollowerEventPublisher eventPublisher;
 
     SubscriptionService subscriptionService;
 
@@ -79,7 +85,7 @@ public class SubscriptionServiceTest {
 
         subscriptionService = new SubscriptionService(subscriptionRepository,
                 userMapper, userFilters, subscriptionValidation, userValidator,
-                userService, followerEventPublisher);
+                userService, followerEventPublisher,eventPublisher);
     }
 
     @Test
@@ -136,6 +142,7 @@ public class SubscriptionServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(98125891L)
+                .contactPreference(new ContactPreference(1, firstUser, EMAIL))
                 .build();
 
         secondUser = User.builder()
@@ -143,6 +150,7 @@ public class SubscriptionServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(3454353L)
+                .contactPreference(new ContactPreference(2, secondUser, EMAIL))
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -152,8 +160,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L, EMAIL);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L, EMAIL);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -207,6 +215,7 @@ public class SubscriptionServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(9821491L)
+                .contactPreference(new ContactPreference(1, firstUser, EMAIL))
                 .build();
 
         secondUser = User.builder()
@@ -214,6 +223,7 @@ public class SubscriptionServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(894189742L)
+                .contactPreference(new ContactPreference(2, secondUser, EMAIL))
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -223,8 +233,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 9821491L);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 894189742L);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 9821491L, EMAIL);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 894189742L, EMAIL);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
