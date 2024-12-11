@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.domain.Address;
@@ -16,18 +17,19 @@ import school.faang.user_service.domain.ContactInfo;
 import school.faang.user_service.domain.Education;
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validator.UserValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,11 +51,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
 
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private UserRepository userRepository;
@@ -62,19 +69,13 @@ class UserServiceTest {
     private UserMapper userMapper;
 
     @Mock
-    private UserValidator userValidator;
-
-    @Mock
-    private MentorshipService mentorshipService;
-
-    @Mock
-    private EventService eventService;
-
-    @Mock
     private CountryService countryService;
 
     @Mock
     private PersonToUserMapper personToUserMapper;
+
+    @Mock
+    private UserContactsMapper userContactsMapper;
 
     @Mock
     private CsvParser parser;
@@ -112,17 +113,16 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private final long userId = 1L;
     private User user;
+    private UserDto dto;
     private User user1;
     private User mockUser;
     private Person mockPerson;
     private Country country1;
     private List<Event> events;
-    private UserDto dto;
     private InputStream inputStream;
     private List<Person> people;
-
+    private final long userId = 1L;
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -153,13 +153,12 @@ class UserServiceTest {
         );
 
         userService = new UserService(
+                eventPublisher,
                 userRepository,
                 userMapper,
                 personToUserMapper,
-                userValidator,
-                mentorshipService,
+                userContactsMapper,
                 countryService,
-                eventService,
                 parser,
                 userFilters
         );
@@ -296,10 +295,11 @@ class UserServiceTest {
     @Test
     void testDeactivateProfile_UserFound_DeactivatedSuccessful() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userValidator.isUserMentor(user)).thenReturn(true);
         when(userMapper.toDto(user)).thenReturn(new UserDto());
 
         UserDto result = userService.deactivateProfile(userId);
+
+        verify(eventPublisher, times(1)).publishEvent(any(UserProfileDeactivatedEvent.class));
 
         assertNotNull(result);
         assertFalse(user.isActive());
@@ -318,14 +318,16 @@ class UserServiceTest {
         long menteeId = setUpMentee().getId();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(new UserDto());
-        when(userValidator.isUserMentor(user)).thenReturn(true);
+        when(userMapper.toDto(user)).thenReturn(dto);
 
-        userService.deactivateProfile(userId);
+        UserDto result = userService.deactivateProfile(userId);
+
+        verify(userRepository, times(1)).save(user);
+        verify(userMapper, times(1)).toDto(user);
+        verify(eventPublisher, times(1)).publishEvent(any(UserProfileDeactivatedEvent.class));
 
         assertFalse(user.isActive());
-        verify(mentorshipService).moveGoalsToMentee(menteeId, userId);
-        verify(mentorshipService).deleteMentor(menteeId, userId);
+        assertEquals(result.getId(), userId);
     }
 
     @Test
@@ -688,6 +690,20 @@ class UserServiceTest {
     }
 
     @Test
+    void testBanUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.banUser(1L);
+
+        assertTrue(user.getBanned());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
     void importUsersFromCsvSuccessfully() throws IOException {
         when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
@@ -714,6 +730,77 @@ class UserServiceTest {
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
 
         verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnUserDtosWhenUsersExist() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+
+        List<User> users = Arrays.asList(
+                User.builder().id(1L).username("John Doe").build(),
+                User.builder().id(2L).username("Jane Doe").build()
+        );
+
+        List<UserDto> expectedDtos = Arrays.asList(
+                UserDto.builder().id(1L).username("John Doe").build(),
+                UserDto.builder().id(2L).username("Jane Doe").build()
+        );
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        when(userMapper.toDto(users)).thenReturn(expectedDtos);
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedDtos, result);
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(users);
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnEmptyListWhenNoUsersExist() {
+        List<Long> ids = Arrays.asList(4L, 5L);
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userMapper.toDto(List.of())).thenReturn(List.of());
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(List.of());
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("Get user contacts success")
+    void testGetUserContactsSuccess() {
+        Long userId = 1L;
+        UserContactsDto dto = UserContactsDto.builder()
+                .id(1L)
+                .email("email")
+                .phone("phone")
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userContactsMapper.toDto(mockUser)).thenReturn(dto);
+
+        UserContactsDto result = userService.getUserContacts(userId);
+
+        assertEquals(dto, result);
+    }
+
+    @Test
+    @DisplayName("Get user contacts when user not found")
+    void testGetUserContactsWhenUserNotFound() {
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserContacts(userId));
     }
 
     private Person createMockPerson(String firstName, String lastName, String email) {
