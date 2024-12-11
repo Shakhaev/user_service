@@ -4,32 +4,46 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import school.faang.user_service.dto.user.ProfilePicEvent;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.SearchAppearanceEvent;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.publisher.profile_pic.ProfilePicEventPublisher;
+import school.faang.user_service.publisher.user.SearchAppearanceEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.s3.S3Service;
+import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,16 +70,28 @@ class UserServiceTest {
     private UserMapperImpl userMapper;
 
     @Mock
+    private SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+
+    @Mock
+    private UserContext userContext;
+
+    @Mock
     private UserValidator userValidator;
 
     @Mock
     private S3Service s3Service;
 
     @Mock
+    private ProfilePicEventPublisher eventPublisher;
+
+    @Mock
     private PasswordGenerator passwordGenerator;
 
     @Mock
     private CountryRepository countryRepository;
+
+    @Mock
+    private List<UserFilter> userFilters;
 
     private final long userId = 1L;
     private User user;
@@ -108,6 +134,36 @@ class UserServiceTest {
     }
 
     @Test
+    void testGetUserWithFiltersAndRedis() {
+        UserFilterDto filterDto = new UserFilterDto();
+        long searchingUserId = 2L;
+
+        when(userContext.getUserId()).thenReturn(searchingUserId);
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        UserFilter mockFilter = mock(UserFilter.class);
+        when(mockFilter.isApplicable(filterDto)).thenReturn(true);
+        when(mockFilter.apply(any(Stream.class), eq(filterDto)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(userFilters.iterator()).thenReturn(List.of(mockFilter).iterator());
+        when(userRepository.findAllById(List.of(1L))).thenReturn(List.of(user));
+
+        Stream<UserDto> result = userService.getUser(filterDto);
+
+        ArgumentCaptor<SearchAppearanceEvent> captor = ArgumentCaptor.forClass(SearchAppearanceEvent.class);
+        verify(searchAppearanceEventPublisher).publish(captor.capture());
+
+        SearchAppearanceEvent capturedEvent = captor.getValue();
+        assertEquals(List.of(1L), capturedEvent.getUserIds());
+        assertEquals(searchingUserId, capturedEvent.getSearchingUserId());
+        assertNotNull(capturedEvent.getViewedAt());
+
+        List<UserDto> resultList = result.toList();
+        assertEquals(1, resultList.size());
+        assertEquals(user.getId(), resultList.get(0).getId());
+    }
+
+    @Test
     public void testGetUsersByIdsSuccess() {
         List<Long> ids = List.of(1L, 2L);
         List<User> users = List.of(new User(), new User());
@@ -136,6 +192,8 @@ class UserServiceTest {
 
         verify(s3Service, times(1)).uploadFile(file, user);
         verify(userRepository, times(1)).save(user);
+        ProfilePicEvent picEvent = new ProfilePicEvent(userId, user.getUserProfilePic().getFileId());
+        verify(eventPublisher).publish(picEvent);
     }
 
     @Test
@@ -153,7 +211,7 @@ class UserServiceTest {
 
         byte[] fileBytes = userService.getAvatar(userId);
 
-        Assertions.assertNotNull(fileBytes);
+        assertNotNull(fileBytes);
         Assertions.assertArrayEquals("imageData".getBytes(), fileBytes);
     }
 

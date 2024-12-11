@@ -37,5 +37,7 @@ public class UserDto {
     @Size(min = 1, max = 64, message = "City name should be between 1 and 64 characters long")
     private String city;
 
+    private Long telegramChatId;
+
     private PreferredContact preference;
 }
