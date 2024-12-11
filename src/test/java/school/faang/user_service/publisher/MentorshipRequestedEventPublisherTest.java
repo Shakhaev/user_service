@@ -11,14 +11,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.config.RedisProperties;
 import school.faang.user_service.dto.MentorshipRequestEvent;
 
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -31,42 +34,54 @@ class MentorshipRequestedEventPublisherTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private RedisProperties redisProperties;
 
     @InjectMocks
     private MentorshipRequestedEventPublisher publisher;
 
-    private String topicName;
+    private RedisProperties.Channel channel;
     private MentorshipRequestEvent event;
-   private String jsonEvent;
+
 
     @BeforeEach
     void setUp() {
-        topicName = "mentorship-requested-topic";
-        ReflectionTestUtils.setField(publisher, "mentorshipRequestedTopicName", topicName);
-        event = new MentorshipRequestEvent(1L, 2L, null);
-        jsonEvent = "{\"receiverId\":1, \"actorId\":2, \"receivedAt\":null}";
-
+        channel = new RedisProperties.Channel();
+        channel.setMentorship_request("mentorship_request_channel");
+        when(redisProperties.getChannel()).thenReturn(channel);
+        event = new MentorshipRequestEvent();
     }
 
     @Test
-    void testPublishEventToRedisSuccessfully() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(event)).thenReturn(jsonEvent);
+    void testPublishSuccess() {
+        MentorshipRequestEvent event = new MentorshipRequestEvent();
+        when(redisTemplate.convertAndSend(eq("mentorship_request_channel"), eq(event))).thenReturn(null);
 
         CompletableFuture<Void> result = publisher.publish(event);
 
-        verify(redisTemplate, times(1)).convertAndSend(topicName, jsonEvent);
-        verify(objectMapper, times(1)).writeValueAsString(event);
         assertTrue(result.isDone());
+        assertFalse(result.isCompletedExceptionally());
+        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
     }
 
     @Test
-    void testPublishHandleJsonProcessingException() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
+    void testPublishRedisException() {
+        MentorshipRequestEvent event = new MentorshipRequestEvent();
+        doThrow(new RedisException("Redis error")).when(redisTemplate).convertAndSend(eq("mentorship_request_channel"), eq(event));
 
         CompletableFuture<Void> result = publisher.publish(event);
 
-        verify(redisTemplate, never()).convertAndSend(anyString(), anyString());
         assertTrue(result.isCompletedExceptionally());
+        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
+    }
+
+    @Test
+    void testPublishUnexpectedException() {
+        MentorshipRequestEvent event = new MentorshipRequestEvent();
+        doThrow(new RuntimeException("Unexpected error")).when(redisTemplate).convertAndSend(eq("mentorship_request_channel"), eq(event));
+
+        CompletableFuture<Void> result = publisher.publish(event);
+
+        assertTrue(result.isCompletedExceptionally());
+        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
     }
 }

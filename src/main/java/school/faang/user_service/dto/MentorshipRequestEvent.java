@@ -17,6 +17,5 @@ public class MentorshipRequestEvent {
     @JsonProperty("actorId")
     private long actorId;
 
-    @JsonProperty("receivedAt")
-    private LocalDateTime receivedAt;
+    private LocalDateTime time;
 }

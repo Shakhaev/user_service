@@ -1,11 +1,9 @@
 package school.faang.user_service.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.RedisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,10 +18,8 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Slf4j
 public class MentorshipRequestedEventPublisher {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
     private final RedisProperties redisProperties;
-    private final ObjectMapper objectMapper;
-    private String mentorship_request;
 
     @Retryable(
             value = {JsonProcessingException.class, RedisException.class, Exception.class},
@@ -33,13 +29,9 @@ public class MentorshipRequestedEventPublisher {
     @Async("redisExecutor")
     public CompletableFuture<Void> publish(MentorshipRequestEvent event) {
         try {
-            String json = objectMapper.writeValueAsString(event);
-            redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), json);
+            redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), event);
             log.info("Successfully published mentorship request event to Redis topic.");
             return CompletableFuture.completedFuture(null);
-        } catch (JsonProcessingException e) {
-            log.error("Error processing event: {}", e.getMessage(), e);
-            return CompletableFuture.failedFuture(e);
         } catch (RedisException e) {
             log.error("Redis error: {}", e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
