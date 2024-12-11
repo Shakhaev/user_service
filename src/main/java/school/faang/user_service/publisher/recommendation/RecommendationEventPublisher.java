@@ -25,9 +25,8 @@ public class RecommendationEventPublisher implements MessagePublisher<Recommenda
     @Override
     public void publish(RecommendationEvent event) {
         try {
-            String recommendationEventJson = objectMapper.writeValueAsString(event);
-            redisTemplate.convertAndSend(channel, recommendationEventJson);
-            log.info("Publishing RecommendationEvent: {}", recommendationEventJson);
+            redisTemplate.convertAndSend(channel, objectMapper.writeValueAsString(event));
+            //log.info("Publishing RecommendationEvent: {}", recommendationEventJson);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error serializing RecommendationEvent", e);
         }

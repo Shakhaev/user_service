@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class RecommendationEvent {
 
     private Long id;
@@ -15,5 +16,5 @@ public class RecommendationEvent {
 
     private Long receiverId;
 
-    private LocalDateTime receivedAt;
+    //private LocalDateTime receivedAt;
 }
