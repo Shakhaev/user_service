@@ -15,8 +15,7 @@ import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -84,7 +83,7 @@ public class EventService {
     }
 
     @Async("removeExpiredEvent")
-    public void clearExpiredEvents() {
+    public CompletableFuture<Void> clearExpiredEvents() {
         List<Event> allEvents = eventRepository.findAll().stream()
                 .filter(event -> event.getEndDate().isBefore(LocalDateTime.now()))
                 .toList();
@@ -95,5 +94,6 @@ public class EventService {
                 eventRepository.deleteAllById(batchIds);
             }
         }
+        return CompletableFuture.completedFuture(null);
     }
 }
