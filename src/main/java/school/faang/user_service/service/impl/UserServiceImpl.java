@@ -16,7 +16,6 @@ import school.faang.user_service.model.dto.ContactInfoDto;
 import school.faang.user_service.model.dto.EducationDto;
 import school.faang.user_service.model.dto.PersonDto;
 import school.faang.user_service.model.dto.UserDto;
-import school.faang.user_service.model.dto.UserWithFollowersDto;
 import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.model.entity.Event;
 import school.faang.user_service.model.entity.Goal;
@@ -27,8 +26,8 @@ import school.faang.user_service.model.entity.UserProfilePic;
 import school.faang.user_service.model.event.ProfileViewEvent;
 import school.faang.user_service.model.event.SearchAppearanceEvent;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
-import school.faang.user_service.publisher.ProfileViewEventPublisher;
-import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
+import school.faang.user_service.redis.publisher.SearchAppearanceEventPublisher;
 import school.faang.user_service.repository.EventRepository;
 import school.faang.user_service.repository.GoalRepository;
 import school.faang.user_service.repository.PromotionRepository;
@@ -429,17 +428,5 @@ public class UserServiceImpl implements UserService {
             log.debug("Viewer ID is the same as Profile Owner ID. No event published. viewerId={}, profileOwnerId={}",
                     viewerId, profileOwnerId);
         }
-    }
-
-    @Override
-    public UserWithFollowersDto getUserWithFollowers(Long userId) {
-        validator.validateUser(userContext.getUserId(), userId);
-        UserWithFollowersDto userWithFollowersDto = userRepository.findUserBasicInfo(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId)));
-
-        List<Long> followerIds = userRepository.findFollowerIdsByUserId(userId);
-        userWithFollowersDto.setFollowerIds(followerIds);
-
-        return userWithFollowersDto;
     }
 }
