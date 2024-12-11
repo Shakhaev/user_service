@@ -22,7 +22,7 @@ public class ProjectFollowerService {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot follow yourselves project");
         }
-        projectSubscriptionRepository.followProject(followerId, projectId);
+//        projectSubscriptionRepository.followProject(followerId, projectId);
         log.info(" projectSubscriptionRepository followProject called without exception");
         publisher.publish(new ProjectFollowerEvent(projectId, followerId, followeeId));
     }

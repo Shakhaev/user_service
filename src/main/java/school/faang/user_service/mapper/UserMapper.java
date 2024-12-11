@@ -7,6 +7,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.document.UserDocument;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -23,6 +24,7 @@ public interface UserMapper {
     @Mapping(source = "goals", target = "goalsIds", qualifiedByName = "goals")
     @Mapping(source = "skills", target = "skillsIds", qualifiedByName = "skills")
     @Mapping(source = "country.title", target = "country")
+    @Mapping(target = "preference", expression = "java(mapPreferredContact(user))")
     UserDto toDto(User user);
 
     List<UserDto> toDto(List<User> users);
@@ -33,6 +35,16 @@ public interface UserMapper {
     @Mapping(source = "country.title", target = "country")
     @Mapping(source = "skills", target = "skills", qualifiedByName = "skillToTitle")
     UserDocument userToUserDocument(User user);
+
+    default PreferredContact mapPreferredContact(User user) {
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            return PreferredContact.EMAIL;
+        } else if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+            return PreferredContact.PHONE;
+        } else {
+            return null;
+        }
+    }
 
     @Named("skillToTitle")
     default List<String> mapSkillsToTitle(List<Skill> skills) {
