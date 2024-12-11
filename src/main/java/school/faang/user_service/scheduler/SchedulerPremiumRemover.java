@@ -17,7 +17,6 @@ public class SchedulerPremiumRemover {
     public void deleteExpiredPremiums() {
         String taskId = "DeleteExpiredPremiums-" + System.currentTimeMillis();
         LocalDateTime now = LocalDateTime.now();
-        long startTime = System.currentTimeMillis();
         try {
             premiumService.deleteExpiredPremiums(now);
         } catch (Exception e) {
