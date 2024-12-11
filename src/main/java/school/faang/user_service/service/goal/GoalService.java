@@ -1,6 +1,7 @@
 package school.faang.user_service.service.goal;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -64,37 +65,40 @@ public class GoalService {
         return goalMapper.toDto(entity);
     }
 
-    public GoalDto updateGoal(Long userId, GoalDto goal) {
-        goalValidation.validateGoalRequest(userId, goal, false);
+    public GoalDto updateGoal(Long userId, GoalDto goalDto) {
+        goalValidation.validateGoalRequest(userId, goalDto, false);
 
-        Optional<Goal> optionalEntity = goalRepository.findById(goal.getId());
+        Optional<Goal> optionalEntity = goalRepository.findById(goalDto.getId());
 
         if (optionalEntity.isEmpty()) {
-            throw new EntityNotFoundException("Goal with id " + goal.getId() + " does not exist");
+            throw new EntityNotFoundException("Goal with id " + goalDto.getId() + " does not exist");
         }
 
-        Goal entity = optionalEntity.get();
+        Goal goal = optionalEntity.get();
 
-        entity.setTitle(goal.getTitle());
-        entity.setDescription(goal.getDescription());
-        entity.setStatus(goal.getStatus());
-        entity.setDeadline(goal.getDeadline());
+        goal.setTitle(goalDto.getTitle());
+        goal.setDescription(goalDto.getDescription());
+        goal.setStatus(goalDto.getStatus());
+        goal.setDeadline(goalDto.getDeadline());
 
-        if (goal.getMentorId() != null) {
-            Optional<User> mentor = userService.getUserById(goal.getMentorId());
-            mentor.ifPresent(entity::setMentor);
+        if (goalDto.getMentorId() != null) {
+            Optional<User> mentor = userService.getUserById(goalDto.getMentorId());
+            mentor.ifPresent(goal::setMentor);
         }
 
-        if (goal.getParentGoalId() != null) {
-            entity.setParent(goalRepository.findById(goal.getParentGoalId()).orElseThrow(() -> {
-                log.info("Parent goal with id {} does not exist", goal.getParentGoalId());
-                return new EntityNotFoundException("Parent goal with id " + goal.getParentGoalId() + " does not exist");
-            }));
+        if (goalDto.getParentGoalId() != null) {
+            long parentGoalId = goalDto.getParentGoalId();
+            Goal parentGoal = goalRepository.findById(parentGoalId).orElseThrow(() -> {
+                log.info("Parent goal with id {} does not exist", goalDto.getParentGoalId());
+                return new EntityNotFoundException(
+                        "Parent goal with id " + goalDto.getParentGoalId() + " does not exist");
+            });
+            goal.setParent(parentGoal);
         }
 
-        goalRepository.save(entity);
+        goalRepository.save(goal);
 
-        return goalMapper.toDto(entity);
+        return goalMapper.toDto(goal);
     }
 
     public void deleteGoal(long goalId) {
@@ -115,6 +119,7 @@ public class GoalService {
         return filteredGoals.map(goalMapper::toDto).toList();
     }
 
+    @Transactional
     public GoalDto completeTheGoal(long userId, long goalId) {
         Goal goalToComplete = getGoalToComplete(userId, goalId);
         if (!isGoalStatusCompleted(goalToComplete)) {
@@ -128,12 +133,10 @@ public class GoalService {
     }
 
     private Goal getGoalToComplete(long userId, long goalId) {
-        return userService.findUserById(userId).getGoals().stream()
-                .filter(goal -> goal.getId().equals(goalId))
-                .findFirst().orElseThrow(() -> {
-                    log.error("User with id {} does not have a goal with id {}", userId, goalId);
-                    return new EntityNotFoundException("User with id " + userId + " does not have a goal with id " + goalId);
-                });
+        return goalRepository.findByUserIdAndGoalId(userId, goalId).orElseThrow(() -> {
+            log.error("User with id {} does not have a goal with id {}", userId, goalId);
+            return new EntityNotFoundException("User with id " + userId + " does not have a goal with id " + goalId);
+        });
     }
 
     private boolean isGoalStatusCompleted(Goal goal) {

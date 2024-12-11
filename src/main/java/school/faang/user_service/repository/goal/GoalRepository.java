@@ -7,6 +7,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -49,4 +50,8 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Query("SELECT g FROM Goal g JOIN g.users u WHERE u.id = ?1 AND g.id = ?2")
+    Optional<Goal> findByUserIdAndGoalId(long userId, long goalId);
+
 }

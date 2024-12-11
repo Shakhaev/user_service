@@ -3,13 +3,13 @@ package school.faang.user_service.config.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import school.faang.user_service.listener.UserBanListener;
@@ -21,6 +21,9 @@ import school.faang.user_service.listener.UserBanListener;
 public class RedisConfig {
     private final ObjectMapper objectMapper;
 
+    @Value("${spring.data.redis.channels.user_ban-channel.name}")
+    private String userBanChannel;
+
     @Bean
     public RedisMessageListenerContainer redisContainerConfig(
             RedisConnectionFactory connectionFactory,
@@ -29,10 +32,7 @@ public class RedisConfig {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
 
-        MessageListenerAdapter listenerAdapter = createListenerAdapter(userBanListener);
-
-        container.addMessageListener(listenerAdapter, new PatternTopic("user_ban"));
-
+        container.addMessageListener(userBanListener, userBanChannel());
         return container;
     }
 
@@ -45,9 +45,8 @@ public class RedisConfig {
         return template;
     }
 
-    private MessageListenerAdapter createListenerAdapter(UserBanListener userBanListener) {
-        MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(userBanListener);
-        listenerAdapter.setDefaultListenerMethod("onMessage");
-        return listenerAdapter;
+    @Bean
+    public ChannelTopic userBanChannel() {
+        return new ChannelTopic(userBanChannel);
     }
 }
