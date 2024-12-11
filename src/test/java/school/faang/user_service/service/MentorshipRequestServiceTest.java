@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestEvent;
+import school.faang.user_service.event.MentorshipRequestEvent;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;

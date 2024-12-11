@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

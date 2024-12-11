@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import school.faang.user_service.config.RedisProperties;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")

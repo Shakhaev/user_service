@@ -1,12 +1,11 @@
 package school.faang.user_service.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.MentorshipRequestEvent;
+import school.faang.user_service.event.MentorshipRequestEvent;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;

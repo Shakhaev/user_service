@@ -9,8 +9,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.config.RedisProperties;
-import school.faang.user_service.dto.MentorshipRequestEvent;
+import school.faang.user_service.config.redis.RedisProperties;
+import school.faang.user_service.event.MentorshipRequestEvent;
 
 import java.util.concurrent.CompletableFuture;
 
