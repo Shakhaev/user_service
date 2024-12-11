@@ -25,6 +25,7 @@ spring:
         follower-channel: follower_event
         recommendation-channel: recommendation_channel
         user_ban-channel: user_ban
+        mentorship-accepted-channel: mentorship_accepted_channel
 
   retry:
     maxAttempts: 3

@@ -12,8 +12,10 @@ import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterD
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.event.MentorshipAcceptedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
@@ -29,6 +31,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<Filter<MentorshipRequest, MentorshipRequestFilterDto>> filters;
+    private final MentorshipAcceptedEventPublisher acceptedEventPublisher;
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestCreateDto dto) {
@@ -71,6 +74,9 @@ public class MentorshipRequestService {
         userService.saveUser(receiver);
 
         log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
+
+        acceptedEventPublisher.publish(new MentorshipAcceptedEvent(request.getId(),receiver.getId(),requester.getId()));
+        log.info("Publish request with id #{} was accepted by UserId #{}.", id, receiver.getId());
         return requestMapper.toDto(requestRepository.save(request));
     }
 
