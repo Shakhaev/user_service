@@ -1,6 +1,8 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.payment.PaymentResponse;
@@ -12,11 +14,6 @@ import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.validator.PaymentValidator;
 import school.faang.user_service.validator.PremiumValidator;
 import school.faang.user_service.validator.UserValidator;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
