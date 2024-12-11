@@ -10,7 +10,7 @@ public class MentorshipStartEventPublisher extends AbstractEventPublisher<Mentor
     }
 
     @Override
-    public Class<?> getInstance() {
+    public Class<MentorshipStartEvent> getInstance() {
         return MentorshipStartEvent.class;
     }
 }

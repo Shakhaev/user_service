@@ -109,11 +109,14 @@ public class MentorshipRequestService {
                 .orElseThrow(() -> new EntityNotFoundException("mentorship request not found"));
     }
 
-    public void publishEvent(Object event){
-        publishers.stream()
-                .filter(publisher->publisher.getInstance().equals(event.getClass()))
+    public <T> void publishEvent(T event){
+        getAbstractEventPublisher(event).publish(event);
+    }
+
+    private <T> AbstractEventPublisher<T> getAbstractEventPublisher(T event) {
+        return (AbstractEventPublisher<T>) publishers.stream()
+                .filter(publisher -> publisher.getInstance().equals(event.getClass()))
                 .findFirst()
-                .orElseThrow(()->new EntityNotFoundException("publisher to this class does not exist"))
-                .publish(event);
+                .orElseThrow(() -> new EntityNotFoundException("publisher to this class does not exist"));
     }
 }
