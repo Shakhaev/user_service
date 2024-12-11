@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Scheduler {
+public class EventScheduler {
 
     private final EventService eventService;
 
