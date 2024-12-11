@@ -21,14 +21,17 @@ spring:
       port: 6379
       host: localhost
       channel:
+        mentorship-channel: mentorship_channel
+        follower-channel: follower_event
+        recommendation-channel: recommendation_channel
+        user_ban-channel: user_ban
         mentorship_request: "mentorship_request_channel"
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
-        user_ban-channel:
-          name: user_ban
+
+  retry:
+    maxAttempts: 3
+    initialDelay: 1000
+    multiplier: 2
+    maxDelay: 10000
 
 server:
   port: 8080
@@ -72,6 +75,3 @@ cron:
 batch:
   size:
     eventBatch: 50
-
-
-
