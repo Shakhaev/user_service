@@ -9,8 +9,11 @@ import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.events.MentorshipStartEvent;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.AbstractEventPublisher;
+import school.faang.user_service.publisher.MentorshipStartEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
@@ -26,6 +29,8 @@ public class MentorshipRequestService {
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
     private final MentorshipRequestValidator validator;
     private final UserService userService;
+    private final List<AbstractEventPublisher<?>> publishers;
+    private final MentorshipStartEventPublisher startEventPublisher;
 
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
         List<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll();
@@ -79,6 +84,10 @@ public class MentorshipRequestService {
         requesterUser.getMentors().add(receiverUser);
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
 
+        MentorshipStartEvent mentorshipStartEvent = new MentorshipStartEvent(requesterUser.getId(),receiverUser.getId());
+        publishEvent(mentorshipStartEvent);
+        startEventPublisher.publish(mentorshipStartEvent);
+
         return mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(mentorshipRequest));
     }
 
@@ -98,5 +107,13 @@ public class MentorshipRequestService {
     private MentorshipRequest findMentorshipRequestById(long id) {
         return mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("mentorship request not found"));
+    }
+
+    public void publishEvent(Object event){
+        publishers.stream()
+                .filter(publisher->publisher.getInstance().equals(event.getClass()))
+                .findFirst()
+                .orElseThrow(()->new EntityNotFoundException("publisher to this class does not exist"))
+                .publish(event);
     }
 }

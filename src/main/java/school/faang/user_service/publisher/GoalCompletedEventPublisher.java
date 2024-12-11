@@ -12,4 +12,9 @@ public class GoalCompletedEventPublisher extends AbstractEventPublisher<GoalComp
     public GoalCompletedEventPublisher(RedisTemplate<String, Object> redisTemplate, ChannelTopic goalCompletedTopic) {
         super(redisTemplate, goalCompletedTopic);
     }
+
+    @Override
+    public Class<GoalCompletedEvent> getInstance() {
+        return GoalCompletedEvent.class;
+    }
 }

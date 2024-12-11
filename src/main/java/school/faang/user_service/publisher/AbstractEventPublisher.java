@@ -17,4 +17,5 @@ public abstract class AbstractEventPublisher<T> implements MessagePublisher<T>{
         log.warn("sending message to redis");
         redisTemplate.convertAndSend(topic.getTopic(), event);
     }
+    public abstract Class<?> getInstance();
 }

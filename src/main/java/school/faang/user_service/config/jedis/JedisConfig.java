@@ -30,6 +30,8 @@ public class JedisConfig {
     private String banUserTopic;
     @Value("${spring.data.redis.channels.goal_completed_topic.name}")
     private String goalCompletedTopic;
+    @Value("${spring.data.redis.channels.mentorship_topic.name}")
+    private String mentorshipEventTopic;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -60,6 +62,11 @@ public class JedisConfig {
     @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
+    }
+
+    @Bean
+    public ChannelTopic mentorshipEventTopic(){
+        return new ChannelTopic(mentorshipEventTopic);
     }
 
     @Bean
