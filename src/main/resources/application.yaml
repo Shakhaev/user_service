@@ -20,12 +20,19 @@ spring:
     redis:
       port: 6379
       host: localhost
+      topic:
+        event-participation: event_participation
+        follower-channel: follower_channel
+        unfollower-channel: unfollower_channel
       channels:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
-
+        search-appearance:
+          name: search_appearance_channel
+          premium-bought:
+            name: premiumBoughtTopic
 server:
   port: 8080
 
