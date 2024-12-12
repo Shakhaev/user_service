@@ -2,13 +2,16 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.event.RecommendationReceivedEvent;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 import school.faang.user_service.validator.UserValidator;
@@ -16,6 +19,7 @@ import school.faang.user_service.validator.UserValidator;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
@@ -25,6 +29,7 @@ public class RecommendationService {
     private final UserService userService;
     private final SkillOfferService skillOfferService;
     private final SkillService skillService;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -35,6 +40,15 @@ public class RecommendationService {
 
         saveNewSkillOffers(recommendation);
         skillService.addGuarantee(recommendation);
+
+        recommendationReceivedEventPublisher.publish(new RecommendationReceivedEvent(
+                        recommendation.getId(),
+                        recommendation.getReceiver().getId(),
+                        recommendation.getAuthor().getId()
+                )
+        );
+        log.info("Recommendation with id: {} was created successfully.", recommendation.getId());
+        log.info("Published Recommendation Received Event for user with id: {}", recommendation.getReceiver().getId());
 
         return recommendationMapper.toDto(recommendation);
     }

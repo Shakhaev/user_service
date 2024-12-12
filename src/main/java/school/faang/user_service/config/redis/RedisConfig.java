@@ -12,22 +12,19 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import school.faang.user_service.listener.UserBanListener;
-
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
     private final ObjectMapper objectMapper;
-
-    @Value("${spring.data.redis.channels.user_ban-channel.name}")
+    @Value("${spring.data.redis.channel.user_ban-channel}")
     private String userBanChannel;
 
     @Bean
     public RedisMessageListenerContainer redisContainerConfig(
             RedisConnectionFactory connectionFactory,
-            UserBanListener userBanListener
+            UserBanSubscriber userBanListener
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
