@@ -19,6 +19,7 @@ import school.faang.user_service.listener.UserBanListener;
 @RequiredArgsConstructor
 public class RedisConfig {
     private final ObjectMapper objectMapper;
+
     @Value("${spring.data.redis.channel.user_ban-channel}")
     private String userBanChannel;
 
