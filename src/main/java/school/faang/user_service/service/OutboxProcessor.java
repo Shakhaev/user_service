@@ -28,7 +28,7 @@ public class OutboxProcessor {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 100000)
     public void processOutboxEvents() {
         List<OutboxEvent> events = outboxEventRepository.findAllByProcessedFalse();
         events.forEach(this::processEvent);

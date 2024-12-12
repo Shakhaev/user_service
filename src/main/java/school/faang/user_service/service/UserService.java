@@ -22,7 +22,6 @@ import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
