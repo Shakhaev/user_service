@@ -88,6 +88,7 @@ public class GlobalExceptionHandler {
         log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleAllExceptions(IOException exception) {
         log.error("IOException exception: {}", exception.getMessage(), exception);
@@ -126,5 +127,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
         log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(OutboxProcessingException.class)
+    public ResponseEntity<String> handleOutboxProcessingException(OutboxProcessingException e) {
+        log.error("OutboxProcessingException: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 }

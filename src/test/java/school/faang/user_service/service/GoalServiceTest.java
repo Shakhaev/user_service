@@ -5,14 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -21,7 +19,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.GoalMapper;
-import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
@@ -33,20 +30,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +61,7 @@ class GoalServiceTest {
     private GoalValidator goalValidation;
 
     @Mock
-    private GoalCompletedEventPublisher goalCompletedEventPublisher;
+    private OutboxProcessor outboxProcessor;
 
     private final long goalId = 1L;
     private final long userId = 1L;
@@ -360,22 +347,34 @@ class GoalServiceTest {
 
     @Test
     void testCompleteTheGoalSuccess() {
-        when(userService.findUserById(userId)).thenReturn(setUpUser());
-        when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
-        when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
+        when(goalRepository.findByUserIdAndGoalId(userId, goalId)).thenReturn(Optional.of(goalEntity));
+        when(goalRepository.save(goalEntity)).thenReturn(goalEntity);
+        goalDto.setStatus(GoalStatus.COMPLETED);
+        when(goalMapper.toDto(goalEntity)).thenReturn(goalDto);
 
-        GoalDto result = goalService.completeTheGoal(userId, goalId);
+        GoalDto actual = goalService.completeTheGoal(userId, goalId);
 
-        assertNotNull(result);
-        assertEquals(GoalStatus.COMPLETED, goalEntity.getStatus());
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(userId, goalId);
+        verify(goalRepository, times(1)).save(goalEntity);
+        assertNotNull(actual);
+        assertEquals(goalId, actual.getId());
+        assertEquals(GoalStatus.COMPLETED, actual.getStatus());
+    }
 
-        ArgumentCaptor<GoalCompletedEvent> eventCaptor = ArgumentCaptor.forClass(GoalCompletedEvent.class);
-        verify(goalCompletedEventPublisher).publish(eventCaptor.capture());
-        GoalCompletedEvent capturedEvent = eventCaptor.getValue();
-        assertEquals(1L, capturedEvent.userId());
-        assertEquals(1L, capturedEvent.goalId());
+    @Test
+    void testCompleteTheGoalAlreadyCompleted() {
+        goalEntity.setStatus(GoalStatus.COMPLETED);
+        goalDto.setStatus(GoalStatus.COMPLETED);
+        when(goalRepository.findByUserIdAndGoalId(userId, goalId)).thenReturn(Optional.of(goalEntity));
+        when(goalMapper.toDto(goalEntity)).thenReturn(goalDto);
 
-        verify(goalRepository, times(1)).save(any(Goal.class));
+        GoalDto actual = goalService.completeTheGoal(userId, goalId);
+
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(userId, goalId);
+        verify(goalRepository, never()).save(goalEntity);
+        assertNotNull(actual);
+        assertEquals(goalId, actual.getId());
+        assertEquals(GoalStatus.COMPLETED, actual.getStatus());
     }
 
     @Test
@@ -392,29 +391,6 @@ class GoalServiceTest {
         assertThrows(EntityNotFoundException.class, () -> goalService.completeTheGoal(userId, goalId));
     }
 
-    @Test
-    void testCompleteTheGoalIfGoalAlreadyCompleted() {
-        goalEntity.setStatus(GoalStatus.COMPLETED);
-        when(userService.findUserById(userId)).thenReturn(setUpUser());
-        when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
-        when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
-
-        GoalDto result = goalService.completeTheGoal(userId, goalId);
-
-        assertNotNull(result);
-        assertEquals(GoalStatus.COMPLETED, goalEntity.getStatus());
-        verify(goalRepository, never()).save(any(Goal.class));
-        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
-    }
-
-
-    private User setUpUser() {
-        User user = new User();
-        user.setId(userId);
-        user.setGoals(setUpGoals());
-        return user;
-    }
-
     private User setUpUserWithoutGoals() {
         User user = new User();
         user.setId(userId);
@@ -426,9 +402,5 @@ class GoalServiceTest {
         User user = new User();
         user.setGoals(Collections.emptyList());
         return user;
-    }
-
-    private List<Goal> setUpGoals() {
-        return List.of(goalEntity, secondGoalEntity);
     }
 }
