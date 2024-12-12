@@ -3,6 +3,8 @@ package school.faang.user_service.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.event.MentorshipAcceptedEvent;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
 import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
@@ -11,6 +13,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
@@ -24,6 +27,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
+    private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
     private final MentorshipRequestValidator validator;
     private final UserService userService;
 
@@ -66,6 +70,7 @@ public class MentorshipRequestService {
         return mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(mentorshipRequest));
     }
 
+    @Transactional
     public MentorshipRequestDto acceptRequest(long id) {
         MentorshipRequest mentorshipRequest = findMentorshipRequestById(id);
 
@@ -79,7 +84,16 @@ public class MentorshipRequestService {
         requesterUser.getMentors().add(receiverUser);
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
 
-        return mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(mentorshipRequest));
+        mentorshipRequest = mentorshipRequestRepository.save(mentorshipRequest);
+        mentorshipAcceptedEventPublisher.publish(
+                new MentorshipAcceptedEvent(
+                        mentorshipRequest.getRequester().getId(),
+                        mentorshipRequest.getReceiver().getId(),
+                        LocalDateTime.now()
+                )
+        );
+
+        return mentorshipRequestMapper.toDto(mentorshipRequest);
     }
 
     public MentorshipRequestDto rejectRequest(long id, RejectionDto rejection) {
