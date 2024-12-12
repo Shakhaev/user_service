@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "mentorship_request")
 public class MentorshipRequest {
 
@@ -58,4 +60,12 @@ public class MentorshipRequest {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public void accept() {
+        status = RequestStatus.ACCEPTED;
+    }
+
+    public void reject() {
+        status = RequestStatus.REJECTED;
+    }
 }
