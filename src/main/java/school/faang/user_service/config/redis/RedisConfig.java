@@ -12,6 +12,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import school.faang.user_service.listener.UserBanListener;
 
 @Slf4j
 @Configuration
@@ -24,7 +25,7 @@ public class RedisConfig {
     @Bean
     public RedisMessageListenerContainer redisContainerConfig(
             RedisConnectionFactory connectionFactory,
-            UserBanSubscriber userBanListener
+            UserBanListener userBanListener
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
