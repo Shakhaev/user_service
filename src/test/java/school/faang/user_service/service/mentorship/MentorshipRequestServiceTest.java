@@ -18,6 +18,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
 import school.faang.user_service.redis.publisher.MentorshipAcceptedEventPublisher;
+import school.faang.user_service.redis.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestDescriptionFilter;
 import school.faang.user_service.filter.mentorship.RequestFilter;
@@ -58,6 +59,9 @@ class MentorshipRequestServiceTest {
     @Mock
     MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
+    @Mock
+    MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
+
     @Captor
     ArgumentCaptor<MentorshipRequest> requestCaptor;
 
@@ -88,7 +92,14 @@ class MentorshipRequestServiceTest {
         List<RequestFilter> requestFilters = List.of(firstFilter, secondFilter, thirdFilter, fourthFilter);
 
         requestService = new MentorshipRequestService(
-                requestRepository, userService, requestValidator, requestMapper, requestFilters, mentorshipAcceptedEventPublisher);
+                requestRepository,
+                userService,
+                requestValidator,
+                requestMapper,
+                requestFilters,
+                mentorshipAcceptedEventPublisher,
+                mentorshipRequestedEventPublisher
+        );
 
         Long requesterId = 1L;
         Long receiverId = 2L;
@@ -115,6 +126,7 @@ class MentorshipRequestServiceTest {
         assertDoesNotThrow(() -> requestService.requestMentorship(creationDto));
 
         verify(requestValidator, times(1)).validateCreationRequest(creationDto);
+        verify(mentorshipRequestedEventPublisher, times(1)).publish(any());
         verify(requestRepository, times(1)).save(requestCaptor.capture());
         MentorshipRequest savedRequest = requestCaptor.getValue();
         assertEquals(creationDto.getDescription(), savedRequest.getDescription());
