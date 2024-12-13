@@ -16,6 +16,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
+import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.message.event.MentorshipEvent;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
@@ -45,7 +47,12 @@ public class MentorshipRequestV1Controller {
 
     @PutMapping("/{requestId}/accept")
     public MentorshipRequestDto acceptRequest(@PathVariable @Positive long requestId) {
-        return mentorshipRequestService.acceptRequest(requestId);
+        MentorshipRequestDto mentorshipRequestDto =  mentorshipRequestService.acceptRequest(requestId);
+
+        MentorshipEvent mentorshipEvent = new MentorshipEvent(mentorshipRequestDto.requesterId());
+        mentorshipRequestService.publishMentorshipEventAsync(mentorshipEvent);
+
+        return mentorshipRequestDto;
     }
 
     @PutMapping("/{requestId}/reject")
