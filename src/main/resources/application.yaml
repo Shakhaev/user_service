@@ -55,5 +55,5 @@ application:
   scheduler:
     cron:
       one_day: "0 0 0 1 * *"
-    batch-size: 100
+    batch-size: 5
 
