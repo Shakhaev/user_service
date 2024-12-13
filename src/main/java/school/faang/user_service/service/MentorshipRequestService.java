@@ -2,7 +2,9 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
 import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
@@ -23,14 +25,15 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
     private final MentorshipRequestValidator validator;
     private final UserService userService;
-    private final List<AbstractEventPublisher<?>> publishers;
-    private final MentorshipStartEventPublisher startEventPublisher;
+    private final UserContext userContext;
+    private final MentorshipStartEventPublisher mentorshipStartEventPublisher;
 
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
         List<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll();
@@ -72,11 +75,13 @@ public class MentorshipRequestService {
     }
 
     public MentorshipRequestDto acceptRequest(long id) {
+        log.info("Getting mentorshipRequest entity from db");
         MentorshipRequest mentorshipRequest = findMentorshipRequestById(id);
 
         User requesterUser = mentorshipRequest.getRequester();
         User receiverUser = mentorshipRequest.getReceiver();
 
+        log.info("validate that mentor does not contains current mentee");
         if (requesterUser.getMentors().contains(receiverUser)) {
             throw new IllegalStateException("Mentorship request already accepted");
         }
@@ -84,10 +89,11 @@ public class MentorshipRequestService {
         requesterUser.getMentors().add(receiverUser);
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
 
-        MentorshipStartEvent mentorshipStartEvent = new MentorshipStartEvent(requesterUser.getId(),receiverUser.getId());
-        publishEvent(mentorshipStartEvent);
-        startEventPublisher.publish(mentorshipStartEvent);
+        log.info("publish mentorshipStartEvent event to redis");
+        MentorshipStartEvent mentorshipStartEvent = new MentorshipStartEvent(receiverUser.getId(), requesterUser.getId(), getContextId());
+        mentorshipStartEventPublisher.publish(mentorshipStartEvent);
 
+        log.info("update mentorshipRequest and map it to dto");
         return mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(mentorshipRequest));
     }
 
@@ -109,14 +115,7 @@ public class MentorshipRequestService {
                 .orElseThrow(() -> new EntityNotFoundException("mentorship request not found"));
     }
 
-    public <T> void publishEvent(T event){
-        getAbstractEventPublisher(event).publish(event);
-    }
-
-    private <T> AbstractEventPublisher<T> getAbstractEventPublisher(T event) {
-        return (AbstractEventPublisher<T>) publishers.stream()
-                .filter(publisher -> publisher.getInstance().equals(event.getClass()))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("publisher to this class does not exist"));
+    private long getContextId() {
+        return userContext.getUserId();
     }
 }

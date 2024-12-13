@@ -8,4 +8,5 @@ import lombok.Data;
 public class MentorshipStartEvent {
     private long mentorId;
     private long menteeId;
+    private long userContextId;
 }
