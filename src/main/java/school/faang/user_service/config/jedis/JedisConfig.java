@@ -25,6 +25,7 @@ public class JedisConfig {
 
     @Value("${spring.data.redis.host}")
     private String host;
+
     @Value("${spring.data.redis.port}")
     private int port;
     @Value("${spring.data.redis.pool-config.max-idle}")
@@ -40,6 +41,9 @@ public class JedisConfig {
     @Value("${spring.data.redis.channels.goal_completed_topic.name}")
     private String goalCompletedTopic;
 
+    @Value("${spring.data.redis.channels.mentorship_accepted.name}")
+    private String mentorshipAcceptedTopic;
+
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
@@ -51,12 +55,10 @@ public class JedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(ObjectMapper objectMapper) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        serializer.setObjectMapper(objectMapper);
-        template.setValueSerializer(serializer);
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(objectMapper, Object.class));
         return template;
     }
 
@@ -73,6 +75,11 @@ public class JedisConfig {
     @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
+    }
+
+    @Bean
+    public ChannelTopic mentorshipAcceptedTopic() {
+        return new ChannelTopic(mentorshipAcceptedTopic);
     }
 
     @Bean

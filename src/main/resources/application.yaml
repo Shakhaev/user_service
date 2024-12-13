@@ -38,6 +38,9 @@ spring:
           name: user_ban
         goal_completed_topic:
           name: goal_complete
+        mentorship_accepted:
+          name: mentorship_accepted_topic
+
   task:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?

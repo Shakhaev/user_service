@@ -1,12 +1,12 @@
 package school.faang.user_service.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import lombok.Data;
 import school.faang.user_service.entity.contact.PreferredContact;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Data
 @Schema(description = "Сущность пользователя")
@@ -15,10 +15,12 @@ public class UserDto {
     private long id;
     @Schema(description = "Имя пользователя", example = "Иван")
     private String username;
-    @Schema(description = "email", example = "example@email.com")
+    @Schema(description = "Электронная почта", example = "example@gmail.com")
     private String email;
-    @Schema(description = "phone", example = "231231234412")
+    @Schema(description = "номер телефона пользователя", example = "79004445577")
     private String phone;
+    @Schema(description = "предпочтительный способ связи", example = "SMS")
+    private PreferredContact preference;
     @Schema(description = "Активный ли пользователь", example = "True")
     private boolean active;
     @Schema(description = "Описание пользователя", example = "хобби")
@@ -40,5 +42,5 @@ public class UserDto {
     private List<Long> goalsIds;
     @Schema(description = "Навыки", example = "[101, 102, 103, 104, 105]")
     private List<Long> skillsIds;
-    private PreferredContact preference;
+    private Locale locale;
 }
