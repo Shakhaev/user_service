@@ -32,10 +32,6 @@ spring:
         recommendation-channel:
           name: recommendation_channel
 
-  redis:
-    host: localhost
-    port: 6379
-
 server:
   port: 8080
 
@@ -70,4 +66,4 @@ services:
     port: 8080
 
 thread-pool:
-  size: 5
+  core-size: 5

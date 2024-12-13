@@ -3,18 +3,18 @@ package school.faang.user_service.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class ThreadPoolConfig {
 
-    @Value("${thread-pool.size}")
-    private int totalThreads;
+    @Value("${thread-pool.core-size}")
+    private int coreSize;
 
     @Bean
-    public ExecutorService threadPool() {
-        return Executors.newFixedThreadPool(totalThreads);
+    public ThreadPoolTaskExecutor threadPool() {
+        ThreadPoolTaskExecutor threadPool = new ThreadPoolTaskExecutor();
+        threadPool.setCorePoolSize(coreSize);
+        return threadPool;
     }
 }
