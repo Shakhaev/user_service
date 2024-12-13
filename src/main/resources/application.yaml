@@ -25,6 +25,9 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+server:
+  port: 8080
+
 logging:
   level:
     root: info
@@ -47,4 +50,12 @@ application:
   premium:
     threads-number: 20
     time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
+
     batch-size: 100
+
+  publisher-messages:
+    event-registration:
+      notification:
+        telegram: Hello, you were successful registered for the event
+
+
