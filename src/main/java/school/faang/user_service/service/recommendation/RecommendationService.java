@@ -50,8 +50,8 @@ public class RecommendationService {
         recommendationEventPublisher.publish(new RecommendationEvent(
                 recommendationDto.getId(),
                 recommendationDto.getAuthorId(),
-                recommendationDto.getReceiverId()));
-               // LocalDateTime.now()));
+                recommendationDto.getReceiverId(),
+                 LocalDateTime.now()));
         log.info("A recommendation {} has been created", recommendationDto);
         return recommendationDto;
     }
