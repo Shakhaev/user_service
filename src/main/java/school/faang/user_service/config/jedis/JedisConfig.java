@@ -19,19 +19,21 @@ import school.faang.user_service.listener.BanUserListener;
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
-    private final ObjectMapper objectMapper;
 
     @Value("${spring.data.redis.host}")
     private String host;
 
     @Value("${spring.data.redis.port}")
     private int port;
+
     @Value("${spring.data.redis.channels.ban_user_topic.name}")
     private String banUserTopic;
+
     @Value("${spring.data.redis.channels.goal_completed_topic.name}")
     private String goalCompletedTopic;
-    @Value("${spring.data.redis.channels.mentorship_topic.name}")
-    private String mentorshipEventTopic;
+
+    @Value("${spring.data.redis.channels.mentorship_accepted.name}")
+    private String mentorshipAcceptedTopic;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -40,12 +42,10 @@ public class JedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(ObjectMapper objectMapper) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        serializer.setObjectMapper(objectMapper);
-        template.setValueSerializer(serializer);
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(objectMapper, Object.class));
         return template;
     }
 
@@ -65,8 +65,8 @@ public class JedisConfig {
     }
 
     @Bean
-    public ChannelTopic mentorshipEventTopic(){
-        return new ChannelTopic(mentorshipEventTopic);
+    public ChannelTopic mentorshipAcceptedTopic() {
+        return new ChannelTopic(mentorshipAcceptedTopic);
     }
 
     @Bean
