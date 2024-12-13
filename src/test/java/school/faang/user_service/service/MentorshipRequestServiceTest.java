@@ -14,9 +14,11 @@ import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterD
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.event.MentorshipAcceptedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.filter.mentorshipRequestFilter.DescriptionFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
@@ -50,6 +52,9 @@ class MentorshipRequestServiceTest {
     @Mock
     private DescriptionFilter descriptionFilter;
 
+    @Mock
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
+
     @InjectMocks
     private MentorshipRequestService requestService;
 
@@ -69,7 +74,7 @@ class MentorshipRequestServiceTest {
         descriptionFilter = mock(DescriptionFilter.class);
         filters = new ArrayList<>(List.of(descriptionFilter));
         requestService = new MentorshipRequestService(
-                userService, requestRepository, requestValidator, requestMapper, filters);
+                userService, requestRepository, requestValidator, requestMapper, filters,mentorshipAcceptedEventPublisher);
 
         requester = User.builder().id(1L).build();
         receiver = User.builder().id(2L).build();
@@ -168,6 +173,13 @@ class MentorshipRequestServiceTest {
 
         verify(requestRepository, times(1)).findById(firstRequestId);
         verify(requestRepository, times(1)).save(firstRequest);
+        verify(mentorshipAcceptedEventPublisher,times(1)).publish(new MentorshipAcceptedEvent(
+                firstRequest.getId(),
+                firstRequest.getDescription(),
+                receiver.getId(),
+                receiver.getUsername(),
+                requester.getId()
+        ));
         assertEquals(result.getId(), firstRequestId);
         assertEquals(result.getRequesterId(), firstRequest.getRequester().getId());
         assertEquals(result.getReceiverId(), firstRequest.getReceiver().getId());

@@ -1,5 +1,6 @@
 package school.faang.user_service.publisher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,10 +14,11 @@ import school.faang.user_service.event.MentorshipAcceptedEvent;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MentorshipAcceptedEventPublisher implements EventPublisher <MentorshipAcceptedEvent>{
+public class MentorshipAcceptedEventPublisher implements EventPublisher<MentorshipAcceptedEvent> {
     private final RedisTemplate<String, Object> redisTemplate;
     private final RetryProperties retryProperties;
     private final RedisProperties redisProperties;
+
     @Override
     @Retryable(retryFor = Exception.class,
             maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
@@ -28,6 +30,7 @@ public class MentorshipAcceptedEventPublisher implements EventPublisher <Mentors
     )
     public void publish(MentorshipAcceptedEvent event) {
         redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_acceptedChannel(), event);
-        log.info("Message sent to channel: {}", redisProperties.getChannel().getRecommendationChannel());
+        log.info("Message sent to channel: {}", redisProperties.getChannel().getMentorship_acceptedChannel());
     }
 }
+

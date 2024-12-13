@@ -29,7 +29,7 @@ class RecommendationReceivedEventPublisherTest {
     @Test
     @DisplayName("Publish message in redis success")
     void testPublish_success() {
-        RecommendationReceivedEvent event = new RecommendationReceivedEvent(1L, 2L, 3L);
+        RecommendationReceivedEvent event = new RecommendationReceivedEvent(1L, 2L, "John",3L,"Mark");
         String channelName = "recommendation_channel";
         RedisProperties.Channel channel = new RedisProperties.Channel();
         channel.setRecommendationChannel(channelName);

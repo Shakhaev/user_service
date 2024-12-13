@@ -42,10 +42,11 @@ public class RecommendationService {
         skillService.addGuarantee(recommendation);
 
         recommendationReceivedEventPublisher.publish(new RecommendationReceivedEvent(
-                        recommendation.getId(),
-                        recommendation.getReceiver().getId(),
-                        recommendation.getAuthor().getId()
-                )
+                recommendation.getId(),
+                recommendation.getReceiver().getId(),
+                recommendation.getReceiver().getUsername(),
+                recommendation.getAuthor().getId(),
+                recommendation.getAuthor().getUsername())
         );
         log.info("Recommendation with id: {} was created successfully.", recommendation.getId());
         log.info("Published Recommendation Received Event for user with id: {}", recommendation.getReceiver().getId());

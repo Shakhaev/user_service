@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MentorshipAcceptedEvent {
     private final Long mentorshipRequestId;
+    private final String description;
     private final Long receiverId;
+    private final String receiverUserName;
     private final Long requesterId;
+
 }

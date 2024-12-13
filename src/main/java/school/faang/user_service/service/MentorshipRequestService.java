@@ -75,7 +75,13 @@ public class MentorshipRequestService {
 
         log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
 
-        acceptedEventPublisher.publish(new MentorshipAcceptedEvent(request.getId(),receiver.getId(),requester.getId()));
+        acceptedEventPublisher.publish(new MentorshipAcceptedEvent(
+                request.getId(),
+                request.getDescription(),
+                receiver.getId(),
+                receiver.getUsername(),
+                requester.getId()));
+
         log.info("Publish request with id #{} was accepted by UserId #{}.", id, receiver.getId());
         return requestMapper.toDto(requestRepository.save(request));
     }
