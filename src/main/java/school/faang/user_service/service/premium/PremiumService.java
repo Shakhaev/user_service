@@ -1,9 +1,13 @@
 package school.faang.user_service.service.premium;
 
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import school.faang.user_service.client.PaymentServiceClient;
@@ -11,9 +15,10 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.client.PaymentRequest;
 import school.faang.user_service.dto.client.PaymentResponse;
 import school.faang.user_service.dto.client.PaymentStatus;
+import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.dto.premium.PremiumDto;
-import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.exception.ServiceConnectionFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.UserService;
@@ -69,11 +74,16 @@ public class PremiumService {
         PremiumServiceValidator.checkPremiumNotNull(premium);
         premiumRepository.save(premium);
     }
+    @Retryable(
+            retryFor = {FeignException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 3000, multiplier = 2)
+    )
     public PremiumDto buyPremium(PremiumPeriod premiumPeriod) {
         long userId = userContext.getUserId();
 
         if (premiumRepository.existsByUserId(userId)) {
-            throw new IllegalStateException(String.format("user %s already buy premium period %s", userId, premiumPeriod));
+            throw new IllegalStateException(String.format("user %s already buy premium", userId));
         }
 
         PaymentRequest paymentRequest = new PaymentRequest(
@@ -95,9 +105,17 @@ public class PremiumService {
             newPremium.setUser(userService.getUserById(userId));
             newPremium.setStartDate(LocalDateTime.now());
             newPremium.setEndDate(LocalDateTime.now().plusDays(premiumPeriod.getDays()));
+            newPremium.setPremiumPeriod(premiumPeriod);
+            newPremium.setActive(true);
 
             return premiumMapper.toDto(premiumRepository.save(newPremium));
         }
+
         return null;
+    }
+
+    @Recover
+    public PremiumDto recover(FeignException e) {
+        throw new ServiceConnectionFailedException("error connecting to payment service");
     }
 }

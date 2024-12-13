@@ -7,6 +7,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.document.UserDocument;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.ArrayList;
@@ -22,12 +23,27 @@ public interface UserMapper {
     @Mapping(source = "goals", target = "goalsIds", qualifiedByName = "goals")
     @Mapping(source = "skills", target = "skillsIds", qualifiedByName = "skills")
     @Mapping(source = "country.title", target = "country")
+    @Mapping(source = "contactPreference.preference", target = "preference")
     UserDto toDto(User user);
 
     List<UserDto> toDto(List<User> users);
 
     @Mapping(target = "country", ignore = true)
     User toEntity(UserDto dto);
+
+    @Mapping(source = "country.title", target = "country")
+    @Mapping(source = "skills", target = "skills", qualifiedByName = "skillToTitle")
+    UserDocument userToUserDocument(User user);
+
+    @Named("skillToTitle")
+    default List<String> mapSkillsToTitle(List<Skill> skills) {
+        if (skills == null) {
+            return new ArrayList<>();
+        }
+        return skills.stream()
+                .map(Skill::getTitle)
+                .toList();
+    }
 
     @Named("mentees")
     default List<Long> getMenteesIds(List<User> mentees) {
