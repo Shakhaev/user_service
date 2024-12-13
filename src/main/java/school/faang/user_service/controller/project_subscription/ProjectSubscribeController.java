@@ -11,17 +11,17 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.service.project_subscription.ProjectFollowerService;
 
 @Controller
-@RequestMapping("/api/v1/subscriptions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ProjectSubscribeController {
     private final UserContext userContext;
-    private final ProjectFollowerService projectFolloweService;
+    private final ProjectFollowerService projectFollowerService;
 
 
-    @PutMapping("/{followeeId}/follow/{projectId}")
+    @PutMapping("/followeeId/{followeeId}/projectId/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public void followProject(@PathVariable long projectId, @PathVariable long followeeId) {
         long followerId = userContext.getUserId();
-        projectFolloweService.followProject(projectId, followerId, followeeId);
+        projectFollowerService.followProject(projectId, followerId, followeeId);
     }
 }

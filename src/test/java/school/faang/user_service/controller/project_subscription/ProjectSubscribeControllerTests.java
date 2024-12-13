@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.service.project_subscription.ProjectFollowerService;
 
@@ -14,9 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+//@WebMvcTest(ProjectSubscribeController.class)
 public class ProjectSubscribeControllerTests {
+    private MockMvc mockMvc;
+
     @InjectMocks
     private ProjectSubscribeController projectSubscribeController;
 
@@ -25,6 +32,7 @@ public class ProjectSubscribeControllerTests {
 
     @Mock
     private ProjectFollowerService projectFollowerService;
+
 
     private long projectId;
     private long followerId;
@@ -35,6 +43,8 @@ public class ProjectSubscribeControllerTests {
         projectId = 1L;
         followerId = 1L;
         followeeId = 1L;
+
+        mockMvc = MockMvcBuilders.standaloneSetup(projectSubscribeController).build();
     }
 
     @Test
@@ -51,5 +61,11 @@ public class ProjectSubscribeControllerTests {
         verify(projectFollowerService, Mockito.times(1))
                 .followProject(anyLong(), anyLong(), anyLong());
         verify(userContext, Mockito.times(1)).getUserId();
+    }
+
+    @Test
+    void testFollowProjectRequest() throws Exception {
+        mockMvc.perform(put("/api/v1/followeeId/" + followeeId + "/projectId/" + projectId))
+                .andExpect(status().isOk());
     }
 }
