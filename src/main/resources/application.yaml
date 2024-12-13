@@ -1,4 +1,20 @@
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      channel:
+        follower: follower_channel
+        unfollow: unfollow_channel
+        mentorship-channel:
+          name: mentorship_channel
+        follower-event-channel:
+          name: follower_event
+        event-participation:
+          name: event_participation_channel
+        search-appearance:
+          name: search_appearance_topic
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -15,16 +31,6 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
-  data:
-    redis:
-      port: 6379
-      host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
 
 server:
   port: 8080
@@ -56,4 +62,9 @@ application:
     cron:
       one_day: "0 0 0 1 * *"
     batch-size: 5
+
+  publisher-messages:
+    event-registration:
+      notification:
+        telegram: Hello, you were successful registered for the event
 
