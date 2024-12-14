@@ -1,43 +1,40 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import school.faang.user_service.dto.event.MentorshipAcceptedEvent;
+import school.faang.user_service.events.MentorshipAcceptedEvent;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipAcceptedEventPublisherTest {
 
     @InjectMocks
-    private MentorshipAcceptedEventPublisher eventPublisher;
-
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
     @Mock
-    private RedisTemplate<String, String> redisTemplate;
-
+    private RedisTemplate<String, Object> redisTemplate;
     @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
-    private ChannelTopic mentorshipAcceptedTopic;
+    private ChannelTopic channelTopic;
+    private String topic = "topic";
 
     @Test
-    public void testPublisher() throws JsonProcessingException {
-        MentorshipAcceptedEvent event = new MentorshipAcceptedEvent();
+    void testSuccessfulSendingMessage() {
+        MentorshipAcceptedEvent mentorshipStartEvent = new MentorshipAcceptedEvent(1,2, LocalDateTime.now(),3);
 
-        when(mentorshipAcceptedTopic.getTopic()).thenReturn("topic");
-        when(objectMapper.writeValueAsString(event)).thenReturn("JSON");
+        Mockito.when(channelTopic.getTopic()).thenReturn(topic);
 
-        eventPublisher.publish(event);
+        mentorshipAcceptedEventPublisher.publish(mentorshipStartEvent);
 
-        verify(redisTemplate).convertAndSend("topic", "JSON");
+        Mockito.verify(redisTemplate).convertAndSend(topic, mentorshipStartEvent);
     }
+
+
 }

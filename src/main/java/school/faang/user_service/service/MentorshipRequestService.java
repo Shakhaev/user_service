@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.event.MentorshipAcceptedEvent;
+import school.faang.user_service.events.MentorshipAcceptedEvent;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
@@ -13,11 +13,8 @@ import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.events.MentorshipStartEvent;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
-import school.faang.user_service.publisher.AbstractEventPublisher;
-import school.faang.user_service.publisher.MentorshipStartEventPublisher;
 import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
@@ -37,7 +34,6 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator validator;
     private final UserService userService;
     private final UserContext userContext;
-    private final MentorshipStartEventPublisher mentorshipStartEventPublisher;
 
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
         List<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll();
@@ -94,21 +90,20 @@ public class MentorshipRequestService {
         requesterUser.getMentors().add(receiverUser);
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
 
-        log.info("publish mentorshipStartEvent event to redis");
-        MentorshipStartEvent mentorshipStartEvent = new MentorshipStartEvent(receiverUser.getId(), requesterUser.getId(), getContextId());
-        mentorshipStartEventPublisher.publish(mentorshipStartEvent);
-
-        log.info("update mentorshipRequest and map it to dto");
-        return mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(mentorshipRequest));
+        log.info("update mentorshipRequest at db");
         mentorshipRequest = mentorshipRequestRepository.save(mentorshipRequest);
+
+        log.info("publish mentorshipStartEvent event to redis");
         mentorshipAcceptedEventPublisher.publish(
                 new MentorshipAcceptedEvent(
                         mentorshipRequest.getRequester().getId(),
                         mentorshipRequest.getReceiver().getId(),
-                        LocalDateTime.now()
+                        LocalDateTime.now(),
+                        getContextId()
                 )
         );
 
+        log.info("map mentorship to dto");
         return mentorshipRequestMapper.toDto(mentorshipRequest);
     }
 

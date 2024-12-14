@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
 import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
@@ -54,6 +55,8 @@ public class MentorshipRequestServiceTest {
 
     @Mock
     private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
+    @Mock
+    private UserContext userContext;
 
     @Test
     public void testGetMentorshipRequest() {
