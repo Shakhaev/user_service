@@ -59,6 +59,8 @@ public class RedisConfig {
     public ChannelTopic createAppearanceTopic() {
         return new ChannelTopic(searchAppearanceTopicName);
     }
+    @Bean
+    public ChannelTopic buyPremiumTopic(){ return new ChannelTopic(redisProperties.getBuyPremiumTopic());}
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
