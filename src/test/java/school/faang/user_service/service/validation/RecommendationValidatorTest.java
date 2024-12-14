@@ -12,7 +12,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.RecommendationValidator;
+import school.faang.user_service.validator.recommendation.RecommendationValidator;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
