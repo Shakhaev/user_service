@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,13 +34,12 @@ public class UserDto {
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone must be a valid number")
     private String phone;
 
-    @NotNull(message = "Updated date must not be null")
-    private LocalDateTime updatedAt;
+    @NotNull(message = "Telegram chat id must not be null")
+    private Long telegramChatId;
 
     @NotNull(message = "Preferred contact must not be null")
     private PreferredContact preference;
 
-    @NotNull(message = "Telegram chat id must not be null")
-    private Long telegramChatId;
-
+    @NotNull(message = "Updated date must not be null")
+    private LocalDateTime updatedAt;
 }

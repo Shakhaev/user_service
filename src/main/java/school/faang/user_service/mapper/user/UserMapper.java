@@ -47,7 +47,6 @@ public interface UserMapper {
         if (person.getEmployer() != null && !person.getEmployer().isBlank()) {
             aboutMe.append(person.getEmployer());
         }
-
         return aboutMe.toString().trim();
     }
 }
