@@ -37,9 +37,9 @@ public class RecommendationService {
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
         log.info("Start of recommendation {} processing", recommendationDto);
-        //serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
-        //serviceRecommendationValidator.checkingTheSkillsOfRecommendation(recommendationDto.getSkillOffers());
-        //serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
+        serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
+        serviceRecommendationValidator.checkingTheSkillsOfRecommendation(recommendationDto.getSkillOffers());
+        serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
         log.info("A recommendation {} is being created", recommendationDto);
         recommendationRepository.create(
