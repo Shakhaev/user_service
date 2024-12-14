@@ -25,8 +25,7 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
-        recommendation-channel:
-          name: recommendation_channel
+        recommendation_topic: recommendation_topic
 
 server:
   port: 8080

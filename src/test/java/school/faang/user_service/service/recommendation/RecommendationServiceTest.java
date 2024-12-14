@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
+import school.faang.user_service.publisher.RecommendationEventPublisherTest;
 import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -40,6 +43,8 @@ class RecommendationServiceTest {
     private static final long AUTHOR_ID = 1L;
     private static final long RECEIVER_ID = 2L;
 
+    @Mock
+    private RecommendationEventPublisher recommendationEventPublisher;
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
@@ -87,7 +92,7 @@ class RecommendationServiceTest {
     }
 
     @Test
-    void testCreateRecommendationCreated() {
+    void testCreateRecommendationCreated() throws JsonProcessingException {
         when(userService.findById(recommendationDto.getAuthorId()))
                 .thenReturn(Optional.of(User.builder().id(AUTHOR_ID).build()));
         when(userService.findById(recommendationDto.getReceiverId()))
@@ -97,6 +102,8 @@ class RecommendationServiceTest {
                         recommendationDto.getReceiverId(),
                         recommendationDto.getContent()))
                 .thenReturn(CREATED_RECOMMENDATION_ID);
+
+
 
         RecommendationDto recommendationDtoWithId = recommendationService.create(recommendationDto);
         RecommendationReceivedEvent event = new RecommendationReceivedEvent(
@@ -115,7 +122,7 @@ class RecommendationServiceTest {
     }
 
     @Test
-    void testCreateSavedSkillOffers() {
+    void testCreateSavedSkillOffers() throws JsonProcessingException {
         when(userService.findById(recommendationDto.getAuthorId()))
                 .thenReturn(Optional.of(User.builder().id(AUTHOR_ID).build()));
         when(userService.findById(recommendationDto.getReceiverId()))
@@ -132,7 +139,7 @@ class RecommendationServiceTest {
     }
 
     @Test
-    void testCreateCreatedGuarantees() {
+    void testCreateCreatedGuarantees() throws JsonProcessingException {
         User guarantor = User.builder().id(AUTHOR_ID).build();
         User receiver = User.builder().id(RECEIVER_ID).build();
         when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(guarantor));
