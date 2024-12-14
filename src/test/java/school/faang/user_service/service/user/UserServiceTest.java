@@ -13,13 +13,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.publisher.profile.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
 
@@ -54,7 +56,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Spy
-    private UserMapperImpl userMapper;
+    private UserMapper userMapper;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -69,6 +71,9 @@ public class UserServiceTest {
 
     @Mock
     private CountryService countryService;
+
+    @Mock
+    ProfileViewEventPublisher profileViewEventPublisher;
 
     @BeforeEach
     void setUp() {
@@ -180,6 +185,8 @@ public class UserServiceTest {
         when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.empty());
 
+        verify()
+
         assertThrows(DataValidationException.class, () -> userService.getUserDtoById(user.getId()));
     }
 
@@ -258,9 +265,12 @@ public class UserServiceTest {
     void testToGetUserDtoById_ShouldReturnCorrectDto() {
         when(userRepository.findById(3L))
                 .thenReturn(Optional.of(user));
+        when(userContext.getUserId()).thenReturn(3L);
+        when(userMapper.toDto(user)).thenReturn(UserDto.builder().id(3L).build());
 
         var userDto = userService.getUserDtoById(3L);
 
+        verify()
         verify(userMapper, times(1)).toDto(user);
         assertEquals(user.getId(), userDto.getId());
         assertNotNull(userDto);
