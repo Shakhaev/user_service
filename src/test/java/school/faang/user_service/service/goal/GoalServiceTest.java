@@ -105,4 +105,11 @@ class GoalServiceTest {
         goalService.saveGoal(goal);
         verify(goalRepository).save(goal);
     }
+    @Test
+    public void testGetGoalsByMentorId() {
+        long mentorId = 1L;
+
+        goalService.getGoalsByMentorId(mentorId);
+        verify(goalRepository).findGoalsByMentorId(mentorId);
+    }
 }
