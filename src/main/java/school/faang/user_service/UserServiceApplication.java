@@ -25,7 +25,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableRetry
-@EnableAsync
 public class UserServiceApplication {
 
     public static void main(String[] args) {

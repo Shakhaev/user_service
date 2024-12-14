@@ -27,7 +27,7 @@ public class MentorshipRequestedEventPublisher {
             maxAttempts = 3,
             backoff = @Backoff(delay = 3000, multiplier = 2)
     )
-    @Async("redisExecutor")
+    @Async("taskExecutor")
     public CompletableFuture<Void> publish(MentorshipRequestEvent event) {
         try {
             redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), event);
