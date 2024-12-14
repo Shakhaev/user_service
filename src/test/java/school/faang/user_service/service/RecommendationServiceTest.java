@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -9,9 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.SkillOfferRepository;
 import school.faang.user_service.service.recommendation.RecommendationService;
@@ -50,6 +53,9 @@ public class RecommendationServiceTest {
     @Mock
     private ServiceRecommendationValidator serviceRecommendationValidator;
 
+    @Mock
+    private RecommendationEventPublisher recommendationEventPublisher;
+
     @InjectMocks
     RecommendationService recommendationService;
 
@@ -77,6 +83,8 @@ public class RecommendationServiceTest {
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent()
         );
+        ArgumentCaptor<RecommendationEvent> eventCaptor = ArgumentCaptor.forClass(RecommendationEvent.class);
+        verify(recommendationEventPublisher).publish(eventCaptor.capture());
     }
 
     @Test
