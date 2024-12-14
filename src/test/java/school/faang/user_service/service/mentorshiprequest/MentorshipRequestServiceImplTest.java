@@ -10,14 +10,14 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
-import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
+import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
