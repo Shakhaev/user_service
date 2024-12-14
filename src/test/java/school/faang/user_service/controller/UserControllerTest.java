@@ -1,9 +1,13 @@
 package school.faang.user_service.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +21,9 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -30,11 +37,13 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -170,7 +179,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
                         .file(file))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
+                .andExpect(jsonPath("$.countSuccessfullySavedUsers").value(1))
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
 
@@ -210,6 +219,40 @@ class UserControllerTest {
     }
 
     @Test
+    void saveProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
+
+        when(userService.saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/1/profile-settings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                    {
+                                        "preference": "EMAIL"
+                                    }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
+    }
+
+    @Test
+    void getProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
+
+        when(userService.getProfileSettings(userId)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/users/1/profile-settings"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
+    }
+
     @DisplayName("Get user contacts success")
     void testGetUserContactsSuccess() throws Exception {
         Long userId = 1L;
