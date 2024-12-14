@@ -24,7 +24,7 @@ spring:
         mentorship-channel: mentorship_channel
         follower-channel: follower_event
         recommendation-channel: recommendation_channel
-        user_ban-channel: user_ban
+        user-ban-channel: user_ban_channel
         mentorship-accepted-channel: mentorship_accepted_channel
 
   retry:
