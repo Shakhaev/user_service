@@ -2,6 +2,7 @@ package school.faang.user_service.service.mentorshiprequest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.mentorshiprequest.MentorshipAcceptedEvent;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
@@ -10,9 +11,11 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
+import school.faang.user_service.publisher.mentorship.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -23,6 +26,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final MentorshipRequestValidator mentorshipRequestValidator;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
+    private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
@@ -67,6 +71,13 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         requester.getMentors().add(receiver);
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
         mentorshipRequestRepository.save(mentorshipRequest);
+
+        mentorshipAcceptedEventPublisher.publish(new MentorshipAcceptedEvent(
+                requestId,
+                mentorshipRequest.getRequester().getId(),
+                mentorshipRequest.getReceiver().getId(),
+                LocalDateTime.now()
+        ));
 
         return mentorshipRequestMapper.toDto(mentorshipRequest);
     }

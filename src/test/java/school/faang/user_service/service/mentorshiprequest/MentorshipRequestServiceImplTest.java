@@ -18,6 +18,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
+import school.faang.user_service.publisher.mentorship.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
@@ -49,6 +50,8 @@ public class MentorshipRequestServiceImplTest {
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
     private MentorshipRequestValidator mentorshipRequestValidator;
+    @Mock
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
     @Spy
     private MentorshipRequestMapperImpl mentorshipRequestMapper;
 
@@ -60,7 +63,8 @@ public class MentorshipRequestServiceImplTest {
                 mentorshipRequestRepository,
                 mentorshipRequestMapper,
                 mentorshipRequestValidator,
-                mentorshipRequestFilters
+                mentorshipRequestFilters,
+                mentorshipAcceptedEventPublisher
         );
     }
 
