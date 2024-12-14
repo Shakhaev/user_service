@@ -66,15 +66,4 @@ class MentorshipRequestedEventPublisherTest {
         assertTrue(result.isCompletedExceptionally());
         verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
     }
-
-    @Test
-    void testPublishUnexpectedException() {
-        MentorshipRequestEvent event = new MentorshipRequestEvent();
-        doThrow(new RuntimeException("Unexpected error")).when(redisTemplate).convertAndSend(eq("mentorship_request_channel"), eq(event));
-
-        CompletableFuture<Void> result = publisher.publish(event);
-
-        assertTrue(result.isCompletedExceptionally());
-        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
-    }
 }

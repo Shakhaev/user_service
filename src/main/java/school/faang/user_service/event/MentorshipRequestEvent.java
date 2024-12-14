@@ -11,10 +11,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MentorshipRequestEvent {
-    @JsonProperty("receiverId")
+
     private long receiverId;
 
-    @JsonProperty("actorId")
     private long actorId;
 
     private LocalDateTime time;

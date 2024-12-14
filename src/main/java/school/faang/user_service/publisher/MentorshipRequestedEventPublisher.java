@@ -19,11 +19,11 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Slf4j
 public class MentorshipRequestedEventPublisher {
-    private final RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisProperties redisProperties;
 
     @Retryable(
-            value = {JsonProcessingException.class, RedisException.class, Exception.class},
+            value = {RedisException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 3000, multiplier = 2)
     )
@@ -31,13 +31,11 @@ public class MentorshipRequestedEventPublisher {
     public CompletableFuture<Void> publish(MentorshipRequestEvent event) {
         try {
             redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), event);
-            log.info("Successfully published mentorship request event to Redis topic.");
+            log.info("Successfully published mentorship request event from user with id {} to user with id {}.",
+                    event.getActorId(), event.getReceiverId());
             return CompletableFuture.completedFuture(null);
         } catch (RedisException e) {
-            log.error("Redis error: {}", e.getMessage(), e);
-            return CompletableFuture.failedFuture(e);
-        } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage(), e);
+            log.error("Redis error while publishing event: {}", e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
         }
     }

@@ -55,7 +55,7 @@ public class RedisConfig {
 
         MessageListenerAdapter listenerAdapter = createListenerAdapter(userBanSubscriber);
 
-        container.addMessageListener(listenerAdapter, new PatternTopic("user_ban"));
+        container.addMessageListener(listenerAdapter, new PatternTopic("user-ban"));
 
         return container;
     }
