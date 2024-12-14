@@ -3,6 +3,7 @@ package school.faang.user_service.config.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -23,6 +24,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
+    @Value("${spring.data.redis.channel.user-ban-channel}")
+    private String userBanTopic;
+
     private final RedisProperties redisProperties;
     private final ObjectMapper objectMapper;
 
@@ -55,7 +59,7 @@ public class RedisConfig {
 
         MessageListenerAdapter listenerAdapter = createListenerAdapter(userBanSubscriber);
 
-        container.addMessageListener(listenerAdapter, new PatternTopic("user-ban"));
+        container.addMessageListener(listenerAdapter, new PatternTopic(userBanTopic));
 
         return container;
     }

@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class ThreadPoolConfig {
     @Bean(destroyMethod = "shutdown")
-    public ExecutorService redisExecutor(){
+    public ExecutorService taskExecutor (){
         log.info("Thread pool created");
         return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
