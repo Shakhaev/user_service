@@ -13,7 +13,7 @@ import school.faang.user_service.service.goal.GoalService;
 public class GoalController {
     private final GoalService goalService;
 
-    @PutMapping("/{goalId}/complete/")
+    @PutMapping("/{goalId}/complete")
     public void completeGoal(@PathVariable long goalId){
         goalService.completeGoal(goalId);
     }
