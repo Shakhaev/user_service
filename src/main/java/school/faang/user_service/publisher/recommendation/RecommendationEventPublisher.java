@@ -18,7 +18,7 @@ import school.faang.user_service.service.recommendation.RecommendationService;
 public class RecommendationEventPublisher implements MessagePublisher<RecommendationEvent> {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${spring.data.redis.channels.recommendation_topic}")
+    @Value("${spring.data.redis.channels.recommendation_topic.name}")
     private String channel;
 
     @Override
