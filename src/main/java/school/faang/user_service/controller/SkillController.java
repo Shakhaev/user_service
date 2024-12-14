@@ -41,13 +41,13 @@ public class SkillController {
         return skillService.getOfferedSkills(userId);
     }
 
-    @PutMapping("/skills")
-    public SkillDto acquireSkillFromOffers(@RequestParam long skillId,@RequestParam long userId) {
+    @PutMapping()
+    public SkillDto acquireSkillFromOffers(@RequestParam long skillId, @RequestParam long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
 
     @GetMapping("/{skillId}")
-    public SkillDto getSkill(@PathVariable long skillId){
+    public SkillDto getSkill(@PathVariable long skillId) {
         return skillService.getSkill(skillId);
     }
 }
