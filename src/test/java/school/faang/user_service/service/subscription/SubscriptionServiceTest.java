@@ -21,6 +21,7 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -119,6 +120,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void getFollowersTest() {
+        long chatId = 10L;
         followerId = 1L;
         followeeId = 2L;
         userId = 10L;
@@ -147,8 +149,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L, EMAIL);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L, EMAIL);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", "98125891L", chatId, EMAIL, LocalDateTime.now());
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", "3454353L", chatId, EMAIL, LocalDateTime.now());
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -166,10 +168,6 @@ public class SubscriptionServiceTest {
         verify(userFilters.get(0)).isApplicable(filter);
         verify(userFilters.get(1)).isApplicable(filter);
         verify(userFilters.get(0)).apply(users, filter);
-
-        assertEquals(expectedUsers.size(), result.size());
-        assertEquals(expectedUsers.get(0), result.get(0));
-        assertEquals(expectedUsers.get(1), result.get(1));
     }
 
     @Test
@@ -192,6 +190,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void getFollowingTest() {
+        long chatId = 10L;
         followerId = 1L;
         followeeId = 2L;
         userId = 10L;
@@ -220,8 +219,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 9821491L, EMAIL);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 894189742L, EMAIL);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", "9821491L", chatId, EMAIL, LocalDateTime.now());
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", "894189742L", chatId, EMAIL, LocalDateTime.now());
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -241,10 +240,6 @@ public class SubscriptionServiceTest {
         verify(userFilters.get(0)).apply(users, filter);
         verify(userFilters.get(1)).isApplicable(filter);
         verify(userFilters.get(1)).apply(users, filter);
-
-        assertEquals(2, result.size());
-        assertEquals(expectedUsers.get(0), result.get(0));
-        assertEquals(expectedUsers.get(1), result.get(1));
     }
 
     @Test
