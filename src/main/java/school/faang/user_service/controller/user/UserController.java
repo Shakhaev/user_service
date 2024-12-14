@@ -91,6 +91,7 @@ public class UserController {
     public ResponseEntity<UserDto> saveUser(@RequestBody @Valid UserDto userDto) {
         UserDto savedUser = userService.saveUser(userDto);
         return ResponseEntity.ok(savedUser);
+    }
 
     @PostMapping("/not-premium")
     public List<UserDto> getNotPremiumUsers(@RequestBody UserFilterDto filters) {
