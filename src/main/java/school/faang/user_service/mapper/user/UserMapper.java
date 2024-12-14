@@ -6,7 +6,6 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.pojo.user.Person;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;

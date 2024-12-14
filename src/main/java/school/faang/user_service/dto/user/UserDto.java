@@ -26,10 +26,11 @@ public class UserDto {
     private Long id;
 
     @NotBlank(message = "Username must not be blank")
-    @Size(max = 50, message = "Username must not exceed 50 characters")
+    private String username;
 
     @NotBlank(message = "Email must not be blank")
     @Email(message = "Email must be a valid email address")
+    private String email;
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone must be a valid number")
     private String phone;
