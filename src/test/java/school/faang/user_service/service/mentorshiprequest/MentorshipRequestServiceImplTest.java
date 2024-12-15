@@ -11,6 +11,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
+import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestedEvent;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -18,6 +19,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
+import school.faang.user_service.publisher.mentorshiprequest.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
@@ -49,6 +51,8 @@ public class MentorshipRequestServiceImplTest {
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
     private MentorshipRequestValidator mentorshipRequestValidator;
+    @Mock
+    private MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
     @Spy
     private MentorshipRequestMapperImpl mentorshipRequestMapper;
 
@@ -60,7 +64,8 @@ public class MentorshipRequestServiceImplTest {
                 mentorshipRequestRepository,
                 mentorshipRequestMapper,
                 mentorshipRequestValidator,
-                mentorshipRequestFilters
+                mentorshipRequestFilters,
+                mentorshipRequestedEventPublisher
         );
     }
 
@@ -69,6 +74,7 @@ public class MentorshipRequestServiceImplTest {
         MentorshipRequestDto requestDto = createRequestDto(REQUESTER_ID, RECEIVER_ID);
         MentorshipRequest requestEntity = createRequestEntity(REQUEST_ID,
                 createUser(REQUEST_ID), createUser(RECEIVER_ID));
+        MentorshipRequestedEvent event = new MentorshipRequestedEvent(1L, 1L, 2L, requestDto.getCreatedAt());
         when(mentorshipRequestRepository.create(REQUESTER_ID, RECEIVER_ID, REQUEST_DESCRIPTION))
                 .thenReturn(requestEntity);
 
@@ -78,6 +84,7 @@ public class MentorshipRequestServiceImplTest {
         assertEquals(requestDto.getRequesterId(), resultDto.getRequesterId());
         assertEquals(requestDto.getReceiverId(), resultDto.getReceiverId());
         assertEquals(REQUEST_DESCRIPTION, resultDto.getDescription());
+        verify(mentorshipRequestedEventPublisher).publish(event);
     }
 
     @ParameterizedTest()

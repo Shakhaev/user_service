@@ -1,4 +1,4 @@
-package school.faang.user_service.publisher.recommendation;
+package school.faang.user_service.publisher.mentorshiprequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,8 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
-import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
+import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestedEvent;
 
 import java.time.LocalDateTime;
 
@@ -20,30 +19,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RecommendationReceivedEventPublisherTest {
+public class MentorshipRequestedEventPublisherTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
     private ObjectMapper objectMapper;
     @InjectMocks
-    private RecommendationReceivedEventPublisher publisher;
-    @Value("${spring.data.redis.channels.recommendation-channel.name}")
-    private String recommendationChannel;
+    private MentorshipRequestedEventPublisher publisher;
+    @Value("${spring.data.redis.channels.mentorship-requested-channel.name}")
+    private String mentorshipRequestedChannel;
 
     @Test
     public void testSuccessfulPublish() throws JsonProcessingException {
-        RecommendationReceivedEvent event = prepareEvent();
+        MentorshipRequestedEvent event = prepareEvent();
         when(objectMapper.writeValueAsString(event)).thenReturn("some_json");
 
         publisher.publish(event);
 
-        verify(redisTemplate).convertAndSend(recommendationChannel, "some_json");
+        verify(redisTemplate).convertAndSend(mentorshipRequestedChannel, "some_json");
     }
 
     @Test
     public void testPublishWithJsonProcessingException() throws JsonProcessingException {
-        RecommendationReceivedEvent event = prepareEvent();
+        MentorshipRequestedEvent event = prepareEvent();
         when(objectMapper.writeValueAsString(event)).thenThrow(JsonProcessingException.class);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -52,7 +51,7 @@ public class RecommendationReceivedEventPublisherTest {
         assertEquals(RuntimeException.class, exception.getClass());
     }
 
-    private RecommendationReceivedEvent prepareEvent() {
-        return new RecommendationReceivedEvent(1L, 2L, 3L, "Content", LocalDateTime.now());
+    private MentorshipRequestedEvent prepareEvent() {
+        return new MentorshipRequestedEvent(1L, 2L, 3L, LocalDateTime.now());
     }
 }

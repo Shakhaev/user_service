@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
+import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestedEvent;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
+import school.faang.user_service.publisher.mentorshiprequest.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
@@ -23,6 +25,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final MentorshipRequestValidator mentorshipRequestValidator;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
+    private final MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
@@ -35,6 +38,12 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.create(requesterId,
                 receiverId, mentorshipRequestDto.getDescription());
 
+        mentorshipRequestedEventPublisher.publish(new MentorshipRequestedEvent(
+                mentorshipRequest.getId(),
+                requesterId,
+                receiverId,
+                mentorshipRequest.getCreatedAt()
+        ));
         return mentorshipRequestMapper.toDto(mentorshipRequest);
     }
 
