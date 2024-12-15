@@ -14,7 +14,7 @@ public abstract class AbstractEventPublisher<T> implements MessagePublisher<T>{
 
     @Override
     public void publish(T event) {
-        log.warn("sending message to redis");
+        log.info("sending message to redis");
         redisTemplate.convertAndSend(topic.getTopic(), event);
     }
 }

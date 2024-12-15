@@ -14,6 +14,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.service.UserService;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +51,9 @@ public class MentorshipRequestServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
     @Test
     public void testGetMentorshipRequest() {
@@ -105,6 +110,8 @@ public class MentorshipRequestServiceTest {
     public void testAcceptRequestSuccessful() {
         MentorshipRequest request = prepareDataMentorshipRequest(2L, false);
         when(mentorshipRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+        when(mentorshipRequestRepository.save(any())).thenReturn(request);
+        doNothing().when(mentorshipAcceptedEventPublisher).publish(any());
 
         mentorshipRequestService.acceptRequest(request.getId());
     }
@@ -126,7 +133,9 @@ public class MentorshipRequestServiceTest {
         MentorshipRequest request = new MentorshipRequest();
         request.setId(id);
         User requesterUser = new User();
+        requesterUser.setId(7L);
         User receiverUser = new User();
+        receiverUser.setId(8L);
         if (isAccepted) {
             requesterUser.setMentors(List.of(receiverUser));
         } else {

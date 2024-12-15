@@ -31,7 +31,7 @@ class GoalControllerTest {
 
     @Test
     void testCompleteGoal() throws Exception {
-        mockMvc.perform(put("/api/v1/goals/complete/4"))
+        mockMvc.perform(put("/api/v1/goals/4/complete"))
                 .andExpect(status().isOk());
     }
 }

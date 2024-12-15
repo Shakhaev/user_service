@@ -23,6 +23,7 @@ public interface UserMapper {
     @Mapping(source = "goals", target = "goalsIds", qualifiedByName = "goals")
     @Mapping(source = "skills", target = "skillsIds", qualifiedByName = "skills")
     @Mapping(source = "country.title", target = "country")
+    @Mapping(source = "contactPreference.preference", target = "preference")
     UserDto toDto(User user);
 
     List<UserDto> toDto(List<User> users);
