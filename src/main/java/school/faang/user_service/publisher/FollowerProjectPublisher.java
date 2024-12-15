@@ -23,16 +23,14 @@ public class FollowerProjectPublisher {
         }
 
         try {
-            String serializedEvent = objectMapper.writeValueAsString(followerProjectEvent);
-            redisTemplate.convertAndSend("follower_project_channel", serializedEvent);
+            objectMapper.writeValueAsString(followerProjectEvent);
+            redisTemplate.convertAndSend("follower_project_channel", followerProjectEvent);
             log.info("Опубликовано событие для OwnerId: {}",
-                followerProjectEvent.ownerId());
+                followerProjectEvent.ownerId(),
+                followerProjectEvent.followerId());
         } catch (JsonProcessingException e) {
-            log.error("Ошибка сериализации события для FollowerId: {}, ProjectId: {}, OwnerId: {}",
-                followerProjectEvent.followerId(),
-                followerProjectEvent.projectId(),
-                followerProjectEvent.ownerId(), e);
-            throw new RuntimeException("Ошибка сериализации события ProjectFollowerEvent", e);
+            log.error("Ошибка сериализации события подписчика", e);
+            throw new RuntimeException("Ошибка сериализации события подписчика", e);
         }
     }
 }

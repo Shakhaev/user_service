@@ -10,6 +10,8 @@ import school.faang.user_service.publisher.FollowerProjectPublisher;
 import school.faang.user_service.publisher.UnfollowProjectPublisher;
 import school.faang.user_service.repository.ProjectSubscriptionRepository;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class ProjectSubscriptionServiceImpl implements ProjectSubscriptionServic
         subscriptionRepository.followProject(followerId, projectDto.projectId());
         log.info("Пользователь {} успешно подписался на проект {}.", followerId, projectDto.projectId());
 
-        followerProjectPublisher.publishFollowerEvent(new FollowerProjectEvent(followerId, projectDto.projectId(), projectDto.ownerId()));
+        followerProjectPublisher.publishFollowerEvent(new FollowerProjectEvent(followerId, projectDto.projectId(), projectDto.ownerId(), LocalDateTime.now()));
         log.info("Событие подписки опубликовано для пользователя {} на проект {}.", projectDto.ownerId(), projectDto.projectId());
     }
 
@@ -46,7 +48,7 @@ public class ProjectSubscriptionServiceImpl implements ProjectSubscriptionServic
         subscriptionRepository.unfollowProject(followerId, projectDto.projectId());
         log.info("Пользователь {} успешно отписался от проекта {}.", followerId, projectDto.projectId());
 
-        unfollowProjectPublisher.publishUnfollowEvent(new FollowerProjectEvent(followerId, projectDto.projectId(), projectDto.ownerId()));
+        unfollowProjectPublisher.publishUnfollowEvent(new FollowerProjectEvent(followerId, projectDto.projectId(), projectDto.ownerId(), LocalDateTime.now()));
         log.info("Событие отписки опубликовано для пользователя {} от проекта {}.", projectDto.ownerId(), projectDto.projectId());
     }
 }

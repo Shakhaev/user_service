@@ -23,14 +23,14 @@ public class UnfollowProjectPublisher {
         }
 
         try {
-            String serializedEvent = objectMapper.writeValueAsString(followerProjectEvent);
-            redisTemplate.convertAndSend("unfollow_project_channel", serializedEvent);
-            log.info("Опубликовано событие для Пользователя: {}",
-                followerProjectEvent.ownerId());
+            objectMapper.writeValueAsString(followerProjectEvent);
+            redisTemplate.convertAndSend("follower_project_channel", followerProjectEvent);
+            log.info("Опубликовано событие для OwnerId: {}",
+                followerProjectEvent.ownerId(),
+                followerProjectEvent.followerId());
         } catch (JsonProcessingException e) {
-            log.error("Ошибка сериализации события для Пользователя: {}",
-                followerProjectEvent.ownerId(), e);
-            throw new RuntimeException("Ошибка сериализации события ProjectFollowerEvent", e);
+            log.error("Ошибка сериализации события подписчика", e);
+            throw new RuntimeException("Ошибка сериализации события подписчика", e);
         }
     }
 }
