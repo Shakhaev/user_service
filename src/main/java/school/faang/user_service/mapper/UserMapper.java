@@ -51,7 +51,7 @@ public interface UserMapper {
     User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
     UserDto toDto(User user);
 
-
+    @Mapping(target = "preference", source = "contactPreference.preference")
     UserForNotificationDto toUserForNotificationDto(User user);
 
     @Named("mapGoalsToListId")

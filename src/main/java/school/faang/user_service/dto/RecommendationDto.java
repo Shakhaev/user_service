@@ -15,7 +15,6 @@ public record RecommendationDto(
         @NotNull Long authorId,
         @NotNull Long receiverId,
         @NotBlank @Size(max = 4096) String content,
-        List<SkillOfferDto> skillOffers,
-        @NotNull @PastOrPresent LocalDateTime createdAt
+        List<SkillOfferDto> skillOffers
 ) {
 }
