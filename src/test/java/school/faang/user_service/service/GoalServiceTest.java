@@ -17,8 +17,11 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.GoalAlreadyCompletedException;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
@@ -68,6 +71,9 @@ class GoalServiceTest {
 
     @Mock
     private GoalValidator goalValidation;
+
+    @Mock
+    private GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     private GoalDto goal;
     private GoalDto secondGoal;
@@ -363,5 +369,77 @@ class GoalServiceTest {
         Exception exception = assertThrows(EntityNotFoundException.class, () -> goalService.findGoalById(goalId));
         assertEquals(String.format("Goal not found by id: %s", goalId), exception.getMessage());
         verify(goalRepository, times(1)).findById(goalId);
+    }
+
+    @Test
+    @DisplayName("Test Goal Complete Positive")
+    void testGoalCompletePositive() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        Goal goal = Goal.builder().id(goalId).status(GoalStatus.ACTIVE).build();
+
+        GoalDto goalDto = GoalDto.builder()
+                .id(goalId)
+                .build();
+
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of(goal));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
+        when(goalMapper.toDto(goal)).thenReturn(goalDto);
+
+        GoalDto result = goalService.completeGoalAndPublishEvent(goalDto, userId);
+
+        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, times(1)).save(goal);
+        verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEvent.class));
+
+        assertNotNull(result);
+        assertEquals(goalId, result.getId());
+    }
+
+    @Test
+    @DisplayName("Test Goal Complete Negative - Goal Already Completed")
+    void testGoalCompleteNegativeGoalAlreadyCompleted() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        Goal goal = Goal.builder().id(goalId).status(GoalStatus.COMPLETED).build();
+
+        GoalDto goalDto = GoalDto.builder()
+                .id(goalId)
+                .build();
+
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of(goal));
+
+        GoalAlreadyCompletedException exception = assertThrows(GoalAlreadyCompletedException.class,
+                () -> goalService.completeGoalAndPublishEvent(goalDto, userId));
+
+        assertEquals("Goal already completed", exception.getMessage());
+
+        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
+    }
+
+    @Test
+    @DisplayName("Test Goal Complete Negative - Goal Not Found")
+    void testGoalCompleteNegativeGoalNotFound() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        GoalDto goalDto = GoalDto.builder()
+                .id(goalId)
+                .build();
+
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of()); // Пустой список
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> goalService.completeGoalAndPublishEvent(goalDto, userId));
+
+        assertEquals("Goal not found by id: 14", exception.getMessage());
+
+        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
     }
 }

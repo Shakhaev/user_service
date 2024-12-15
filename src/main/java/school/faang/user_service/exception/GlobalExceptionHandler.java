@@ -128,4 +128,10 @@ public class GlobalExceptionHandler {
         log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler(GoalAlreadyCompletedException.class)
+    public ResponseEntity<String> handleGoalAlreadyCompletedException(GoalAlreadyCompletedException ex) {
+        log.error("GoalAlreadyCompletedException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

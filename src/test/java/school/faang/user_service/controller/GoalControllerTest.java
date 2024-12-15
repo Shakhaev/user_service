@@ -20,6 +20,7 @@ import school.faang.user_service.controller.goal.GoalController;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.CreateGoalRequest;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -113,5 +114,21 @@ class GoalControllerTest {
                 .andExpect(jsonPath("$[1].title").value("Goal 2"));
 
         verify(goalService, times(1)).getGoalsByUser(userId, filters);
+    }
+
+    @Test
+    void testGetCompletedGoalOfUserSuccess() throws Exception {
+        long userId = 1L;
+        GoalDto goalDto = GoalDto.builder().id(1L).status(GoalStatus.COMPLETED).build();
+
+        when(goalService.completeGoalAndPublishEvent(goalDto, userId)).thenReturn(goalDto);
+
+        mockMvc.perform(post("/goals/complete/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(goalDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"));
+
+        verify(goalService, times(1)).completeGoalAndPublishEvent(goalDto, userId);
     }
 }

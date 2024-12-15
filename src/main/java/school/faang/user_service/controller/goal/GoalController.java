@@ -75,4 +75,9 @@ public class GoalController {
     public ResponseEntity<List<GoalDto>> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
         return ResponseEntity.ok(goalService.getGoalsByUser(userId, filters));
     }
+
+    @PostMapping(value = "complete/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GoalDto> getCompletedGoalsOfUser(@RequestBody GoalDto goalDto, @PathVariable long userId) {
+        return ResponseEntity.ok(goalService.completeGoalAndPublishEvent(goalDto, userId));
+    }
 }
