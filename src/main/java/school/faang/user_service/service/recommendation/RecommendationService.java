@@ -13,7 +13,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.publisher.recommendation.RecommendationReceivedEventPublisher;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
