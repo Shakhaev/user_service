@@ -8,6 +8,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ProcessResultDto {
 
-    private int сountSuccessfullySavedUsers;
+    private int countSuccessfullySavedUsers;
     private List<String> errors;
 }

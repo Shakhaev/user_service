@@ -5,8 +5,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,9 @@ public interface UserMapper {
     List<UserDto> toDto(List<User> users);
 
     List<User> toEntity(List<UserDto> usersDto);
+
+    @Mapping(target = "userId", source = "user.id")
+    UserProfileSettingsResponseDto toDto(ContactPreference contactPreference);
 
     @Named("mapToUsersId")
     default List<Long> mapToUsersId(List<User> users) {
