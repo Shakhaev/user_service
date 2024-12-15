@@ -33,7 +33,6 @@ class ProfileViewEventPublisherTest {
 
     @Test
     void publish_successfulSerialization() throws JsonProcessingException{
-        // Arrange
         ProfileViewEvent event = new ProfileViewEvent(1L, 2L, LocalDateTime.of(2024, 7, 1, 0 , 0));
         String json = "{\"userId\":\"userId\",\"timestamp\":1234567890}";
 
