@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 
 import java.time.LocalDateTime;
 

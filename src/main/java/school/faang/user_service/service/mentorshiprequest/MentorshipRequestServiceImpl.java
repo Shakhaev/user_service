@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
-import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestedEvent;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
