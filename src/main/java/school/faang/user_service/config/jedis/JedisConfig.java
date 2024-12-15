@@ -19,6 +19,7 @@ import school.faang.user_service.listener.BanUserListener;
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
+
     @Value("${spring.data.redis.host}")
     private String host;
 
