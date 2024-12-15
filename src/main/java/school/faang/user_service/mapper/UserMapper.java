@@ -17,7 +17,7 @@ import school.faang.user_service.entity.goal.Goal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = ContactMapper.class)
 public interface UserMapper {
 
     @Mapping(source = "country.id", target = "countryId")
@@ -51,7 +51,7 @@ public interface UserMapper {
 
     UserDto toDto(User user);
 
-    @Mapping(target="preference", source="contactPreference.preference")
+    @Mapping(target = "preference", source = "contactPreference.preference")
     UserForNotificationDto toUserForNotificationDto(User user);
 
     @Named("mapGoalsToListId")
@@ -63,9 +63,11 @@ public interface UserMapper {
                 .map(Goal::getId)
                 .toList();
     }
+
     User toEntity(UserDto userDto);
 
     List<UserDto> toDtos(List<User> users);
+
     @Named("mapSkillsToListId")
     default List<Long> mapSkillsToListId(List<Skill> skills) {
         if (skills == null) {
@@ -77,6 +79,7 @@ public interface UserMapper {
     }
 
     List<User> toEntities(List<UserDto> userDtos);
+
     @Named("mapMentorsToListId")
     default List<Long> mapMentorsToListId(List<User> mentors) {
         if (mentors == null) {

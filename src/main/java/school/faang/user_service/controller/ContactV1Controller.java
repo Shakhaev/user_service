@@ -1,9 +1,9 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +30,11 @@ public class ContactV1Controller {
     @GetMapping("/{contact_number}")
     public ContactDto getContact(@PathVariable("contact_number") String contactNumber) {
         return contactService.getByContactNumber(contactNumber);
+    }
+
+    @DeleteMapping("/{contact_number}")
+    public void deleteContact(@PathVariable("contact_number") String contactNumber) {
+        contactService.deleteByContactNumber(contactNumber);
     }
 
 }

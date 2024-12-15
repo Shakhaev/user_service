@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class ContactService {
     private final ContactMapper contactMapper;
 
     public ContactDto createContact(ContactDto contactDto) {
-        log.info("Creating new contact");
+        log.info("Creating new contact: {}", contactDto);
 
         Contact contact = contactMapper.toContact(contactDto);
         User user = userService.getUserById(contactDto.userId());
@@ -32,11 +31,13 @@ public class ContactService {
     }
 
     public ContactDto getByContactNumber(String contactNumber) {
+        log.info("Getting contact by contactNumber: {}", contactNumber);
         Contact contact = contactRepository.findByContact(contactNumber);
         return contactMapper.toContactDto(contact);
     }
 
     public void deleteByContactNumber(String contactNumber) {
+        log.info("Deleting contact by contactNumber: {}", contactNumber);
         Contact contact = contactRepository.findByContact(contactNumber);
         contactRepository.delete(contact);
     }

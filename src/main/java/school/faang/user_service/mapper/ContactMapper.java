@@ -6,6 +6,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.ContactDto;
 import school.faang.user_service.entity.contact.Contact;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ContactMapper {
 
@@ -15,4 +17,5 @@ public interface ContactMapper {
     @Mapping(source = "user.id", target = "userId")
     ContactDto toContactDto(Contact contact);
 
+    List<ContactDto> toContactDtoList(List<Contact> contacts);
 }
