@@ -25,8 +25,6 @@ spring:
       port: 6379
       host: localhost
       elastic-search-key: elasticSearchScore
-      topic:
-        recommendation: recommendation
       channels:
         mentorship-channel:
           name: mentorship_channel
@@ -42,6 +40,8 @@ spring:
           name: mentorship_accepted_topic
         skill_acquired_topic:
           name: skill_acquire
+        recommendation_received_topic:
+          name: recommendation_received_topic
   task:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?

@@ -6,16 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Page;
-import school.faang.user_service.dto.recommendation.RecommendationEvent;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
     private final RecommendationRepository recommendationRepository;
     private final ServiceRecommendationValidator serviceRecommendationValidator;
-    private final RecommendationEventPublisher recommendationEventPublisher;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     public Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId) {
         return recommendationRepository.
@@ -47,11 +46,12 @@ public class RecommendationService {
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
 
-        recommendationEventPublisher.publish(new RecommendationEvent(
-                recommendationDto.getId(),
+        recommendationReceivedEventPublisher.publish(new RecommendationReceivedEvent(
                 recommendationDto.getAuthorId(),
                 recommendationDto.getReceiverId(),
-                 LocalDateTime.now()));
+                recommendationDto.getId()
+        ));
+
         log.info("A recommendation {} has been created", recommendationDto);
         return recommendationDto;
     }
