@@ -16,28 +16,31 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class PremiumBoughtEventPublisherTest {
     @Mock
-    private RedisTemplate<String,Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     @Mock
     private ChannelTopic buyPremiumTopic;
     @InjectMocks
     private PremiumBoughtEventPublisher eventPublisher;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         when(buyPremiumTopic.getTopic()).thenReturn("buy_premium_topic");
     }
+
     @Test
-    void publishPremiumBoughtEvent_Positive(){
-        PremiumBoughtEvent event = new PremiumBoughtEvent(123L,29.99,7,null);
+    void publishPremiumBoughtEvent_Positive() {
+        PremiumBoughtEvent event = new PremiumBoughtEvent(123L, 29.99, 7, null);
         eventPublisher.publishPremiumBoughtEvent(event);
-        verify(redisTemplate,times(1))
-                .convertAndSend(eq("buy_premium_topic"),eq(event));
+        verify(redisTemplate, times(1))
+                .convertAndSend(eq("buy_premium_topic"), eq(event));
     }
+
     @Test
-    void publishPremiumBoughtEvent_Negative_ExceptionThrow(){
-        PremiumBoughtEvent event = new PremiumBoughtEvent(123L,29.99,7,null);
+    void publishPremiumBoughtEvent_Negative_ExceptionThrow() {
+        PremiumBoughtEvent event = new PremiumBoughtEvent(123L, 29.99, 7, null);
         doThrow(new RuntimeException("Redis error")).when(redisTemplate)
-                .convertAndSend(anyString(),any());
+                .convertAndSend(anyString(), any());
         eventPublisher.publishPremiumBoughtEvent(event);
-        verify(redisTemplate,times(1)).convertAndSend(eq("buy_premium_topic"),eq(event));
+        verify(redisTemplate, times(1)).convertAndSend(eq("buy_premium_topic"), eq(event));
     }
 }

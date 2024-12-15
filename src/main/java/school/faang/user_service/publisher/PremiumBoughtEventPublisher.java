@@ -20,8 +20,8 @@ public class PremiumBoughtEventPublisher {
         log.info("Converting to redis new event: {}", premiumBoughtEvent.toString());
         try {
             redisTemplate.convertAndSend(buyPremiumTopic.getTopic(), premiumBoughtEvent);
-        } catch (RuntimeException e){
-            log.error("Failed to publish event to Redis: {}",e.getMessage());
+        } catch (RuntimeException e) {
+            log.error("Failed to publish event to Redis: {}", e.getMessage());
         }
     }
 }
