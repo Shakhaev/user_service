@@ -16,6 +16,7 @@ import school.faang.user_service.repository.ProjectSubscriptionRepository;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +39,9 @@ public class ProjectFollowerServiceTests {
     @Test
     void tesFollowProjectConditionsException() {
         int followerId = 1;
+        int projectId = 2;
+        doThrow(EntityNotFoundException.class).when(projectServiceClient).getProjectById(anyLong());
+
         assertThrows(EntityNotFoundException.class,
                 () -> projectFollowerService.followProject(projectId, followerId));
     }
