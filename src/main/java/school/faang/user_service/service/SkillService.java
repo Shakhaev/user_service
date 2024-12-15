@@ -1,30 +1,37 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.SkillRequest;
+import school.faang.user_service.events.SkillAcquiredEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.publisher.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.repository.skill.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class SkillService {
 
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillValidator skillValidator;
-
     private final SkillRequestRepository skillRequestRepository;
+
+    private final SkillAcquiredEventPublisher skillAcquiredEventPublisher;
 
     public SkillDto create(SkillDto skillDto) {
         skillValidator.validateExistTitle(skillDto.getTitle());
@@ -57,6 +64,11 @@ public class SkillService {
 
         skillRepository.assignSkillToUser(skillId, userId);
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
+
+        log.info("create and send SkillAcquiredEvent");
+        SkillAcquiredEvent skillAcquiredEvent = new SkillAcquiredEvent(userId, skillId);
+        skillAcquiredEventPublisher.publish(skillAcquiredEvent);
+
         return skill.map(skillMapper::entityToDto)
                 .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
@@ -76,8 +88,15 @@ public class SkillService {
     public void assignSkillToUser(long skillId, long receiverId) {
         skillRepository.assignSkillToUser(skillId, receiverId);
     }
+    public SkillDto getSkill(long skillId){
+        return skillMapper.entityToDto(getSkillFromDb(skillId));
+    }
 
-    public int countExisting(List<Long> ids){
+    public Skill getSkillFromDb(long skillId){
+        return skillRepository.findById(skillId).orElseThrow(()-> new EntityNotFoundException("Такого скила нет в бд"));
+    }
+
+    public int countExisting(List<Long> ids) {
         return skillRepository.countExisting(ids);
     }
 
