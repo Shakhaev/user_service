@@ -49,23 +49,23 @@ public class ProjectSubscribeControllerTests {
 
     @Test
     void testFollowProjectException() {
-        doThrow(RuntimeException.class).when(projectFollowerService).followProject(projectId, followerId, followeeId);
+        doThrow(RuntimeException.class).when(projectFollowerService).followProject(projectId, followerId);
 
-        assertThrows(RuntimeException.class, () -> projectSubscribeController.followProject(projectId, followeeId));
+        assertThrows(RuntimeException.class, () -> projectSubscribeController.followProject(projectId));
     }
 
     @Test
     void testFollowProject() {
-        projectSubscribeController.followProject(projectId, followeeId);
+        projectSubscribeController.followProject(projectId);
 
         verify(projectFollowerService, Mockito.times(1))
-                .followProject(anyLong(), anyLong(), anyLong());
+                .followProject(anyLong(), anyLong());
         verify(userContext, Mockito.times(1)).getUserId();
     }
 
     @Test
     void testFollowProjectRequest() throws Exception {
-        mockMvc.perform(put("/api/v1/followeeId/" + followeeId + "/projectId/" + projectId))
+        mockMvc.perform(put("/api/v1/projectId/" + projectId))
                 .andExpect(status().isOk());
     }
 }

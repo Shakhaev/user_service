@@ -18,10 +18,10 @@ public class ProjectSubscribeController {
     private final ProjectFollowerService projectFollowerService;
 
 
-    @PutMapping("/followeeId/{followeeId}/projectId/{projectId}")
+    @PutMapping("/projectId/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public void followProject(@PathVariable long projectId, @PathVariable long followeeId) {
+    public void followProject(@PathVariable long projectId) {
         long followerId = userContext.getUserId();
-        projectFollowerService.followProject(projectId, followerId, followeeId);
+        projectFollowerService.followProject(projectId, followerId);
     }
 }
