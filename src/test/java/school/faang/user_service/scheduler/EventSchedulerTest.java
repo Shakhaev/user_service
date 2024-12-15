@@ -53,7 +53,7 @@ public class EventSchedulerTest {
     }
 
     @Test
-    public void testClearEvents_NoPastEvents_ShouldLogNoEventsToDelete() {
+    public void testClearEventsNoPastEvents() {
         when(eventService.getPastEventsIds()).thenReturn(Collections.emptyList());
 
         eventScheduler.clearEvents();
