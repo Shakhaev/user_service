@@ -42,17 +42,6 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
 
-    @PostMapping("/upload")
-    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) throws IOException {
-        String filename = file.getOriginalFilename();
-        long fileSize = file.getSize();
-        log.info("Received file: name = {}, size = {} bytes", filename, fileSize);
-        ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
-        log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
-                filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
-        return ResponseEntity.ok(result);
-    }
-
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUser(
             @PathVariable
@@ -69,14 +58,6 @@ public class UserController {
             long userId
     ) {
         return ResponseEntity.ok(userService.deactivateProfile(userId));
-    }
-
-    @GetMapping("{userId}/contacts")
-    @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
-    public ResponseEntity<UserContactsDto> getUserContacts(
-            @PathVariable @Positive(message = "User id should be a positive integer") Long userId) {
-        log.info("Getting contacts of user with id {}", userId);
-        return ResponseEntity.ok(userService.getUserContacts(userId));
     }
 
     @GetMapping

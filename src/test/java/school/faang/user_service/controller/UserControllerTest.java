@@ -1,17 +1,14 @@
 package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,8 +19,6 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.entity.contact.PreferredContact;
-import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
 import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.contact.PreferredContact;
@@ -42,8 +37,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -62,21 +55,22 @@ class UserControllerTest {
     private static final PreferredContact PREFERENCE = PreferredContact.EMAIL;
     private static final String CHANNEL_NAME = "recommendation_request_channel";
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
     private MockMvc mockMvc;
-    @Mock
 
     @Autowired
     private UserController userController;
 
     @MockBean
     private UserService userService;
-    @Mock
 
     @MockBean
     private UserRepository userRepository;
+
     @Spy
     private UserMapper userMapper;
+
     @MockBean
     private UserValidator userValidator;
 

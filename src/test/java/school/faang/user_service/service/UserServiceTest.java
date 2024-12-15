@@ -34,8 +34,8 @@ import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.contact.ContactPreferenceService;
 import school.faang.user_service.repository.contact.ContactPreferenceRepository;
+import school.faang.user_service.service.contact.ContactPreferenceService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
@@ -113,12 +113,11 @@ class UserServiceTest {
     @Mock
     private Filter<User, UserFilterDto> userExperienceMaxFilter;
     @Mock
-    private UserContactsMapper userContactsMapper;
-    @Mock
     private ContactPreferenceService contactPreferenceService;
 
     @Mock
     private ContactPreferenceRepository contactPreferenceRepository;
+
 
     @Mock
     private UserValidator userValidator;
@@ -166,19 +165,18 @@ class UserServiceTest {
         );
 
         userService = new UserService(
-                eventPublisher,
                 userRepository,
                 userMapper,
                 personToUserMapper,
                 userContactsMapper,
                 userValidator,
-                userContactsMapper,
                 countryService,
                 mentorshipService,
                 eventService,
                 contactPreferenceService,
                 userFilters,
                 parser,
+                eventPublisher,
                 contactPreferenceRepository
         );
 

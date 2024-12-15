@@ -2,10 +2,10 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.domain.Person;
@@ -20,6 +20,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.event.ContactPreferenceUpdateEvent;
 import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
@@ -45,7 +46,6 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
@@ -68,8 +68,8 @@ public class UserService {
                        UserContactsMapper userContactsMapper,
                        UserValidator userValidator,
                        CountryService countryService,
-                       MentorshipService mentorshipService,
-                       EventService eventService,
+                       @Lazy MentorshipService mentorshipService,
+                       @Lazy EventService eventService,
                        ContactPreferenceService contactPreferenceService,
                        List<Filter<User, UserFilterDto>> userFilters,
                        CsvParser parser,
@@ -320,13 +320,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserContactsDto updateUserPreferredContact(Long userId, PreferredContact contact) {
-        if (!userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("User not found with id " + userId);
-        }
+    public UserContactsDto updateUserPreferredContact(Long userId, PreferredContact contact, Long currentUserId) {
+        userValidator.hasAccess(currentUserId, userId);
 
         User user = findUserById(userId);
+
         contactPreferenceService.updatePreference(user, contact);
+
+        eventPublisher.publishEvent(new ContactPreferenceUpdateEvent(userId, contact, currentUserId));
+
         return userContactsMapper.toDto(user);
     }
 }
