@@ -20,7 +20,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/usersMentorship")
 @Tag(name = "Контроллер для управления менторами и менти")
 public class MentorshipController {
     private final MentorshipService mentorshipService;

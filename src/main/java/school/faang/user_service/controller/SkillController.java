@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/skills")
 public class SkillController {
     private final SkillService skillService;
     private final SkillValidator skillValidator;
@@ -40,8 +41,13 @@ public class SkillController {
         return skillService.getOfferedSkills(userId);
     }
 
-    @PutMapping("/skills")
-    public SkillDto acquireSkillFromOffers(long skillId, long userId) {
+    @PutMapping()
+    public SkillDto acquireSkillFromOffers(@RequestParam long skillId, @RequestParam long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
+    }
+
+    @GetMapping("/{skillId}")
+    public SkillDto getSkill(@PathVariable long skillId) {
+        return skillService.getSkill(skillId);
     }
 }

@@ -13,20 +13,54 @@ spring:
       hibernate:
         format_sql: true
 
+  elasticsearch:
+    uris: http://localhost:9200
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
 
   data:
     redis:
       port: 6379
       host: localhost
+      elastic-search-key: elasticSearchScore
       topic:
         recommendation: recommendation
       channels:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event
+          name: follower_event2
+        ban_user_topic:
+          name: user_ban
+        recommendation_topic:
+          name: recommendation_topic
+        goal_completed_topic:
+          name: goal_complete
+        mentorship_accepted:
+          name: mentorship_accepted_topic
+        skill_acquired_topic:
+          name: skill_acquire
+  task:
+    scheduling:
+      cron-elastic-search-data-sync: 0 0/10 * * * ?
+
+
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 505043354003-fr1slmod1spf1a49gr9ub46pto40u5b1.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - openid
+              - profile
+              - email
+              - https://www.googleapis.com/auth/calendar
+#            redirect-uri: "{baseUrl}/login/oauth2/code/google"
 
 server:
   port: 8080
@@ -56,4 +90,6 @@ services:
     host: localhost
     port: 8082
 
+removeEventTime:
+  cron: 0 0 * * * *
 
