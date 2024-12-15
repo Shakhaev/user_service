@@ -1,23 +1,26 @@
 package school.faang.user_service.service.recommendation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
-import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.publisher.recommendation.RecommendationReceivedEventPublisher;
+import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.RecommendationValidator;
+import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,11 +37,10 @@ public class RecommendationService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserService userService;
     private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
+    private final RecommendationEventPublisher recommendationEventPublisher;
 
-    public RecommendationDto create(RecommendationDto recommendationDto) {
-        recommendationValidator.checkTimeInterval(recommendationDto);
-        recommendationValidator.checkSkillsExist(recommendationDto);
-        recommendationValidator.checkSkillsUnique(recommendationDto);
+    public RecommendationDto create(RecommendationDto recommendationDto) throws JsonProcessingException {
+        recommendationValidator.checkMainValidation(recommendationDto);
         recommendationValidator.checkRequest(recommendationDto);
 
         Long recommendationId = recommendationRepository.create(
@@ -55,14 +57,20 @@ public class RecommendationService {
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent(),
                 recommendationDto.getCreatedAt()));
+
+        recommendationEventPublisher.publish(
+                new RecommendationEvent(
+                        recommendationDto.getId(), recommendationDto.getAuthorId(),
+                        recommendationDto.getReceiverId(), recommendationDto.getCreatedAt()
+                )
+        );
+
         return recommendationDto;
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
         recommendationValidator.checkId(recommendationDto);
-        recommendationValidator.checkTimeInterval(recommendationDto);
-        recommendationValidator.checkSkillsExist(recommendationDto);
-        recommendationValidator.checkSkillsUnique(recommendationDto);
+        recommendationValidator.checkMainValidation(recommendationDto);
 
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),

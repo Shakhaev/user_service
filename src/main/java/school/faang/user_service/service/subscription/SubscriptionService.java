@@ -2,11 +2,11 @@ package school.faang.user_service.service.subscription;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.ShortUserDto;
+import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.ShortUserMapper;
+import school.faang.user_service.mapper.user.ShortUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.filters.user.UserFilter;
 

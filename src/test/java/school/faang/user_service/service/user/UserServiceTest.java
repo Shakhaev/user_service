@@ -18,7 +18,7 @@ import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
