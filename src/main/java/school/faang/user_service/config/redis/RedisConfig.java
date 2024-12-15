@@ -61,6 +61,11 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic goalCompletedChannel() {
+        return new ChannelTopic(redisProperties.getGoalCompletedChannel());
+    }
+
+    @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         log.info("Создание RedisTemplate с кастомными сериализаторами.");
 
