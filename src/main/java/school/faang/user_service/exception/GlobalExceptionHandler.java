@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(SkillDuplicateException.class)
     public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
@@ -113,7 +115,6 @@ public class GlobalExceptionHandler {
         log.error("ConstraintViolationException: {}", errorMessage, ex);
         return ResponseEntity.badRequest().body(errorMessage);
     }
-
 
     @ExceptionHandler(PaymentFailedException.class)
     public ResponseEntity<String> handlePaymentFailedException(PaymentFailedException e) {

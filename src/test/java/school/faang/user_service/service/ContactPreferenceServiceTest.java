@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +18,7 @@ import school.faang.user_service.service.contact.ContactPreferenceService;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,30 +58,26 @@ class ContactPreferenceServiceTest {
     void updatePreference_WhenPreferenceExists_ShouldUpdatePreference() {
         PreferredContact newPreference = PreferredContact.SMS;
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(contactPreferenceRepository.findById(user.getId())).thenReturn(Optional.of(existingContactPreference));
         when(contactPreferenceRepository.save(any(ContactPreference.class))).thenReturn(existingContactPreference);
 
-        contactPreferenceService.updatePreference(user.getId(), newPreference);
+        contactPreferenceService.updatePreference(user, newPreference);
 
         assertThat(existingContactPreference.getPreference()).isEqualTo(newPreference);
-        verify(userRepository, times(1)).findById(user.getId());
         verify(contactPreferenceRepository, times(1)).findById(user.getId());
         verify(contactPreferenceRepository, times(1)).save(existingContactPreference);
     }
 
     @Test
-    @DisplayName("Обновление предпочтения контакта успешно, когда предпочтение не существует и создаётся новое")
+    @DisplayName("Updating a contact's preference is successful when the preference does not exist and a new one is created.")
     void updatePreference_WhenPreferenceDoesNotExist_ShouldCreateAndSetPreference() {
         PreferredContact newPreference = PreferredContact.TELEGRAM;
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(contactPreferenceRepository.findById(user.getId())).thenReturn(Optional.empty());
         when(contactPreferenceRepository.save(any(ContactPreference.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        contactPreferenceService.updatePreference(user.getId(), newPreference);
+        contactPreferenceService.updatePreference(user, newPreference);
 
-        verify(userRepository, times(1)).findById(user.getId());
         verify(contactPreferenceRepository, times(1)).findById(user.getId());
         verify(contactPreferenceRepository, times(1)).save(any(ContactPreference.class));
 
@@ -95,23 +87,6 @@ class ContactPreferenceServiceTest {
 
         assertThat(savedPreference.getUser()).isEqualTo(user);
         assertThat(savedPreference.getPreference()).isEqualTo(newPreference);
-    }
-
-    @Test
-    @DisplayName("Update contact preference user not found")
-    void updatePreference_WhenUserDoesNotExist_ShouldThrowException() {
-        Long nonExistentUserId = 99L;
-        PreferredContact newPreference = PreferredContact.EMAIL;
-
-        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> contactPreferenceService.updatePreference(nonExistentUserId, newPreference))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("User not found with id " + nonExistentUserId);
-
-        verify(userRepository, times(1)).findById(nonExistentUserId);
-        verify(contactPreferenceRepository, never()).findById(anyLong());
-        verify(contactPreferenceRepository, never()).save(any(ContactPreference.class));
     }
 
     @Test

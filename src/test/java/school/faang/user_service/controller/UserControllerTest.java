@@ -1,16 +1,19 @@
 package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -19,6 +22,10 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.contact.PreferredContact;
+import school.faang.user_service.exception.GlobalExceptionHandler;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.UserMapper;
@@ -31,38 +38,48 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest
+@ContextConfiguration(classes = {UserController.class})
 class UserControllerTest {
     private static final Long USER_ID = 1L;
     private static final Long CURRENT_USER_ID = 2L;
     private static final PreferredContact PREFERENCE = PreferredContact.EMAIL;
     private static final String CHANNEL_NAME = "recommendation_request_channel";
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
     private MockMvc mockMvc;
     @Mock
+
+    @Autowired
+    private UserController userController;
+
+    @MockBean
     private UserService userService;
     @Mock
+
+    @MockBean
     private UserRepository userRepository;
     @Spy
     private UserMapper userMapper;
-    @Mock
+    @MockBean
     private UserValidator userValidator;
-    @InjectMocks
-    private UserController userController;
+
     private String csvContent;
     private MockMultipartFile file;
 
@@ -70,6 +87,9 @@ class UserControllerTest {
     void setUp() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).
                 setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
         String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
                 .getSystemResourceAsStream("students2.csv"));
@@ -174,7 +194,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
                         .file(file))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
+                .andExpect(jsonPath("$.countSuccessfullySavedUsers").value(1))
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
 
@@ -221,8 +241,7 @@ class UserControllerTest {
                 .preference(PREFERENCE)
                 .build();
 
-        doNothing().when(userValidator).hasAccess(CURRENT_USER_ID, USER_ID);
-        when(userService.updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE))).thenReturn(updatedUserContactsDto);
+        when(userService.updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE), eq(CURRENT_USER_ID))).thenReturn(updatedUserContactsDto);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/contact-preference", USER_ID)
                         .param("preference", PREFERENCE.name())
@@ -232,15 +251,16 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(USER_ID))
                 .andExpect(jsonPath("$.preference").value(PREFERENCE.name()));
 
-        verify(userValidator, times(1)).hasAccess(CURRENT_USER_ID, USER_ID);
-        verify(userService, times(1)).updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE));
+        verify(userService, times(1)).updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE), eq(CURRENT_USER_ID));
         verifyNoMoreInteractions(userValidator, userService);
     }
 
     @Test
     @DisplayName("Update user's preferred contact method - Unauthorized")
     void testUpdateUserPreference_Unauthorized() throws Exception {
-        doThrow(new SecurityException("Access denied")).when(userValidator).hasAccess(CURRENT_USER_ID, USER_ID);
+        doThrow(new SecurityException("Access denied"))
+                .when(userService)
+                .updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE), eq(CURRENT_USER_ID));
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/contact-preference", USER_ID)
                         .param("preference", PREFERENCE.name())
@@ -248,8 +268,77 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        verify(userValidator, times(1)).hasAccess(CURRENT_USER_ID, USER_ID);
-        verify(userService, never()).updateUserPreferredContact(anyLong(), any(PreferredContact.class));
-        verifyNoMoreInteractions(userValidator, userService);
+        verify(userService, times(1)).updateUserPreferredContact(eq(USER_ID), eq(PREFERENCE), eq(CURRENT_USER_ID));
+        verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    void saveProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsDto settingsDto = UserProfileSettingsDto.builder().preference(PreferredContact.EMAIL).build();
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
+
+        when(userService.saveProfileSettings(eq(userId), any(UserProfileSettingsDto.class))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/users/1/profile-settings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                    {
+                                        "preference": "EMAIL"
+                                    }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
+    }
+
+    @Test
+    void getProfileSettingsShouldReturnOk() throws Exception {
+        Long userId = 1L;
+        UserProfileSettingsResponseDto responseDto = new UserProfileSettingsResponseDto(1L, PreferredContact.EMAIL, userId);
+
+        when(userService.getProfileSettings(userId)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/users/1/profile-settings"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()))
+                .andExpect(jsonPath("$.preference").value(responseDto.getPreference().toString()))
+                .andExpect(jsonPath("$.userId").value(userId));
+    }
+
+    @DisplayName("Get user contacts success")
+    void testGetUserContactsSuccess() throws Exception {
+        Long userId = 1L;
+        UserContactsDto dto = UserContactsDto.builder()
+                .id(1L)
+                .email("email")
+                .phone("phone")
+                .build();
+        when(userService.getUserContacts(userId)).thenReturn(dto);
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.phone").value("phone"));
+    }
+
+    @Test
+    @DisplayName("Get user contacts fail: Negative project id")
+    void testGetUserContacts_NegativeProjectId_Fail() throws Exception {
+        Long userId = -1L;
+
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("User id should be a positive integer")));
+    }
+
+    @Test
+    @DisplayName("Get user contacts fail: null project id")
+    void testGetUserContacts_nullProjectId_Fail() throws Exception {
+        Long userId = null;
+
+        mockMvc.perform(get("/users/{userId}/contacts", userId))
+                .andExpect(status().isNotFound());
     }
 }

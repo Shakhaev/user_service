@@ -7,14 +7,17 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.AccessDeniedException;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.exception.SkillDuplicateException;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserValidator {
     private final UserRepository repository;
+    private final ContactPreferenceRepository contactPreferenceRepository;
 
     public void validateUserById(long userId) {
         if (!repository.existsById(userId)) {
@@ -38,6 +41,12 @@ public class UserValidator {
         if (!currentUserId.equals(userId)) {
             log.warn("User authorization failed: currentUserId={}, userId={}", currentUserId, userId);
             throw new AccessDeniedException("You are not authorized to update contact preferences for this user.");
+        }
+    }
+
+    public void validateUserProfileByUserId(Long userId) {
+        if (!contactPreferenceRepository.existsByUserId(userId)) {
+            throw new EntityNotFoundException("User with id #" + userId + " not found");
         }
     }
 }

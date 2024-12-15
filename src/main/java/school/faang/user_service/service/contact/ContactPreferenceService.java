@@ -1,36 +1,47 @@
 package school.faang.user_service.service.contact;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.event.ContactPreferenceUpdateEvent;
 import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContactPreferenceService {
     private final ContactPreferenceRepository contactPreferenceRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public void updatePreference(Long userId, PreferredContact contact) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
+    public void updatePreference(User user, PreferredContact contact) {
 
-        ContactPreference contactPreference = contactPreferenceRepository.findById(userId)
-                .orElse(null);
-
-        if (contactPreference == null) {
-            contactPreference = new ContactPreference();
-            contactPreference.setUser(user);
-        }
+        ContactPreference contactPreference = contactPreferenceRepository.findById(user.getId())
+                .orElseGet(() -> {
+                    ContactPreference newPreference = new ContactPreference();
+                    newPreference.setUser(user);
+                    return newPreference;
+                });
 
         contactPreference.setPreference(contact);
         contactPreferenceRepository.save(contactPreference);
+
+        log.info("Updated contact preference for userId={} to {}", user.getId(), contact);
+    }
+
+    @EventListener
+    @Transactional
+    public void handleContactPreferenceUpdate(ContactPreferenceUpdateEvent event) {
+        Long userId = event.getUserId();
+        PreferredContact newPreference = event.getNewPreference();
+        Long currentUserId = event.getCurrentUserId();
+
+        log.info("Contact preference updated for userId={} by currentUserId={} to {}",
+                userId, currentUserId, newPreference);
     }
 
     public PreferredContact getUserPreference(Long userId) {
