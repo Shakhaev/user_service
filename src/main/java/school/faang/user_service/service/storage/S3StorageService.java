@@ -1,5 +1,7 @@
 package school.faang.user_service.service.storage;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.exception.StorageException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,58 +29,59 @@ public class S3StorageService implements StorageService {
 
     @Override
     public void uploadFile(String fileName, byte[] content, String contentType) {
-        log.info("Начало загрузки файла '{}' в бакет '{}'.", fileName, bucketName);
+        log.info("Loading file '{}' to the bucket '{}'.", fileName, bucketName);
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(contentType);
         metadata.setContentLength(content.length);
 
-        try (ByteArrayInputStream byteArray = new ByteArrayInputStream(content)) {
-            PutObjectRequest putRequest = new PutObjectRequest(bucketName, fileName, byteArray, metadata);
+        ByteArrayInputStream byteArray = new ByteArrayInputStream(content);
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName, fileName, byteArray, metadata);
+        try {
             amazonS3.putObject(putRequest);
-            log.info("Файл '{}' успешно загружен в бакет '{}'.", fileName, bucketName);
-        } catch (IOException error) {
-            log.error("IOException при загрузке файла '{}' в бакет '{}': {}",
-                    fileName,
-                    bucketName,
-                    error.getMessage(),
-                    error);
-            throw new StorageException("Failed to upload file: " + fileName, error);
-        } catch (RuntimeException e) {
-            log.error("RuntimeException при загрузке файла '{}' в бакет '{}': {}", fileName, bucketName, e.getMessage(), e);
-            throw new StorageException("Failed to upload file: " + fileName, e);
+            log.info("File '{}' successfully uploaded to the bucket '{}'.", fileName, bucketName);
+        } catch (AmazonServiceException exception) {
+            log.error("AmazonServiceException while uploading file '{}' to the bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to upload file: " + fileName, exception);
+        } catch (SdkClientException exception) {
+            log.error("SdkClientException while uploading file '{}' to the bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to upload file: " + fileName, exception);
         }
     }
 
     @Override
     public void deleteFile(String fileName) {
-        log.info("Начало удаления файла '{}' из бакета '{}'.", fileName, bucketName);
+        log.info("Deleting file '{}' from the bucket '{}'.", fileName, bucketName);
         try {
             amazonS3.deleteObject(bucketName, fileName);
-            log.info("Файл '{}' успешно удалён из бакета '{}'.", fileName, bucketName);
-        } catch (RuntimeException error) {
-            log.error("RuntimeException при удалении файла '{}' из бакета '{}': {}",
-                    fileName,
-                    bucketName,
-                    error.getMessage(),
-                    error);
-            throw new StorageException("Failed to delete file: " + fileName, error);
+            log.info("File '{}' successfully deleted from the bucket '{}'.", fileName, bucketName);
+        } catch (AmazonServiceException exception) {
+            log.error("AmazonServiceException while deleting file '{}' from the bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to delete file: " + fileName, exception);
+        } catch (SdkClientException exception) {
+            log.error("SdkClientException while deleting file '{}' from the bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to delete file: " + fileName, exception);
         }
     }
 
     @Override
     public boolean ifFileExists(String fileName) {
-        log.info("Проверка существования файла '{}' в бакете '{}'.", fileName, bucketName);
+        log.info("Checking file existence '{}' in bucket '{}'.", fileName, bucketName);
         try {
             boolean exists = amazonS3.doesObjectExist(bucketName, fileName);
-            log.info("Файл '{}' существует: {}", fileName, exists);
+            log.info("File '{}' exists: {}", fileName, exists);
             return exists;
-        } catch (RuntimeException error) {
-            log.error("RuntimeException при проверке существования файла '{}' в бакете '{}': {}",
-                    fileName,
-                    bucketName,
-                    error.getMessage(),
-                    error);
-            throw new StorageException("Failed to check if file exists: " + fileName, error);
+        } catch (AmazonServiceException exception) {
+            log.error("AmazonServiceException while checking existence of file '{}' in bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to check if file exists: " + fileName, exception);
+        } catch (SdkClientException exception) {
+            log.error("SdkClientException while checking existence of file '{}' in bucket '{}': {}",
+                    fileName, bucketName, exception.getMessage(), exception);
+            throw new StorageException("Failed to check if file exists: " + fileName, exception);
         }
     }
 }

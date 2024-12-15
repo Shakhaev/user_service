@@ -24,13 +24,12 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        log.info("Validation exception occurred: {}", ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        log.error("Validation exception occurred: {}", exception.getMessage(), exception);
 
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
+        exception.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
-            log.info("Validation error on field '{}': {}", error.getField(), error.getDefaultMessage());
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
@@ -157,13 +156,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AvatarNotFoundException.class)
     public ResponseEntity<String> handleAvatarNotFoundException(AvatarNotFoundException exception) {
-        log.warn("AvatarNotFoundException: {}", exception.getMessage());
+        log.warn("AvatarNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidFileFormatException.class)
     public ResponseEntity<String> handleInvalidFileFormatException(InvalidFileFormatException exception) {
-        log.warn("InvalidFileFormatException: {}", exception.getMessage());
+        log.warn("InvalidFileFormatException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
@@ -177,7 +176,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException exception) {
-        log.warn("AccessDeniedException: {}", exception.getMessage());
+        log.warn("AccessDeniedException: {}", exception.getMessage(), exception);
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(exception.getMessage());

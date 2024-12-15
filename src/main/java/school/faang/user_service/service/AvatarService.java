@@ -40,9 +40,8 @@ public class AvatarService {
         deleteExistingAvatarIfPresent(user);
 
         UserProfilePic userProfilePic = processAvatar(userId, userAvatarPicture);
-        uploadAvatarFiles(userProfilePic, userAvatarPicture, getImageFormatFromContentType(
-                Objects.requireNonNull(userAvatarPicture.getContentType()))
-        );
+        String contentType = getImageFormatFromContentType(Objects.requireNonNull(userAvatarPicture.getContentType()));
+        uploadAvatarFiles(userProfilePic, userAvatarPicture, contentType);
 
         user.setUserProfilePic(userProfilePic);
         userService.saveUser(user);
