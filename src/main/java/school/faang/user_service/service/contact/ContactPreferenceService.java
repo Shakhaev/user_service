@@ -19,18 +19,22 @@ public class ContactPreferenceService {
 
     @Transactional
     public void updatePreference(User user, PreferredContact contact) {
+        Long userId = user.getId();
+        ContactPreference contactPreference = contactPreferenceRepository.findByUserId(userId)
+                .orElse(null);
 
-        ContactPreference contactPreference = contactPreferenceRepository.findById(user.getId())
-                .orElseGet(() -> {
-                    ContactPreference newPreference = new ContactPreference();
-                    newPreference.setUser(user);
-                    return newPreference;
-                });
-
-        contactPreference.setPreference(contact);
-        contactPreferenceRepository.save(contactPreference);
-
-        log.info("Updated contact preference for userId={} to {}", user.getId(), contact);
+        if (contactPreference != null) {
+            contactPreference.setPreference(contact);
+            contactPreferenceRepository.save(contactPreference);
+            log.info("Updated contact preference for userId={} to {}", userId, contact);
+        } else {
+            ContactPreference newPreference = ContactPreference.builder()
+                    .user(user)
+                    .preference(contact)
+                    .build();
+            contactPreferenceRepository.save(newPreference);
+            log.info("Created new contact preference for userId={} with preference {}", userId, contact);
+        }
     }
 
     @EventListener

@@ -56,15 +56,16 @@ class ContactPreferenceServiceTest {
     @Test
     @DisplayName("Update contact preference success")
     void updatePreference_WhenPreferenceExists_ShouldUpdatePreference() {
-        PreferredContact newPreference = PreferredContact.SMS;
+        PreferredContact newPreference = PreferredContact.EMAIL;
 
-        when(contactPreferenceRepository.findById(user.getId())).thenReturn(Optional.of(existingContactPreference));
+        when(contactPreferenceRepository.findByUserId(user.getId())).thenReturn(Optional.of(existingContactPreference));
         when(contactPreferenceRepository.save(any(ContactPreference.class))).thenReturn(existingContactPreference);
 
         contactPreferenceService.updatePreference(user, newPreference);
 
         assertThat(existingContactPreference.getPreference()).isEqualTo(newPreference);
-        verify(contactPreferenceRepository, times(1)).findById(user.getId());
+
+        verify(contactPreferenceRepository, times(1)).findByUserId(user.getId());
         verify(contactPreferenceRepository, times(1)).save(existingContactPreference);
     }
 
@@ -73,12 +74,10 @@ class ContactPreferenceServiceTest {
     void updatePreference_WhenPreferenceDoesNotExist_ShouldCreateAndSetPreference() {
         PreferredContact newPreference = PreferredContact.TELEGRAM;
 
-        when(contactPreferenceRepository.findById(user.getId())).thenReturn(Optional.empty());
         when(contactPreferenceRepository.save(any(ContactPreference.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         contactPreferenceService.updatePreference(user, newPreference);
 
-        verify(contactPreferenceRepository, times(1)).findById(user.getId());
         verify(contactPreferenceRepository, times(1)).save(any(ContactPreference.class));
 
         ArgumentCaptor<ContactPreference> captor = ArgumentCaptor.forClass(ContactPreference.class);

@@ -181,6 +181,8 @@ public class UserService {
 
     public UserContactsDto getUserContacts(Long userId) {
         User user = findUserById(userId);
+        log.info("Fetched Contact Preference: {}", user.getContactPreference() != null ? user.getContactPreference().getPreference() : "null");
+
         return userContactsMapper.toDto(user);
     }
 
@@ -329,6 +331,8 @@ public class UserService {
 
         eventPublisher.publishEvent(new ContactPreferenceUpdateEvent(userId, contact, currentUserId));
 
-        return userContactsMapper.toDto(user);
+        User updatedUser = findUserById(userId);
+
+        return userContactsMapper.toDto(updatedUser);
     }
 }

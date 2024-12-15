@@ -12,11 +12,9 @@ import school.faang.user_service.entity.contact.PreferredContact;
 @Component
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserContactsMapper {
-    @Mapping(source = "preference", target = "preference")
-    UserContactsDto toDto(User user, PreferredContact preference);
 
     @Mapping(source = "contactPreference.preference", target = "preference")
-    UserContactsDto toDto (User user);
+    UserContactsDto toDto(User user);
 
     default PreferredContact mapPreference(ContactPreference contactPreference) {
         return contactPreference != null ? contactPreference.getPreference() : null;
