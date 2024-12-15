@@ -28,7 +28,6 @@ public class OutboxEvent {
     private String eventPayload;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

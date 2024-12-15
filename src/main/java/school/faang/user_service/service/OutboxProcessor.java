@@ -27,7 +27,6 @@ public class OutboxProcessor {
     private final GoalCompletedEventPublisher goalCompletedEventPublisher;
     private final ObjectMapper objectMapper;
 
-    @Transactional
     @Scheduled(fixedRate = 100000)
     public void processOutboxEvents() {
         List<OutboxEvent> events = outboxEventRepository.findAllByProcessedFalse();
@@ -45,9 +44,7 @@ public class OutboxProcessor {
         outboxEventRepository.save(outboxEvent);
     }
 
-    @Retryable(
-            value = {OutboxProcessingException.class},
-            maxAttempts = 5,
+    @Retryable(value = {OutboxProcessingException.class}, maxAttempts = 5,
             backoff = @Backoff(delay = 2000, multiplier = 2))
     private void processEvent(OutboxEvent event) {
         try {
