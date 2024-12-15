@@ -29,4 +29,5 @@ public class ProfileViewEventPublisher {
             throw new RuntimeException(e);
         }
     }
+
 }
