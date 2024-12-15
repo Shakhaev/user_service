@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,7 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,18 +23,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipServiceTest {
+class MentorshipServiceTest {
 
     @InjectMocks
     public MentorshipService mentorshipService;
     @Mock
     private UserService userService;
+    @Mock
+    private UserValidator userValidator;
     @Spy
     private UserMapperImpl userMapper;
 
     private User mentor;
     private User mentee;
     private User mentee2;
+    private UserProfileDeactivatedEvent event;
 
     @BeforeEach
     public void setUp() {
@@ -51,7 +57,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void getMenteesWhenUserHasMentees() {
+    void getMenteesWhenUserHasMentees() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -70,7 +76,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void getMenteesUserWithNoMenteesReturnsEmptyList() {
+    void getMenteesUserWithNoMenteesReturnsEmptyList() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -85,7 +91,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testGetMentorsWhenUserHasMentees() {
+    void testGetMentorsWhenUserHasMentees() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -107,7 +113,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testGetMentorsUserWithNoMenteesReturnsEmptyList() {
+    void testGetMentorsUserWithNoMenteesReturnsEmptyList() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -122,7 +128,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMenteeWhenMenteeExists() {
+    void testDeleteMenteeWhenMenteeExists() {
         User mentor = new User();
         mentor.setId(1L);
         User mentee = new User();
@@ -138,7 +144,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMenteeWhenMenteeDoesNotExist() {
+    void testDeleteMenteeWhenMenteeDoesNotExist() {
         User mentor = new User();
         mentor.setId(1L);
         mentor.setMentees(new ArrayList<>());
@@ -150,7 +156,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentorWhenMenteeExists() {
+    void testDeleteMentorWhenMenteeExists() {
         User mentee = new User();
         mentee.setId(1L);
         User mentor = new User();
@@ -166,7 +172,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentorWhenMenteeDoesNotExist() {
+    void testDeleteMentorWhenMenteeDoesNotExist() {
         User mentee = new User();
         mentee.setId(1L);
         mentee.setMentors(new ArrayList<>());
@@ -178,18 +184,48 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testMoveGoalsToMentee_Successful() {
-        when(userService.findUserById(1L)).thenReturn(mentor);
-        when(userService.findUserById(2L)).thenReturn(mentee);
+    @DisplayName("Handle User Profile Deactivated Event success")
+    void testHandleUserProfileDeactivatedEvent() {
+        event = new UserProfileDeactivatedEvent(this, mentor.getId());
 
-        mentorshipService.moveGoalsToMentee(2, 1);
+        List<User> mentees = List.of(mentee, mentee2);
+        mentor.setMentees(mentees);
+        mentee.setMentors(new ArrayList<>(List.of(mentor)));
+        mentee2.setMentors(new ArrayList<>(List.of(mentor)));
+
+        when(userService.findUserById(mentor.getId())).thenReturn(mentor);
+        when(userService.findUserById(mentee.getId())).thenReturn(mentee);
+        when(userService.findUserById(mentee2.getId())).thenReturn(mentee2);
+        when(userValidator.isUserMentor(mentor)).thenReturn(true);
+
+        mentorshipService.handleUserProfileDeactivatedEvent(event);
 
         assertEquals(mentee, mentor.getSetGoals().stream()
                 .filter(goal -> goal.getUsers().contains(mentee))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Goal not found"))
                 .getMentor());
+
+        verify(userService, times(1)).findUserById(mentor.getId());
+        verify(userService, times(2)).findUserById(mentee.getId());
+        verify(userService, times(2)).findUserById(mentee2.getId());
+        verify(userValidator, times(1)).isUserMentor(mentor);
+        verify(userService, times(1)).saveUser(mentee);
     }
+
+    @Test
+    @DisplayName("Handle User Profile Deactivated Event success: User is not a mentor")
+    void testHandleUserProfileDeactivatedEvent_NotMentor_Success() {
+        event = new UserProfileDeactivatedEvent(this, mentor.getId());
+        when(userService.findUserById(mentor.getId())).thenReturn(mentor);
+        when(userValidator.isUserMentor(mentor)).thenReturn(false);
+
+        mentorshipService.handleUserProfileDeactivatedEvent(event);
+
+        verify(userService, times(1)).findUserById(mentor.getId());
+        verify(userValidator, times(1)).isUserMentor(mentor);
+    }
+
 }
 
 
