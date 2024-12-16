@@ -1,5 +1,4 @@
-package school.faang.user_service.client;
-
+package school.faang.user_service.config.context.client;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
