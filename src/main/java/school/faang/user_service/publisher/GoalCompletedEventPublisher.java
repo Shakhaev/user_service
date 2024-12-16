@@ -20,16 +20,16 @@ public class GoalCompletedEventPublisher implements EventPublisher<GoalCompleted
     @Value("${spring.data.redis.channel.goal-completed}")
     private String topic;
 
-    @Retryable(value = {RedisConnectionException.class, RedisPublishingException.class},
+    @Retryable(retryFor = {RedisConnectionException.class, RedisPublishingException.class},
             maxAttempts = 5, backoff = @Backoff(delay = 2000, multiplier = 2))
     public void publish(GoalCompletedEvent event) {
         try {
             redisTemplate.convertAndSend(topic, event);
         } catch (RedisConnectionException e) {
-            log.error("Error publishing event to Redis", e);
+            log.error("Redis connection error while publishing event: {}", event, e);
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error publishing event to Redis", e);
+            log.error("Unexpected error while publishing event: {}", event, e);
             throw new RedisPublishingException("Unexpected error while publishing event to Redis", e);
         }
     }
