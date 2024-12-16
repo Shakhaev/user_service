@@ -9,4 +9,9 @@ public class SkillAcquiredEventPublisher extends AbstractEventPublisher<SkillAcq
     public SkillAcquiredEventPublisher(RedisTemplate<String, Object> redisTemplate, ChannelTopic skillAcquiredTopic) {
         super(redisTemplate, skillAcquiredTopic);
     }
+
+    @Override
+    public Class<SkillAcquiredEvent> getInstance() {
+        return SkillAcquiredEvent.class;
+    }
 }
