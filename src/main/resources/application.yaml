@@ -29,7 +29,7 @@ spring:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event2
+          name: follower_event
         ban_user_topic:
           name: user_ban
         recommendation_topic:
@@ -40,6 +40,8 @@ spring:
           name: mentorship_accepted_topic
         skill_acquired_topic:
           name: skill_acquire
+
+
   task:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?
@@ -59,9 +61,6 @@ spring:
               - email
               - https://www.googleapis.com/auth/calendar
 #            redirect-uri: "{baseUrl}/login/oauth2/code/google"
-          name: follower_event
-      topic:
-        user-ban: user_ban
 
 server:
   port: 8080
