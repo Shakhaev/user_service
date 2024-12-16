@@ -1,5 +1,6 @@
 package school.faang.user_service.publisher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,9 +16,15 @@ public class GoalCompletedEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     @Qualifier("goalCompletedChannel")
     private final ChannelTopic goalCompletedChannel;
+    private final ObjectMapper objectMapper;
 
     public void publish(GoalCompletedEventDto event) {
         log.info("The goal completion event has been published to the , {} , channel", goalCompletedChannel);
-        redisTemplate.convertAndSend(goalCompletedChannel.getTopic(), event);
+        try {
+            redisTemplate.convertAndSend(goalCompletedChannel.getTopic(), event);
+        } catch (RuntimeException e) {
+            log.error("Could not publish the event with Goal ID, {}", event.getGoalId());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
