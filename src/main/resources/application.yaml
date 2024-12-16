@@ -6,6 +6,10 @@ spring:
       channel:
         follower: follower_channel
         unfollow: unfollow_channel
+        follower-project:
+          name: follower_project_channel
+        unfollow-project:
+          name: unfollow_project_channel
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
