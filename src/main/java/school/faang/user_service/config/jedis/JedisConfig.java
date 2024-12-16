@@ -21,8 +21,6 @@ import java.util.Objects;
 @Configuration
 @RequiredArgsConstructor
 public class JedisConfig {
-    private final ObjectMapper objectMapper;
-
     @Value("${spring.data.redis.host}")
     private String host;
 
@@ -38,6 +36,7 @@ public class JedisConfig {
     private String folowerTopic;
     @Value("${spring.data.redis.channels.ban_user_topic.name}")
     private String banUserTopic;
+
     @Value("${spring.data.redis.channels.goal_completed_topic.name}")
     private String goalCompletedTopic;
 

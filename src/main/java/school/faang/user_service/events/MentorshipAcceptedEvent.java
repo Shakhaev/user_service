@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.event;
+package school.faang.user_service.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,4 +13,5 @@ public class MentorshipAcceptedEvent {
     private long requesterUserId;
     private long receiverUserId;
     private LocalDateTime timestamp;
+    private long userContextId;
 }
