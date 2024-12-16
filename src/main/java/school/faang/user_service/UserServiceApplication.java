@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
@@ -15,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 title = "User Service",
                 version = "1.0.0")
 )
+@EnableAsync
 @EnableScheduling
 @EnableRetry
 public class UserServiceApplication {

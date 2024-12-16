@@ -24,7 +24,7 @@ spring:
         mentorship-channel: mentorship_channel
         subscription-channel: subscription_channel
         recommendation-channel: recommendation_channel
-        user_ban-channel: user_ban
+        user-ban-channel: user_ban_channel
 
   retry:
     maxAttempts: 3
@@ -74,3 +74,10 @@ cron:
 batch:
   size:
     eventBatch: 50
+
+myapp:
+  schedule:
+    cron: "0 0 0 * * MON"
+
+del:
+  batch-size: 100
