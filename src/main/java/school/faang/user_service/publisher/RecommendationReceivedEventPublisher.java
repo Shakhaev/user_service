@@ -29,6 +29,6 @@ public class RecommendationReceivedEventPublisher implements EventPublisher<Reco
     )
     public void publish(RecommendationReceivedEvent event) {
         redisTemplate.convertAndSend(redisProperties.getChannel().getRecommendationChannel(), event);
-        log.info("Event sent to channel: {}", redisProperties.getChannel().getRecommendationChannel());
+        log.info("New recommendation event sent to channel id: {}", redisProperties.getChannel().getRecommendationChannel());
     }
 }

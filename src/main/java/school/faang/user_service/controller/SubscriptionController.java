@@ -29,7 +29,7 @@ public class SubscriptionController {
 
     @PostMapping("/{followerId}/follow/{followeeId}")
     public ResponseEntity<Void> followUser(@Valid @PathVariable long followerId, @Valid @PathVariable long followeeId) {
-        log.info("Received request to subscribe user #{} to user #{}.", followerId, followeeId);
+        log.info("Received request from user ID: {} to subscribe to user ID: {}", followerId, followeeId);
         subscriptionService.followUser(followerId, followeeId);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();

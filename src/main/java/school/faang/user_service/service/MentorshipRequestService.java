@@ -41,7 +41,7 @@ public class MentorshipRequestService {
                 .build();
         MentorshipRequest result = requestRepository.save(newRequest);
 
-        log.info("Mentorship request with id #{} from UserId #{} to UserId #{} created successfully.",
+        log.info("Mentorship request with id {} from UserId {} to UserId {} created successfully.",
                 result.getId(), dto.getRequesterId(), dto.getReceiverId());
 
         return requestMapper.toDto(result);
@@ -70,7 +70,7 @@ public class MentorshipRequestService {
         userService.saveUser(requester);
         userService.saveUser(receiver);
 
-        log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
+        log.info("Request with id {} was accepted by UserId {}.", id, receiver.getId());
         return requestMapper.toDto(requestRepository.save(request));
     }
 
@@ -80,7 +80,7 @@ public class MentorshipRequestService {
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
 
-        log.info("Request with id #{} was rejected by UserId #{} with reason '{}'.",
+        log.info("Request with id {} was rejected by UserId {} with reason '{}'.",
                 id, request.getReceiver().getId(), rejectionDto.getReason());
         return requestMapper.toDto(requestRepository.save(request));
     }
@@ -89,8 +89,8 @@ public class MentorshipRequestService {
         requestValidator.validateMentorshipRequestExists(id);
 
         return requestRepository.findById(id).orElseThrow(() -> {
-            log.warn("Request with id #{} not found.", id);
-            return new EntityNotFoundException("Request with id #" + id + " not found.");
+            log.warn("Request with id {} not found.", id);
+            return new EntityNotFoundException("Request with id " + id + " not found.");
         });
     }
 }

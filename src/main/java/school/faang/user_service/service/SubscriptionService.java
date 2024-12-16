@@ -45,7 +45,7 @@ public class SubscriptionService {
                 followerId, followeeId);
 
         subscriptionEventPublisher.publish(new SubscriptionEvent(followerId, followeeId, subscribedAt));
-        log.info("User #{} successfully subscribed to user #{}.", followerId, followeeId);
+        log.info("User {} successfully subscribed to user {}.", followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {

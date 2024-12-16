@@ -57,8 +57,8 @@ class SubscriptionServiceTest {
     void unfollowUser_shouldCallValidatorAndRepository() {
         assertDoesNotThrow(() -> subscriptionService.unfollowUser(followerId, followeeId));
 
-        verify(subscriptionValidator).validateSubscriptionRemoval(followerId, followeeId);
-        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+        verify(subscriptionValidator, times(1)).validateSubscriptionRemoval(followerId, followeeId);
+        verify(subscriptionRepository, times(1)).unfollowUser(followerId, followeeId);
     }
 
     @Test
@@ -69,7 +69,7 @@ class SubscriptionServiceTest {
 
         assertEquals(5, count);
 
-        verify(userValidator).validateUserById(followeeId);
+        verify(userValidator, times(1)).validateUserById(followeeId);
     }
 
     @Test
@@ -79,6 +79,6 @@ class SubscriptionServiceTest {
 
         assertEquals(3, count);
 
-        verify(userValidator).validateUserById(followerId);
+        verify(userValidator, times(1)).validateUserById(followerId);
     }
 }
