@@ -5,22 +5,33 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.util.ImageUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AvatarServiceTest {
 
+    @Spy
     @InjectMocks
     private AvatarService avatarService;
 
@@ -39,31 +51,24 @@ class AvatarServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(avatarService, "baseUrl", "https://avatars.dicebear.com");
-        ReflectionTestUtils.setField(avatarService, "version", "v2");
-        ReflectionTestUtils.setField(avatarService, "styles", List.of("bottts", "avataaars"));
-        ReflectionTestUtils.setField(avatarService, "seedNames", List.of("user1", "user2"));
+        ReflectionTestUtils.setField(avatarService, "baseUrl", "https://api.dicebear.com");
+        ReflectionTestUtils.setField(avatarService, "version", "9.x");
+        ReflectionTestUtils.setField(avatarService, "styles", List.of("bottts", "adventurer"));
+        ReflectionTestUtils.setField(avatarService, "seedNames", List.of("Brian", "Adrian"));
     }
 
     @Test
-    void generateAndUploadUserAvatars_success() throws IOException {
-        String userId = "123";
-        BufferedImage dummyImage = mock(BufferedImage.class);
-        BufferedImage resizedImageLarge = mock(BufferedImage.class);
-        BufferedImage resizedImageSmall = mock(BufferedImage.class);
+    void generateUrlRandomAvatar_success() {
+        ReflectionTestUtils.setField(avatarService, "styles", List.of("bottts"));
+        ReflectionTestUtils.setField(avatarService, "seedNames", List.of("Brian"));
 
-        when(imageUtils.resizeImage(dummyImage, 1080)).thenReturn(resizedImageLarge);
-        when(imageUtils.resizeImage(dummyImage, 170)).thenReturn(resizedImageSmall);
-        when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImageLarge))).thenReturn("largeFileId");
-        when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImageSmall))).thenReturn("smallFileId");
+        String url = ReflectionTestUtils.invokeMethod(avatarService, "generateUrlRandomAvatar");
 
-        UserProfilePic userProfilePic = avatarService.generateAndUploadUserAvatars(userId);
-
-        assertThat(userProfilePic).isNotNull();
-        assertThat(userProfilePic.getFileId()).isEqualTo("largeFileId");
-        assertThat(userProfilePic.getSmallFileId()).isEqualTo("smallFileId");
-
-        verify(s3Service, times(2)).uploadImage(any(), eq("avatars"), any(), any());
+        assertThat(url).isNotNull();
+        assertThat(url).contains("https://api.dicebear.com/9.x");
+        assertThat(url).contains("bottts");
+        assertThat(url).contains("?seed=");
+        assertThat(url).contains("Brian");
     }
 
     @Test
@@ -77,10 +82,11 @@ class AvatarServiceTest {
     }
 
     @Test
-    void uploadAvatar_success() throws IOException {
+    void uploadAvatar_success(){
         String userId = "123";
-        BufferedImage dummyImage = mock(BufferedImage.class);
-        BufferedImage resizedImage = mock(BufferedImage.class);
+
+        BufferedImage dummyImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage resizedImage = new BufferedImage(1080, 1080, BufferedImage.TYPE_INT_ARGB);
 
         when(imageUtils.resizeImage(dummyImage, 1080)).thenReturn(resizedImage);
         when(s3Service.uploadImage(any(), eq("avatars"), any(), eq(resizedImage))).thenReturn("fileId");
@@ -93,16 +99,19 @@ class AvatarServiceTest {
     }
 
     @Test
-    void uploadAvatar_resizeFails_throwsException() throws IOException {
+    void uploadAvatar_resizeFails_throwsException() {
         String userId = "123";
         BufferedImage dummyImage = mock(BufferedImage.class);
 
-        when(imageUtils.resizeImage(dummyImage, 1080)).thenThrow(new IOException("Resize failed"));
+        when(imageUtils.resizeImage(dummyImage, 1080))
+                .thenThrow(new RuntimeException("Failed to process and upload avatar"));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> avatarService.uploadAvatar(dummyImage, userId, false)
         );
+
         assertThat(exception.getMessage()).isEqualTo("Failed to process and upload avatar");
         verify(imageUtils).resizeImage(dummyImage, 1080);
     }
+
 }

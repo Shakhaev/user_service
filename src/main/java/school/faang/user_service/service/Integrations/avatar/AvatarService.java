@@ -25,7 +25,10 @@ public class AvatarService {
 
     private final S3Service s3Service;
     private final ImageUtils imageUtils;
+
     private static final String FOLDER_NAME = "avatars";
+    private static final int AVATAR_SMALL_SIZE = 170;
+    private static final int AVATAR_BIG_SIZE = 1080;
 
     @Value("${integration.dice-bear.base-url}")
     private String baseUrl;
@@ -63,7 +66,7 @@ public class AvatarService {
             BufferedImage originalImage = ImageIO.read(inputStream);
 
             if (originalImage == null) {
-                throw new RuntimeException("Failed to load avatar image from URL: " + avatarUrl);
+                throw new RuntimeException(String.format("Failed to load avatar image from URL: %s", avatarUrl));
             }
 
             String largeFileId = uploadAvatar(originalImage, userId, false);
@@ -80,7 +83,7 @@ public class AvatarService {
     }
 
     public String uploadAvatar(BufferedImage image, String userId, boolean isSmall) {
-        int size = isSmall ? 170 : 1080;
+        int size = isSmall ? AVATAR_SMALL_SIZE : AVATAR_BIG_SIZE;
         BufferedImage resizedImage = imageUtils.resizeImage(image, size);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

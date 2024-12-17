@@ -10,21 +10,20 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.dto.user.UserForNotificationDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
-import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.CountryService;
+import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.service.PasswordService;
 import school.faang.user_service.service.S3Service;
-import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
@@ -81,7 +80,7 @@ public class UserService {
 
     public UserSubResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
         if (userRepository.existsByEmail(userRegistrationDto.email())) {
-            throw new DataValidationException("Пользователь с почтой " + userRegistrationDto.email() + " уже зарегистрирован.");
+            throw new DataValidationException(String.format("Пользователь с почтой %s уже зарегистрирован.", userRegistrationDto.email()));
         }
 
         Country country = countryService.getCountryById(userRegistrationDto.countryId());
@@ -99,7 +98,7 @@ public class UserService {
 
             userRepository.save(user);
         } catch (Exception e) {
-            log.warn("Ошибка генерации аватара для пользователя {}", user.getId(), e);
+            log.error("Error generating avatar for user {}", user.getId(), e);
         }
 
         return new UserSubResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getUserProfilePic());

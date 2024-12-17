@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -87,8 +88,8 @@ public class UserV1Controller {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserSubResponseDto> registerUser(@RequestBody UserRegistrationDto userDto) {
-        UserSubResponseDto createdUser = userService.registerUser(userDto);
-        return ResponseEntity.ok(createdUser);
+    @ResponseStatus(HttpStatus.OK)
+    public UserSubResponseDto registerUser(@RequestBody @Valid UserRegistrationDto userDto) {
+         return userService.registerUser(userDto);
     }
 }
