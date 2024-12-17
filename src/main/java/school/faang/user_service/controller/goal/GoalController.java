@@ -77,7 +77,7 @@ public class GoalController {
     }
 
     @PostMapping(value = "complete/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GoalDto> getCompletedGoalsOfUser(@RequestBody GoalDto goalDto, @PathVariable long userId) {
+    public ResponseEntity<GoalDto> completeGoalAndPublishEvent(@RequestBody GoalDto goalDto, @PathVariable long userId) {
         return ResponseEntity.ok(goalService.completeGoalAndPublishEvent(goalDto, userId));
     }
 }

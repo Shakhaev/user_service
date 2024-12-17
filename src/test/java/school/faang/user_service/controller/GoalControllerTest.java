@@ -117,7 +117,7 @@ class GoalControllerTest {
     }
 
     @Test
-    void testGetCompletedGoalOfUserSuccess() throws Exception {
+    void testCompleteGoalAndPublishEvent() throws Exception {
         long userId = 1L;
         GoalDto goalDto = GoalDto.builder().id(1L).status(GoalStatus.COMPLETED).build();
 
