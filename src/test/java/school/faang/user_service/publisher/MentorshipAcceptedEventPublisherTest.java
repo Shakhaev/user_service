@@ -33,9 +33,9 @@ class MentorshipAcceptedEventPublisherTest {
     @BeforeEach
     void setUp() {
         channelName = "mentorship_accepted_channel";
-        event = new MentorshipAcceptedEvent(1L, "Java", 3L, "John", 2L);
+        event = new MentorshipAcceptedEvent(1L, "Java", 3L, "John", 2L, "Mark");
         channel = new RedisProperties.Channel();
-        channel.setMentorship_acceptedChannel(channelName);
+        channel.setMentorshipAcceptedChannel(channelName);
     }
 
     @Test

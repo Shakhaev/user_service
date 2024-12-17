@@ -178,7 +178,8 @@ class MentorshipRequestServiceTest {
                 firstRequest.getDescription(),
                 receiver.getId(),
                 receiver.getUsername(),
-                requester.getId()
+                requester.getId(),
+                requester.getUsername()
         ));
         assertEquals(result.getId(), firstRequestId);
         assertEquals(result.getRequesterId(), firstRequest.getRequester().getId());
