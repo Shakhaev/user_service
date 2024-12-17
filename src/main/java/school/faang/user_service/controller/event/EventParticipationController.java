@@ -3,7 +3,6 @@ package school.faang.user_service.controller.event;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.ParticipantReqParam;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
 import school.faang.user_service.utilities.UrlUtils;
 
@@ -27,24 +26,22 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PostMapping()
-    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
+    public void registerParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
         eventParticipationService.registerParticipant(eventId, participantReqParam.participantId());
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
+    public void unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
         eventParticipationService.unregisterParticipant(eventId, participantReqParam.participantId());
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserDto>> getParticipant(@PathVariable("id") @Min(1) Long eventId) {
-        return ResponseEntity.ok(eventParticipationService.getParticipant(eventId));
+    public List<UserDto> getParticipant(@PathVariable("id") @Min(1) Long eventId) {
+        return eventParticipationService.getParticipant(eventId);
     }
 
     @GetMapping(UrlUtils.AMOUNT)
-    public ResponseEntity<Long> getParticipantsCount(@PathVariable("id") @Min(1) Long eventId) {
-        return ResponseEntity.ok(eventParticipationService.getParticipantsCount(eventId));
+    public Long getParticipantsCount(@PathVariable("id") @Min(1) Long eventId) {
+        return eventParticipationService.getParticipantsCount(eventId);
     }
 }

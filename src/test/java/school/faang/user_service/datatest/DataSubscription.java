@@ -1,7 +1,7 @@
 package school.faang.user_service.datatest;
 
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -86,40 +86,19 @@ public class DataSubscription {
     public static User getNewUser(int i) {
         UserFilterDto userFilterDto = getUserFilterDtoInitValues(null, null);
 
-        User tmpUser = new User(
-                (long) i,
-                userFilterDto.getNamePattern() + i,
-                userFilterDto.getEmailPattern() + i,
-                userFilterDto.getPhonePattern() + i,
-                null,
-                true,
-                userFilterDto.getAboutPattern() + i,
-                new Country(1, userFilterDto.getCountryPattern() + i, null),
-                userFilterDto.getCityPattern() + i,
-                i,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                new ArrayList<>(),
-                null,
-                null,
-                null,
-                new ArrayList<>(),
-                null,
-                null,
-                null,
-                null
-        );
+        User tmpUser = User.builder()
+                .id((long) i)
+                .username(userFilterDto.getNamePattern() + i)
+                .email(userFilterDto.getEmailPattern() + i)
+                .phone(userFilterDto.getPhonePattern() + i)
+                .active(true)
+                .aboutMe(userFilterDto.getAboutPattern() + i)
+                .country(new Country(1, userFilterDto.getCountryPattern() + i, null))
+                .city(userFilterDto.getCityPattern() + i)
+                .experience(i)
+                .contacts(new ArrayList<>())
+                .skills(new ArrayList<>())
+                .build();
         tmpUser.getContacts().add(new Contact(1, null, userFilterDto.getContactPattern() + 1, null));
         tmpUser.getContacts().add(new Contact(2, null, userFilterDto.getContactPattern() + 2, null));
         tmpUser.getSkills().add(new Skill(1, userFilterDto.getSkillPattern() + 1, null, null,
@@ -130,40 +109,19 @@ public class DataSubscription {
     }
 
     public static User getNewWrongDataUser(int i) {
-        User tmpUser = new User(
-                (long) Integer.MAX_VALUE - i,
-                "useNa" + i,
-                "wrong@gmail.com" + i,
-                "123456789" + i,
-                null,
-                true,
-                "wrongA" + i,
-                new Country(1, "wrongCo" + i, null),
-                "CiNew" + i,
-                i,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                new ArrayList<>(),
-                null,
-                null,
-                null,
-                new ArrayList<>(),
-                null,
-                null,
-                null,
-                null
-        );
+        User tmpUser = User.builder()
+                .id((long) Integer.MAX_VALUE - i)
+                .username("useNa" + i)
+                .email("wrong@gmail.com" + i)
+                .phone("123456789" + i)
+                .active(true)
+                .aboutMe("wrongA" + i)
+                .country(new Country(1, "wrongCo" + i, null))
+                .city("CiNew" + i)
+                .experience(i)
+                .contacts(new ArrayList<>())
+                .skills(new ArrayList<>())
+                .build();
         tmpUser.getContacts().add(new Contact(1, null, "wrongCont" + 1, null));
         tmpUser.getContacts().add(new Contact(2, null, "wrongCont" + 2, null));
         tmpUser.getSkills().add(new Skill(1, "wrongSk" + 1, null, null,
