@@ -65,6 +65,7 @@ public class MentorshipRequestService {
                 .requestedAt(LocalDateTime.now())
                 .build();
         mentorshipRequestedEventPublisher.publish(event);
+        log.info("MentorshipRequestedEvent has been published");
 
         return requestMapper.toMentorshipRequestDto(savedRequest);
     }
