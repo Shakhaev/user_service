@@ -32,6 +32,7 @@ public class SubscriptionService {
     private final UserFilterName userFilterName;
     private final UserFilterEmail userFilterEmail;
     private final SubscriptionEventPublisher subscriptionEventPublisher;
+    private final UserService userService;
 
     @Transactional
     public void followUser(long followerId, long followeeId) {
@@ -44,7 +45,13 @@ public class SubscriptionService {
         LocalDateTime subscribedAt = subscriptionRepository.findCreatedAtByFollowerIdAndFolloweeId(
                 followerId, followeeId);
 
-        subscriptionEventPublisher.publish(new SubscriptionEvent(followerId, followeeId, subscribedAt));
+        subscriptionEventPublisher.publish(SubscriptionEvent.builder()
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .subscribedAt(subscribedAt)
+                .followerName(userService.getUserContacts(followerId).getUsername())
+                .followeeName(userService.getUserContacts(followeeId).getUsername())
+                .build());
         log.info("User {} successfully subscribed to user {}.", followerId, followeeId);
     }
 

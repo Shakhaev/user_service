@@ -29,7 +29,11 @@ class SubscriptionEventPublisherTest {
 
     @Test
     void testPublish() {
-        SubscriptionEvent event = new SubscriptionEvent(1L, 2L, LocalDateTime.now());
+        SubscriptionEvent event = SubscriptionEvent.builder()
+                .followeeId(1L)
+                .followeeId(2L)
+                .subscribedAt(LocalDateTime.now())
+                .build();
         String subscriptionChannel = "subscription_event_channel";
         RedisProperties.Channel channel = new RedisProperties.Channel();
         channel.setSubscriptionChannel(subscriptionChannel);
