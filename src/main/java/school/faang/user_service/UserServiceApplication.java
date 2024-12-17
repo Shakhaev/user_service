@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-@EnableFeignClients("school.faang.user_service.client")
+@EnableFeignClients("school.faang.user_service.config.context.client")
 @EnableConfigurationProperties
 @OpenAPIDefinition(
         info = @Info(

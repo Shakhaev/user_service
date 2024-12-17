@@ -22,4 +22,10 @@ public class UrlUtils {
     public static final String AVATAR = "/avatar";
     public static final String LARGE = "/large";
     public static final String SMALL = "/small";
+
+
+    public static final String FOLLOWING_SERVICE_URL = "/following";
+    public static final String FOLLOWING_FILTER = "/filter/followeeId/";
+    public static final String FOLLOWING_PARAMETERS = "/followerId/{followerId}/followeeId/{followeeId}";
+    public static final String FOLLOWING_COUNT = "/count/followerId/";
 }
