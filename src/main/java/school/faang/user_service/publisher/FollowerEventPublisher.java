@@ -20,7 +20,9 @@ public class FollowerEventPublisher {
         try {
             objectMapper.writeValueAsString(followerEvent);
             redisTemplate.convertAndSend("follower_channel", followerEvent);
-            log.info("Опубликованное событие подписчика для FollowerId: {} и FolloweeId: {}", followerEvent.getFollowerId(), followerEvent.getFolloweeId());
+            log.info("Опубликованное событие подписчика для FollowerId: {} и FolloweeId: {}",
+                followerEvent.getFollowerId(),
+                followerEvent.getFolloweeId());
         } catch (JsonProcessingException e) {
             log.error("Ошибка сериализации события подписчика", e);
             throw new RuntimeException("Ошибка сериализации события подписчика", e);
