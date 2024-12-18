@@ -12,8 +12,6 @@ public interface MentorshipRequestMapper {
     @Mapping(target = "receiverId", source = "receiver.id")
     MentorshipRequestDto mapToDto(MentorshipRequest mentorshipRequest);
 
-    @Mapping(target = "requester.id", source = "requesterId")
-    @Mapping(target = "receiver.id", source = "receiverId")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     MentorshipRequest mapToEntity(MentorshipRequestDto mentorshipRequestDto);
