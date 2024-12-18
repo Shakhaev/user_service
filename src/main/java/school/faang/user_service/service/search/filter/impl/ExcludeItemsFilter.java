@@ -10,7 +10,7 @@ import school.faang.user_service.util.CollectionUtils;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class ExcludeViewedUsersFilter implements Filter {
+public class ExcludeItemsFilter implements Filter {
 
     private final List<Long> excludedUserIds;
 

@@ -12,6 +12,22 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+      jobs:
+        user-reindexing-job:
+          name: userReindexingJob
+          chunk-size: 1000
+          reader:
+            name: userItemReader
+            method-name: findAllInRange
+            sorts:
+              - field: id
+                direction: ASC
+          grid-size: 3
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -31,6 +47,31 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:19093,localhost:19094
+    producer:
+      properties:
+        spring.kafka.properties.spring.json.trusted.packages: "*"
+    topics:
+      user-indexing-topic:
+        name: user_indexing_topic
+        partitions: 3
+        replication_factor: 3
+      event-indexing-topic:
+        name: event_indexing_topic
+        partitions: 3
+        replication_factor: 3
+      update_user_topic:
+        name: update_user_topic
+        partitions: 3
+        replication_factor: 3
+
+thread-pool:
+  user-batch-thread-pool:
+    core-pool-size: 3
+    max-pool-size: 3
+    await-termination-seconds: 30
 
 server:
   port: 8080

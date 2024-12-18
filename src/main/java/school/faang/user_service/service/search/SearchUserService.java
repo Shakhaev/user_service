@@ -11,17 +11,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.PromotionClient;
+import school.faang.user_service.config.kafka.KafkaTopicsProps;
 import school.faang.user_service.dto.user.UserSearchRequest;
 import school.faang.user_service.dto.user.UserSearchResponse;
 import school.faang.user_service.exceptions.SearchServiceExceptions;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.message.producer.KeyedMessagePublisher;
 import school.faang.user_service.model.jpa.User;
 import school.faang.user_service.model.search.user.UserDocument;
 import school.faang.user_service.repository.jpa.UserRepository;
 import school.faang.user_service.repository.search.UserDocumentRepository;
 import school.faang.user_service.service.cache.SessionResourceService;
-import school.faang.user_service.service.search.filter.impl.ExcludeViewedUsersFilter;
-import school.faang.user_service.service.search.filter.impl.ExperienceRangeFilter;
+import school.faang.user_service.service.search.filter.impl.ExcludeItemsFilter;
+import school.faang.user_service.service.search.filter.impl.RangeFilter;
 import school.faang.user_service.service.search.filter.impl.SkillFuzzyFilter;
 import school.faang.user_service.service.search.filter.impl.TextMatchFilter;
 import school.faang.user_service.util.CollectionUtils;
@@ -44,6 +46,8 @@ public class SearchUserService {
     private final UserRepository userRepository;
     private final SessionResourceService sessionResourceService;
     private final UserMapper userMapper;
+    private final KeyedMessagePublisher keyedMessagePublisher;
+    private final KafkaTopicsProps kafkaTopicsProps;
 
     public Page<UserSearchResponse> searchUsers(String sessionId, UserSearchRequest userSearchRequest,
                                                 Pageable pageable) {
@@ -89,19 +93,19 @@ public class SearchUserService {
     }
 
     private List<UserDocument> searchUsersByFilter(UserSearchRequest searchRequest,
-                                                   List<Long> excludedResourceIds,
+                                                   List<Long> excludedUsersIds,
                                                    Integer maxResults,
                                                    Pageable pageable) {
 
         int from = pageable.getPageNumber() * pageable.getPageSize();
-        SearchRequest request = new UserSearchQueryBuilder()
+        SearchRequest request = new SearchQueryBuilder()
                 .indexName(USERS_INDEX)
                 .size(maxResults)
                 .from(from)
-                .addFilter(new ExcludeViewedUsersFilter(excludedResourceIds))
+                .addFilter(new ExcludeItemsFilter(excludedUsersIds))
                 .addFilter(new TextMatchFilter(searchRequest.query()))
                 .addFilter(new SkillFuzzyFilter(searchRequest.skillNames()))
-                .addFilter(new ExperienceRangeFilter(searchRequest.experienceFrom(), searchRequest.experienceTo()))
+                .addFilter(new RangeFilter(searchRequest.experienceFrom(), searchRequest.experienceTo()))
                 .sortOptions(pageable)
                 .build();
 
@@ -120,9 +124,13 @@ public class SearchUserService {
 
     public List<UserSearchResponse> reindex() {
         List<User> allUsers = userRepository.findAll();
-        List<UserDocument> userSearchResponseList = userMapper.toUserDocumentList(allUsers);
-        userDocumentRepository.saveAll(userSearchResponseList);
-        userDocumentRepository.findAll();
-        return userMapper.toResponseList(userSearchResponseList);
+        List<UserDocument> userDocuments = userMapper.toUserDocumentList(allUsers);
+        userDocuments.forEach(userDocument -> {
+            keyedMessagePublisher.send(
+                    kafkaTopicsProps.getUserIndexingTopic().getName(),
+                    userDocument.getUserId().toString(),
+                    userDocument);
+        });
+        return userMapper.toResponseList(userDocuments);
     }
 }

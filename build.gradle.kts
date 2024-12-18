@@ -18,6 +18,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
@@ -30,6 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -40,6 +44,11 @@ dependencies {
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
     implementation("co.elastic.clients:elasticsearch-java")
+
+    /**
+     * Kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka")
 
     /**
      * Amazon S3

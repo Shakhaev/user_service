@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import school.faang.user_service.service.search.filter.Filter;
 
 @RequiredArgsConstructor
-public class ExperienceRangeFilter implements Filter {
+public class RangeFilter<T> implements Filter {
 
-    private final Integer experienceFrom;
-    private final Integer experienceTo;
+    private final T experienceFrom;
+    private final T experienceTo;
 
     private static final String EXPERIENCE_FIELD = "experience";
 

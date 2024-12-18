@@ -1,6 +1,7 @@
 package school.faang.user_service.model.search.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -16,6 +17,7 @@ import java.util.List;
 @Document(indexName = "user_documents")
 @Setting(settingPath = "elasticsearch/settings.json")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
 public class UserDocument {
 
     @Id
