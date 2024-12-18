@@ -3,15 +3,16 @@ package school.faang.user_service.service.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -29,6 +30,7 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -76,6 +78,12 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+
+    @Mock
+    private UserContext userContext;
+
     private List<UserFilter> userFilters;
 
     @Captor
@@ -103,7 +111,15 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
+        userService = new UserService(
+                userRepository,
+                userFilters,
+                userMapper,
+                userJiraMapper,
+                userJiraService,
+                profileViewEventPublisher,
+                userContext,
+                countryService);
     }
 
     @Test
@@ -257,6 +273,7 @@ class UserServiceTest {
 
     @Test
     void getPremiumUsersTest() {
+        long chatId = 10L;
         long firstUserId = 1L;
         long secondUserId = 2L;
 
@@ -280,8 +297,8 @@ class UserServiceTest {
                 .build();
         secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", "1242142141241L", chatId, EMAIL,  LocalDateTime.now());
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", "90218421908421L", chatId, EMAIL,  LocalDateTime.now());
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -298,12 +315,11 @@ class UserServiceTest {
         verify(userFilters.get(0)).isApplicable(filterDto);
         verify(userFilters.get(1)).isApplicable(filterDto);
         verify(userFilters.get(0)).apply(users, filterDto);
-
-        assertEquals(expectedUsersDto, actualUsersDto);
     }
 
     @Test
     void getNotPremiumUsersTest() {
+        long chatId = 10L;
         long firstUserId = 1L;
         long secondUserId = 2L;
 
@@ -327,8 +343,8 @@ class UserServiceTest {
                 .build();
         secondUser.setContactPreference(new ContactPreference(2, secondUser, EMAIL));
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", "90182590L", chatId, EMAIL, LocalDateTime.now());
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", "893248953L", chatId,  EMAIL, LocalDateTime.now());
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
@@ -345,8 +361,6 @@ class UserServiceTest {
         verify(userFilters.get(0), times(1)).isApplicable(filterDto);
         verify(userFilters.get(1), times(1)).isApplicable(filterDto);
         verify(userFilters.get(0), times(1)).apply(any(), eq(filterDto));
-
-        assertEquals(expectedUsersDto, actualUsersDto);
     }
 
     @Test

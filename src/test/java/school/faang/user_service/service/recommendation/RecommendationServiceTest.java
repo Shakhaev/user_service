@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.redis.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
@@ -40,6 +41,9 @@ public class RecommendationServiceTest {
 
     @Mock
     private SkillOfferRepository skillOfferRepository;
+
+    @Mock
+    private RecommendationEventPublisher recommendationEventPublisher;
 
     @Spy
     private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);

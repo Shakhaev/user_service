@@ -87,6 +87,12 @@ public class UserController {
         return ResponseEntity.ok(notExistingUserIds);
     }
 
+    @PostMapping("/save")
+    public ResponseEntity<UserDto> saveUser(@RequestBody @Valid UserDto userDto) {
+        UserDto savedUser = userService.saveUser(userDto);
+        return ResponseEntity.ok(savedUser);
+    }
+
     @PostMapping("/not-premium")
     public List<UserDto> getNotPremiumUsers(@RequestBody UserFilterDto filters) {
         return userService.getNotPremiumUsers(filters);
@@ -166,4 +172,11 @@ public class UserController {
         UserJiraDto responseDto = userService.getUserJiraInfo(userId, jiraDomain);
         return ResponseEntity.ok(responseDto);
     }
+
+    @GetMapping("/{userId}/profile")
+    public UserDto getUserProfile(
+            @PathVariable @Min(1) Long userId) {
+        return userService.getUser(userId);
+    }
+
 }

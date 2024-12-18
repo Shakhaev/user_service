@@ -12,12 +12,15 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.redis.event.RecommendationEvent;
+import school.faang.user_service.redis.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,6 +34,7 @@ public class RecommendationService {
     private final UserRepository userRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationDtoValidator recommendationDtoValidator;
+    private final RecommendationEventPublisher recommendationEventPublisher;
 
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
@@ -52,8 +56,15 @@ public class RecommendationService {
         Recommendation result = recommendationRepository.save(recommendationMapper.toEntity(recDto));
         log.info("Recommendation with id - {} successfully saved", result.getId());
 
-        return recommendationMapper.toDto(result);
+        RecommendationEvent event = new RecommendationEvent(
+                result.getId(),
+                result.getAuthor().getId(),
+                result.getReceiver().getId(),
+                LocalDateTime.now()
+        );
+        recommendationEventPublisher.publish(event);
 
+        return recommendationMapper.toDto(result);
     }
 
     @Transactional
