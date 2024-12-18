@@ -73,6 +73,11 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic buyPremiumTopic() {
+        return new ChannelTopic(redisProperties.getBuyPremiumTopic());
+    }
+
+    @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         log.info("Создание RedisTemplate с кастомными сериализаторами.");
 

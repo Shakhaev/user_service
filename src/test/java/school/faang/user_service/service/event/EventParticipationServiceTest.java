@@ -132,7 +132,7 @@ class EventParticipationServiceTest {
         assertEquals(expectedCount, actualCount);
     }
 
-    private List<UserDTO> getUserDTOList(){
+    private List<UserDTO> getUserDTOList() {
         List<UserDTO> users = new ArrayList<>();
         UserDTO user1 = new UserDTO(1L, "john_doe", "john@example.com");
         UserDTO user2 = new UserDTO(2L, "jane_smith", "jane@example.com");
@@ -145,7 +145,7 @@ class EventParticipationServiceTest {
         return users;
     }
 
-    private List<User> getUserList(){
+    private List<User> getUserList() {
         List<User> users = new ArrayList<>();
         User user1 = User.builder()
                 .id(1L)
@@ -193,7 +193,7 @@ class EventParticipationServiceTest {
         return users;
     }
 
-    private User createUser(){
+    private User createUser() {
         return User.builder()
                 .id(2L)
                 .username("jane_smith")
