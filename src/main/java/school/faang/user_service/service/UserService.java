@@ -12,8 +12,11 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsDto;
+import school.faang.user_service.dto.user_profile.UserProfileSettingsResponseDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.event.UserProfileDeactivatedEvent;
 import school.faang.user_service.filter.Filter;
@@ -22,6 +25,8 @@ import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
+import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +51,8 @@ public class UserService {
     private final CountryService countryService;
     private final CsvParser parser;
     private final List<Filter<User, UserFilterDto>> userFilters;
+    private final UserValidator userValidator;
+    private final ContactPreferenceRepository contactPreferenceRepository;
 
     public boolean checkUserExistence(long userId) {
         return userRepository.existsById(userId);
@@ -139,6 +146,42 @@ public class UserService {
     public UserContactsDto getUserContacts(Long userId) {
         User user = findUserById(userId);
         return userContactsMapper.toDto(user);
+    }
+
+    @Transactional
+    public UserProfileSettingsResponseDto saveProfileSettings(Long userId, UserProfileSettingsDto userProfileSettingsDto) {
+        userValidator.validateUserById(userId);
+        ContactPreference contactPreference;
+
+        User user = userRepository.findById(userId).get();
+        Optional<ContactPreference> contactPreferenceExisting = contactPreferenceRepository.findByUserId(user.getId());
+
+        if (contactPreferenceExisting.isPresent()) {
+            contactPreference = contactPreferenceExisting.get();
+            contactPreference.setPreference(userProfileSettingsDto.getPreference());
+        } else {
+            contactPreference = ContactPreference.builder()
+                    .user(user)
+                    .preference(userProfileSettingsDto.getPreference())
+                    .build();
+        }
+
+        ContactPreference savedContactPreference = contactPreferenceRepository.save(contactPreference);
+
+        return new UserProfileSettingsResponseDto(
+                savedContactPreference.getId(),
+                savedContactPreference.getPreference(),
+                userId
+        );
+    }
+
+    public UserProfileSettingsResponseDto getProfileSettings(Long userId) {
+        userValidator.validateUserById(userId);
+        userValidator.validateUserProfileByUserId(userId);
+
+        User user = userRepository.findById(userId).get();
+
+        return userMapper.toDto(contactPreferenceRepository.findByUserId(user.getId()).get());
     }
 
     private List<Person> parsePersons(InputStream inputStream) throws IOException {
