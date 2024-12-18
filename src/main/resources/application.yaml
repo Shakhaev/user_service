@@ -32,6 +32,7 @@ spring:
       channel:
         follower: follower_channel
         profile-view: profile_view_channel
+        recommendation: recommendation_channel
         mentorship:
           accepted: mentorship_accepted_channel
 
