@@ -84,7 +84,7 @@ public class UserController {
         ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
 
         log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
-                filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
+                filename, result.getCountSuccessfullySavedUsers(), result.getErrors().size());
 
         return ResponseEntity.ok(result);
     }
