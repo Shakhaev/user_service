@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.List;

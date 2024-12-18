@@ -1,14 +1,27 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.RecommendationService;
+import school.faang.user_service.service.implement.RecommendationService;
 
-@Component
+@RestController
+@RequestMapping("/api/v1/users/recommendation")
+@Validated
 public class RecommendationController {
+
     private final RecommendationService recommendationService;
 
     @Autowired
@@ -16,40 +29,28 @@ public class RecommendationController {
         this.recommendationService = recommendationService;
     }
 
-    public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        validateRecommendation(recommendation);
+    @PostMapping
+    public RecommendationDto createRecommendation(@RequestBody @Valid RecommendationDto recommendation) {
         return recommendationService.create(recommendation);
     }
 
-    public RecommendationDto updateRecommendation(RecommendationDto updatedRecommend) {
-        validateRecommendation(updatedRecommend);
-
+    @PutMapping
+    public RecommendationDto updateRecommendation(@RequestBody @Valid RecommendationDto updatedRecommend) {
         return recommendationService.update(updatedRecommend);
     }
 
-    public void deleteRecommendation(long recommendId) {
+    @DeleteMapping
+    public void deleteRecommendation(@NotNull(message = "Поле recommendId отсутствует") @Min(1) long recommendId) {
         recommendationService.delete(recommendId);
     }
 
-    public List<RecommendationDto> getAllUserRecommendation(long receiverId) {
-       return recommendationService.getAllUserRecommendations(receiverId);
+    @GetMapping("/all-by-receiver/{id}")
+    public List<RecommendationDto> getAllUserRecommendation(@PathVariable("id") long receiverId) {
+        return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+    @GetMapping("/all-by-author/{id}")
+    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable("id")long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
-    }
-
-    private void validateRecommendation(RecommendationDto recommendation) {
-        if(recommendation.authorId() <= 0) {
-            throw new DataValidationException("Incorrect authorId");
-        }
-
-        if(recommendation.receiverId() <= 0) {
-            throw new DataValidationException("Incorrect receiverId");
-        }
-
-        if(recommendation.content().isBlank()) {
-            throw new DataValidationException("Content isEmpty");
-        }
     }
 }

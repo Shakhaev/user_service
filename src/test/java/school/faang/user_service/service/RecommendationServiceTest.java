@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -21,8 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import school.faang.user_service.dto.publisher.RecommendationReceivedEventDto;
-import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.dto.events.RecommendationReceivedEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
@@ -30,11 +30,14 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.implement.RecommendationService;
+import school.faang.user_service.service.implement.SkillOfferService;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
@@ -50,7 +53,6 @@ public class RecommendationServiceTest {
             new SkillOfferDto(14L, 114L)
     );
     private final LocalDateTime CREATED_AT = LocalDateTime.of(2024, 11, 4, 19, 16);
-    private final LocalDateTime CREATED_AT_MORE_SIX_MONTH = LocalDateTime.of(2024, 4, 4, 19, 16);
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -59,13 +61,13 @@ public class RecommendationServiceTest {
     @Mock
     private SkillRepository skillRepository;
     @Mock
-    private UserRepository userRepository;
-    @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     @Mock
-    private RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
+    private RecommendationReceivedEventPublisher recommendationEventPublisher;
     @Spy
     private RecommendationMapperImpl recommendationMapper;
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -76,15 +78,22 @@ public class RecommendationServiceTest {
     @Test
     public void testCreateDateValidator() {
         RecommendationDto recommendationDto = new RecommendationDto(ID, AUTHOR_ID, RECEIVER_ID,
-                CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT);
+                CONTENT, SKILL_OFFERS_DTO_LIST);
+        Recommendation lastRecommendation = Recommendation.builder().createdAt(CREATED_AT).build();
+        when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
+                recommendationDto.authorId(), recommendationDto.receiverId()
+        )).thenReturn(Optional.of(lastRecommendation));
 
-        Assert.assertThrows(DataValidationException.class, () -> recommendationService.create(recommendationDto));
+        DataValidationException exception = Assert.assertThrows(DataValidationException.class,
+                () -> recommendationService.create(recommendationDto));
+
+        assertThat(exception.getMessage()).isEqualTo("Last recommendation was earlier than 6 months");
     }
 
     @Test
     public void testCreateSkillOffersValidator() {
         RecommendationDto recommendationDto = new RecommendationDto(ID, AUTHOR_ID, RECEIVER_ID,
-                CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT_MORE_SIX_MONTH);
+                CONTENT, SKILL_OFFERS_DTO_LIST);
         List<Long> skillIds = recommendationDto.skillOffers().stream().map(SkillOfferDto::skillId).toList();
         when(skillRepository.countExisting(skillIds)).thenReturn(skillIds.size() - 1);
 
@@ -96,27 +105,28 @@ public class RecommendationServiceTest {
     public void testCreate() {
         Recommendation recommendation = createRecommendations().get(0);
         RecommendationDto recommendationDto = new RecommendationDto(ID, AUTHOR_ID, RECEIVER_ID,
-                CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT_MORE_SIX_MONTH);
+                CONTENT, SKILL_OFFERS_DTO_LIST);
         List<Long> skillIds = recommendationDto.skillOffers().stream().map(SkillOfferDto::skillId).toList();
         when(skillRepository.countExisting(skillIds)).thenReturn(skillIds.size());
-        when(recommendationRepository.create(
-                recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content())).thenReturn(ID);
-        when(recommendationRepository.findById(ID)).thenReturn(Optional.ofNullable(recommendation));
+        when(recommendationRepository.create(recommendationDto.authorId(), recommendationDto.receiverId(),
+                recommendationDto.content()))
+                .thenReturn(ID);
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(new User()));
+        when(recommendationRepository.findById(ID)).thenReturn(
+                Optional.ofNullable(recommendation));
 
         RecommendationDto result = recommendationService.create(recommendationDto);
 
         verify(skillRepository, times(1)).countExisting(skillIds);
         verify(recommendationRepository, times(1)).findById(ID);
-        verify(recommendationReceivedEventPublisher, times(1))
-                .publish(any(RecommendationReceivedEventDto.class));
+        verify(recommendationEventPublisher, times(1)).publish(any(RecommendationReceivedEventDto.class));
         assertEquals(ID, result.id());
     }
 
     @Test
     public void testUpdate() {
         RecommendationDto recommendationDto = new RecommendationDto(ID, AUTHOR_ID, RECEIVER_ID,
-                CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT_MORE_SIX_MONTH);
+                CONTENT, SKILL_OFFERS_DTO_LIST);
         when(skillRepository.countExisting(captor.capture())).thenReturn(SKILL_OFFERS_DTO_LIST.size());
 
         recommendationService.update(recommendationDto);
