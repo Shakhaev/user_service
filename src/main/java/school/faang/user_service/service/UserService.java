@@ -14,10 +14,12 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.events.BanUserEvent;
+import school.faang.user_service.events.UserSearchAppearanceEvent;
 import school.faang.user_service.mapper.CreateUserMapper;
 import school.faang.user_service.mapper.PersonMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.model.person.Person;
+import school.faang.user_service.publisher.UserSearchAppearanceEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.goal.GoalService;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -48,6 +51,7 @@ public class UserService {
     private final CreateUserMapper createUserMapper;
     private final S3Service s3Service;
     private final UserServiceValidator userServiceValidator;
+    private final UserSearchAppearanceEventPublisher userSearchAppearanceEventPublisher;
 
     private final AvatarService avatarService;
 
@@ -83,11 +87,17 @@ public class UserService {
     }
 
     public UserDto getUserDtoById(Long id) {
-        return userMapper.toDto(getUserById(id));
+        User user = getUserById(id);
+
+        publishUserSearchAppearanceEvent(user);
+        return userMapper.toDto(user);
     }
 
     public List<UserDto> getUsersByIds(List<Long> ids) {
-        return userRepository.findAllById(ids).stream()
+        List<User> users = userRepository.findAllById(ids);
+
+        users.forEach(this::publishUserSearchAppearanceEvent);
+        return users.stream()
                 .map(userMapper::toDto)
                 .toList();
     }
@@ -175,4 +185,8 @@ public class UserService {
         }
     }
 
+    private void publishUserSearchAppearanceEvent(User user) {
+        UserSearchAppearanceEvent userSearchAppearanceEvent = new UserSearchAppearanceEvent(user.getId(), userContext.getUserId(), LocalDateTime.now());
+        userSearchAppearanceEventPublisher.publish(userSearchAppearanceEvent);
+    }
 }

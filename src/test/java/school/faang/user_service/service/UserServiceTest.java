@@ -23,9 +23,11 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.events.BanUserEvent;
+import school.faang.user_service.events.UserSearchAppearanceEvent;
 import school.faang.user_service.mapper.CreateUserMapperImpl;
 import school.faang.user_service.mapper.PersonMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.UserSearchAppearanceEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.goal.GoalService;
@@ -38,15 +40,17 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -91,6 +95,9 @@ public class UserServiceTest {
 
     @Mock
     private MentorshipService mentorshipService;
+
+    @Mock
+    private UserSearchAppearanceEventPublisher userSearchAppearanceEventPublisher;
 
     private long userId;
 
@@ -157,8 +164,35 @@ public class UserServiceTest {
     }
 
     @Test
+    public void getUsersByIds_PublishingUserSearchAppearanceEvent() {
+        List<User> users = List.of(
+                User.builder().id(1L).build(),
+                User.builder().id(2L).build()
+        );
+        List<Long> ids = List.of(1L, 2L);
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        ArgumentCaptor<UserSearchAppearanceEvent> userSearchAppearanceCaptor = ArgumentCaptor.forClass(UserSearchAppearanceEvent.class);
+        long contextUserid = 1L;
+        when(userContext.getUserId()).thenReturn(contextUserid);
+
+        userService.getUsersByIds(ids);
+
+        verify(userSearchAppearanceEventPublisher, times(users.size())).publish(userSearchAppearanceCaptor.capture());
+        List<UserSearchAppearanceEvent> events = userSearchAppearanceCaptor.getAllValues();
+        Set<Long> publishedSearchedUserIds = events.stream().map(UserSearchAppearanceEvent::getSearchedUserId).collect(Collectors.toSet());
+        events.forEach(event -> {
+            assertEquals(contextUserid, event.getUserWhoSearchId());
+            assertNotNull(event.getSearchTime());
+        });
+        assertTrue(publishedSearchedUserIds.containsAll(Set.copyOf(ids)));
+    }
+
+    @Test
     public void testGetUsersByIds() {
-        List<User> users = List.of(new User(), new User());
+        List<User> users = List.of(
+                User.builder().id(1L).build(),
+                User.builder().id(2L).build()
+        );
         List<Long> ids = List.of(1L, 2L);
 
         when(userRepository.findAllById(ids)).thenReturn(users);
@@ -172,9 +206,25 @@ public class UserServiceTest {
     }
 
     @Test
+    void getUserDtoById_PublishingUserSearchAppearanceEvent() {
+        long contextUserid = 1L;
+        when(userContext.getUserId()).thenReturn(contextUserid);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        ArgumentCaptor<UserSearchAppearanceEvent> userSearchAppearanceCaptor = ArgumentCaptor.forClass(UserSearchAppearanceEvent.class);
+
+        userService.getUserDtoById(userId);
+
+        verify(userSearchAppearanceEventPublisher, times(1)).publish(userSearchAppearanceCaptor.capture());
+        UserSearchAppearanceEvent userSearchAppearanceEvent = userSearchAppearanceCaptor.getValue();
+        assertEquals(user.getId(), userSearchAppearanceEvent.getSearchedUserId());
+        assertEquals(contextUserid, userSearchAppearanceEvent.getUserWhoSearchId());
+        assertNotNull(userSearchAppearanceEvent.getSearchTime());
+    }
+
+    @Test
     void getUserDtoByIdSuccess() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
-        assertEquals(userMapper.toDto(new User()), userService.getUserDtoById(userId));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        assertEquals(userMapper.toDto(user), userService.getUserDtoById(userId));
     }
 
     @Test

@@ -46,6 +46,9 @@ spring:
           name: skill_acquire
         recommendation_received_topic:
           name: recommendation_received_topic
+        user_search_appearance_topic:
+          name: user_search_appearance
+
   task:
     scheduling:
       cron-elastic-search-data-sync: 0 0/10 * * * ?
