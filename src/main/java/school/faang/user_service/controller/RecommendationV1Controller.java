@@ -39,6 +39,13 @@ public class RecommendationV1Controller {
             @RequestBody @Validated RecommendationDto recommendationDto) {
 
         RecommendationDto createdRecommendation = recommendationService.create(recommendationDto);
+
+        recommendationService.publishRecommendationReceivedEventAsync(
+                createdRecommendation.authorId(),
+                createdRecommendation.receiverId(),
+                createdRecommendation.id()
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRecommendation);
     }
 
