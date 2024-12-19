@@ -9,7 +9,9 @@ import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.event.ban.MentorshipOfferedEvent;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.mentorshipoffered.MentorshipOfferedPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -26,13 +28,16 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserRepository userRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
+    private final MentorshipOfferedPublisher mentorshipOfferedPublisher;
 
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         long idRequester = mentorshipRequestDto.requesterId();
         long idReceiver = mentorshipRequestDto.receiverId();
         validateRequesterReceiver(idRequester, idReceiver);
         validateRequestDate(idRequester, idReceiver);
-        mentorshipRequestRepository.create(idRequester, idReceiver, mentorshipRequestDto.description());
+        MentorshipRequest request =
+                mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
+        mentorshipOfferedPublisher.publish(new MentorshipOfferedEvent(request.getId(), idRequester, idReceiver));
     }
 
 
