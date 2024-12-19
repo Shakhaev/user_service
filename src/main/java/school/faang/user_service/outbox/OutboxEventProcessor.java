@@ -6,13 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.entity.OutboxEvent;
+import school.faang.user_service.event.OutboxEvent;
 import school.faang.user_service.publisher.EventPublisher;
 import school.faang.user_service.repository.OutboxEventRepository;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
@@ -22,7 +23,7 @@ public class OutboxEventProcessor {
     private final ObjectMapper objectMapper;
     private final List<EventPublisher<?>> publishers;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private volatile boolean isProcessing = false;
+    private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
     private void processOutboxEvents() {
         try {
@@ -44,18 +45,18 @@ public class OutboxEventProcessor {
                 }
             }
         } finally {
-            isProcessing = false;
+            isProcessing.set(false);
         }
     }
 
-    public synchronized void triggerProcessing() {
-        if (!isProcessing) {
-            isProcessing = true;
+    @Scheduled(cron = "${cron.expressions.trigger-outbox-processing}")
+    public void triggerProcessing() {
+        if (isProcessing.compareAndSet(false, true)) {
             executorService.submit(this::processOutboxEvents);
         }
     }
 
-    @Scheduled(cron = "${cron.clean-outbox.scheduler.cron}")
+    @Scheduled(cron = "${cron.expressions.clean-outbox}")
     public void cleanProcessedEvents() {
         log.info("Starting cleanup of processed events");
         int deletedCount = outboxEventRepository.deleteProcessedEvents();

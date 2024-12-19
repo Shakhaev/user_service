@@ -1,5 +1,7 @@
 package school.faang.user_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +27,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User Subscriptions API", description = "Endpoints for managing user subscriptions.")
 @Validated
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/{followerId}/followees")
+    @Operation(summary = "Subscribe to a user")
     public ResponseEntity<Void> followUser(
             @PathVariable @Positive(message = "Follower id must be greater than 0 ") long followerId,
             @RequestParam @Positive(message = "Followee id must be greater than 0 ") long followeeId) {

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.entity.OutboxEvent;
+import school.faang.user_service.event.OutboxEvent;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.SubscriptionEvent;
 import school.faang.user_service.filter.UserFilterEmail;
