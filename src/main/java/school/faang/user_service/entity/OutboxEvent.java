@@ -1,36 +1,50 @@
 package school.faang.user_service.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.Setter;
+import school.faang.user_service.listener.OutboxEventListener;
 
 import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "outbox_event")
+@EntityListeners(OutboxEventListener.class)
 public class OutboxEvent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "aggregate_id", nullable = false)
+    private Long aggregateId;
+
+    @Column(name = "aggregate_type", nullable = false)
+    private String aggregateType;
+
     @Column(name = "event_type", nullable = false)
     private String eventType;
 
-    @Column(name = "event_payload", nullable = false)
-    private String eventPayload;
+    @Column(name = "payload", nullable = false)
+    private String payload;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "processed", nullable = false)
-    private Boolean processed;
+    private Boolean processed = false;
 }
+

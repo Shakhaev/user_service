@@ -8,6 +8,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.RetryProperties;
 import school.faang.user_service.config.redis.RedisProperties;
+import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.event.RecommendationReceivedEvent;
 
 @Slf4j
@@ -30,5 +31,10 @@ public class RecommendationReceivedEventPublisher implements EventPublisher<Reco
     public void publish(RecommendationReceivedEvent event) {
         redisTemplate.convertAndSend(redisProperties.getChannel().getRecommendationChannel(), event);
         log.info("New recommendation event sent to channel id: {}", redisProperties.getChannel().getRecommendationChannel());
+    }
+
+    @Override
+    public Class<RecommendationReceivedEvent> getEventClass() {
+        return RecommendationReceivedEvent.class;
     }
 }

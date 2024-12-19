@@ -73,6 +73,9 @@ payment-service:
 cron:
   expressions:
     clearEvents: "0 0 0 * * *"
+  clean-outbox:
+    scheduler:
+      cron: "0 0 0 * * *" # every day at midnight
 
 batch:
   size:

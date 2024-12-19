@@ -8,6 +8,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.RetryProperties;
 import school.faang.user_service.config.redis.RedisProperties;
+import school.faang.user_service.event.RecommendationReceivedEvent;
 import school.faang.user_service.event.SubscriptionEvent;
 
 @Slf4j
@@ -30,5 +31,10 @@ public class SubscriptionEventPublisher implements EventPublisher<SubscriptionEv
     public void publish(SubscriptionEvent message) {
         redisTemplate.convertAndSend(redisProperties.getChannel().getSubscriptionChannel(), message);
         log.info("New Subscription event sent to channel id: {}", redisProperties.getChannel().getSubscriptionChannel());
+    }
+
+    @Override
+    public Class<SubscriptionEvent> getEventClass() {
+        return SubscriptionEvent.class;
     }
 }
