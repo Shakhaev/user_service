@@ -14,6 +14,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapstruct.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -151,6 +152,9 @@ public class MentorshipRequestServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
