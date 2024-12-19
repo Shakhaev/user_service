@@ -47,6 +47,7 @@ public class MentorshipRequestServiceTest {
         assertNotNull(result);
         assertEquals(mentorshipRequestDto, result);
         verify(mentorshipRequestRepository, times(1)).save(any(MentorshipRequest.class));
+        verify(mentorshipRequestedEventPublisher).publish(any());
     }
 
     @Test
