@@ -32,6 +32,7 @@ public class SkillControllerTest {
     ArgumentCaptor<SkillDto> captorSkillDto;
 
     private long userId;
+    private long recommenderId;
     private long skillId;
     private SkillDto firstSkill;
     private SkillDto secondSkill;
@@ -41,6 +42,7 @@ public class SkillControllerTest {
     @BeforeEach
     public void setUp() {
         userId = 1L;
+        recommenderId = 2L;
         skillId = 2L;
         firstSkill = new SkillDto(1L, "First skill");
         secondSkill = new SkillDto(2L, "Second skill");
@@ -90,11 +92,11 @@ public class SkillControllerTest {
 
     @Test
     public void acquireSkillFromOffersTest() {
-        when(skillService.acquireSkillFromOffers(skillId, userId)).thenReturn(firstSkill);
+        when(skillService.acquireSkillFromOffers(skillId, userId, recommenderId)).thenReturn(firstSkill);
 
-        SkillDto skill = skillController.acquireSkillFromOffers(skillId, userId);
+        SkillDto skill = skillController.acquireSkillFromOffers(skillId, userId, recommenderId);
 
-        verify(skillService, times(1)).acquireSkillFromOffers(skillId, userId);
+        verify(skillService, times(1)).acquireSkillFromOffers(skillId, userId, recommenderId);
         assertEquals(firstSkill.getId(), skill.getId());
         assertEquals(firstSkill.getTitle(), skill.getTitle());
     }

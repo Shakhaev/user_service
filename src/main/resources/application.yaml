@@ -31,10 +31,11 @@ spring:
       host: localhost
       channel:
         follower: follower_channel
+        skill: skill_channel
         profile-view: profile_view_channel
         recommendation: recommendation_channel
         mentorship:
-          accepted: mentorship_accepted_channel
+          accepted: mentorship_channel
 
   servlet:
     multipart:
@@ -56,6 +57,12 @@ minio:
   accessKey: user
   secretKey: password
   bucketName: corpbucket
+
+async:
+  thread-name-prefix: AsyncThread-
+  core-pool-size: 5
+  max-pool-size: 10
+  queue_capacity: 25
 
 server:
   port: 8080
