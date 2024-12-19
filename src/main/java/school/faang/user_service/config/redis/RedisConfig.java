@@ -56,6 +56,18 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic followerProjectChannel() {
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getFollowerProjectChannel());
+        return new ChannelTopic(redisProperties.getFollowerProjectChannel());
+    }
+
+    @Bean
+    public ChannelTopic unfollowProjectChannel() {
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getUnfollowProjectChannel());
+        return new ChannelTopic(redisProperties.getUnfollowProjectChannel());
+    }
+
+    @Bean
     public ChannelTopic createAppearanceTopic() {
         return new ChannelTopic(searchAppearanceTopicName);
     }
@@ -64,6 +76,11 @@ public class RedisConfig {
     public ChannelTopic goalCompletedChannel() {
         log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getGoalCompletedChannel());
         return new ChannelTopic(redisProperties.getGoalCompletedChannel());
+    }
+
+    @Bean
+    public ChannelTopic buyPremiumTopic() {
+        return new ChannelTopic(redisProperties.getBuyPremiumTopic());
     }
 
     @Bean
