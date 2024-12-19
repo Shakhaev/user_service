@@ -16,6 +16,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
+import school.faang.user_service.redis.publisher.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -54,6 +55,9 @@ public class SkillServiceTest {
     @Mock
     private SkillOfferRepository skillOfferRepository;
 
+    @Mock
+    private SkillAcquiredEventPublisher skillAcquiredEventPublisher;
+
     @Spy
     private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
 
@@ -67,6 +71,7 @@ public class SkillServiceTest {
     private SkillService skillService;
 
     private long userId;
+    private long recommenderId;
     private long skillId;
     private User user;
     private SkillDto skillDto;
@@ -76,6 +81,7 @@ public class SkillServiceTest {
     @BeforeEach
     public void setUp() {
         userId = 1L;
+        recommenderId = 2L;
         user = new User();
         user.setId(userId);
 
@@ -135,7 +141,7 @@ public class SkillServiceTest {
     public void acquireSkillIfSkillAlreadyBeenAddedTest() {
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.of(firstSkill));
 
-        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId);
+        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId, recommenderId);
 
         assertEquals(firstSkill.getId(), skillDto.getId());
         assertEquals(firstSkill.getTitle(), skillDto.getTitle());
@@ -149,7 +155,7 @@ public class SkillServiceTest {
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId))
                 .thenReturn(List.of(new SkillOffer(), new SkillOffer()));
 
-        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId);
+        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId, recommenderId);
 
         assertEquals(firstSkill.getId(), skillDto.getId());
         assertEquals(firstSkill.getTitle(), skillDto.getTitle());
@@ -180,7 +186,7 @@ public class SkillServiceTest {
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(skillOffers);
 
-        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId);
+        SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId, recommenderId);
 
         verify(skillRepository, times(1)).assignSkillToUser(skillId, userId);
         verify(userSkillGuaranteeRepository, times(skillOffers.size())).save(any());

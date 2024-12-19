@@ -3,6 +3,7 @@ package school.faang.user_service.service.skill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -10,6 +11,8 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
+import school.faang.user_service.redis.event.SkillAcquiredEvent;
+import school.faang.user_service.redis.publisher.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -35,6 +38,7 @@ public class SkillService {
     private final SkillCandidateMapper skillCandidateMapper;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserService userService;
+    private final SkillAcquiredEventPublisher skillAcquiredEventPublisher;
 
     public SkillDto create(SkillDto skillDto) {
         skillValidator.validateTitle(skillDto);
@@ -62,7 +66,8 @@ public class SkillService {
         return skillCandidateMapper.toSkillCandidateDtoList(skills);
     }
 
-    public SkillDto acquireSkillFromOffers(long skillId, long userId) {
+    @Transactional
+    public SkillDto acquireSkillFromOffers(long skillId, long userId, long recommenderId) {
         userValidator.validateUserExistence(userService.existsById(userId));
         Skill skill = skillValidator.skillAlreadyExists(skillId);
 
@@ -85,6 +90,13 @@ public class SkillService {
                         .build();
                 userSkillGuaranteeRepository.save(guarantee);
             }
+            skillAcquiredEventPublisher.publish(
+                    new SkillAcquiredEvent(
+                            recommenderId,
+                            userId,
+                            skillId
+                    )
+            );
         }
         return skillMapper.toDto(skill);
     }

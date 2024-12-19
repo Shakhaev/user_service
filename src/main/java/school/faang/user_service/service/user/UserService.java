@@ -85,6 +85,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public UserDto saveUser(UserDto userDto) {
+        User user = userRepository.findById(userDto.getId()).orElseThrow();
+        user.setUsername(userDto.getUsername());
+        user.setUpdatedAt(userDto.getUpdatedAt());
+        return userMapper.toDto(user);
+    }
+
     @Transactional(readOnly = true)
     public List<Long> getNotExistingUserIds(List<Long> userIds) {
         return userIds.isEmpty() ? Collections.emptyList() : userRepository.findNotExistingUserIds(userIds);
