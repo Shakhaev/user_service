@@ -24,14 +24,17 @@ spring:
         mentorship-channel: mentorship_channel
         follower-channel: follower_event
         recommendation-channel: recommendation_channel
+        goal-completed: goal_completed_channel
         user-ban-channel: user_ban_channel
         mentorship_request: "mentorship_request_channel"
+
 
   retry:
     maxAttempts: 3
     initialDelay: 1000
     multiplier: 2
     maxDelay: 10000
+
 
 server:
   port: 8080
