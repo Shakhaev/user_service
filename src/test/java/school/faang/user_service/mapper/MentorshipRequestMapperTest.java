@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.boot.test.context.SpringBootTest;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
 
@@ -60,7 +61,7 @@ public class MentorshipRequestMapperTest {
 
     @Test
     public void testToEntitySuccessTest() {
-        MentorshipRequestDto mentorshipRequestDTO = new MentorshipRequestDto("Description", 1L, 2L);
+        MentorshipRequestDto mentorshipRequestDTO = new MentorshipRequestDto("Description", 1L, 2L, RequestStatusDto.PENDING);
 
         MentorshipRequest mentorshipRequest = mapper.toEntity(mentorshipRequestDTO);
         assertThat(mentorshipRequest).isNotNull();
@@ -71,7 +72,7 @@ public class MentorshipRequestMapperTest {
 
     @Test
     public void testToEntityFailedTest() {
-        MentorshipRequestDto mentorshipRequestDTO = new MentorshipRequestDto("Description", 3L, 2L);
+        MentorshipRequestDto mentorshipRequestDTO = new MentorshipRequestDto("Description", 3L, 2L, RequestStatusDto.PENDING);
 
         MentorshipRequest mentorshipRequest = mapper.toEntity(mentorshipRequestDTO);
         assertThat(mentorshipRequest).isNotNull();
