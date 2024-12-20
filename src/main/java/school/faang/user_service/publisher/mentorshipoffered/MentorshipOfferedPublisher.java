@@ -5,7 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.event.ban.MentorshipOfferedEvent;
+import school.faang.user_service.dto.MentorshipOfferedEvent;
 import school.faang.user_service.publisher.MessagePublisher;
 
 @Log4j2
