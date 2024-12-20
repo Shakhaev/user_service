@@ -1,5 +1,6 @@
 package school.faang.user_service.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,8 @@ import school.faang.user_service.message.consumer.UsersBanListener;
 @RequiredArgsConstructor
 public class RedisConfig {
 
+    private final ObjectMapper objectMapper;
+
     private final UsersBanListener usersBanListener;
 
     @Value("${spring.data.redis.channels.users-ban-channel.name}")
@@ -27,7 +30,8 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
+        template.setValueSerializer(serializer);
         return template;
     }
 
