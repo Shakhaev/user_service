@@ -1,5 +1,7 @@
 package school.faang.user_service.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.lettuce.core.RedisException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
