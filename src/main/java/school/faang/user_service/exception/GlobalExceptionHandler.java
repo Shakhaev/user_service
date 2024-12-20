@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import school.faang.user_service.exception.dto.ErrorResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ public class GlobalExceptionHandler {
         log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -140,5 +140,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRedisPublishingException(RedisPublishingException e) {
         log.error("RedisPublishingException: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException ex) {
+        log.error("Json processing exception: {}", ex.getMessage(), ex);
+        String errorMessage = extractMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(errorMessage, "Json processing error"));
+    }
+
+    private String extractMessage(String fullMessage) {
+        int lastBracketIndex = fullMessage.lastIndexOf("[");
+        if (lastBracketIndex != -1 && lastBracketIndex + 1 < fullMessage.length()) {
+            return fullMessage.substring(lastBracketIndex + 1, fullMessage.length() - 1);
+        }
+        return "Unknown error";
     }
 }

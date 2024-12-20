@@ -33,4 +33,9 @@ public class GoalCompletedEventPublisher implements EventPublisher<GoalCompleted
             throw new RedisPublishingException("Unexpected error while publishing event to Redis", e);
         }
     }
+
+    @Override
+    public Class<GoalCompletedEvent> getEventClass() {
+        return GoalCompletedEvent.class;
+    }
 }

@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MentorshipRequestEvent {
-    private long receiverId;
-    private long actorId;
-    private LocalDateTime time;
+public class SubscriptionEvent {
+    private Long followerId;
+    private Long followeeId;
+    private LocalDateTime subscribedAt;
 }

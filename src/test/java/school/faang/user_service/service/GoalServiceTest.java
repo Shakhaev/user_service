@@ -11,8 +11,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
+import school.faang.user_service.event.OutboxEvent;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -22,6 +24,7 @@ import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.utils.Helper;
 import school.faang.user_service.validator.GoalValidator;
 
 import java.util.ArrayList;
@@ -30,11 +33,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -61,7 +73,10 @@ class GoalServiceTest {
     private GoalValidator goalValidation;
 
     @Mock
-    private OutboxProcessor outboxProcessor;
+    private OutboxEventProcessor outboxEventProcessor;
+
+    @Mock
+    private Helper helper;
 
     private final long goalId = 1L;
     private final long userId = 1L;
@@ -356,6 +371,7 @@ class GoalServiceTest {
 
         verify(goalRepository, times(1)).findByUserIdAndGoalId(userId, goalId);
         verify(goalRepository, times(1)).save(goalEntity);
+        verify(outboxEventProcessor, times(1)).saveOutboxEvent(any(OutboxEvent.class));
         assertNotNull(actual);
         assertEquals(goalId, actual.getId());
         assertEquals(GoalStatus.COMPLETED, actual.getStatus());

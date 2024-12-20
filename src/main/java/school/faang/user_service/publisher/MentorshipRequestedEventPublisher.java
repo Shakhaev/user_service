@@ -1,7 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.RedisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,7 @@ public class MentorshipRequestedEventPublisher {
     @Async("taskExecutor")
     public CompletableFuture<Void> publish(MentorshipRequestEvent event) {
         try {
-            redisTemplate.convertAndSend(redisProperties.getChannel().getMentorship_request(), event);
+            redisTemplate.convertAndSend(redisProperties.channel().mentorshipRequest(), event);
             log.info("Successfully published mentorship request event from user with id {} to user with id {}.",
                     event.getActorId(), event.getReceiverId());
             return CompletableFuture.completedFuture(null);
