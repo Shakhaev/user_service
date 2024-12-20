@@ -1,13 +1,10 @@
 package school.faang.user_service.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.dto.publisher.RecommendationReceivedEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
@@ -15,10 +12,16 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class RecommendationService {
@@ -31,19 +34,22 @@ public class RecommendationService {
     private final UserRepository userRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final RecommendationMapper recommendationMapper;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Autowired
     public RecommendationService(RecommendationRepository recommendationRepository,
-            SkillOfferService skillOfferService,
-            SkillRepository skillRepository, UserRepository userRepository,
-            UserSkillGuaranteeRepository userSkillGuaranteeRepository,
-            RecommendationMapper recommendationMapper) {
+                                 SkillOfferService skillOfferService,
+                                 SkillRepository skillRepository, UserRepository userRepository,
+                                 UserSkillGuaranteeRepository userSkillGuaranteeRepository,
+                                 RecommendationMapper recommendationMapper,
+                                 RecommendationReceivedEventPublisher recommendationReceivedEventPublisher) {
         this.recommendationRepository = recommendationRepository;
         this.skillOfferService = skillOfferService;
         this.skillRepository = skillRepository;
         this.userRepository = userRepository;
         this.userSkillGuaranteeRepository = userSkillGuaranteeRepository;
         this.recommendationMapper = recommendationMapper;
+        this.recommendationReceivedEventPublisher = recommendationReceivedEventPublisher;
     }
 
     public RecommendationDto create(RecommendationDto recommendation) {
@@ -64,6 +70,8 @@ public class RecommendationService {
         Recommendation result = recommendationRepository.findById(recommendId)
                 .orElseThrow(() -> new DataValidationException("Recommendation with ID " + recommendId + " is absent in database"));
 
+        recommendationReceivedEventPublisher.publish(new RecommendationReceivedEventDto(
+                recommendation.id(), recommendation.authorId(), recommendation.receiverId(), LocalDateTime.now()));
         return recommendationMapper.toDto(result);
     }
 
