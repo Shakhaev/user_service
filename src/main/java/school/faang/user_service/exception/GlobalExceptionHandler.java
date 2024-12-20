@@ -144,7 +144,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException ex) {
         log.error("Json processing exception: {}", ex.getMessage(), ex);
         String errorMessage = extractMessage(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(errorMessage, "Json processing error"));
     }
 
