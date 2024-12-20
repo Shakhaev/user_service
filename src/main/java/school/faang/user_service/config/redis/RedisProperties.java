@@ -8,6 +8,7 @@ public record RedisProperties(String host, int port, Channel channel) {
     public record Channel(String mentorshipChannel,
                           String subscriptionChannel,
                           String recommendationChannel,
-                          String userBanChannel) {
+                          String userBanChannel,
+                          String mentorship_request) {
     }
 }

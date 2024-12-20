@@ -26,6 +26,7 @@ spring:
         recommendation-channel: recommendation_channel
         goal-completed: goal_completed_channel
         user-ban-channel: user_ban_channel
+        mentorship_request: "mentorship_request_channel"
 
 
   retry:
