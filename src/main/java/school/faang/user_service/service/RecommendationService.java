@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
@@ -17,14 +18,19 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.SkillOfferMapper;
+import school.faang.user_service.message.event.RecommendationReceivedEvent;
+import school.faang.user_service.message.producer.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.util.CollectionUtils;
 import school.faang.user_service.util.SkillUtils;
 import school.faang.user_service.validator.RecommendationValidator;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,6 +46,7 @@ public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
     private final SkillOfferMapper skillOfferMapper;
     private final RecommendationValidator recommendationValidator;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -104,6 +111,19 @@ public class RecommendationService {
         Recommendation updatedRecommendation = recommendationRepo.save(recommendation);
         log.info("Recommendation with id: {} updated successfully", recommendationId);
         return recommendationMapper.toDto(updatedRecommendation);
+    }
+
+    @Async("threadPool")
+    public void publishRecommendationReceivedEventAsync(long recommenderUserId,
+                                                   long receiverId,
+                                                   long recommendationId) {
+        log.info("Trying to publish RecommendationReceivedEvent");
+        RecommendationReceivedEvent recommendationReceivedEvent = RecommendationReceivedEvent.builder()
+                .recommenderUserId(recommenderUserId)
+                .recommendationId(recommendationId)
+                .receiverId(receiverId)
+                .build();
+        recommendationReceivedEventPublisher.publish(recommendationReceivedEvent);
     }
 
     private record SkillChanges(List<Skill> removedSkills, List<Skill> newSkills) {
@@ -224,6 +244,11 @@ public class RecommendationService {
 
     private List<SkillOffer> buildSkillOffers(Recommendation recommendation, RecommendationDto recommendationDto) {
         List<SkillOfferDto> skillOfferDtos = recommendationDto.skillOffers();
+
+        if (skillOfferDtos == null) {
+            return new ArrayList<>();
+        }
+
         return skillOfferDtos.stream()
                 .map(skillOfferDto -> {
                     SkillOffer skillOffer = skillOfferMapper.toEntity(skillOfferDto);

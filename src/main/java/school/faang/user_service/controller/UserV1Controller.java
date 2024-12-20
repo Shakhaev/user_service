@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
-import school.faang.user_service.service.UserDeactivationService;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.dto.user.UserForNotificationDto;
+import school.faang.user_service.service.user.UserDeactivationService;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 
@@ -48,6 +50,11 @@ public class UserV1Controller {
         userService.publishProfileViewEvent(userId, viewerUserId);
 
         return userSubResponseDto;
+    }
+
+    @GetMapping("/notification/{userId}")
+    public UserForNotificationDto getUserByIdForNotification(@Positive @PathVariable long userId) {
+        return userService.getUserByIdForNotification(userId);
     }
 
     @PostMapping("/get")

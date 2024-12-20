@@ -26,6 +26,7 @@ import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.message.producer.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;

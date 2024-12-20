@@ -31,10 +31,8 @@ spring:
           name: follower_event
         profile-view-channel:
           name: profile_view_channel
-
-  redis:
-    host: localhost
-    port: 6379
+        recommendation-channel:
+          name: recommendation_channel
 
 server:
   port: 8080
@@ -42,6 +40,19 @@ server:
 logging:
   level:
     root: info
+
+project-service:
+  host: localhost
+  port: 8082
+
+payment-service:
+  host: localhost
+  port: 9080
+
+scheduler:
+  clear-events-cron: "0 0 * * * *"
+  batch-size: 100
+  thread-pool-size: 10
 
 services:
   s3:
@@ -58,4 +69,4 @@ services:
     port: 8080
 
 thread-pool:
-  size: 5
+  core-size: 5
