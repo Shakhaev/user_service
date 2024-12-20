@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
@@ -16,6 +17,8 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.message.event.ProfileViewEvent;
+import school.faang.user_service.message.producer.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.S3Service;
@@ -42,6 +45,7 @@ public class UserService {
     private final S3Service s3Service;
     private final UserProfilePicMapper userProfilePicMapper;
     private final ImageUtils imageUtils;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -142,6 +146,11 @@ public class UserService {
         updateUser(user);
 
         s3Service.deleteFiles(fileId, smallFileId);
+    }
+
+    @Async("threadPool")
+    public void publishProfileViewEvent(ProfileViewEvent profileViewEvent) {
+        profileViewEventPublisher.publish(profileViewEvent);
     }
 
     private void validateAvatarSize(MultipartFile file) {

@@ -29,6 +29,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        profile-view-channel:
+          name: profile_view_event
 
 server:
   port: 8080
@@ -62,3 +64,6 @@ services:
   user-service:
     host: http://localhost
     port: 8080
+
+thread-pool:
+  core-size: 5
