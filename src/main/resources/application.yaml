@@ -35,7 +35,8 @@ spring:
         profile-view: profile_view_channel
         recommendation: recommendation_channel
         mentorship:
-          accepted: mentorship_channel
+          accepted: mentorship_accepted_channel
+          requested: mentorship_requested_channel
 
   servlet:
     multipart:

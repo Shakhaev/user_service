@@ -13,12 +13,15 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.redis.event.MentorshipAcceptedEvent;
+import school.faang.user_service.redis.event.MentorshipRequestedEvent;
 import school.faang.user_service.redis.publisher.MentorshipAcceptedEventPublisher;
+import school.faang.user_service.redis.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -34,6 +37,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestMapper requestMapper;
     private final List<RequestFilter> requestFilters;
     private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
+    private final MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestCreationDto creationRequestDto) {
@@ -54,6 +58,14 @@ public class MentorshipRequestService {
                 "The mentorship request has been saved in data base! Requester ID - {}, receiver ID - {}, date of creation - {}",
                 requesterId, receiverId, savedRequest.getCreatedAt()
         );
+
+        MentorshipRequestedEvent event = MentorshipRequestedEvent.builder()
+                .requesterId(requesterId)
+                .receiverId(receiverId)
+                .requestedAt(LocalDateTime.now())
+                .build();
+        mentorshipRequestedEventPublisher.publish(event);
+        log.info("MentorshipRequestedEvent has been published");
 
         return requestMapper.toMentorshipRequestDto(savedRequest);
     }
