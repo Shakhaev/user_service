@@ -11,59 +11,52 @@ import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.config.redis.RedisProperties;
 import school.faang.user_service.event.MentorshipRequestEvent;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestedEventPublisherTest {
-    @Mock
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
-    private RedisProperties redisProperties;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @InjectMocks
     private MentorshipRequestedEventPublisher publisher;
 
-    private RedisProperties.Channel channel;
+    private RedisProperties redisProperties;
     private MentorshipRequestEvent event;
-
+    private String channel;
 
     @BeforeEach
     void setUp() {
-        channel = new RedisProperties.Channel();
-        channel.setMentorship_request("mentorship_request_channel");
-        when(redisProperties.getChannel()).thenReturn(channel);
-        event = new MentorshipRequestEvent();
+        redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
+        publisher = new MentorshipRequestedEventPublisher(redisTemplate, redisProperties);
+        event = new MentorshipRequestEvent(1L, 2L, LocalDateTime.now());
+        channel = redisProperties.channel().mentorshipRequest();
     }
 
     @Test
     void testPublishSuccess() {
-        MentorshipRequestEvent event = new MentorshipRequestEvent();
-        when(redisTemplate.convertAndSend(eq("mentorship_request_channel"), eq(event))).thenReturn(null);
-
         CompletableFuture<Void> result = publisher.publish(event);
 
         assertTrue(result.isDone());
         assertFalse(result.isCompletedExceptionally());
-        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
+        verify(redisTemplate, times(1)).convertAndSend(channel, event);
     }
 
     @Test
     void testPublishRedisException() {
-        MentorshipRequestEvent event = new MentorshipRequestEvent();
-        doThrow(new RedisException("Redis error")).when(redisTemplate).convertAndSend(eq("mentorship_request_channel"), eq(event));
+        doThrow(new RedisException("Redis error")).when(redisTemplate).convertAndSend(channel, event);
 
         CompletableFuture<Void> result = publisher.publish(event);
 
         assertTrue(result.isCompletedExceptionally());
-        verify(redisTemplate, times(1)).convertAndSend(eq("mentorship_request_channel"), eq(event));
+        verify(redisTemplate, times(1)).convertAndSend(channel, event);
     }
 }

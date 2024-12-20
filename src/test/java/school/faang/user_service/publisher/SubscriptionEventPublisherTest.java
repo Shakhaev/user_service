@@ -25,28 +25,19 @@ class SubscriptionEventPublisherTest {
     private SubscriptionEventPublisher subscriptionEventPublisher;
 
     private RedisProperties redisProperties;
+    private SubscriptionEvent event;
+    private String subscriptionChannel;
 
     @BeforeEach
     void setUp() {
-        redisProperties = new RedisProperties(
-                "localhost",
-                6379,
-                new RedisProperties.Channel(
-                        "mentorshipChannel",
-                        "subscription_event_channel",
-                        "recommendationChannel",
-                        "userBanChannel"
-                )
-        );
-
+        redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
+        event = new SubscriptionEvent(1L, 2L, LocalDateTime.now());
+        subscriptionChannel = redisProperties.channel().subscriptionChannel();
         subscriptionEventPublisher = new SubscriptionEventPublisher(redisTemplate, null, redisProperties);
     }
 
     @Test
-    void testPublish() {
-        SubscriptionEvent event = new SubscriptionEvent(1L, 2L, LocalDateTime.now());
-        String subscriptionChannel = redisProperties.channel().subscriptionChannel();
-
+    void testPublish_success() {
         subscriptionEventPublisher.publish(event);
 
         verify(redisTemplate, times(1)).convertAndSend(subscriptionChannel, event);

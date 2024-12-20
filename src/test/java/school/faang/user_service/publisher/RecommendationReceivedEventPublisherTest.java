@@ -27,16 +27,8 @@ class RecommendationReceivedEventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        redisProperties = new RedisProperties(
-                "localhost",
-                6379,
-                new RedisProperties.Channel(
-                        "mentorshipChannel",
-                        "subscriptionChannel",
-                        "recommendation_channel",
-                        "userBanChannel"
-                )
-        );
+        redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
+        
         recommendationReceivedEventPublisher =
                 new RecommendationReceivedEventPublisher(redisTemplate, null, redisProperties);
     }
