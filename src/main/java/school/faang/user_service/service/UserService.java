@@ -11,10 +11,10 @@ import school.faang.user_service.dto.user.UserProfileUpdateDto;
 import school.faang.user_service.dto.user.UserSearchResponse;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.message.event.reindex.user.UserDocument;
 import school.faang.user_service.message.producer.KeyedMessagePublisher;
 import school.faang.user_service.model.jpa.Country;
 import school.faang.user_service.model.jpa.User;
-import school.faang.user_service.model.search.user.UserDocument;
 import school.faang.user_service.repository.jpa.UserRepository;
 
 import java.util.List;
@@ -89,7 +89,7 @@ public class UserService {
         UserDocument userDocument = userMapper.toUserDocument(user);
         keyedMessagePublisher.send(
                 kafkaTopicsProps.getUserIndexingTopic().getName(),
-                userDocument.getUserId().toString(),
+                userDocument.getResourceId().toString(),
                 userDocument);
     }
 

@@ -20,9 +20,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import school.faang.user_service.config.kafka.KafkaTopicsProps;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.message.event.reindex.user.UserDocument;
 import school.faang.user_service.message.producer.KeyedMessagePublisher;
 import school.faang.user_service.model.jpa.User;
-import school.faang.user_service.model.search.user.UserDocument;
 import school.faang.user_service.repository.jpa.UserRepository;
 
 import java.util.LinkedHashMap;
@@ -116,7 +116,7 @@ public class BatchConfig {
         return items -> items.forEach(userDocument ->
                 keyedMessagePublisher.send(
                         userIndexingTopic.getName(),
-                        userDocument.getUserId().toString(),
+                        userDocument.getResourceId().toString(),
                         userDocument));
     }
 

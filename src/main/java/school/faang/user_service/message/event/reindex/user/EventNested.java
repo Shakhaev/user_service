@@ -1,22 +1,16 @@
-package school.faang.user_service.model.search.event;
+package school.faang.user_service.message.event.reindex.user;
 
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
-import school.faang.user_service.model.jpa.event.EventStatus;
-import school.faang.user_service.model.jpa.event.EventType;
 
 import java.time.LocalDateTime;
 
 @Data
-@Document(indexName = "events")
-@Setting(settingPath = "elasticsearch/settings.json")
-public class EventDocument {
+public class EventNested {
 
-    @Id
+    @Field(type = FieldType.Keyword)
     private Long id;
 
     @Field(type = FieldType.Text)
@@ -25,10 +19,12 @@ public class EventDocument {
     @Field(type = FieldType.Text)
     private String description;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
 
     @Field(type = FieldType.Text)
@@ -37,7 +33,7 @@ public class EventDocument {
     @Field(type = FieldType.Integer)
     private Integer maxAttendees;
 
-    @Field(type = FieldType.Integer)
+    @Field(type = FieldType.Keyword)
     private String usernameOwner;
 
     @Field(type = FieldType.Keyword)

@@ -2,20 +2,17 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalStatusDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.dto.user.GoalSearchResponse;
+import school.faang.user_service.message.event.reindex.user.GoalNested;
 import school.faang.user_service.model.jpa.Skill;
 import school.faang.user_service.model.jpa.User;
 import school.faang.user_service.model.jpa.goal.Goal;
 import school.faang.user_service.model.jpa.goal.GoalStatus;
-import school.faang.user_service.model.search.user.GoalNested;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {GoalInvitationMapper.class, SkillMapper.class},
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
@@ -41,7 +38,6 @@ public interface GoalMapper {
     @Mapping(source = "status", target = "status")
     GoalResponseDto toResponseDto(Goal goal);
 
-    GoalSearchResponse toSearchResponse(GoalNested goal);
 
     @Mapping(source = "id", target = "goalId")
     @Mapping(source = "skillsToAchieve", target = "skillsToAchieveNames",

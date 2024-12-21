@@ -30,7 +30,6 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
-        //TODO указать в конфиге точные пакеты, которым можно доверять
         Map<String, Object> configs = new HashMap<>();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapAddress);
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
