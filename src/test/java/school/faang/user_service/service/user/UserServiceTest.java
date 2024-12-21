@@ -8,9 +8,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.model.Student;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -32,6 +35,9 @@ public class UserServiceTest {
 
     @Mock
     private SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+
+    @Mock
+    private CountryRepository countryRepository;
 
     @InjectMocks
     private UserService userService;

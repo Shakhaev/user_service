@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
 import school.faang.user_service.service.user.UserService;
@@ -39,5 +41,17 @@ public class UserController {
     public List<Long> searchUsers(@RequestParam Long searchingUserId) {
         log.info("Received a request to get users with searching user ID: {}", searchingUserId);
         return userService.searchUsers(searchingUserId);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadUsers(@RequestParam("file") MultipartFile file) {
+        log.info("Received a request to upload users");
+        try {
+            userService.registerUserFromCsv(file.getInputStream());
+            return ResponseEntity.ok("Users processed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing file: " + e.getMessage());
+        }
     }
 }
