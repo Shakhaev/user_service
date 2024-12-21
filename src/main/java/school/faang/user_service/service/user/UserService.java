@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.UserForNotificationDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -18,6 +20,9 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.CountryService;
+import school.faang.user_service.service.Integrations.avatar.AvatarService;
+import school.faang.user_service.service.PasswordService;
 import school.faang.user_service.service.S3Service;
 import school.faang.user_service.util.ImageUtils;
 
@@ -42,6 +47,9 @@ public class UserService {
     private final S3Service s3Service;
     private final UserProfilePicMapper userProfilePicMapper;
     private final ImageUtils imageUtils;
+    private final AvatarService avatarService;
+    private final CountryService countryService;
+    private final PasswordService passwordService;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -68,6 +76,32 @@ public class UserService {
     public UserForNotificationDto getUserByIdForNotification(long userId) {
         User user = getUserById(userId);
         return userMapper.toUserForNotificationDto(user);
+    }
+
+    public UserSubResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
+        if (userRepository.existsByEmail(userRegistrationDto.email())) {
+            throw new DataValidationException(String.format("Пользователь с почтой %s уже зарегистрирован.", userRegistrationDto.email()));
+        }
+
+        Country country = countryService.getCountryById(userRegistrationDto.countryId());
+
+        User user = userMapper.toEntity(userRegistrationDto);
+        user.setCountry(country);
+        user.setPassword(passwordService.encodePassword(userRegistrationDto.password()));
+
+        userRepository.save(user);
+
+        try {
+            UserProfilePic profilePic = avatarService.generateAndUploadUserAvatars(user.getId().toString());
+
+            user.setUserProfilePic(profilePic);
+
+            userRepository.save(user);
+        } catch (Exception e) {
+            log.error("Error generating avatar for user {}", user.getId(), e);
+        }
+
+        return new UserSubResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getUserProfilePic());
     }
 
     public void saveUser(User user) {
