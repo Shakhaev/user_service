@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import school.faang.user_service.dto.publisher.RecommendationReceivedEventDto;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -104,6 +106,7 @@ public class RecommendationServiceTest {
 
         verify(skillRepository, times(1)).countExisting(skillIds);
         verify(recommendationRepository, times(1)).findById(ID);
+        verify(recommendationReceivedEventPublisher, times(1)).publish(any(RecommendationReceivedEventDto.class));
         assertEquals(ID, result.id());
     }
 
