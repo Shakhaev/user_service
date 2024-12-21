@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        profile-view-channel:
+          name: profile_view_channel
 
 server:
   port: 8080
@@ -40,3 +42,17 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+services:
+#  s3:
+#      endpoint: http://127.0.0.1:9000
+#      accessKey: user
+#      secretKey: password
+#      bucketName: corpbucket
+
+  minio:
+    url: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    region: eu
