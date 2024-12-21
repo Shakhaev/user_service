@@ -7,12 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.MentorshipOfferedEventMapper;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.mentorshipoffered.MentorshipOfferedPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -41,6 +42,12 @@ class MentorshipRequestServiceTest {
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
 
+    @Mock
+    private MentorshipOfferedEventMapper mentorshipOfferedEventMapper;
+
+    @Mock
+    private MentorshipOfferedPublisher mentorshipOfferedPublisher;
+
     public MentorshipRequest generateMentorshipRequest() {
         User user1 = new User();
         User user2 = new User();
@@ -52,26 +59,25 @@ class MentorshipRequestServiceTest {
         user2.setMentees(new ArrayList<>());
         return new MentorshipRequest(1L, "Description", user1, user2,
                 RequestStatus.PENDING, null, LocalDateTime.now(), null);
-
     }
 
 
     @Test
-    void createRequestMentorshipSuccessTest() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
-
+    void saveRequestMentorshipSuccessTest() {
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L, RequestStatusDto.PENDING);
+        MentorshipRequest mentorshipRequest = mentorshipRequestMapper.toEntity(mentorshipRequestDto);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(userRepository.existsById(3L)).thenReturn(true);
         when(mentorshipRequestRepository.findLatestRequest(2L, 3L)).thenReturn(Optional.empty());
 
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
-        verify(mentorshipRequestRepository).create(2L, 3L, "Request description");
+        verify(mentorshipRequestRepository).save(mentorshipRequest);
     }
 
     @Test
     void createRequestMentorshipForLastRequestDateLess3MonthsFailTest() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L, RequestStatusDto.PENDING);
         MentorshipRequest lastRequest = new MentorshipRequest();
         lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(2));
 
@@ -81,12 +87,12 @@ class MentorshipRequestServiceTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.requestMentorship(mentorshipRequestDto));
 
-        assertTrue(exception.getMessage().contains("Last request has date less 3 months"));// + lastRequest.get().getCreatedAt()));
+        assertTrue(exception.getMessage().contains("Last request has date less 3 months"));
     }
 
     @Test
     void createRequestMentorshipForNonExistantRequesterIdFailTest() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L, RequestStatusDto.PENDING);
 
         when(userRepository.existsById(2L)).thenReturn(false);
 
@@ -108,7 +114,7 @@ class MentorshipRequestServiceTest {
         mentorshipRequest.setStatus(RequestStatus.PENDING);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(List.of(mentorshipRequest));
-        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto("desc", 2L, 3L));
+        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto("desc", 2L, 3L, RequestStatusDto.PENDING));
 
         List<MentorshipRequestDto> result = mentorshipRequestService.getRequest(null, 1L, 2L, RequestStatusDto.PENDING);
 
