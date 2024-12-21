@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -122,6 +123,23 @@ public class UserServiceTest {
                 "password123",
                 1L
         );
+    }
+
+    @Test
+    public void testBanUsers() {
+        // arrange
+        List<Long> userIds = List.of(1L, 2L);
+        List<User> users = List.of(
+                User.builder().id(1L).build(),
+                User.builder().id(2L).build()
+        );
+        when(userRepository.findAllById(userIds)).thenReturn(users);
+
+        // act
+        userService.banUsers(userIds);
+
+        // assert
+        users.forEach(user -> assertTrue(user.isBanned()));
     }
 
     @Test

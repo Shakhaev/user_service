@@ -147,6 +147,9 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
+    @Column(name = "banned")
+    private boolean banned;
+
     @Convert(converter = LanguageConverter.class)
     @Column(name = "locale", nullable = false)
     private Language locale;
@@ -223,5 +226,9 @@ public class User {
                 ", updatedAt=" + updatedAt +
                 ", userProfilePic=" + userProfilePic +
                 '}';
+    }
+
+    public void ban() {
+        banned = true;
     }
 }

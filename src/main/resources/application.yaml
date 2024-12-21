@@ -31,6 +31,8 @@ spring:
           name: follower_event
         recommendation-channel:
           name: recommendation_channel
+        users-ban-channel:
+          name: users_ban_event
 
 server:
   port: 8080
