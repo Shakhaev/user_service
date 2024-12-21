@@ -24,9 +24,11 @@ import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.CountryService;
+import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +51,7 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
+    private final MentorshipService mentorshipService;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -162,5 +165,20 @@ public class UserService {
 
     public String generateRandomPassword(User user) {
         return user.getEmail();
+    }
+
+    public void deactivateUser(long userId) {
+        Optional<User> userOptional = findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new DataValidationException("User not found by current id");
+        }
+        User user = userOptional.get();
+        if (!user.isActive()) {
+            throw new DataValidationException("User is already deactivated");
+        }
+
+        user.setActive(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }
