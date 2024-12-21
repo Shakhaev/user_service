@@ -3,13 +3,13 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-@Repository
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query(nativeQuery = true, value = """
@@ -49,4 +49,13 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT s.* FROM skill s
+            JOIN goal_skill gs ON s.id = gs.skill_id
+            WHERE gs.goal_id = :goalId
+            """)
+    List<Skill> findSkillsByGoalId(long goalId);
+
+    List<Goal> getGoalById(Long id);
 }

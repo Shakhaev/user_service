@@ -1,10 +1,10 @@
 plugins {
     java
-    jacoco
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    jacoco
 }
 
 group = "faang.school"
@@ -45,13 +45,6 @@ dependencies {
     implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
 
     /**
-     * Swagger
-     */
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.15")
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
-
-    /**
      * Utils & Logging
      */
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
@@ -65,7 +58,6 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
-    implementation ("net.coobird:thumbnailator:0.4.1")
 
     /**
      * Test containers
@@ -81,7 +73,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 jsonSchema2Pojo {
@@ -93,6 +84,7 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -100,54 +92,54 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+kotlin {
+    jvmToolchain(17)
+}
 
-/**
- * JaCoCo settings
- */
-val jacocoInclude = listOf(
-    "**/controller/**",
-    "**/service/**",
-    "**/validator/**",
-    "**/mapper/**"
-)
 jacoco {
-    toolVersion = "0.8.9"
-    reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
+    toolVersion = "0.8.12"
 }
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
 
     reports {
-        xml.required.set(false)
+        xml.required.set(true)
         csv.required.set(false)
-        //html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        html.required.set(true)
     }
 
     classDirectories.setFrom(
-        sourceSets.main.get().output.asFileTree.matching {
-            include(jacocoInclude)
-        }
+        files(
+            fileTree("build/classes/java/main")
+                .exclude("**/entity/**")
+                .exclude("**/com/json/**")
+                .exclude("**/client/**")
+                .exclude("**/config/**")
+                .exclude("**/dto/**")
+                .exclude("**/mapper/**")
+        )
     )
-}
-tasks.jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            element = "CLASS"
-            classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    include(jacocoInclude)
-                }
-            )
-            enabled = true
-            limit {
-                minimum = BigDecimal(0.7).setScale(2, BigDecimal.ROUND_HALF_UP) // Задаем минимальный уровень покрытия
-            }
+
+    doLast {
+        val reportDir = file("${buildDir}/reports/jacoco/test/html")
+        val reportFile = file("$reportDir/index.html")
+
+        if (reportFile.exists()) {
+            println("Jacoco report generated: file://${reportFile.absolutePath}")
+        } else {
+            println("Jacoco report not found.")
         }
     }
 }
-kotlin {
-    jvmToolchain(17)
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8.toBigDecimal()
+            }
+        }
+    }
 }

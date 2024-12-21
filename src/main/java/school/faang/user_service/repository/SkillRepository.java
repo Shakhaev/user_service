@@ -3,19 +3,20 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.Skill;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     boolean existsByTitle(String title);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (?1)")
     int countExisting(List<Long> ids);
+
+    @Query("SELECT s FROM Skill s WHERE s.id IN :ids")
+    List<Skill> findAllByIds(List<Long> ids);
 
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s
@@ -48,4 +49,8 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
             WHERE gs.goal_id = ?1)
             """)
     List<Skill> findSkillsByGoalId(long goalId);
+
+    @Query(nativeQuery = true, value = "INSERT INTO goal_skill (skill_id, goal_id) VALUES (:skillId, :goalId)")
+    @Modifying
+    void assignSkillToGoal(long skillId, long goalId);
 }
