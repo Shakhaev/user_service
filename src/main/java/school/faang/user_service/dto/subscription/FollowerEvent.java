@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 public class FollowerEvent {
     @NotNull
     private long followerUserId;
-    private long targetUserId;
-    private long targetProjectId;
+    private Long targetUserId;
+    private Long targetProjectId;
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
