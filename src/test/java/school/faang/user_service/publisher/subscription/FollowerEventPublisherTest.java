@@ -53,7 +53,7 @@ class FollowerEventPublisherTest {
     private FollowerEvent prepareEvent() {
         return FollowerEvent.builder()
                 .followerUserId(1)
-                .targetUserId(2)
+                .targetUserId(2L)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
