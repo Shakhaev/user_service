@@ -80,7 +80,7 @@ class MentorshipRequestServiceTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.requestMentorship(mentorshipRequestDto));
 
-        assertTrue(exception.getMessage().contains("Last request has date less 3 months"));// + lastRequest.get().getCreatedAt()));
+        assertTrue(exception.getMessage().contains("Last request has date less 3 months" + lastRequest.getCreatedAt()));
     }
 
     @Test
