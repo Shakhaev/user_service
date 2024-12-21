@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
