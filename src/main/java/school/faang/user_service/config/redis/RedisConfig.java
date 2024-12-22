@@ -69,6 +69,12 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic mentorshipChannel() {
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getMentorshipChannel());
+        return new ChannelTopic(redisProperties.getMentorshipChannel());
+    }
+
+    @Bean
     public ChannelTopic createAppearanceTopic() {
         return new ChannelTopic(searchAppearanceTopicName);
     }
