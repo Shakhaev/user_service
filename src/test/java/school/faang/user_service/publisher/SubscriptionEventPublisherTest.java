@@ -1,5 +1,6 @@
 package school.faang.user_service.publisher;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionEventPublisherTest {
@@ -21,25 +21,27 @@ class SubscriptionEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
-    @Mock
-    private RedisProperties redisProperties;
-
     @InjectMocks
     private SubscriptionEventPublisher subscriptionEventPublisher;
 
-    @Test
-    void testPublish() {
-        SubscriptionEvent event = SubscriptionEvent.builder()
+    private RedisProperties redisProperties;
+    private SubscriptionEvent event;
+    private String subscriptionChannel;
+
+    @BeforeEach
+    void setUp() {
+        redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
+        event = SubscriptionEvent.builder()
                 .followeeId(1L)
                 .followeeId(2L)
                 .subscribedAt(LocalDateTime.now())
                 .build();
-        String subscriptionChannel = "subscription_event_channel";
-        RedisProperties.Channel channel = new RedisProperties.Channel();
-        channel.setSubscriptionChannel(subscriptionChannel);
+        subscriptionChannel = redisProperties.channel().subscriptionChannel();
+        subscriptionEventPublisher = new SubscriptionEventPublisher(redisTemplate, null, redisProperties);
+    }
 
-        when(redisProperties.getChannel()).thenReturn(channel);
-
+    @Test
+    void testPublish_success() {
         subscriptionEventPublisher.publish(event);
 
         verify(redisTemplate, times(1)).convertAndSend(subscriptionChannel, event);

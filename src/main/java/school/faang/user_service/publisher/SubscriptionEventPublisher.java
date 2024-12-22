@@ -28,7 +28,12 @@ public class SubscriptionEventPublisher implements EventPublisher<SubscriptionEv
             )
     )
     public void publish(SubscriptionEvent message) {
-        redisTemplate.convertAndSend(redisProperties.getChannel().getSubscriptionChannel(), message);
-        log.info("New Subscription event sent to channel id: {}", redisProperties.getChannel().getSubscriptionChannel());
+        redisTemplate.convertAndSend(redisProperties.channel().subscriptionChannel(), message);
+        log.info("New Subscription event sent to channel id: {}", redisProperties.channel().subscriptionChannel());
+    }
+
+    @Override
+    public Class<SubscriptionEvent> getEventClass() {
+        return SubscriptionEvent.class;
     }
 }

@@ -28,7 +28,12 @@ public class RecommendationReceivedEventPublisher implements EventPublisher<Reco
             )
     )
     public void publish(RecommendationReceivedEvent event) {
-        redisTemplate.convertAndSend(redisProperties.getChannel().getRecommendationChannel(), event);
-        log.info("New recommendation event sent to channel id: {}", redisProperties.getChannel().getRecommendationChannel());
+        redisTemplate.convertAndSend(redisProperties.channel().recommendationChannel(), event);
+        log.info("New recommendation event sent to channel id: {}", redisProperties.channel().recommendationChannel());
+    }
+
+    @Override
+    public Class<RecommendationReceivedEvent> getEventClass() {
+        return RecommendationReceivedEvent.class;
     }
 }

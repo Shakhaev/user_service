@@ -4,15 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.event.OutboxEvent;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.SubscriptionEvent;
 import school.faang.user_service.filter.UserFilterEmail;
 import school.faang.user_service.filter.UserFilterName;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.SubscriptionEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.utils.Helper;
 import school.faang.user_service.validator.SubscriptionValidator;
 import school.faang.user_service.validator.UserValidator;
 
@@ -25,6 +27,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Service
 public class SubscriptionService {
+    private static final String AGGREGATE_TYPE = "Follower";
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
     private final SubscriptionValidator subscriptionValidator;
@@ -33,6 +36,8 @@ public class SubscriptionService {
     private final UserFilterEmail userFilterEmail;
     private final SubscriptionEventPublisher subscriptionEventPublisher;
     private final UserService userService;
+    private final Helper helper;
+    private final OutboxEventProcessor outboxEventProcessor;
 
     @Transactional
     public void followUser(long followerId, long followeeId) {
@@ -45,13 +50,16 @@ public class SubscriptionService {
         LocalDateTime subscribedAt = subscriptionRepository.findCreatedAtByFollowerIdAndFolloweeId(
                 followerId, followeeId);
 
-        subscriptionEventPublisher.publish(SubscriptionEvent.builder()
-                .followerId(followerId)
-                .followeeId(followeeId)
-                .subscribedAt(subscribedAt)
-                .followerName(userService.getUserContacts(followerId).getUsername())
-                .followeeName(userService.getUserContacts(followeeId).getUsername())
-                .build());
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateId(followeeId)
+                .aggregateType(AGGREGATE_TYPE)
+                .payload(helper.serializeToJson(new SubscriptionEvent(followerId, followeeId, subscribedAt)))
+                .eventType(SubscriptionEvent.class.getSimpleName())
+                .createdAt(subscribedAt)
+                .processed(false)
+                .build();
+
+        outboxEventProcessor.saveOutboxEvent(outboxEvent);
         log.info("User {} successfully subscribed to user {}.", followerId, followeeId);
     }
 

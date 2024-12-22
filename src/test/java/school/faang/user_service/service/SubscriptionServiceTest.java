@@ -7,9 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserContactsDto;
-import school.faang.user_service.event.SubscriptionEvent;
+import school.faang.user_service.event.OutboxEvent;
+import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.publisher.SubscriptionEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.utils.Helper;
 import school.faang.user_service.validator.SubscriptionValidator;
 import school.faang.user_service.validator.UserValidator;
 
@@ -37,6 +39,12 @@ class SubscriptionServiceTest {
     private SubscriptionEventPublisher subscriptionEventPublisher;
 
     @Mock
+    private OutboxEventProcessor outboxEventProcessor;
+
+    @Mock
+    private Helper helper;
+
+    @Mock
     private UserService userService;
 
     @InjectMocks
@@ -53,7 +61,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void followUser_shouldCallRepositoryAndPublisher() {
+    void followUser_shouldCallRepositoryAndOutboxProcessor() {
         doNothing().when(userValidator).validateUserById(followerId);
         doNothing().when(userValidator).validateUserById(followeeId);
         doNothing().when(subscriptionValidator).validateNoSelfSubscription(followerId, followeeId);
@@ -63,7 +71,7 @@ class SubscriptionServiceTest {
         subscriptionService.followUser(followerId, followeeId);
 
         verify(subscriptionRepository, times(1)).followUser(followerId, followeeId);
-        verify(subscriptionEventPublisher, times(1)).publish(any(SubscriptionEvent.class));
+        verify(outboxEventProcessor, times(1)).saveOutboxEvent(any(OutboxEvent.class));
     }
 
     @Test
