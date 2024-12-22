@@ -31,4 +31,7 @@ public class RedisProperties {
 
     @Value("${spring.data.redis.channel.unfollow-project.name}")
     private String unfollowProjectChannel;
+
+    @Value("${spring.data.redis.channel.recommendation-event.name}")
+    private String recommendationEventTopic;
 }
