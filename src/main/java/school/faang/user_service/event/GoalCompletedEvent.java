@@ -1,15 +1,10 @@
 package school.faang.user_service.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Builder
-public class GoalCompletedEvent {
-    private Long goalId;
-    private Long actorId;
+public record GoalCompletedEvent(
+        long userId,
+        long goalId,
+        LocalDateTime completedAt
+) {
 }

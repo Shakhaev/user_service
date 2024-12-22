@@ -1,8 +1,8 @@
 package school.faang.user_service.repository.goal;
 
-import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -52,6 +52,8 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """)
     List<User> findUsersByGoalId(long goalId);
 
-    @Query("SELECT g FROM Goal g JOIN g.users u WHERE g.id = :goalId AND u.id = :userId")
-    Optional<Goal> findGoalByIdAndUserId(@Param("goalId") Long goalId, @Param("userId") Long userId);
+
+    @Query("SELECT g FROM Goal g JOIN g.users u WHERE u.id = :userId AND g.id = :goalId")
+    Optional<Goal> findByUserIdAndGoalId(@Param("userId") long userId, @Param("goalId") long goalId);
+
 }

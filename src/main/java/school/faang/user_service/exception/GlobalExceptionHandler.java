@@ -1,5 +1,7 @@
 package school.faang.user_service.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.lettuce.core.RedisException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -7,10 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import school.faang.user_service.exception.dto.ErrorResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ public class GlobalExceptionHandler {
         log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -90,6 +90,7 @@ public class GlobalExceptionHandler {
         log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleAllExceptions(IOException exception) {
         log.error("IOException exception: {}", exception.getMessage(), exception);
@@ -129,9 +130,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(OutboxProcessingException.class)
+    public ResponseEntity<String> handleOutboxProcessingException(OutboxProcessingException e) {
+        log.error("OutboxProcessingException: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(RedisPublishingException.class)
+    public ResponseEntity<String> handleRedisPublishingException(RedisPublishingException e) {
+        log.error("RedisPublishingException: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException ex) {
+        log.error("Json processing exception: {}", ex.getMessage(), ex);
+        String errorMessage = extractMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(errorMessage, "Json processing error"));
+    }
+
     @ExceptionHandler(GoalAlreadyCompletedException.class)
     public ResponseEntity<String> handleGoalAlreadyCompletedException(GoalAlreadyCompletedException ex) {
         log.error("GoalAlreadyCompletedException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+}
+
+    private String extractMessage(String fullMessage) {
+        int lastBracketIndex = fullMessage.lastIndexOf("[");
+        if (lastBracketIndex != -1 && lastBracketIndex + 1 < fullMessage.length()) {
+            return fullMessage.substring(lastBracketIndex + 1, fullMessage.length() - 1);
+        }
+        return "Unknown error";
     }
 }
