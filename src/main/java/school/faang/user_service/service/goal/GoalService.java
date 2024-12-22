@@ -37,12 +37,10 @@ public class GoalService {
         return goalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Goal not found by id: %s", id)));
     }
 
-    public GoalDto completeGoalAndPublishEvent(GoalDto goalDto, long userId) {
-       Goal entity = goalRepository.findGoalsByUserId(userId).stream()
-                .filter(goal -> goal.getId().equals(goalDto.getId()))
-               .findFirst()
-               .orElseThrow(() -> new EntityNotFoundException(String.format("Goal not found by id: %s", goalDto.getId())));
-
+    public GoalDto completeGoalAndPublishEvent(long goalId, long userId) {
+        Goal entity = goalRepository.findGoalByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Goal with id %s not found for user %s", goalId, userId)));
 
        if (entity.getStatus() == GoalStatus.COMPLETED) {
            throw new GoalAlreadyCompletedException("Goal already completed");
@@ -50,7 +48,7 @@ public class GoalService {
 
        entity.setStatus(GoalStatus.COMPLETED);
        goalRepository.save(entity);
-       goalCompletedEventPublisher.publish(new GoalCompletedEvent(goalDto.getId(), userId));
+       goalCompletedEventPublisher.publish(new GoalCompletedEvent(goalId, userId));
 
        return goalMapper.toDto(entity);
     }
