@@ -17,6 +17,7 @@ public class RedisProperties {
     protected static class Channels {
         private Channel userBanChannel;
         private Channel goalSetChannel;
+        private Channel mentorshipOfferedChannel;
 
         @Getter
         @Setter

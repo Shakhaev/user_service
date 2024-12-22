@@ -74,4 +74,9 @@ public class RedisConfiguration {
                                                                   ChannelTopic userBanTopic) {
         return Pair.of(userBanMessageListener, userBanTopic);
     }
+
+    @Bean
+    public ChannelTopic mentorshipOfferedTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getMentorshipOfferedChannel().getName());
+    }
 }

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableFeignClients("school.faang.user_service.client")
+@EnableFeignClients("school.faang.user_service.config.context.client")
 @EnableConfigurationProperties
 @EnableScheduling
 @OpenAPIDefinition(
