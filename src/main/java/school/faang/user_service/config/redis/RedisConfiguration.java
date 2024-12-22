@@ -39,7 +39,6 @@ public class RedisConfiguration {
         template.setConnectionFactory(jedisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-
         return template;
     }
 
@@ -58,6 +57,11 @@ public class RedisConfiguration {
     @Bean
     public ChannelTopic userBanTopic() {
         return new ChannelTopic(redisProperties.getChannels().getUserBanChannel().getName());
+    }
+
+    @Bean
+    public ChannelTopic goalSetTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getGoalSetChannel().getName());
     }
 
     @Bean
