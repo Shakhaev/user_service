@@ -16,17 +16,22 @@ import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.GoalRequest;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.dto.request.CreateGoalRequest;
-import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class GoalControllerTest {
@@ -148,9 +153,11 @@ class GoalControllerTest {
     @Test
     void testCompleteGoalAndPublishEvent() throws Exception {
         long userId = 1L;
-        GoalDto goalDto = GoalDto.builder().id(1L).status(GoalStatus.COMPLETED).build();
+        long goalId = 1L;
 
-        when(goalService.completeGoalAndPublishEvent(goalDto, userId)).thenReturn(goalDto);
+        GoalDto goalDto = GoalDto.builder().id(1L).userId(1L).status(GoalStatus.COMPLETED).build();
+
+        when(goalService.completeGoalAndPublishEvent(goalId, userId)).thenReturn(goalDto);
 
         mockMvc.perform(post("/goals/complete/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,6 +165,6 @@ class GoalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"));
 
-        verify(goalService, times(1)).completeGoalAndPublishEvent(goalDto, userId);
+        verify(goalService, times(1)).completeGoalAndPublishEvent(goalId, userId);
     }
 }

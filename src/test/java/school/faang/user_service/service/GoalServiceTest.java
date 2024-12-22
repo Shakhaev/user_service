@@ -422,21 +422,25 @@ class GoalServiceTest {
         long userId = 4L;
         long goalId = 14L;
 
-        Goal goal = Goal.builder().id(goalId).status(GoalStatus.ACTIVE).build();
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .status(GoalStatus.ACTIVE)
+                .build();
 
         GoalDto goalDto = GoalDto.builder()
                 .id(goalId)
                 .build();
 
-        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of(goal));
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.of(goal));
         when(goalRepository.save(any(Goal.class))).thenReturn(goal);
         when(goalMapper.toDto(goal)).thenReturn(goalDto);
 
-        GoalDto result = goalService.completeGoalAndPublishEvent(goalDto, userId);
+        GoalDto result = goalService.completeGoalAndPublishEvent(goalId, userId);
 
-        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
         verify(goalRepository, times(1)).save(goal);
-        verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEvent.class));
+        verify(goalCompletedEventPublisher, times(1))
+                .publish(any(GoalCompletedEvent.class));
 
         assertNotNull(result);
         assertEquals(goalId, result.getId());
@@ -448,20 +452,19 @@ class GoalServiceTest {
         long userId = 4L;
         long goalId = 14L;
 
-        Goal goal = Goal.builder().id(goalId).status(GoalStatus.COMPLETED).build();
-
-        GoalDto goalDto = GoalDto.builder()
+        Goal goal = Goal.builder()
                 .id(goalId)
+                .status(GoalStatus.COMPLETED)
                 .build();
 
-        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of(goal));
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.of(goal));
 
         GoalAlreadyCompletedException exception = assertThrows(GoalAlreadyCompletedException.class,
-                () -> goalService.completeGoalAndPublishEvent(goalDto, userId));
+                () -> goalService.completeGoalAndPublishEvent(goalId, userId));
 
         assertEquals("Goal already completed", exception.getMessage());
 
-        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
         verify(goalRepository, never()).save(any(Goal.class));
         verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
     }
@@ -472,21 +475,18 @@ class GoalServiceTest {
         long userId = 4L;
         long goalId = 14L;
 
-        GoalDto goalDto = GoalDto.builder()
-                .id(goalId)
-                .build();
-
-        when(goalRepository.findGoalsByUserId(userId)).thenReturn(List.of()); // Пустой список
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> goalService.completeGoalAndPublishEvent(goalDto, userId));
+                () -> goalService.completeGoalAndPublishEvent(goalId, userId));
 
-        assertEquals("Goal not found by id: 14", exception.getMessage());
+        assertEquals(String.format("Goal with id %s not found for user %s", goalId, userId), exception.getMessage());
 
-        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
         verify(goalRepository, never()).save(any(Goal.class));
         verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
     }
+
 
 
     private User setUpUserWithoutGoals() {

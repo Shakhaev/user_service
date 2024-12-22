@@ -23,10 +23,10 @@ spring:
       channel:
         subscription-channel: subscription_channel
         recommendation-channel: recommendation_channel
-        goal-completed: goal_completed_channel
+        goal-channel: goal_channel
         user-ban-channel: user_ban_channel
         mentorship-request: mentorship_request_channel
-        goal-channel: goal_channel
+
 
   retry:
     maxAttempts: 3

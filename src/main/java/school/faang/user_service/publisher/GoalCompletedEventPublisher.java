@@ -3,7 +3,6 @@ package school.faang.user_service.publisher;
 import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -19,14 +18,11 @@ public class GoalCompletedEventPublisher implements EventPublisher<GoalCompleted
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisProperties redisProperties;
 
-    @Value("${spring.data.redis.channel.goal-completed}")
-    private String topic;
-
     @Retryable(retryFor = {RedisConnectionException.class, RedisPublishingException.class},
             maxAttempts = 5, backoff = @Backoff(delay = 2000, multiplier = 2))
     public void publish(GoalCompletedEvent event) {
         try {
-            redisTemplate.convertAndSend(topic, event);
+            redisTemplate.convertAndSend(redisProperties.channel().goalChannel(), event);
         } catch (RedisConnectionException e) {
             log.error("Redis connection error while publishing event: {}", event, e);
             throw e;
@@ -39,20 +35,5 @@ public class GoalCompletedEventPublisher implements EventPublisher<GoalCompleted
     @Override
     public Class<GoalCompletedEvent> getEventClass() {
         return GoalCompletedEvent.class;
-    }
-
-
-    @Override
-    @Retryable(retryFor = Exception.class,
-            maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
-            backoff = @Backoff(
-                    delayExpression = "#{@retryProperties.initialDelay}",
-                    multiplierExpression = "#{@retryProperties.multiplier}",
-                    maxDelayExpression = "#{@retryProperties.maxDelay}"
-            )
-    )
-    public void publish(GoalCompletedEvent event) {
-        redisTemplate.convertAndSend(redisProperties.getChannel().getGoalChannel(), event);
-        log.info("Message sent to channel: {}", redisProperties.getChannel().getGoalChannel());
     }
 }
