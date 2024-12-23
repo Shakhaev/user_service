@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipOfferedMessagePublisherTest {
+public class MentorshipOfferedPublisherTest {
     private static final String TOPIC_NAME = "mentorship-offered-topic";
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
