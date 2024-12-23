@@ -52,13 +52,9 @@ public class SubscriptionService {
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(followeeId)
                 .aggregateType(AGGREGATE_TYPE)
-                .payload(helper.serializeToJson(SubscriptionEvent.builder()
-                        .followerId(followerId)
-                        .followeeId(followeeId)
-                        .subscribedAt(subscribedAt)
-                        .followerName(userService.getUserContacts(followerId).getUsername())
-                        .followeeName(userService.getUserContacts(followeeId).getUsername())
-                        .build()))
+                .payload(helper.serializeToJson(new SubscriptionEvent(followerId, followeeId, subscribedAt,
+                        userService.getUserContacts(followerId).getUsername(),
+                        userService.getUserContacts(followeeId).getUsername())))
                 .eventType(SubscriptionEvent.class.getSimpleName())
                 .createdAt(subscribedAt)
                 .processed(false)

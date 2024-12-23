@@ -31,13 +31,9 @@ class SubscriptionEventPublisherTest {
     @BeforeEach
     void setUp() {
         redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
-        event = SubscriptionEvent.builder()
-                .followeeId(1L)
-                .followeeId(2L)
-                .subscribedAt(LocalDateTime.now())
-                .build();
+        event = new SubscriptionEvent(1L, 2L, LocalDateTime.now(), "followerName", "followeeName");
         subscriptionChannel = redisProperties.channel().subscriptionChannel();
-        subscriptionEventPublisher = new SubscriptionEventPublisher(redisTemplate, null, redisProperties);
+        subscriptionEventPublisher = new SubscriptionEventPublisher(redisTemplate, redisProperties);
     }
 
     @Test
