@@ -22,6 +22,8 @@ spring:
           name: buy_premium_topic
         recommendation-event:
           name: recommendation_event_topic
+        goal-completed-channel:
+          name: goal_completed_channel
 
   datasource:
     driver-class-name: org.postgresql.Driver
