@@ -79,6 +79,12 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic goalCompletedChannel() {
+        log.info(CREATE_CHANNEL_LOG_MESSAGE, redisProperties.getGoalCompletedChannel());
+        return new ChannelTopic(redisProperties.getGoalCompletedChannel());
+    }
+
+    @Bean
     public ChannelTopic buyPremiumTopic() {
         return new ChannelTopic(redisProperties.getBuyPremiumTopic());
     }
