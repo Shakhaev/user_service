@@ -15,6 +15,7 @@ import school.faang.user_service.publisher.mentorshipoffered.ProfileViewEventPub
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.utilities.UrlUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class UserController {
     @GetMapping(UrlUtils.ID)
     public UserDto getUser(@PathVariable("id") @Min(1) Long id, @RequestParam("idRequester") @Min(1) Long idRequester) {
         if (!Objects.equals(id, idRequester)) {
-            profileViewEventPublisher.publish(new ProfileViewEvent(idRequester, id));
+            profileViewEventPublisher.publish(new ProfileViewEvent(idRequester, id, LocalDateTime.now()));
         }
         return userService.getUser(id);
     }

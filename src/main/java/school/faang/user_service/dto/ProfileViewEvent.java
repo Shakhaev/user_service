@@ -1,4 +1,6 @@
 package school.faang.user_service.dto;
 
-public record ProfileViewEvent(long idRequester, long idUser) {
+import java.time.LocalDateTime;
+
+public record ProfileViewEvent(long idRequester, long idUser, LocalDateTime createdTime) {
 }
