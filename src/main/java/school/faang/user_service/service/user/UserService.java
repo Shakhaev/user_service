@@ -73,13 +73,18 @@ public class UserService {
     }
 
     @Transactional
-    public void registerUserFromCsv(InputStream inputStream) throws IOException {
+    public void registerUserFromCsv(InputStream inputStream) {
         CsvMapper csvMapper = new CsvMapper();
         csvMapper.enable(CsvParser.Feature.TRIM_SPACES);
 
-        MappingIterator<Student> iterator = csvMapper.readerFor(Student.class)
-                .with(CsvSchema.emptySchema().withHeader())
-                .readValues(inputStream);
+        MappingIterator<Student> iterator = null;
+        try {
+            iterator = csvMapper.readerFor(Student.class)
+                    .with(CsvSchema.emptySchema().withHeader())
+                    .readValues(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         List<Student> students = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)

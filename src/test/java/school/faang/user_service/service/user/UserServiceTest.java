@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
@@ -16,6 +17,9 @@ import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -139,5 +143,60 @@ public class UserServiceTest {
         return User.builder()
                 .id(id)
                 .username(username).build();
+    }
+
+    @Test
+    void shouldRegisterUsersFromCsv() throws IOException {
+        String csvContent = "firstName,lastName,country,email\nJohn,Doe,USA,john.doe@example.com\nJane,Smith,Canada,jane.smith@example.com";
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        Student student1 = new Student();
+        student1.setFirstName("John");
+        student1.setLastName("Doe");
+        student1.setCountry("USA");
+        student1.setEmail("john.doe@example.com");
+
+        Student student2 = new Student();
+        student2.setFirstName("Jane");
+        student2.setLastName("Smith");
+        student2.setCountry("Canada");
+        student2.setEmail("jane.smith@example.com");
+
+        User user1 = new User();
+        user1.setUsername("JohnDoe");
+        user1.setPassword("randomPass1");
+        user1.setEmail("john.doe@example.com");
+
+        User user2 = new User();
+        user2.setUsername("JaneSmith");
+        user2.setPassword("randomPass2");
+        user2.setEmail("jane.smith@example.com");
+
+        Country usa = new Country();
+        usa.setTitle("USA");
+
+        Country canada = new Country();
+        canada.setTitle("Canada");
+
+        Mockito.when(userMapper.toEntity(student1)).thenReturn(user1);
+        Mockito.when(userMapper.toEntity(student2)).thenReturn(user2);
+        Mockito.when(userMapper.generateRandomPassword()).thenReturn("randomPass1", "randomPass2");
+
+        Mockito.when(countryRepository.findByTitle("USA")).thenReturn(null);
+        Mockito.when(countryRepository.findByTitle("Canada")).thenReturn(null);
+
+        Mockito.when(countryRepository.save(any(Country.class))).thenAnswer(invocation -> {
+            Country country = invocation.getArgument(0);
+            country.setId(1L);
+            return country;
+        });
+
+        userService.registerUserFromCsv(inputStream);
+
+        Mockito.verify(countryRepository).save(argThat(c -> c.getTitle().equals("USA")));
+        Mockito.verify(countryRepository).save(argThat(c -> c.getTitle().equals("Canada")));
+
+        Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JohnDoe") && u.getCountry().getTitle().equals("USA")));
+        Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JaneSmith") && u.getCountry().getTitle().equals("Canada")));
     }
 }
