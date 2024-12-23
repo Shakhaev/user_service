@@ -75,4 +75,9 @@ public class RedisConfiguration {
     public ChannelTopic mentorshipOfferedTopic() {
         return new ChannelTopic(redisProperties.getChannels().getMentorshipOfferedChannel().getName());
     }
+
+    @Bean
+    public ChannelTopic  profileViewTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProfileViewChannel().getName());
+    }
 }
