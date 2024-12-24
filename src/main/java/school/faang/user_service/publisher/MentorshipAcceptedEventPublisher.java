@@ -29,8 +29,13 @@ public class MentorshipAcceptedEventPublisher implements EventPublisher<Mentorsh
             )
     )
     public void publish(MentorshipAcceptedEvent event) {
-        redisTemplate.convertAndSend(redisProperties.getChannel().getMentorshipAcceptedChannel(), event);
-        log.info("Message sent to channel: {}", redisProperties.getChannel().getMentorshipAcceptedChannel());
+        redisTemplate.convertAndSend(redisProperties.channel().mentorshipAcceptedChannel(), event);
+        log.info("Message sent to channel: {}", redisProperties.channel().mentorshipAcceptedChannel());
+    }
+
+    @Override
+    public Class<MentorshipAcceptedEvent> getEventClass() {
+        return MentorshipAcceptedEvent.class;
     }
 }
 

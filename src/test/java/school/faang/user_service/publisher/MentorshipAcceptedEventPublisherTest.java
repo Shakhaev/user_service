@@ -21,42 +21,40 @@ import static org.mockito.Mockito.when;
 class MentorshipAcceptedEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
-    @Mock
-    private RedisProperties redisProperties;
+
     @InjectMocks
     private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
-    private String channelName;
+    private RedisProperties redisProperties;
     private MentorshipAcceptedEvent event;
-    private RedisProperties.Channel channel;
+    private String channel;
+
 
     @BeforeEach
     void setUp() {
-        channelName = "mentorship_accepted_channel";
+        redisProperties = TestRedisPropertiesFactory.createDefaultRedisProperties();
+        mentorshipAcceptedEventPublisher = new MentorshipAcceptedEventPublisher(redisTemplate,null, redisProperties);
         event = new MentorshipAcceptedEvent(1L, "Java", 3L, "John", 2L, "Mark");
-        channel = new RedisProperties.Channel();
-        channel.setMentorshipAcceptedChannel(channelName);
+        channel = redisProperties.channel().mentorshipAcceptedChannel();
     }
+
 
     @Test
     void testPublishSuccess() {
-        when(redisProperties.getChannel()).thenReturn(channel);
 
         mentorshipAcceptedEventPublisher.publish(event);
 
-        verify(redisTemplate, times(1)).convertAndSend(channelName, event);
+        verify(redisTemplate, times(1)).convertAndSend(channel, event);
     }
 
     @Test
     void testPublishFailure() {
-        when(redisProperties.getChannel()).thenReturn(channel);
-
-        doThrow(new RuntimeException("Redis is down")).when(redisTemplate).convertAndSend(channelName, event);
+        doThrow(new RuntimeException("Redis is down")).when(redisTemplate).convertAndSend(channel, event);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> mentorshipAcceptedEventPublisher.publish(event));
         assertEquals("Redis is down", exception.getMessage());
 
-        verify(redisTemplate, times(1)).convertAndSend(channelName, event);
+        verify(redisTemplate, times(1)).convertAndSend(channel, event);
     }
 }

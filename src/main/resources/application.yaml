@@ -27,7 +27,7 @@ spring:
         goal-completed: goal_completed_channel
         user-ban-channel: user_ban_channel
         mentorship-request: mentorship_request_channel
-        mentorship-accepted-channel: mentorshipAccepted_channel
+        mentorship-accepted-channel: mentorship_accepted_channel
 
   retry:
     maxAttempts: 3
