@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.event.MentorshipRequestEvent;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
@@ -15,10 +16,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.event.MentorshipAcceptedEvent;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,6 +34,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<Filter<MentorshipRequest, MentorshipRequestFilterDto>> filters;
+    private final MentorshipRequestedEventPublisher publisher;
     private final MentorshipAcceptedEventPublisher mentorshipEventPublisher;
 
     @Transactional
@@ -44,8 +48,10 @@ public class MentorshipRequestService {
                 .build();
         MentorshipRequest result = requestRepository.save(newRequest);
 
-        log.info("Mentorship request with id #{} from UserId #{} to UserId #{} created successfully.",
+        log.info("Mentorship request with id {} from UserId {} to UserId {} created successfully.",
                 result.getId(), dto.getRequesterId(), dto.getReceiverId());
+
+        publisher.publish(new MentorshipRequestEvent(dto.getReceiverId(), dto.getRequesterId(), LocalDateTime.now()));
 
         return requestMapper.toDto(result);
     }
@@ -73,7 +79,7 @@ public class MentorshipRequestService {
         userService.saveUser(requester);
         userService.saveUser(receiver);
 
-        log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
+        log.info("Request with id {} was accepted by UserId {}.", id, receiver.getId());
 
         MentorshipAcceptedEvent event = MentorshipAcceptedEvent.builder()
                 .mentorshipRequestId(request.getId())
@@ -85,8 +91,8 @@ public class MentorshipRequestService {
                 .build();
 
         mentorshipEventPublisher.publish(event);
-
         log.info("Publish request with id #{} was accepted by UserId #{}.", id, receiver.getId());
+
         return requestMapper.toDto(requestRepository.save(request));
     }
 
@@ -96,7 +102,7 @@ public class MentorshipRequestService {
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
 
-        log.info("Request with id #{} was rejected by UserId #{} with reason '{}'.",
+        log.info("Request with id {} was rejected by UserId {} with reason '{}'.",
                 id, request.getReceiver().getId(), rejectionDto.getReason());
         return requestMapper.toDto(requestRepository.save(request));
     }
@@ -105,8 +111,8 @@ public class MentorshipRequestService {
         requestValidator.validateMentorshipRequestExists(id);
 
         return requestRepository.findById(id).orElseThrow(() -> {
-            log.warn("Request with id #{} not found.", id);
-            return new EntityNotFoundException("Request with id #" + id + " not found.");
+            log.warn("Request with id {} not found.", id);
+            return new EntityNotFoundException("Request with id " + id + " not found.");
         });
     }
 }
