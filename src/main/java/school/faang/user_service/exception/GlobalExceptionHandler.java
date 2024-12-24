@@ -1,8 +1,7 @@
 package school.faang.user_service.exception;
 
-import io.minio.errors.MinioException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.lettuce.core.RedisException;
+import io.minio.errors.MinioException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -24,12 +23,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(SkillDuplicateException.class)
-    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
-        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
         log.error("Validation exception occurred: {}", exception.getMessage(), exception);
