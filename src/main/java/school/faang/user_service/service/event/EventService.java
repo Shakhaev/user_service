@@ -22,6 +22,7 @@ import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.EventValidation;
 import school.faang.user_service.validator.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -88,7 +89,7 @@ public class EventService {
         return eventMapper.toDtoList(participatedEvents);
     }
 
-    private Event findEventById(long eventId) {
+    public Event findEventById(long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
     }
 
@@ -127,6 +128,12 @@ public class EventService {
         List<List<Event>> eventBatches = splitIntoBatchesStream(eventList, batchSize);
         log.debug("Batch count created to Async delete: {}", eventBatches.size());
         eventBatches.forEach(eventCleanerService::deleteSelectedListEventsAsync);
+    }
+
+    public List<Event> getEventsByStartDateBetween(LocalDateTime now, LocalDateTime to) {
+        List<Event> events = eventRepository.findEventsByStartDateBetween(now, to);
+        log.debug("Found events between {} and {}: {}", now, to, events.size());
+        return events;
     }
 
     private List<List<Event>> splitIntoBatchesStream(List<Event> events, int batchSize) {

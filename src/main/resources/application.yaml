@@ -25,6 +25,8 @@ spring:
         follower-channel: follower_event
         recommendation-channel: recommendation_channel
         user_ban-channel: user_ban
+        event-start-event-channel: event_start_event_channel
+      batch-size: 1000
 
   retry:
     maxAttempts: 3
@@ -70,6 +72,20 @@ payment-service:
 cron:
   expressions:
     clearEvents: "0 0 0 * * *"
+    loadUpcomingEvents: "0 * * * * *"
+
+scheduler:
+  event-start-notification-config:
+    notifications:
+      - stage: "1_day_before"
+        time: "P1D"
+      - stage: "5_hours_before"
+        time: "PT5H"
+      - stage: "1_hour_before"
+        time: "PT1H"
+      - stage: "10_minutes_before"
+        time: "PT10M"
+    event-fetch-days-before-start: 1
 
 batch:
   size:

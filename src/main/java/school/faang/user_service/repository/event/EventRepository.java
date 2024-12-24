@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -27,4 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE ue.user_id = :userId
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
+
+    @Query("SELECT e FROM Event e WHERE e.startDate BETWEEN :now AND :to")
+    List<Event> findEventsByStartDateBetween(@Param("now") LocalDateTime now, @Param("to") LocalDateTime to);
 }
