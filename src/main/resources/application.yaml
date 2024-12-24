@@ -64,3 +64,9 @@ premium:
     cron: 0 0 0 * * 0
     zone: Europe/Moscow
     thread-pool: 1
+
+scheduler:
+  clear-events:
+    cron: 0 0 * * *
+    thread-pool: 2
+    batch-size: 50
