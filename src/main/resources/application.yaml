@@ -31,6 +31,10 @@ spring:
           name: goal_set_channel
         mentorshipOfferedChannel:
           name: mentorship_offered_channel
+        profileViewChannel:
+          name: profile_view_event_channel
+
+
 
 services:
   s3:
