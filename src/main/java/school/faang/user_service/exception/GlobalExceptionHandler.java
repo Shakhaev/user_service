@@ -3,7 +3,6 @@ package school.faang.user_service.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.minio.errors.MinioException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -111,11 +109,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException exception) {
-        String errorMessage = exception.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining(", "));
-        log.error("ConstraintViolationException: {}", errorMessage, exception);
-        return ResponseEntity.badRequest().body(errorMessage);
+        log.error("ConstraintViolationException: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     @ExceptionHandler(PaymentFailedException.class)
@@ -157,13 +152,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AvatarNotFoundException.class)
     public ResponseEntity<String> handleAvatarNotFoundException(AvatarNotFoundException exception) {
-        log.warn("AvatarNotFoundException: {}", exception.getMessage(), exception);
+        log.error("AvatarNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidFileFormatException.class)
     public ResponseEntity<String> handleInvalidFileFormatException(InvalidFileFormatException exception) {
-        log.warn("InvalidFileFormatException: {}", exception.getMessage(), exception);
+        log.error("InvalidFileFormatException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 

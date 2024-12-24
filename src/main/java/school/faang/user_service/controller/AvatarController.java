@@ -19,29 +19,29 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.service.AvatarService;
 
 @RestController
-@RequestMapping("/users/{userId}/avatar")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Avatar Management", description = "Operations related to user avatars")
 public class AvatarController {
     private final AvatarService avatarService;
 
-    @PostMapping
+    @PostMapping("/{userId}/avatar")
     @Operation(summary = "Upload user avatar", description = "Upload an avatar for a chosen user")
     public ResponseEntity<String> uploadUserAvatar(
             @PathVariable @Positive(message = "User ID must be positive") Long userId,
             @RequestParam("avatar") @NotNull(message = "Avatar file must be provided") MultipartFile avatar,
-            @RequestHeader("Current-User-Id") Long currentUserId
+            @RequestHeader("current-user-id") Long currentUserId
     ) {
         avatarService.uploadUserAvatar(userId, currentUserId, avatar);
         return ResponseEntity.status(HttpStatus.CREATED).body("Avatar uploaded successfully");
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{userId}/avatar")
     @Operation(summary = "Delete user avatar", description = "Delete the avatar of a chosen user")
     public ResponseEntity<String> deleteUserAvatar(
             @PathVariable @Positive(message = "User ID must be positive") Long userId,
-            @RequestHeader("Current-User-Id") Long currentUserId
+            @RequestHeader("current-user-id") Long currentUserId
     ) {
         avatarService.deleteUserAvatar(userId, currentUserId);
         return ResponseEntity.ok("Avatar deleted successfully");

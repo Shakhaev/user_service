@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.exception.StorageException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +35,12 @@ public class S3StorageService implements StorageService {
         metadata.setContentType(contentType);
         metadata.setContentLength(content.length);
 
-        ByteArrayInputStream byteArray = new ByteArrayInputStream(content);
-        PutObjectRequest putRequest = new PutObjectRequest(bucketName, fileName, byteArray, metadata);
-        try {
+        try (ByteArrayInputStream byteArray = new ByteArrayInputStream(content)) {
+            PutObjectRequest putRequest = new PutObjectRequest(bucketName, fileName, byteArray, metadata);
             amazonS3.putObject(putRequest);
             log.info("File '{}' successfully uploaded to the bucket '{}'.", fileName, bucketName);
+        } catch (IOException error) {
+            log.error("IOException while uploading file '{}' to the bucket '{}'.", fileName, bucketName);
         } catch (AmazonServiceException exception) {
             log.error("AmazonServiceException while uploading file '{}' to the bucket '{}': {}",
                     fileName, bucketName, exception.getMessage(), exception);
