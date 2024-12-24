@@ -30,6 +30,7 @@ public class EventScheduler {
         List<EventDto> events = eventService.getPastEventsIds();
 
         if (!events.isEmpty()) {
+            log.info("Starting clearing events...");
             List<Long> eventsIds = events.stream().map(EventDto::getId).toList();
 
             List<CompletableFuture<Void>> eventDeleteFuture = ListUtils
