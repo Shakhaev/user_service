@@ -31,7 +31,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<Filter<MentorshipRequest, MentorshipRequestFilterDto>> filters;
-    private final MentorshipAcceptedEventPublisher acceptedEventPublisher;
+    private final MentorshipAcceptedEventPublisher mentorshipEventPublisher;
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestCreateDto dto) {
@@ -75,8 +75,16 @@ public class MentorshipRequestService {
 
         log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
 
-        acceptedEventPublisher.publish(new MentorshipAcceptedEvent(request.getId(), request.getDescription(),
-                receiver.getId(), receiver.getUsername(), requester.getId(), requester.getUsername()));
+        MentorshipAcceptedEvent event = MentorshipAcceptedEvent.builder()
+                .mentorshipRequestId(request.getId())
+                .description(request.getDescription())
+                .receiverId(receiver.getId())
+                .receiverUserName(receiver.getUsername())
+                .requesterId(requester.getId())
+                .requesterUserName(requester.getUsername())
+                .build();
+
+        mentorshipEventPublisher.publish(event);
 
         log.info("Publish request with id #{} was accepted by UserId #{}.", id, receiver.getId());
         return requestMapper.toDto(requestRepository.save(request));

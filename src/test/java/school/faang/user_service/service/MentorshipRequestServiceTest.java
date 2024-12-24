@@ -74,7 +74,7 @@ class MentorshipRequestServiceTest {
         descriptionFilter = mock(DescriptionFilter.class);
         filters = new ArrayList<>(List.of(descriptionFilter));
         requestService = new MentorshipRequestService(
-                userService, requestRepository, requestValidator, requestMapper, filters,mentorshipAcceptedEventPublisher);
+                userService, requestRepository, requestValidator, requestMapper, filters, mentorshipAcceptedEventPublisher);
 
         requester = User.builder().id(1L).build();
         receiver = User.builder().id(2L).build();
@@ -173,14 +173,17 @@ class MentorshipRequestServiceTest {
 
         verify(requestRepository, times(1)).findById(firstRequestId);
         verify(requestRepository, times(1)).save(firstRequest);
-        verify(mentorshipAcceptedEventPublisher,times(1)).publish(new MentorshipAcceptedEvent(
-                firstRequest.getId(),
-                firstRequest.getDescription(),
-                receiver.getId(),
-                receiver.getUsername(),
-                requester.getId(),
-                requester.getUsername()
-        ));
+
+        verify(mentorshipAcceptedEventPublisher, times(1)).publish(
+                 MentorshipAcceptedEvent.builder()
+                .mentorshipRequestId(firstRequest.getId())
+                .description(firstRequest.getDescription())
+                .receiverId(receiver.getId())
+                .receiverUserName(receiver.getUsername())
+                .requesterId(requester.getId())
+                .requesterUserName(requester.getUsername())
+                .build());
+
         assertEquals(result.getId(), firstRequestId);
         assertEquals(result.getRequesterId(), firstRequest.getRequester().getId());
         assertEquals(result.getReceiverId(), firstRequest.getReceiver().getId());
