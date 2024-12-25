@@ -86,11 +86,6 @@ public class UserService {
         return userMapper.toUserForNotificationDto(user);
     }
 
-    public UserForNotificationDto getUserByIdForNotification(long userId) {
-        User user = getUserById(userId);
-        return userMapper.toUserForNotificationDto(user);
-    }
-
     public UserSubResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
         if (userRepository.existsByEmail(userRegistrationDto.email())) {
             throw new DataValidationException(String.format("Пользователь с почтой %s уже зарегистрирован.", userRegistrationDto.email()));

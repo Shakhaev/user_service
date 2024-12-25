@@ -11,12 +11,9 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.EventService;
 import school.faang.user_service.service.GoalService;
-import school.faang.user_service.service.MentorshipService;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
