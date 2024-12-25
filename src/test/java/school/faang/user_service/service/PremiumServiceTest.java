@@ -11,7 +11,7 @@ import school.faang.user_service.dto.premium.PaymentRequestDto;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.model.PremiumPeriod;
 import school.faang.user_service.model.User;
-import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.model.premium.Premium;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.PaymentException;
 import school.faang.user_service.mapper.PremiumMapper;
