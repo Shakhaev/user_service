@@ -1,6 +1,6 @@
 package school.faang.user_service.validator.mentorshiprequest;
 
-import school.faang.user_service.entity.mentorship.MentorshipRequest;
+import school.faang.user_service.entity.mentorshiprequest.MentorshipRequest;
 import school.faang.user_service.entity.requeststatus.RequestStatus;
 
 public interface MentorshipRequestValidator {

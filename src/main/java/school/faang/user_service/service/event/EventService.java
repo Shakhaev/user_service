@@ -15,6 +15,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.filters.event.EventFilter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -118,5 +119,14 @@ public class EventService {
                     log.warn(warnMessage);
                     return new EntityNotFoundException(warnMessage, eventId);
                 });
+    }
+
+    public List<EventDto> getPastEventsIds() {
+        return getEventsByFilter(
+                EventFilterDto
+                        .builder()
+                        .dateTime(LocalDateTime.now())
+                        .build())
+                .getBody();
     }
 }

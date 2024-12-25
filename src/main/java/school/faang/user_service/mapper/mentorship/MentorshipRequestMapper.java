@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
-import school.faang.user_service.entity.mentorship.MentorshipRequest;
+import school.faang.user_service.entity.mentorshiprequest.MentorshipRequest;
 
 @Mapper(componentModel = "spring")
 public interface MentorshipRequestMapper {
