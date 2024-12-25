@@ -68,12 +68,16 @@ public class UserServiceTest {
     private S3Service s3Service;
     @Mock
     private ImageUtils imageUtils;
+
     @Mock
     private CountryService countryService;
+
     @Mock
     private PasswordService passwordService;
+
     @Mock
     private AvatarService avatarService;
+
     @Spy
     private UserProfilePicMapper mapper = Mappers.getMapper(UserProfilePicMapper.class);
 

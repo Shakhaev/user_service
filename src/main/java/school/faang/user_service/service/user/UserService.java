@@ -138,6 +138,12 @@ public class UserService {
         return userMapper.toUserSubResponseList(users);
     }
 
+    public void banUser(Long userId) {
+        User user = getUserById(userId);
+        user.setBanned(true);
+        userRepository.save(user);
+    }
+
     public UserProfilePicDto updateUserProfilePicture(Long userId, MultipartFile file) {
         log.info("Request to update profile picture for user {}", userId);
         User user = getUserById(userId);

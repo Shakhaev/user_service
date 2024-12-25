@@ -1,4 +1,4 @@
-package school.faang.user_service.config;
+package school.faang.user_service.config.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import school.faang.user_service.message.consumer.BanUserEventListener;
 import school.faang.user_service.message.consumer.UsersBanListener;
 
 @Configuration
@@ -22,8 +23,23 @@ public class RedisConfig {
 
     private final UsersBanListener usersBanListener;
 
+    private final BanUserEventListener banUserEventListener;
+
     @Value("${spring.data.redis.channels.users-ban-channel.name}")
     private String usersBanTopicName;
+
+    @Bean
+    public MessageListenerAdapter banUserEventListenerAdapter(BanUserEventListener banUserEventListener) {
+        return new MessageListenerAdapter(banUserEventListener);
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(banUserEventListener, banUserTopic());
+        return container;
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
@@ -45,5 +61,10 @@ public class RedisConfig {
         container.addMessageListener(usersBanMessageListener, usersBanTopic);
 
         return container;
+    }
+
+    @Bean("banUserTopic")
+    public ChannelTopic banUserTopic() {
+        return new ChannelTopic(usersBanTopicName);
     }
 }

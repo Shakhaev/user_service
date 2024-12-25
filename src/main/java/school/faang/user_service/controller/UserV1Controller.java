@@ -41,7 +41,7 @@ public class UserV1Controller {
     private final UserDeactivationService userDeactivationService;
     private final UserService userService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/subscription/{userId}")
     public UserSubResponseDto getUser(@Positive @PathVariable long userId) {
         return userService.getUserDtoById(userId);
     }

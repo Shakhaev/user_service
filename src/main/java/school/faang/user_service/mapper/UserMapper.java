@@ -46,13 +46,16 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "mentors", ignore = true)
     @Mapping(target = "ownedEvents", ignore = true)
+
     @Mapping(target = "participatedEvents", ignore = true)
     @Mapping(target = "country", ignore = true)
     User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
+
     UserDto toDto(User user);
 
     @Mapping(target = "preference", source = "contactPreference.preference")
     UserForNotificationDto toUserForNotificationDto(User user);
+
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
@@ -81,6 +84,7 @@ public interface UserMapper {
     }
 
     List<User> toEntities(List<UserDto> userDtos);
+
     @Named("mapMentorsToListId")
     default List<Long> mapMentorsToListId(List<User> mentors) {
         if (mentors == null) {

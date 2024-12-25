@@ -150,7 +150,7 @@ public class User {
     @Column(name = "banned")
     private boolean banned;
 
-    @Convert(converter = LanguageConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "locale", nullable = false)
     private Language locale;
 
