@@ -16,6 +16,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Language;
+import school.faang.user_service.entity.recommendation.LanguageConverter;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
@@ -225,5 +226,9 @@ public class User {
                 ", updatedAt=" + updatedAt +
                 ", userProfilePic=" + userProfilePic +
                 '}';
+    }
+
+    public void ban() {
+        banned = true;
     }
 }
