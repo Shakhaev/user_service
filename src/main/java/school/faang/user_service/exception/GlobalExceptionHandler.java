@@ -1,9 +1,8 @@
 package school.faang.user_service.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.lettuce.core.RedisException;
+import io.minio.errors.MinioException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,25 +13,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.dto.ErrorResponse;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(SkillDuplicateException.class)
-    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
-        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        log.error("Validation exception occurred: {}", exception.getMessage(), exception);
+
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
+        exception.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), error.getDefaultMessage());
+        });
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
@@ -91,6 +88,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(SkillDuplicateException.class)
+    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException exception) {
+        log.error("SkillDuplicateException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleAllExceptions(IOException exception) {
         log.error("IOException exception: {}", exception.getMessage(), exception);
@@ -104,12 +108,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex) {
-        String errorMessage = ex.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining(", "));
-        log.error("ConstraintViolationException: {}", errorMessage, ex);
-        return ResponseEntity.badRequest().body(errorMessage);
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException exception) {
+        log.error("ConstraintViolationException: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     @ExceptionHandler(PaymentFailedException.class)
@@ -124,10 +125,57 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    @ExceptionHandler(SkillResourceNotFoundException.class)
-    public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
-        log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    @ExceptionHandler(FileSizeExceededException.class)
+    public ResponseEntity<String> handleFileSizeExceededException(FileSizeExceededException exception) {
+        log.error("FileSizeExceededException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                body(exception.getMessage());
+    }
+
+    @ExceptionHandler({
+            MinioException.class,
+            NoSuchAlgorithmException.class,
+            InvalidKeyException.class
+    })
+    public ResponseEntity<String> handleMinioExceptions(Exception exception) {
+        log.error("Minio-related exception: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(MinioUploadException.class)
+    public ResponseEntity<String> handleMinioUploadException(MinioUploadException exception) {
+        log.error("MinioUploadException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AvatarNotFoundException.class)
+    public ResponseEntity<String> handleAvatarNotFoundException(AvatarNotFoundException exception) {
+        log.error("AvatarNotFoundException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFileFormatException.class)
+    public ResponseEntity<String> handleInvalidFileFormatException(InvalidFileFormatException exception) {
+        log.error("InvalidFileFormatException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AvatarProcessingException.class)
+    public ResponseEntity<String> handleAvatarProcessingException(AvatarProcessingException exception) {
+        log.error("AvatarProcessingException: {}", exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException exception) {
+        log.warn("AccessDeniedException: {}", exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
     }
 
     @ExceptionHandler(OutboxProcessingException.class)
