@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Page;
-import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.events.RecommendationReceivedEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
