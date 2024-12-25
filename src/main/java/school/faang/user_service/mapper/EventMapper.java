@@ -3,13 +3,12 @@ package school.faang.user_service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.user.EventSearchResponse;
 import school.faang.user_service.message.event.reindex.user.EventNested;
-import school.faang.user_service.model.jpa.event.Event;
-import school.faang.user_service.model.jpa.event.EventStatus;
-import school.faang.user_service.model.jpa.event.EventType;
-import school.faang.user_service.dto.EventDto;
-import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.model.event.Event;
+import school.faang.user_service.model.event.EventStatus;
+import school.faang.user_service.model.event.EventType;
 
 import java.util.List;
 

@@ -80,6 +80,8 @@ thread-pool:
     core-pool-size: 3
     max-pool-size: 3
     await-termination-seconds: 30
+  default-thread-pool:
+    core-pool-size: 5
 
 server:
   port: 8080
@@ -126,6 +128,3 @@ services:
   user-service:
     host: http://localhost
     port: 8080
-
-thread-pool:
-  core-size: 5

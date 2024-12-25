@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.SkillOfferDto;
-import school.faang.user_service.model.jpa.Skill;
+import school.faang.user_service.model.Skill;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
-import school.faang.user_service.repository.jpa.SkillRepository;
+import school.faang.user_service.repository.SkillRepository;
 
 import java.util.List;
 

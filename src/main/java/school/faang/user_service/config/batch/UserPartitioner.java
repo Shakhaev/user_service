@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.HashMap;
 import java.util.Map;

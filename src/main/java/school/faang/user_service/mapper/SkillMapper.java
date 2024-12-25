@@ -2,10 +2,9 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-import school.faang.user_service.model.jpa.Skill;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.SkillDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.model.Skill;
 
 import java.util.List;
 

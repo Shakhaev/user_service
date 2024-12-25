@@ -22,8 +22,8 @@ import school.faang.user_service.config.kafka.KafkaTopicsProps;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.message.event.reindex.user.UserDocument;
 import school.faang.user_service.message.producer.KeyedMessagePublisher;
-import school.faang.user_service.model.jpa.User;
-import school.faang.user_service.repository.jpa.UserRepository;
+import school.faang.user_service.model.User;
+import school.faang.user_service.repository.UserRepository;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -17,7 +17,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.model.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
