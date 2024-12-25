@@ -1,20 +1,23 @@
-package school.faang.user_service.model.jpa;
+package school.faang.user_service.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import school.faang.user_service.model.jpa.contact.Contact;
-import school.faang.user_service.model.jpa.contact.ContactPreference;
-import school.faang.user_service.model.jpa.event.Event;
-import school.faang.user_service.model.jpa.goal.Goal;
-import school.faang.user_service.model.jpa.goal.GoalInvitation;
-import school.faang.user_service.model.jpa.event.Rating;
-import school.faang.user_service.model.jpa.premium.Premium;
-import school.faang.user_service.model.jpa.recommendation.Recommendation;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.entity.event.Rating;
+import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.entity.recommendation.Language;
+import school.faang.user_service.entity.recommendation.LanguageConverter;
+import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -102,7 +105,7 @@ public class User {
     private List<GoalInvitation> receivedGoalInvitations;
 
     @OneToMany(mappedBy = "mentor")
-    private List<Goal> setGoals;
+    private List<Goal> settingGoals;
 
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
@@ -124,6 +127,7 @@ public class User {
     @OneToMany(mappedBy = "receiver")
     private List<Recommendation> recommendationsReceived;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
@@ -142,6 +146,21 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
+
+    @Column(name = "banned")
+    private boolean banned;
+
+    @Convert(converter = LanguageConverter.class)
+    @Column(name = "locale", nullable = false)
+    private Language locale;
+
+    public void removeOwnedEvent(Event event){
+        ownedEvents.remove(event);
+    }
+
+    public String toLogString(){
+        return String.format("User %s with id %d", username, id);
+    }
 
     public void addSkill(Skill skill) {
         skills.add(skill);
@@ -169,5 +188,47 @@ public class User {
 
     public boolean hasMaxNumOfGoals(int maxNumOfGoals) {
         return goals.size() > maxNumOfGoals;
+    }
+
+
+    public void removeParticipatedEvent(Event event) {
+        if (event != null && participatedEvents != null) {
+            participatedEvents.remove(event);
+        }
+    }
+
+    public void removeAllGoals() {
+        settingGoals.clear();
+        goals.clear();
+    }
+
+    public void removeAllParticipatedEvents(){
+        participatedEvents.clear();
+    }
+
+    public void removeAllOwnedEvents() {
+        ownedEvents.clear();
+    }
+
+    public void removeMentor(User mentor) {
+        if (mentor != null && mentors != null) {
+            mentors.remove(mentor);
+        }
+    }
+
+    public void deleteUserProfilePic() {
+        this.userProfilePic = null;
+    }
+
+    public String toStringProfilePicInfo() {
+        return "User {" +
+                "id=" + id +
+                ", updatedAt=" + updatedAt +
+                ", userProfilePic=" + userProfilePic +
+                '}';
+    }
+
+    public void ban() {
+        banned = true;
     }
 }

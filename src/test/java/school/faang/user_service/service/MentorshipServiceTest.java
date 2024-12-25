@@ -8,11 +8,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.model.jpa.User;
+import school.faang.user_service.dto.UserSubResponseDto;
+import school.faang.user_service.dto.user.MenteeResponseDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.UserMapperImpl;
-import school.faang.user_service.repository.jpa.UserRepository;
-
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.service.user.MentorshipService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +30,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
 
-    @InjectMocks
-    private MentorshipService mentorshipService;
+    @Mock
+    private MentorshipRepository mentorshipRepository;
+
+    @Mock
+    private GoalRepository goalRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -35,8 +42,21 @@ public class MentorshipServiceTest {
     @Spy
     private UserMapperImpl userMapper;
 
+    @Mock
+    private User mentee1, mentee2;
+
+    @Mock
+    private User mentor1;
+
+    @Mock
+    private Goal goal1, goal2;
+
+    @InjectMocks
+    private MentorshipService mentorshipService;
+
     private long menteeId;
     private long mentorId;
+
     private User mentee;
     private User mentor;
     private List<User> mentors;
@@ -46,10 +66,13 @@ public class MentorshipServiceTest {
     public void setUp() {
         mentorId = 5L;
         menteeId = 10L;
+
         mentor = new User();
         mentee = new User();
+
         mentor.setId(mentorId);
         mentee.setId(menteeId);
+
         mentors = new ArrayList<>();
         mentees = new ArrayList<>();
     }
@@ -140,10 +163,10 @@ public class MentorshipServiceTest {
         mentor.setMentees(mentees);
         when(userRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
 
-        List<UserDto> expected = userMapper.toDto(mentees);
+        List<MenteeResponseDto> expected = userMapper.toMenteeResponseList(mentees);
 
         // act
-        List<UserDto> actual = mentorshipService.getMentees(mentorId);
+        List<MenteeResponseDto> actual = mentorshipService.getMentees(mentorId);
 
         // assert
         assertEquals(expected, actual);
@@ -155,10 +178,10 @@ public class MentorshipServiceTest {
         mentor.setMentees(mentees);
         when(userRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
 
-        List<UserDto> expected = new ArrayList<>();
+        List<UserSubResponseDto> expected = new ArrayList<>();
 
         // act
-        List<UserDto> actual = mentorshipService.getMentees(mentorId);
+        List<MenteeResponseDto> actual = mentorshipService.getMentees(mentorId);
 
         // assert
         assertEquals(expected, actual);
@@ -180,10 +203,10 @@ public class MentorshipServiceTest {
         mentee.setMentors(mentors);
         when(userRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
-        List<UserDto> expected = userMapper.toDto(mentors);
+        List<MenteeResponseDto> expected = userMapper.toMenteeResponseList(mentors);
 
         // act
-        List<UserDto> actual = mentorshipService.getMentors(menteeId);
+        List<MenteeResponseDto> actual = mentorshipService.getMentors(menteeId);
 
         // assert
         assertEquals(expected, actual);
@@ -195,10 +218,10 @@ public class MentorshipServiceTest {
         mentee.setMentors(mentors);
         when(userRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
-        List<UserDto> expected = userMapper.toDto(mentors);
+        List<MenteeResponseDto> expected = userMapper.toMenteeResponseList(mentors);
 
         // act
-        List<UserDto> actual = mentorshipService.getMentors(menteeId);
+        List<MenteeResponseDto> actual = mentorshipService.getMentors(menteeId);
 
         // assert
         assertEquals(expected, actual);
@@ -212,5 +235,13 @@ public class MentorshipServiceTest {
         // act and assert
         assertThrows(EntityNotFoundException.class,
                 () -> mentorshipService.getMentors(menteeId));
+    }
+    @Test
+    void testStopMentorshipWithNoMenteesDoesNothing() {
+        /*when(mentor.getMentees()).thenReturn(List.of());
+
+        mentorshipService.stopMentorship(mentor);
+
+        verifyNoInteractions(goal1, goal2, mentee1, mentee2);*/
     }
 }

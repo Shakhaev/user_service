@@ -1,4 +1,7 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -29,6 +32,7 @@ spring:
                 direction: ASC
           grid-size: 3
 
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
@@ -41,6 +45,10 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        recommendation-channel:
+          name: recommendation_channel
+        users-ban-channel:
+          name: users_ban_event
       database: 0
   elasticsearch:
     uris: http://localhost:9200
@@ -91,3 +99,33 @@ payment-service:
 promotion-service:
   service:
     url: http://localhost:8081
+
+
+integration:
+  dice-bear:
+    base-url: https://api.dicebear.com
+    version: 9.x
+    styles: adventurer, bottts, big-ears
+    seed-names: Brian, Adrian, Chase, Oliver, Robert
+
+scheduler:
+  clear-events-cron: "0 0 * * * *"
+  batch-size: 100
+  thread-pool-size: 10
+
+services:
+  s3:
+    endpoint: http://127.0.0.1:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    isMocked: false
+  payment-service:
+    host: http://localhost
+    port: 9080
+  user-service:
+    host: http://localhost
+    port: 8080
+
+thread-pool:
+  core-size: 5

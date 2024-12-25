@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.service.MentorshipService;
+import school.faang.user_service.service.user.MentorshipService;
 import school.faang.user_service.validator.UserValidator;
 
 
@@ -16,10 +16,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipControllerTest {
+public class MentorshipV1ControllerTest {
 
     @InjectMocks
-    private MentorshipController mentorshipController;
+    private MentorshipV1Controller mentorshipController;
 
     @Mock
     private MentorshipService mentorshipService;

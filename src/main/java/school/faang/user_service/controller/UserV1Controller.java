@@ -1,5 +1,8 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobExecutionException;
@@ -7,7 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +22,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDto;
+import school.faang.user_service.dto.UserSubResponseDto;
+import school.faang.user_service.dto.user.DeactivatedUserDto;
+import school.faang.user_service.dto.user.UserForNotificationDto;
+import school.faang.user_service.service.user.UserDeactivationService;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.config.kafka.KafkaTopicsProps;
 import school.faang.user_service.dto.user.UserProfileCreateDto;
 import school.faang.user_service.dto.user.UserProfileResponseDto;
@@ -35,11 +52,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 @Validated
 public class UserV1Controller {
-
+    private final UserDeactivationService userDeactivationService;
     private final UserService userService;
     private final KeyedMessagePublisher keyedMessagePublisher;
     private final KafkaTopicsProps kafkaTopicsProps;
@@ -49,9 +66,19 @@ public class UserV1Controller {
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final String DEFAULT_SORT_FIELD = "id";
 
+    @GetMapping("/{userId}")
+    public UserSubResponseDto getUser(@Positive @PathVariable long userId) {
+        return userService.getUserDtoById(userId);
+    }
+
     @PostMapping("/profile/{userId}")
     public UserProfileResponseDto createUserProfile(@RequestBody UserProfileCreateDto userProfileCreateDto) {
         return userService.createUserProfile(userProfileCreateDto);
+    }
+
+    @GetMapping("/notification/{userId}")
+    public UserForNotificationDto getUserByIdForNotification(@Positive @PathVariable long userId) {
+        return userService.getUserByIdForNotification(userId);
     }
 
     @PutMapping("/profile/{userId}")
@@ -71,42 +98,45 @@ public class UserV1Controller {
         reindexingService.reindexAllUsers();
     }
 
-    @GetMapping("/test/search")
-    public Page<User> getUsersByExperience(
-            @PageableDefault(
-                    size = DEFAULT_PAGE_SIZE,
-                    sort = DEFAULT_SORT_FIELD,
-                    page = 0,
-                    direction = Sort.Direction.DESC
-            )
-            Pageable pageable
-    ) {
-        Page<User> users = userRepository.findAllByExperienceBetween(1, 100, pageable);
-        return users;
+    @PostMapping("/get")
+    public List<UserSubResponseDto> getUsersByIds(@NotEmpty @RequestBody List<@Positive Long> ids) {
+        return userService.getAllUsersDtoByIds(ids);
     }
 
-    @PostMapping("/test/generate")
-    public void generateUsers() {
-        List<User> users = new ArrayList<>();
-        for (int i = 1; i <= 10000; i++) {
-            User user = User.builder()
-                    .username("user_" + i)
-                    .email("user_" + i + "@example.com")
-                    .phone("+123456789" + i)
-                    .password(UUID.randomUUID().toString()) // Генерируем случайный пароль
-                    .active(true)
-                    .aboutMe("This is a generated user #" + i)
-                    .country(Country.builder().id(1).title("United States").build())
-                    .city("City_" + i % 100)
-                    .experience(i % 50) // Чтобы заполнить опытом случайные значения
-                    .build();
-            users.add(user);
-        }
-        userRepository.saveAll(users);
+    @PutMapping("/{userId}/avatar")
+    @ResponseStatus(HttpStatus.OK)
+    public UserProfilePicDto updateAvatar(@PathVariable("userId") @Positive long userId,
+                                          @RequestPart MultipartFile file) {
+        return userService.updateUserProfilePicture(userId, file);
     }
 
-    @DeleteMapping("/test/{id}")
-    public void deleteUser(@PathVariable @Positive Long id) {
-        keyedMessagePublisher.send(kafkaTopicsProps.getUserIndexingTopic().getName(), id.toString(), null);
+    @GetMapping(value = "/{userId}/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public InputStreamResource getAvatar(@PathVariable("userId") @Positive long userId) {
+        return userService.getUserAvatar(userId);
+    }
+
+    @DeleteMapping("/{userId}/avatar")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteAvatar(@PathVariable("userId") @Positive long userId) {
+        userService.deleteUserAvatar(userId);
+    }
+
+    @PutMapping("/{userId}/deactivate")
+    public ResponseEntity<DeactivatedUserDto> deactivateUser(@PathVariable @NotNull @Positive long userId) {
+        DeactivatedUserDto deactivatedUser = userDeactivationService.deactivateUser(userId);
+        return ResponseEntity.ok(deactivatedUser);
+    }
+
+    @PostMapping("/premium")
+    public List<UserSubResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
+        return userService.getPremiumUsers(userFilterDto);
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.OK)
+    public UserSubResponseDto registerUser(@RequestBody @Valid UserRegistrationDto userDto) {
+        return userService.registerUser(userDto);
     }
 }

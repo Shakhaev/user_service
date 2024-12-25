@@ -36,6 +36,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.retry:spring-retry")
 
     /**
      * Database
@@ -43,6 +44,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    testImplementation("com.h2database:h2")
     implementation("co.elastic.clients:elasticsearch-java")
 
     /**
@@ -76,7 +78,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
-    implementation("net.coobird:thumbnailator:0.4.1")
+    implementation("net.coobird:thumbnailator:0.4.20")
 
     /**
      * Test containers
@@ -134,7 +136,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(false)
         csv.required.set(false)
-        //html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
 
     classDirectories.setFrom(

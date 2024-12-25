@@ -38,4 +38,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAllInRange(long minId, long maxId, Pageable pageable);
 
     Page<User> findAllByExperienceBetween(Integer experienceAfter, Integer experienceBefore, Pageable pageable);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(*) > 0\s
+            FROM users\s
+            WHERE email = ?1
+            """)
+    boolean existsByEmail(String email);
 }
