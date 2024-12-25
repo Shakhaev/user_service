@@ -2,9 +2,9 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserSkillGuarantee;
 
 import java.util.Optional;
 

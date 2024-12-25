@@ -28,7 +28,7 @@ public class RecommendationReceivedEventPublisherTest {
     private ObjectMapper objectMapper;
     @InjectMocks
     private RecommendationReceivedEventPublisher publisher;
-    @Value("${spring.data.redis.channels.recommendation-channel.name}")
+    @Value("${spring.data.redis.channels.recommendation-received-channel.name}")
     private String recommendationChannel;
 
     @Test

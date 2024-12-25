@@ -1,4 +1,4 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.user;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -24,8 +24,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.goal.Goal;

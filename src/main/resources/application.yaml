@@ -25,6 +25,9 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        recommendation_topic: recommendation_topic
+        recommendation-received-channel:
+          name: recommendation_received_channel
         recommendation-channel:
           name: recommendation_channel
         mentorship-requested-channel:
@@ -66,6 +69,6 @@ premium:
 
 scheduler:
   clear-events:
-    cron: 0 0 * * *
+    cron: 0 0 * * * 0
     thread-pool: 2
     batch-size: 50
