@@ -32,6 +32,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
@@ -57,6 +58,8 @@ public class RecommendationServiceTest {
     private SkillOfferService skillOfferService;
     @Mock
     private SkillRepository skillRepository;
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     @Mock
@@ -96,17 +99,17 @@ public class RecommendationServiceTest {
                 CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT_MORE_SIX_MONTH);
         List<Long> skillIds = recommendationDto.skillOffers().stream().map(SkillOfferDto::skillId).toList();
         when(skillRepository.countExisting(skillIds)).thenReturn(skillIds.size());
-        when(recommendationRepository.create(recommendationDto.authorId(), recommendationDto.receiverId(),
-                recommendationDto.content()))
-                .thenReturn(ID);
-        when(recommendationRepository.findById(ID)).thenReturn(
-                Optional.ofNullable(recommendation));
+        when(recommendationRepository.create(
+                recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content())).thenReturn(ID);
+        when(recommendationRepository.findById(ID)).thenReturn(Optional.ofNullable(recommendation));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(new User()));
 
         RecommendationDto result = recommendationService.create(recommendationDto);
 
         verify(skillRepository, times(1)).countExisting(skillIds);
         verify(recommendationRepository, times(1)).findById(ID);
-        verify(recommendationReceivedEventPublisher, times(1)).publish(any(RecommendationReceivedEventDto.class));
+        verify(recommendationReceivedEventPublisher, times(1))
+                .publish(any(RecommendationReceivedEventDto.class));
         assertEquals(ID, result.id());
     }
 
