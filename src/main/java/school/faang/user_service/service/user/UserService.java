@@ -9,10 +9,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.SearchAppearanceEvent;
+import school.faang.user_service.exceptions.CsvProcessingException;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.model.Student;
@@ -73,29 +75,28 @@ public class UserService {
     }
 
     @Transactional
-    public void registerUserFromCsv(InputStream inputStream) {
-        CsvMapper csvMapper = new CsvMapper();
-        csvMapper.enable(CsvParser.Feature.TRIM_SPACES);
+    public void registerUserFromCsv(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            CsvMapper csvMapper = new CsvMapper();
+            csvMapper.enable(CsvParser.Feature.TRIM_SPACES);
 
-        MappingIterator<Student> iterator = null;
-        try {
-            iterator = csvMapper.readerFor(Student.class)
+            MappingIterator<Student> iterator = csvMapper.readerFor(Student.class)
                     .with(CsvSchema.emptySchema().withHeader())
                     .readValues(inputStream);
+
+            List<Student> students = StreamSupport.stream(
+                            Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+                    .collect(Collectors.toList());
+
+            List<CompletableFuture<Void>> futures = students.stream()
+                    .map(student -> CompletableFuture.runAsync(() -> processStudent(student)))
+                    .collect(Collectors.toList());
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CsvProcessingException("Failed to process CSV file", e);
         }
-
-        List<Student> students = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
-                .collect(Collectors.toList());
-
-        List<CompletableFuture<Void>> futures = students.stream()
-                .map(student -> CompletableFuture.runAsync(() -> processStudent(student)))
-                .collect(Collectors.toList());
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        };
+    }
 
     private void processStudent(Student student) {
         User user = userMapper.toEntity(student);

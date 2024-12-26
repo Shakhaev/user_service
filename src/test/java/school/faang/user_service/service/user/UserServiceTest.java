@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
@@ -19,7 +20,6 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -147,8 +147,12 @@ public class UserServiceTest {
 
     @Test
     void shouldRegisterUsersFromCsv() throws IOException {
-        String csvContent = "firstName,lastName,country,email\nJohn,Doe,USA,john.doe@example.com\nJane,Smith,Canada,jane.smith@example.com";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        String csvContent = "firstName,lastName,country,email\n" +
+                "John,Doe,USA,john.doe@example.com\n" +
+                "Jane,Smith,Canada,jane.smith@example.com";
+
+        MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+        Mockito.when(multipartFile.getInputStream()).thenReturn(new ByteArrayInputStream(csvContent.getBytes()));
 
         Student student1 = new Student();
         student1.setFirstName("John");
@@ -191,7 +195,7 @@ public class UserServiceTest {
             return country;
         });
 
-        userService.registerUserFromCsv(inputStream);
+        userService.registerUserFromCsv(multipartFile);
 
         Mockito.verify(countryRepository).save(argThat(c -> c.getTitle().equals("USA")));
         Mockito.verify(countryRepository).save(argThat(c -> c.getTitle().equals("Canada")));
@@ -199,4 +203,5 @@ public class UserServiceTest {
         Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JohnDoe") && u.getCountry().getTitle().equals("USA")));
         Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JaneSmith") && u.getCountry().getTitle().equals("Canada")));
     }
+
 }

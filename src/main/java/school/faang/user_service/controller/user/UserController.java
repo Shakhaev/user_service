@@ -44,14 +44,9 @@ public class UserController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadUsers(@RequestParam("file") MultipartFile file) {
+    public String uploadUsers(@RequestParam("file") MultipartFile file) {
         log.info("Received a request to upload users");
-        try {
-            userService.registerUserFromCsv(file.getInputStream());
-            return ResponseEntity.ok("Users processed successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing file: " + e.getMessage());
-        }
+        userService.registerUserFromCsv(file);
+        return "Users processed successfully";
     }
 }
