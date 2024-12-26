@@ -46,22 +46,28 @@ public class SubscriptionService {
         subscriptionValidator.validateSubscriptionCreation(followerId, followeeId);
 
         subscriptionRepository.followUser(followerId, followeeId);
-        LocalDateTime subscribedAt = subscriptionRepository.findCreatedAtByFollowerIdAndFolloweeId(
-                followerId, followeeId);
+
+        LocalDateTime subscribedAt = subscriptionRepository.findCreatedAtByFollowerIdAndFolloweeId(followerId, followeeId);
+
+        SubscriptionEvent subscriptionEvent = SubscriptionEvent.builder()
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .subscribedAt(subscribedAt)
+                .followerName(userService.getUserContacts(followerId).getUsername())
+                .followeeName(userService.getUserContacts(followeeId).getUsername())
+                .build();
 
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(followeeId)
                 .aggregateType(AGGREGATE_TYPE)
-                .payload(helper.serializeToJson(new SubscriptionEvent(followerId, followeeId, subscribedAt,
-                        userService.getUserContacts(followerId).getUsername(),
-                        userService.getUserContacts(followeeId).getUsername())))
+                .payload(helper.serializeToJson(subscriptionEvent))
                 .eventType(SubscriptionEvent.class.getSimpleName())
                 .createdAt(subscribedAt)
                 .processed(false)
                 .build();
 
         outboxEventProcessor.saveOutboxEvent(outboxEvent);
-        log.info("User {} successfully subscribed to user {}.", followerId, followeeId);
+        log.info("Follower with ID:{} successfully subscribed to followee with ID:{}.", followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
