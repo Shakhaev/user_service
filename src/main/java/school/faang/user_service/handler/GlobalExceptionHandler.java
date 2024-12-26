@@ -96,10 +96,4 @@ public class GlobalExceptionHandler {
     public String handleCsvProcessingException(CsvProcessingException e) {
         return e.getMessage();
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleGeneralException(Exception e) {
-        return "An unexpected error occurred: " + e.getMessage();
-    }
 }
