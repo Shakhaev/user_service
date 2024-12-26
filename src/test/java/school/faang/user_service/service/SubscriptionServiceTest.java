@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.outbox.OutboxEventProcessor;
-import school.faang.user_service.event.OutboxEvent;
+import school.faang.user_service.entity.OutboxEvent;
 import school.faang.user_service.publisher.SubscriptionEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.utils.Helper;
