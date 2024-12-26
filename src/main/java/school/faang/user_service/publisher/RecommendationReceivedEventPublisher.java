@@ -12,7 +12,7 @@ import school.faang.user_service.dto.publisher.RecommendationReceivedEventDto;
 @RequiredArgsConstructor
 public class RecommendationReceivedEventPublisher {
 
-    @Value("${spring.data.redis.channel.recommendation}")
+    @Value("${spring.data.redis.channels.recommendation-channel.name}")
     private String channelRecommendation;
 
     private final RedisTemplate<String, Object> redisTemplate;
