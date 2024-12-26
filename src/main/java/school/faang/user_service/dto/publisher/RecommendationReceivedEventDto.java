@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class RecommendationReceivedEventDto {
     private Long id;
     private Long authorId;
+    private String authorName;
     private Long receiverId;
     private LocalDateTime timestamp;
 }

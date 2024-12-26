@@ -70,8 +70,9 @@ public class RecommendationService {
         Recommendation result = recommendationRepository.findById(recommendId)
                 .orElseThrow(() -> new DataValidationException("Recommendation with ID " + recommendId + " is absent in database"));
 
+        String authorName = getUser(recommendation.authorId()).getUsername();
         recommendationReceivedEventPublisher.publish(new RecommendationReceivedEventDto(
-                recommendation.id(), recommendation.authorId(), recommendation.receiverId(), LocalDateTime.now()));
+                recommendation.id(), recommendation.authorId(), authorName, recommendation.receiverId(), LocalDateTime.now()));
         return recommendationMapper.toDto(result);
     }
 
@@ -121,18 +122,8 @@ public class RecommendationService {
                         .noneMatch(guarantee -> guarantee.getGuarantor().getId().equals(recommendation.authorId()));
 
                 if (isNeedToSaveGuarantor) {
-                    User guarantor = userRepository.findById(recommendation.authorId())
-                            .orElseThrow(() -> new DataValidationException(
-                                    "User with ID " +
-                                            recommendation.authorId() +
-                                            " is absent in database"
-                            ));
-                    User receiver = userRepository.findById(recommendation.receiverId())
-                            .orElseThrow(() -> new DataValidationException(
-                                    "User with ID " +
-                                            recommendation.receiverId() +
-                                            " is absent in database"
-                            ));
+                    User guarantor = getUser(recommendation.authorId());
+                    User receiver = getUser(recommendation.receiverId());
                     userSkillGuaranteeRepository.save(UserSkillGuarantee.builder()
                             .user(receiver)
                             .skill(skill)
@@ -141,6 +132,12 @@ public class RecommendationService {
                 }
             });
         }
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException(
+                        String.format("User with ID %s is absent in database", id)));
     }
 
     private void validateLastRecommendDate(Long authorId, Long receiverId) {
