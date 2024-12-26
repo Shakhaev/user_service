@@ -1,4 +1,4 @@
-CREATE TABLE outbox_event
+CREATE TABLE IF NOT EXISTS outbox_event
 (
     id             BIGINT PRIMARY KEY,
     aggregate_id   BIGINT       NOT NULL,
