@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import school.faang.user_service.dto.publisher.RecommendationReceivedEventDto;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -28,7 +30,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
@@ -55,7 +59,11 @@ public class RecommendationServiceTest {
     @Mock
     private SkillRepository skillRepository;
     @Mock
+    private UserRepository userRepository;
+    @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    @Mock
+    private RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
     @Spy
     private RecommendationMapperImpl recommendationMapper;
 
@@ -91,16 +99,17 @@ public class RecommendationServiceTest {
                 CONTENT, SKILL_OFFERS_DTO_LIST, CREATED_AT_MORE_SIX_MONTH);
         List<Long> skillIds = recommendationDto.skillOffers().stream().map(SkillOfferDto::skillId).toList();
         when(skillRepository.countExisting(skillIds)).thenReturn(skillIds.size());
-        when(recommendationRepository.create(recommendationDto.authorId(), recommendationDto.receiverId(),
-                recommendationDto.content()))
-                .thenReturn(ID);
-        when(recommendationRepository.findById(ID)).thenReturn(
-                Optional.ofNullable(recommendation));
+        when(recommendationRepository.create(
+                recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content())).thenReturn(ID);
+        when(recommendationRepository.findById(ID)).thenReturn(Optional.ofNullable(recommendation));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(new User()));
 
         RecommendationDto result = recommendationService.create(recommendationDto);
 
         verify(skillRepository, times(1)).countExisting(skillIds);
         verify(recommendationRepository, times(1)).findById(ID);
+        verify(recommendationReceivedEventPublisher, times(1))
+                .publish(any(RecommendationReceivedEventDto.class));
         assertEquals(ID, result.id());
     }
 
