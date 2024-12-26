@@ -40,7 +40,7 @@ public class UserService {
             profileViewEventPublisher.publish(profileViewEvent);
             log.info("Profile view event sent for userId: {} by viewerId: {}", userId, currentUserId);
         } else {
-            log.info("UserId is 0, skipping event publication.");
+            log.info("Header is 0, skipping event publication.");
         }
         return userMapper.toDto(user);
     }
