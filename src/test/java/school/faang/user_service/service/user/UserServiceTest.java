@@ -203,5 +203,4 @@ public class UserServiceTest {
         Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JohnDoe") && u.getCountry().getTitle().equals("USA")));
         Mockito.verify(userRepository).save(argThat(u -> u.getUsername().equals("JaneSmith") && u.getCountry().getTitle().equals("Canada")));
     }
-
 }
