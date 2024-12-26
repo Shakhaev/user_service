@@ -27,7 +27,6 @@ spring:
           name: follower_event
         recommendation-channel:
           name: recommendation_channel
-
         profile-view-channel:
           name: profile_view_channel
 
