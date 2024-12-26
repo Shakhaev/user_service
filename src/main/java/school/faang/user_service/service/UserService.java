@@ -24,12 +24,13 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final ProfileViewEventPublisher profileViewEventPublisher;
+    public static final int SERVICE_ID = 0;
 
     public UserDto getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new DataValidationException("User by ID is not found"));
         Long currentUserId = userContext.getUserId();
-        if (currentUserId != 0 && currentUserId != userId) {
+        if (currentUserId != SERVICE_ID && currentUserId != userId) {
             ProfileViewEvent profileViewEvent = ProfileViewEvent.builder()
                     .authorId(userId)
                     .viewerName((userRepository.findById(currentUserId)
