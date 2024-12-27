@@ -18,18 +18,14 @@ public class GoalCompletedEventPublisher implements EventPublisher<GoalCompleted
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisProperties redisProperties;
 
-    @Retryable(retryFor = {RedisConnectionException.class, RedisPublishingException.class},
-            maxAttempts = 5, backoff = @Backoff(delay = 2000, multiplier = 2))
+    @Retryable(
+            retryFor = {RedisConnectionException.class, RedisPublishingException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000, multiplier = 2)
+    )
     public void publish(GoalCompletedEvent event) {
-        try {
-            redisTemplate.convertAndSend(redisProperties.channel().goalChannel(), event);
-        } catch (RedisConnectionException e) {
-            log.error("Redis connection error while publishing event: {}", event, e);
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error while publishing event: {}", event, e);
-            throw new RedisPublishingException("Unexpected error while publishing event to Redis", e);
-        }
+        redisTemplate.convertAndSend(redisProperties.channel().goalChannel(), event);
+        log.info("Message sent to channel: {}", redisProperties.channel().goalChannel());
     }
 
     @Override

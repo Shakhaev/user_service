@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
@@ -61,8 +62,11 @@ public class GoalController {
         return ResponseEntity.ok(goalService.completeTheGoal(userId, goalId));
     }
 
-    @PostMapping(value = "complete/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GoalDto> completeGoalAndPublishEvent(@RequestBody GoalDto goalDto) {
-        return ResponseEntity.ok(goalService.completeGoalAndPublishEvent(goalDto.getId(), goalDto.getUserId()));
+    @PutMapping("/{goalId}/completion")
+    public ResponseEntity<Void> completeGoalAndPublishEvent(
+            @PathVariable long goalId,
+            @RequestParam long userId) {
+        goalService.completeGoalAndPublishEvent(goalId, userId);
+        return ResponseEntity.ok().build();
     }
 }

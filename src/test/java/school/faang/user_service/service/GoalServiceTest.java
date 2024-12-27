@@ -415,7 +415,6 @@ class GoalServiceTest {
         assertThrows(EntityNotFoundException.class, () -> goalService.completeTheGoal(userId, goalId));
     }
 
-
     @Test
     @DisplayName("Test Goal Complete Positive")
     void testGoalCompletePositive() {
@@ -427,23 +426,14 @@ class GoalServiceTest {
                 .status(GoalStatus.ACTIVE)
                 .build();
 
-        GoalDto goalDto = GoalDto.builder()
-                .id(goalId)
-                .build();
-
         when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.of(goal));
         when(goalRepository.save(any(Goal.class))).thenReturn(goal);
-        when(goalMapper.toDto(goal)).thenReturn(goalDto);
 
-        GoalDto result = goalService.completeGoalAndPublishEvent(goalId, userId);
+        goalService.completeGoalAndPublishEvent(goalId, userId);
 
         verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
         verify(goalRepository, times(1)).save(goal);
-        verify(goalCompletedEventPublisher, times(1))
-                .publish(any(GoalCompletedEvent.class));
-
-        assertNotNull(result);
-        assertEquals(goalId, result.getId());
+        verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEvent.class));
     }
 
     @Test

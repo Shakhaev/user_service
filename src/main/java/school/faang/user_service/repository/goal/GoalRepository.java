@@ -45,14 +45,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """)
     Stream<Goal> findByParent(long goalId);
 
-    @Query(nativeQuery = true, value = """
-            SELECT u.* FROM users u
-            JOIN user_goal ug ON u.id = ug.user_id
-            WHERE ug.goal_id = :goalId
-            """)
-    List<User> findUsersByGoalId(long goalId);
-
-
     @Query("SELECT g FROM Goal g JOIN g.users u WHERE u.id = :userId AND g.id = :goalId")
     Optional<Goal> findByUserIdAndGoalId(@Param("userId") long userId, @Param("goalId") long goalId);
 

@@ -155,15 +155,11 @@ class GoalControllerTest {
         long userId = 1L;
         long goalId = 1L;
 
-        GoalDto goalDto = GoalDto.builder().id(1L).userId(1L).status(GoalStatus.COMPLETED).build();
+        doNothing().when(goalService).completeGoalAndPublishEvent(goalId, userId);
 
-        when(goalService.completeGoalAndPublishEvent(goalId, userId)).thenReturn(goalDto);
-
-        mockMvc.perform(post("/goals/complete/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(goalDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("COMPLETED"));
+        mockMvc.perform(put("/goals/{goalId}/completion?userId={userId}", goalId, userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         verify(goalService, times(1)).completeGoalAndPublishEvent(goalId, userId);
     }
