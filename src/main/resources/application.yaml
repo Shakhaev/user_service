@@ -29,7 +29,6 @@ spring:
         user-ban-channel: user_ban_channel
         mentorship-request: mentorship_request_channel
         event-start-event-channel: event_start_event_channel
-      batch-size: 1000
 
   retry:
     maxAttempts: 3
@@ -72,25 +71,22 @@ payment-service:
   host: http://localhost
   port: 9080
 
+
 cron:
   expressions:
+    clear-published-events: "0 0 0 * * *"
     clear-events: "0 0 0 * * *"
-    clean-outbox: "0 0 0 * * *" # every day at midnight
-    trigger-outbox-processing: "0 */1 * * * *" # every 60 seconds
-    loadUpcomingEvents: "0 * * * * *"
+    clean-outbox: "0 0 0 * * *"
+    trigger-outbox-processing: "0 */1 * * * *"
+    load-upcoming-events: "0 0 0 */2 * *"
+    publish-event-start-event-fixed-rate: "0/30 * * * * *"
 
 scheduler:
-  event-start-notification-config:
-    notifications:
-      - stage: "1_day_before"
-        time: "P1D"
-      - stage: "5_hours_before"
-        time: "PT5H"
-      - stage: "1_hour_before"
-        time: "PT1H"
-      - stage: "10_minutes_before"
-        time: "PT10M"
-    event-fetch-days-before-start: 1
+  core-pool-size: 4
+  event-start-notification:
+    upload-events-days-batch: 2
+    duration-to-publish-event-start-event-milliseconds: 86400000, 18000000, 3600000, 600000
+
 
 batch:
   size:

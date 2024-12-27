@@ -11,12 +11,20 @@ import school.faang.user_service.event.EventStartEvent;
 @RequiredArgsConstructor
 @Slf4j
 public class EventStartEventPublisher implements EventPublisher<EventStartEvent> {
-    private final RedisTemplate<String, Object> lettuceRedisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisProperties redisProperties;
 
     @Override
     public void publish(EventStartEvent event) {
-        lettuceRedisTemplate.convertAndSend(redisProperties.getChannel().getEventStartEventChannel(), event);
-        log.info("Event start event sent to channel: {}", redisProperties.getChannel().getEventStartEventChannel());
+        redisTemplate.convertAndSend(redisProperties.channel().eventStartEventChannel(), event);
+        log.info("Event start notification sent: eventId={}, channel='{}'",
+                event.eventId(),
+                redisProperties.channel().eventStartEventChannel()
+        );
+    }
+
+    @Override
+    public Class<EventStartEvent> getEventClass() {
+        return EventStartEvent.class;
     }
 }

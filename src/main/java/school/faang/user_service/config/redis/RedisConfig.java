@@ -11,7 +11,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import school.faang.user_service.listener.UserBanListener;
 
@@ -24,15 +23,6 @@ public class RedisConfig {
     @Value("${spring.data.redis.channel.user-ban-channel}")
     private String userBanChannel;
 
-    @Bean
-    RedisTemplate<String, Object> lettuceRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
-        return template;
-    }
-    
     @Bean
     public RedisMessageListenerContainer redisContainerConfig(
             RedisConnectionFactory connectionFactory,

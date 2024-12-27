@@ -93,6 +93,14 @@ public class EventService {
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
     }
 
+    public Event findEventWithAttendeesById(long eventId) {
+        return eventRepository.findEventWithAttendeesById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
+    }
+
+    public List<Event> findAllEventsByIds(List<Long> eventIds) {
+        return eventRepository.findAllById(eventIds).orElseThrow(() -> new EntityNotFoundException("Events id not found"));
+    }
+
     public boolean checkEventExistence(long eventId) {
         return eventRepository.existsById(eventId);
     }
@@ -130,9 +138,9 @@ public class EventService {
         eventBatches.forEach(eventCleanerService::deleteSelectedListEventsAsync);
     }
 
-    public List<Event> getEventsByStartDateBetween(LocalDateTime now, LocalDateTime to) {
-        List<Event> events = eventRepository.findEventsByStartDateBetween(now, to);
-        log.debug("Found events between {} and {}: {}", now, to, events.size());
+    public List<Event> findEventsByStartDateBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Event> events = eventRepository.findEventsByStartDateBetween(startDate, endDate);
+        log.debug("Found events between {} and {}: {}", startDate, endDate, events.size());
         return events;
     }
 

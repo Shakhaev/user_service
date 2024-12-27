@@ -1,92 +1,100 @@
 package school.faang.user_service.scheduler;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.config.scheduler.SchedulerEventStartNotificationConfig;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.event.EventStartEvent;
 import school.faang.user_service.publisher.EventStartEventPublisher;
-import school.faang.user_service.service.RedisService;
 import school.faang.user_service.service.event.EventService;
 
-import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
+@Slf4j
+@Data
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class EventStartScheduler {
-    private static final int TIME_FROM_KEY = 2;
-    private static final String DATA_DIVIDER = ":";
 
     private final EventService eventService;
-    private final RedisTemplate<String, Object> lettuceRedisTemplate;
-    private final SchedulerEventStartNotificationConfig schedulerConfig;
-    private final RedisService redisService;
+    private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final EventStartEventPublisher eventStartEventPublisher;
 
-    @Value("${scheduler.event-start-notification-config.event-fetch-days-before-start}")
-    private int daysTo;
+    private List<Long> eventsToPublish;
+    private List<Long> publishedEvents = new ArrayList<>();
 
-    @Scheduled(cron = "${cron.expressions.loadUpcomingEvents}")
+    @Value("${scheduler.event-start-notification.upload-events-days-batch}")
+    private Long uploadEventDaysBatch;
+
+    @Value("${scheduler.event-start-notification.duration-to-publish-event-start-event-milliseconds}")
+    private List<Long> durationsToPublishEventStartEvent;
+
+    @Scheduled(cron = "${cron.expressions.load-upcoming-events}")
     public void loadUpcomingEvents() {
-        log.info("Loading upcoming events started at {}", LocalDateTime.now());
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime to = now.plusDays(daysTo);
-        List<Event> events = eventService.getEventsByStartDateBetween(now, to);
-        log.info("Found {} events between {} and {}", events.size(), now, to);
-        events.forEach(event -> {
-            List<SchedulerEventStartNotificationConfig.NotificationConfig> notifications = schedulerConfig.getNotifications();
-            notifications.forEach(notification -> {
-                Duration duration = Duration.parse(notification.getTime());
-                LocalDateTime notifyTime = event.getStartDate().minus(duration);
-                String key = String.format("event:%d:%d", event.getId(), notifyTime.toEpochSecond(ZoneOffset.UTC));
-                redisService.saveValue(key, event.getId());
-                log.info("Saved notification trigger for event {} at {}", event.getId(), notifyTime);
-            });
-        });
+        List<Event> events = eventService.findEventsByStartDateBetween(LocalDateTime.now(), LocalDateTime.now().plusDays(uploadEventDaysBatch));
+        eventsToPublish = events.stream()
+                .map(Event::getId)
+                .filter(id -> !publishedEvents.contains(id))
+                .toList();
+        log.info("Found upcoming events to publish: {}", eventsToPublish.size());
     }
 
+    @Scheduled(cron = "${cron.expressions.clear-published-events}")
+    public void clearPublishedEvents() {
+        log.info("Total published events in memory: {}", publishedEvents.size());
+        List<Event> events = eventService.findAllEventsByIds(publishedEvents);
+        events.stream().filter(event -> !events.contains(event))
+                .forEach(event -> publishedEvents.remove(event.getId()));
+        log.info("Cleared published events. Current size: {}", publishedEvents.size());
+    }
 
-    @Scheduled(fixedDelay = 60000)
-    @Transactional
-    public void publishPendingEventStartEvents() {
-        Set<String> keys = redisService.getKeysByPattern("event:*:*");
-        log.info("Find {} pending event to publish notifications", keys.size());
-        keys.forEach(key -> {
-            try {
-                String[] parts = key.split(DATA_DIVIDER);
-                long notifyTime = Long.parseLong(parts[TIME_FROM_KEY]);
-                long currentTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+    @Scheduled(cron = "${cron.expressions.publish-event-start-event-fixed-rate}")
+    public void schedulePreStartNotifications() {
+        if (eventsToPublish == null || eventsToPublish.isEmpty()) {
+            log.info("No event starts notifications to publish");
+            return;
+        }
+        log.info("Scheduling {} event start notifications to publish", eventsToPublish.size());
+        eventsToPublish.forEach(eventId -> durationsToPublishEventStartEvent
+                .forEach(durationMillis -> scheduleNotificationIfNeeded(eventId, durationMillis)));
+    }
 
-                if (currentTime >= notifyTime) {
-                    Optional.ofNullable(lettuceRedisTemplate.opsForValue().get(key))
-                            .map(value -> (Integer) value)
-                            .ifPresent(eventId -> {
-                                Event event = eventService.findEventById(eventId);
-                                List<User> attendees = event.getAttendees();
-                                EventStartEvent eventStartEvent =
-                                        new EventStartEvent(event.getId(), attendees.stream()
-                                                .map(User::getId)
-                                                .toList()
-                                        );
-                                eventStartEventPublisher.publish(eventStartEvent);
-                                redisService.deleteKey(key);
-                            });
-                }
-            } catch (Exception e) {
-                log.error("Error publishing event start event", e);
-            }
-        });
+    public void scheduleNotificationIfNeeded(long eventId, long offsetBeforeEventStart) {
+        Event event = eventService.findEventWithAttendeesById(eventId);
+        LocalDateTime eventStartTime = event.getStartDate();
+        Instant eventStartTimeInstant = eventStartTime.toInstant(ZoneOffset.UTC);
+        Instant publishTime = eventStartTimeInstant.minusMillis(offsetBeforeEventStart);
+        log.debug("Calculated publishTime={} (UTC) for eventId={}", publishTime, eventId);
+        if (eventStartTime.isBefore(LocalDateTime.now())) {
+            creatingEventStartEventAndPublish(event);
+        } else {
+            log.debug("Scheduling notification at {} (UTC) for eventId={}", publishTime, eventId);
+            threadPoolTaskScheduler.schedule(() -> creatingEventStartEventAndPublish(event), publishTime);
+        }
+    }
+
+    private void creatingEventStartEventAndPublish(Event event) {
+        List<Long> attendeesIds = event.getAttendees().stream()
+                .map(User::getId)
+                .toList();
+        EventStartEvent eventStartEvent = EventStartEvent.builder()
+                .eventId(event.getId())
+                .attendeesIds(attendeesIds)
+                .build();
+        eventStartEventPublisher.publish(eventStartEvent);
+        publishedEvents.add(event.getId());
+        log.info("Event start notification sent: eventId={}, channel='{}'",
+                event.getId(),
+                eventStartEvent.getClass().getSimpleName()
+        );
     }
 }

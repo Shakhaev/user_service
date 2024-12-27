@@ -1,15 +1,8 @@
 package school.faang.user_service.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class EventStartEvent {
-    private long eventId;
-    private List<Long> attendeesIds;
-}
+@Builder
+public record EventStartEvent(long eventId, List<Long> attendeesIds) {}
