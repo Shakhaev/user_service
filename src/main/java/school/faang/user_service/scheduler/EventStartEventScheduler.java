@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @Component
 @RequiredArgsConstructor
-public class EventStartScheduler {
+public class EventStartEventScheduler {
 
     private final EventService eventService;
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -52,8 +52,8 @@ public class EventStartScheduler {
     public void clearPublishedEvents() {
         log.info("Total published events in memory: {}", publishedEvents.size());
         List<Event> events = eventService.findAllEventsByIds(publishedEvents);
-        events.stream().filter(event -> !events.contains(event))
-                .forEach(event -> publishedEvents.remove(event.getId()));
+        List<Long> eventsIds = events.stream().map(Event::getId).toList();
+        publishedEvents = publishedEvents.stream().filter(eventsIds::contains).toList();
         log.info("Cleared published events. Current size: {}", publishedEvents.size());
     }
 
