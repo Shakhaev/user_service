@@ -1,12 +1,14 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.outbox.OutboxEventProcessor;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.event.OutboxEvent;
+import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.publisher.SubscriptionEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.utils.Helper;
@@ -42,11 +44,21 @@ class SubscriptionServiceTest {
     @Mock
     private Helper helper;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private SubscriptionService subscriptionService;
 
     private final long followerId = 1;
     private final long followeeId = 2;
+    private UserContactsDto userContactsDto;
+    private String userName;
+
+    @BeforeEach
+    void setUp() {
+        userContactsDto = UserContactsDto.builder().username("Username").build();
+    }
 
     @Test
     void followUser_shouldCallRepositoryAndOutboxProcessor() {
@@ -54,6 +66,7 @@ class SubscriptionServiceTest {
         doNothing().when(userValidator).validateUserById(followeeId);
         doNothing().when(subscriptionValidator).validateNoSelfSubscription(followerId, followeeId);
         doNothing().when(subscriptionValidator).validateSubscriptionCreation(followerId, followeeId);
+        when(userService.getUserContacts(any())).thenReturn(userContactsDto);
 
         subscriptionService.followUser(followerId, followeeId);
 

@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.config.RetryProperties;
 import school.faang.user_service.config.redis.RedisProperties;
 import school.faang.user_service.event.SubscriptionEvent;
 
@@ -15,16 +14,15 @@ import school.faang.user_service.event.SubscriptionEvent;
 @RequiredArgsConstructor
 public class SubscriptionEventPublisher implements EventPublisher<SubscriptionEvent> {
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RetryProperties retryProperties;
     private final RedisProperties redisProperties;
 
     @Override
     @Retryable(retryFor = Exception.class,
-            maxAttemptsExpression = "#{@retryProperties.maxAttempts}",
+            maxAttemptsExpression = "@retryProperties.maxAttempts",
             backoff = @Backoff(
-                    delayExpression = "#{@retryProperties.initialDelay}",
-                    multiplierExpression = "#{@retryProperties.multiplier}",
-                    maxDelayExpression = "#{@retryProperties.maxDelay}"
+                    delayExpression = "@retryProperties.initialDelay",
+                    multiplierExpression = "@retryProperties.multiplier",
+                    maxDelayExpression = "@retryProperties.maxDelay"
             )
     )
     public void publish(SubscriptionEvent message) {
