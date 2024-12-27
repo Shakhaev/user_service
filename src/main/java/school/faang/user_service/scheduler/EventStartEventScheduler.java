@@ -15,7 +15,7 @@ import school.faang.user_service.service.event.EventService;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,19 +65,19 @@ public class EventStartEventScheduler {
         }
         log.info("Scheduling {} event start notifications to publish", eventsToPublish.size());
         eventsToPublish.forEach(eventId -> durationsToPublishEventStartEvent
-                .forEach(durationMillis -> scheduleNotificationIfNeeded(eventId, durationMillis)));
+                .forEach(offsetBeforeEventStart -> scheduleNotificationIfNeeded(eventId, offsetBeforeEventStart)));
     }
 
     public void scheduleNotificationIfNeeded(long eventId, long offsetBeforeEventStart) {
         Event event = eventService.findEventWithAttendeesById(eventId);
         LocalDateTime eventStartTime = event.getStartDate();
-        Instant eventStartTimeInstant = eventStartTime.toInstant(ZoneOffset.UTC);
+        Instant eventStartTimeInstant = eventStartTime.atZone(ZoneId.systemDefault()).toInstant();
         Instant publishTime = eventStartTimeInstant.minusMillis(offsetBeforeEventStart);
-        log.debug("Calculated publishTime={} (UTC) for eventId={}", publishTime, eventId);
+        log.info("Calculated publishTime={} (UTC) for eventId={}", publishTime, eventId);
         if (eventStartTime.isBefore(LocalDateTime.now())) {
             creatingEventStartEventAndPublish(event);
         } else {
-            log.debug("Scheduling notification at {} (UTC) for eventId={}", publishTime, eventId);
+            log.info("Scheduling notification at {} (UTC) for eventId={}", publishTime, eventId);
             threadPoolTaskScheduler.schedule(() -> creatingEventStartEventAndPublish(event), publishTime);
         }
     }
@@ -88,6 +88,8 @@ public class EventStartEventScheduler {
                 .toList();
         EventStartEvent eventStartEvent = EventStartEvent.builder()
                 .eventId(event.getId())
+                .eventTitle(event.getTitle())
+                .eventStartTime(event.getStartDate())
                 .attendeesIds(attendeesIds)
                 .build();
         eventStartEventPublisher.publish(eventStartEvent);

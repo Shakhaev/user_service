@@ -85,7 +85,7 @@ scheduler:
   core-pool-size: 4
   event-start-notification:
     upload-events-days-batch: 2
-    duration-to-publish-event-start-event-milliseconds: 86400000, 18000000, 3600000, 600000
+    duration-to-publish-event-start-event-milliseconds: 0, 600000, 3600000, 18000000, 86400000
 
 
 batch:
