@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
 import school.faang.user_service.service.user.UserService;
@@ -39,5 +40,12 @@ public class UserController {
     public List<Long> searchUsers(@RequestParam Long searchingUserId) {
         log.info("Received a request to get users with searching user ID: {}", searchingUserId);
         return userService.searchUsers(searchingUserId);
+    }
+
+    @PostMapping("/upload")
+    public String uploadUsers(@RequestParam("file") MultipartFile file) {
+        log.info("Received a request to upload users");
+        userService.registerUserFromCsv(file);
+        return "Users processed successfully";
     }
 }

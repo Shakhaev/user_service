@@ -1,20 +1,37 @@
 package school.faang.user_service.service.user;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.SearchAppearanceEvent;
+import school.faang.user_service.exceptions.CsvProcessingException;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.model.Student;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +40,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+    private final CountryRepository countryRepository;
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -54,5 +72,46 @@ public class UserService {
         });
 
         return userIds;
+    }
+
+    @Transactional
+    public void registerUserFromCsv(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            CsvMapper csvMapper = new CsvMapper();
+            csvMapper.enable(CsvParser.Feature.TRIM_SPACES);
+
+            MappingIterator<Student> iterator = csvMapper.readerFor(Student.class)
+                    .with(CsvSchema.emptySchema().withHeader())
+                    .readValues(inputStream);
+
+            List<Student> students = StreamSupport.stream(
+                            Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+                    .collect(Collectors.toList());
+
+            List<CompletableFuture<Void>> futures = students.stream()
+                    .map(student -> CompletableFuture.runAsync(() -> processStudent(student)))
+                    .collect(Collectors.toList());
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        } catch (IOException e) {
+            throw new CsvProcessingException("Failed to process CSV file", e);
+        }
+    }
+
+    private void processStudent(Student student) {
+        User user = userMapper.toEntity(student);
+        user.setPassword(userMapper.generateRandomPassword());
+
+        Country country = Optional.ofNullable(countryRepository.findByTitle(student.getCountry()))
+                .orElseGet(() -> {
+                    Country newCountry = new Country();
+                    newCountry.setTitle(student.getCountry());
+                    return countryRepository.save(newCountry);
+                });
+
+        user.setCountry(country);
+        userRepository.save(user);
+
+        log.info("Received a request to save the user with ID: {}", user.getUsername());
     }
 }

@@ -90,4 +90,10 @@ public class GlobalExceptionHandler {
         log.error("Value Exceeded: {}", e.getMessage(), e);
         return new ErrorResponse("Value Exceeded", e.getMessage());
     }
+
+    @ExceptionHandler(CsvProcessingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleCsvProcessingException(CsvProcessingException e) {
+        return e.getMessage();
+    }
 }
