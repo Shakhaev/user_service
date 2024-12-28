@@ -24,12 +24,9 @@ public class RecommendationController {
     public void publishRecommendation(@Validated @RequestBody RecommendationEvent recommendationEvent) {
         log.info("Received a recommendation to publish: {}", recommendationEvent);
 
-
         if (recommendationEvent.getCreatedAt() == null) {
             recommendationEvent.setCreatedAt(LocalDateTime.now());
         }
-
-
-        recommendationEventPublisher.publishRecommendationEvent(recommendationEvent);
+        recommendationEventPublisher.publishToRecommendation(recommendationEvent);
     }
 }

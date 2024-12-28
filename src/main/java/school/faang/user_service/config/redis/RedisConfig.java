@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -28,7 +29,14 @@ public class RedisConfig {
     private String searchAppearanceTopicName;
 
     private static final String CREATE_CHANNEL_LOG_MESSAGE = "Создание ChannelTopic для канала: {}";
-
+    @Bean
+    @Qualifier("redisObjectMapper")
+    public ObjectMapper redisObjectMapperTwo() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return objectMapper;
+    }
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getRedisHost(), redisProperties.getRedisPort());
@@ -89,20 +97,20 @@ public class RedisConfig {
     public ChannelTopic buyPremiumTopic() {
         return new ChannelTopic(redisProperties.getBuyPremiumTopic());
     }
-    @Primary
+
     @Bean
+    @Qualifier("recommendationTopic")
     public ChannelTopic recommendationTopic() {return new ChannelTopic(redisProperties.getRecommendationEventTopic());}
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(
+            RedisConnectionFactory redisConnectionFactory,
+            @Qualifier("redisObjectMapper") ObjectMapper objectMapper) {
         log.info("Создание RedisTemplate с кастомными сериализаторами.");
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
@@ -112,7 +120,6 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(serializer);
 
         log.info("RedisTemplate создан и сериализаторы настроены.");
-
         return redisTemplate;
     }
 }

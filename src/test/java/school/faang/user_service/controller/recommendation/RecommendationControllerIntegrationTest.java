@@ -20,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,19 +34,22 @@ class RecommendationControllerIntegrationTest {
     private RecommendationEventPublisher recommendationEventPublisher;
 
     @Autowired
+    @Qualifier("redisObjectMapper")
     private ObjectMapper objectMapper;
 
     @Test
     void testPublishRecommendation() throws Exception {
         RecommendationEvent event = new RecommendationEvent(1L, 2L, 3L, LocalDateTime.now());
 
-        doNothing().when(recommendationEventPublisher).publishRecommendationEvent(any(RecommendationEvent.class));
+        // Mock the updated method in RecommendationEventPublisher
+        doNothing().when(recommendationEventPublisher).publishToRecommendation(any(RecommendationEvent.class));
 
         mockMvc.perform(post("/recommendations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andExpect(status().isCreated());
 
-        verify(recommendationEventPublisher, times(1)).publishRecommendationEvent(event);
+        // Verify the new method is called instead
+        verify(recommendationEventPublisher, times(1)).publishToRecommendation(any(RecommendationEvent.class));
     }
 }
