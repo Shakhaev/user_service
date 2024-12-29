@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataNotMatchException;
-import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.exception.data.DataNotMatchException;
+import school.faang.user_service.exception.entity.EntityNotFoundException;
 import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.filters.event.EventTitleFilter;
 import school.faang.user_service.filters.event.EventUserIdFilter;
@@ -123,7 +123,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.getEvent(1L));
+        assertThrows(EntityNotFoundException.class, () -> eventService.getEvent(1L));
         verify(eventRepository, times(1)).findById(1L);
     }
 
@@ -151,7 +151,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.deleteEvent(2L));
+        assertThrows(EntityNotFoundException.class, () -> eventService.deleteEvent(2L));
         verify(eventRepository, times(1)).findById(2L);
         verify(eventRepository, times(0)).deleteById(2L);
     }
@@ -208,7 +208,7 @@ public class EventServiceTest {
                 .build();
         when(eventRepository.existsById(eventDto.getId())).thenReturn(false);
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.updateEvent(eventDto));
+        assertThrows(EntityNotFoundException.class, () -> eventService.updateEvent(eventDto));
         verify(eventRepository, times(1)).existsById(eventDto.getId());
     }
 

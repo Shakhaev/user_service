@@ -6,9 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;

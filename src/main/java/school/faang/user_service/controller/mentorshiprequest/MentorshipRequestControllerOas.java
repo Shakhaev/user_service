@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 
 import java.util.List;

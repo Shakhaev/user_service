@@ -12,23 +12,23 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.filter.RequestFilterDto;
-import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.exception.entity.EntityNotFoundException;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedAfterFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedBeforeFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationStatusFilter;
-import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-import school.faang.user_service.validator.RecommendationRequestServiceValidator;
+import school.faang.user_service.validator.recommendation.RecommendationRequestServiceValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,7 +115,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.getRequest(id));
+        assertThrows(EntityNotFoundException.class, () -> recommendationRequestService.getRequest(id));
         verify(recommendationRequestRepository).findById(id);
     }
 
@@ -141,7 +141,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
+        assertThrows(EntityNotFoundException.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
         verify(recommendationRequestRepository).findById(id);
     }
 

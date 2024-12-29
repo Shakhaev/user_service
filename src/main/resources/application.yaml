@@ -25,6 +25,13 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        recommendation_topic: recommendation_topic
+        recommendation-received-channel:
+          name: recommendation_received_channel
+        recommendation-channel:
+          name: recommendation_channel
+        mentorship-requested-channel:
+          name: mentorship_requested_channel
 
 server:
   port: 8080
@@ -60,6 +67,8 @@ premium:
     zone: Europe/Moscow
     thread-pool: 1
 
-redis:
-  topic:
-    premium-bought: premium-bought
+scheduler:
+  clear-events:
+    cron: 0 0 * * * 0
+    thread-pool: 2
+    batch-size: 50
