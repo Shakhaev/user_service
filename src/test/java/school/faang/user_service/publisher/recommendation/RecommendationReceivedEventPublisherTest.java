@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class RecommendationReceivedEventPublisherTest {
     private ObjectMapper objectMapper;
     @InjectMocks
     private RecommendationReceivedEventPublisher publisher;
-    @Value("${spring.data.redis.channels.recommendation-channel.name}")
+    @Value("${spring.data.redis.channels.recommendation-received-channel.name}")
     private String recommendationChannel;
 
     @Test

@@ -3,7 +3,7 @@ package school.faang.user_service.filters.recommendation_request;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.filter.RequestFilterDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.Objects;

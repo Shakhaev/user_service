@@ -1,4 +1,4 @@
-package school.faang.user_service.service.validation;
+package school.faang.user_service.validator.recommendation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -8,11 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.validator.recommendation.RecommendationValidator;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;

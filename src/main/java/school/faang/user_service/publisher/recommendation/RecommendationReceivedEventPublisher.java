@@ -1,4 +1,4 @@
-package school.faang.user_service.publisher.recommendation;
+package school.faang.user_service.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,7 @@ public class RecommendationReceivedEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.data.redis.channels.recommendation_topic:}")
+    @Value("${spring.data.redis.channels.recommendation-received-channel.name}")
     private String recommendationChannel;
 
     public void publish(RecommendationReceivedEvent event) {
