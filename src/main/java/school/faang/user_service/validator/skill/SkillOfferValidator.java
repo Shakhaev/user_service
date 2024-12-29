@@ -6,7 +6,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.data.DataValidationException;
 
 import java.util.Set;
 

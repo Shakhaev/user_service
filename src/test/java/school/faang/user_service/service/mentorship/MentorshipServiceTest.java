@@ -7,10 +7,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
 
 import java.util.ArrayList;

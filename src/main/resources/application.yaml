@@ -21,11 +21,14 @@ spring:
       port: 6379
       host: localhost
       channels:
+        mentorship_accepted: mentorship_accept_channel
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
         recommendation_topic: recommendation_topic
+        recommendation-received-channel:
+          name: recommendation_received_channel
         recommendation-channel:
           name: recommendation_channel
         mentorship-requested-channel:
@@ -64,3 +67,9 @@ premium:
     cron: 0 0 0 * * 0
     zone: Europe/Moscow
     thread-pool: 1
+
+scheduler:
+  clear-events:
+    cron: 0 0 * * * 0
+    thread-pool: 2
+    batch-size: 50
