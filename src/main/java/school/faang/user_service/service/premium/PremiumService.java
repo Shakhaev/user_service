@@ -16,7 +16,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.payment.PaymentFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapper;
-import school.faang.user_service.publisher.PremiumBoughtPublisher;
+import school.faang.user_service.publisher.premium.PremiumBoughtEventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -35,7 +35,7 @@ public class PremiumService {
     private final PaymentServiceClient paymentServiceClient;
     private final UserService userService;
     private final PremiumMapper premiumMapper;
-    private final PremiumBoughtPublisher premiumBoughtPublisher;
+    private final PremiumBoughtEventPublisher premiumBoughtPublisher;
 
     public ResponseEntity<PremiumDto> buyPremium(PremiumDto premiumDto, UserPremiumPeriod userPremiumPeriod) {
         User user = userService.findById(premiumDto.getUserId())

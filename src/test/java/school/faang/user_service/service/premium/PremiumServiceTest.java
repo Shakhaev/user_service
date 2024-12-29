@@ -21,7 +21,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.payment.PaymentFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapperImpl;
-import school.faang.user_service.publisher.PremiumBoughtPublisher;
+import school.faang.user_service.publisher.premium.PremiumBoughtEventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -42,7 +42,7 @@ public class PremiumServiceTest {
     private PremiumService premiumService;
 
     @Mock
-    private PremiumBoughtPublisher premiumBoughtPublisher;
+    private PremiumBoughtEventPublisher premiumBoughtPublisher;
 
     @Mock
     private PremiumRepository premiumRepository;
