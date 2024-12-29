@@ -7,12 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.events.ProfileViewEvent.ProfileViewEvent;
+import school.faang.user_service.dto.events.ProfileViewEvent;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ProfileViewEventPublisher {
+public class ProfileViewEventPublisher implements MessagePublisher<ProfileViewEvent> {
 
     @Value("${spring.data.redis.channels.profile-view-channel.name}")
     private String profileViewTopic;
@@ -20,6 +20,7 @@ public class ProfileViewEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
+    @Override
     public void publish(ProfileViewEvent profileViewEvent) {
         try {
             String json = objectMapper.writeValueAsString(profileViewEvent);

@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
@@ -24,6 +24,7 @@ import school.faang.user_service.service.filters.recommendation.request.Recommen
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import school.faang.user_service.service.implement.RecommendationRequestService;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;

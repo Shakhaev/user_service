@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.implement.UserService;
 import school.faang.user_service.validation.ValidationController;
 
 import java.util.List;

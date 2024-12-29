@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.implement.MentorshipService;
 
 import java.util.ArrayList;
 import java.util.List;

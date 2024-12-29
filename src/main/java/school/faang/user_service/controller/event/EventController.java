@@ -3,9 +3,9 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.filter.EventFilterDto;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.impl.event.EventService;
+import school.faang.user_service.service.EventService;
 import java.time.LocalDate;
 import java.util.List;
 

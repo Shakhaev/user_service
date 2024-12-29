@@ -1,6 +1,6 @@
 package school.faang.user_service.service.filters.recommendation.request;
 
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.Objects;

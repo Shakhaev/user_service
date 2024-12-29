@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.GoalDto;
-import school.faang.user_service.dto.GoalFilterDto;
+import school.faang.user_service.dto.filter.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.service.implement.GoalService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
