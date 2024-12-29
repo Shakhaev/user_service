@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -25,6 +26,7 @@ import school.faang.user_service.config.context.UserContext;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.UserForNotificationDto;
@@ -42,7 +44,7 @@ public class UserV1Controller {
     private final UserService userService;
     private final UserContext userContext;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/subscription/{userId}")
     public UserSubResponseDto getUser(@Positive @PathVariable long userId) {
         UserSubResponseDto userSubResponseDto = userService.getUserDtoById(userId);
 
@@ -91,5 +93,11 @@ public class UserV1Controller {
     @PostMapping("/premium")
     public List<UserSubResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.OK)
+    public UserSubResponseDto registerUser(@RequestBody @Valid UserRegistrationDto userDto) {
+         return userService.registerUser(userDto);
     }
 }
