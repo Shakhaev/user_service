@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS outbox_event
 (
-    id             BIGINT PRIMARY KEY,
+    id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     aggregate_id   BIGINT       NOT NULL,
     aggregate_type VARCHAR(255) NOT NULL,
     event_type     VARCHAR(255) NOT NULL,
