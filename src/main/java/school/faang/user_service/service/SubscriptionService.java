@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
@@ -16,7 +17,9 @@ import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -37,13 +40,37 @@ public class SubscriptionService {
     /*
         TODO -> Needs to test
     */
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
+    public CompletableFuture<List<UserDto>> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         Stream<User> followersOfUser = subscriptionRepository.findByFolloweeId(followeeId);
         return filterFollowers(followersOfUser, userFilterDto);
     }
 
-    private List<UserDto> filterFollowers(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
-        return followersOfUser
+    @Async
+    private CompletableFuture<List<UserDto>> filterFollowers(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
+        List<User> followers = followersOfUser.toList();
+
+        logger.info("Halfing the list of followers async go!");
+        int middle = followers.size() / 2;
+        List<User> firstHalf = followers.subList(0, middle);
+        List<User> secondHalf = followers.subList(middle, followers.size());
+
+        CompletableFuture<List<UserDto>> firstTask = processFollowers(firstHalf.stream(), userFilterDto);
+        CompletableFuture<List<UserDto>> secondTask = processFollowers(secondHalf.stream(), userFilterDto);
+
+        return firstTask.thenCombine(secondTask, (firstHalfResult, secondHalfResult) -> {
+            List<UserDto> result = new ArrayList<>();
+            result.addAll(firstHalfResult);
+            result.addAll(secondHalfResult);
+            logger.info("Returning the combining!!");
+            return result;
+        });
+    }
+
+    @Async
+    private CompletableFuture<List<UserDto>> processFollowers(Stream<User> followersStream, UserFilterDto userFilterDto) {
+        logger.info("Making some filters -> {}!", followersStream.toList());
+
+        return CompletableFuture.completedFuture(followersStream
                 .filter(user -> matchesPattern(userFilterDto.getNamePattern(), user.getUsername()))
                 .filter(user -> matchesPattern(userFilterDto.getAboutPattern(), user.getAboutMe()))
                 .filter(user -> matchesPattern(userFilterDto.getEmailPattern(), user.getEmail()))
@@ -61,7 +88,7 @@ public class SubscriptionService {
                 .skip((long) userFilterDto.getPage() * userFilterDto.getPageSize())
                 .limit(userFilterDto.getPageSize())
                 .map(userFollowingMapper::toDto)
-                .toList();
+                .toList());
     }
 
     /*
@@ -80,6 +107,7 @@ public class SubscriptionService {
         List<User> followingUsers = requestedUser.getFollowers();
 
         if (existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            logger.error("The user already followed! : {} -> {}", followerId, followeeId);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

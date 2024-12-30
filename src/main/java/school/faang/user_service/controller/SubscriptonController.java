@@ -11,6 +11,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,12 +19,12 @@ public class SubscriptonController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
+    public CompletableFuture<List<UserDto>> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         return subscriptionService.getFollowers(followeeId, userFilterDto);
     }
 
     @GetMapping
-    public int getFollowersCount(long followerId) {
+    public long getFollowersCount(long followerId) {
         return subscriptionService.getFollowersCount(followerId);
     }
 
