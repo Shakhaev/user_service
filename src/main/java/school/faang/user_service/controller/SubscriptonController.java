@@ -2,20 +2,33 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import school.faang.user_service.dto.FollowingFeatureDto;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.SubscriptionService;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class SubscriptonController {
     private final SubscriptionService subscriptionService;
 
-    /*
-        followerId -> id пользователя который хочет подписаться;
-        followeeId -> id того на кого хотят подписаться;
-     */
+    @GetMapping
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
+        return subscriptionService.getFollowers(followeeId, userFilterDto);
+    }
+
     @PostMapping
-    public void followerUser(long followerId, long followeeId) {
-        subscriptionService.followUser(followerId, followeeId);
+    public void followerUser(FollowingFeatureDto followingFeatureDto) {
+        subscriptionService.followUser(followingFeatureDto);
+    }
+
+    @DeleteMapping
+    public void unfollowUser(FollowingFeatureDto followingFeatureDto) {
+        subscriptionService.unfollowUser(followingFeatureDto);
     }
 }
