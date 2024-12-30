@@ -27,14 +27,21 @@ public class SubscriptionService {
     private final UserFollowingMapper userFollowingMapper;
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
 
+    /*
+        TODO -> Needs to test
+    */
+    public long getFollowersCount(long followerId) {
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
+    }
+
+    /*
+        TODO -> Needs to test
+    */
     public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         Stream<User> followersOfUser = subscriptionRepository.findByFolloweeId(followeeId);
         return filterFollowers(followersOfUser, userFilterDto);
     }
 
-    /*
-        TODO -> Needs to test
-     */
     private List<UserDto> filterFollowers(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
         return followersOfUser
                 .filter(user -> matchesPattern(userFilterDto.getNamePattern(), user.getUsername()))
@@ -59,7 +66,7 @@ public class SubscriptionService {
 
     /*
         TODO -> Needs to test
-     */
+    */
     public ResponseEntity<Void> followUser(FollowingFeatureDto followingFeatureDTO) {
         long followerId = followingFeatureDTO.followerId();
         long followeeId = followingFeatureDTO.followeeId();

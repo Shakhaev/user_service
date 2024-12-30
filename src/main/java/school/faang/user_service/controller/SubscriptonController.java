@@ -22,6 +22,11 @@ public class SubscriptonController {
         return subscriptionService.getFollowers(followeeId, userFilterDto);
     }
 
+    @GetMapping
+    public int getFollowersCount(long followerId) {
+        return subscriptionService.getFollowersCount(followerId);
+    }
+
     @PostMapping
     public void followerUser(FollowingFeatureDto followingFeatureDto) {
         subscriptionService.followUser(followingFeatureDto);
