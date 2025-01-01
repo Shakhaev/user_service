@@ -84,4 +84,9 @@ public class RedisConfiguration {
     public ChannelTopic  profileViewTopic() {
         return new ChannelTopic(redisProperties.getChannels().getProfileViewChannel().getName());
     }
+
+    @Bean
+    public ChannelTopic followerTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getFollowerChannel().getName());
+    }
 }

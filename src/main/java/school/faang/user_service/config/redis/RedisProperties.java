@@ -19,6 +19,7 @@ public class RedisProperties {
         private Channel goalSetChannel;
         private Channel mentorshipOfferedChannel;
         private Channel profileViewChannel;
+        private Channel followerChannel;
 
         @Getter
         @Setter

@@ -15,6 +15,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessages;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.publisher.followerevent.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.utilities.TestLocalData;
 
@@ -36,6 +37,8 @@ class SubscriptionServiceImplTest {
     @Spy
     private UserMapperImpl userMapper;
     @Mock
+    private FollowerEventPublisher followerEventPublisher;
+    @Mock
     private UserFilter userFilter;
     @InjectMocks
     private SubscriptionServiceImpl subscriptionService;
@@ -54,6 +57,7 @@ class SubscriptionServiceImplTest {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(TEST_ID_USER1, TEST_ID_USER2)).thenReturn(false);
         subscriptionService.followUser(TEST_ID_USER1, TEST_ID_USER2);
         verify(subscriptionRepository, times(1)).followUser(TEST_ID_USER1, TEST_ID_USER2);
+        verify(followerEventPublisher, times(1)).publish(any());
     }
 
     @Test
@@ -125,12 +129,14 @@ class SubscriptionServiceImplTest {
         if (isLogicFilterPresent) {
             subscriptionService = new SubscriptionServiceImpl(subscriptionRepository,
                     userMapper,
-                    DataSubscription.getListUserFilters());
+                    DataSubscription.getListUserFilters(),
+                    followerEventPublisher);
         } else {
             when(userFilter.apply(any(User.class), any(UserFilterDto.class))).thenReturn(true);
             subscriptionService = new SubscriptionServiceImpl(subscriptionRepository,
                     userMapper,
-                    List.of(userFilter));
+                    List.of(userFilter),
+                    followerEventPublisher);
         }
 
         log.info(userFilterDto.toString());
