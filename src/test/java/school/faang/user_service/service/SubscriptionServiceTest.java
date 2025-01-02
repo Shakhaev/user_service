@@ -19,7 +19,6 @@ public class SubscriptionServiceTest {
     @InjectMocks
     SubscriptionService subscriptionService;
 
-    ArgumentCaptor<DataValidationException> captor;
 
     @Test
     void testFollowOneUserByAnother() {
