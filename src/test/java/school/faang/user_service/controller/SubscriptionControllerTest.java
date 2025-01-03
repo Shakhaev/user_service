@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
@@ -19,9 +20,12 @@ class SubscriptionControllerTest {
     //@Mock
     //SubscriptionRepository subscriptionRepository;
     @Mock
-    SubscriptionService subscriptionService;
+    private SubscriptionService subscriptionService;
     @InjectMocks
-    SubscriptionController subscriptionController;
+    private SubscriptionController subscriptionController;
+
+    //UserMapper userMapper;
+    private UserFilterDto userFilterDto;
 
     long followerId;
     long followeeId;
@@ -58,5 +62,14 @@ class SubscriptionControllerTest {
     @DisplayName("Unfollow User Himself")
     void testUnfollowUserByHimself() {
         Assert.assertThrows(DataValidationException.class, () -> subscriptionController.unfollowUser(followerId, followerId));
+    }
+
+    @Test
+    @DisplayName("Get All Followers")
+    void testGetAllFollowers() {
+        userFilterDto = new UserFilterDto();
+        subscriptionController.getFollowers(followerId, userFilterDto);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowers(followerId, userFilterDto);
     }
 }
