@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
-import static reactor.core.publisher.Mono.when;
 import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
 
 @ExtendWith(MockitoExtension.class)
