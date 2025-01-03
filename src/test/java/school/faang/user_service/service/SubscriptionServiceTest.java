@@ -1,15 +1,19 @@
 package school.faang.user_service.service;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
+
+import static reactor.core.publisher.Mono.when;
+import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -19,22 +23,37 @@ public class SubscriptionServiceTest {
     @InjectMocks
     SubscriptionService subscriptionService;
 
+    long followerId;
+    long followeeId;
+
+    @BeforeEach
+    public void init() {
+        followerId = 1L;
+        followeeId = 2L;
+    }
 
     @Test
-    void testFollowOneUserByAnother() {
-        long userId1 = 1;
-        long userId2 = 2;
-        subscriptionService.followUser(userId1, userId2);
+    @DisplayName("Follow To Another User")
+    void testFollowOneUserByAnotherUser() {
+        subscriptionService.followUser(followerId, followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
-                .followUser(userId1, userId2);
+                .followUser(followerId, followeeId);
     }
 
     @Test
+    @DisplayName("Follow To Himself")
     void testFollowUserByHimself() {
-        long userId1 = 1;
-
-        Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(userId1, userId1))
-                .thenThrow(new DataValidationException(""));
-        Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(userId1, userId1));
+        Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followerId))
+                .thenThrow(new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF));
+        Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
     }
+
+    @Test
+    @DisplayName("Unfollow Another User")
+    void testUnfollowOneUserFromAnotherUser() {
+        subscriptionRepository.unfollowUser(followerId, followeeId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .unfollowUser(followerId, followeeId);
+    }
+
 }

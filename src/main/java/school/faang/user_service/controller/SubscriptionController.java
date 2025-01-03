@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
+import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
+import static school.faang.user_service.exception.MessageError.USER_CANNOT_UNFOLLOW_FROM_HIMSELF;
+
 @Controller
 @RequiredArgsConstructor
 public class SubscriptionController {
@@ -14,8 +17,16 @@ public class SubscriptionController {
     public void followUser(long followerId, long followeeId) {
 
         if (followerId == followeeId) {
-            throw new DataValidationException("User cannot be follower of himself!");
+            throw new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF);
         }
         subscriptionService.followUser(followerId, followeeId);
+    }
+
+    public void unfollowUser(long followerId, long followeeId) {
+
+        if (followerId == followeeId) {
+            throw new DataValidationException(USER_CANNOT_UNFOLLOW_FROM_HIMSELF);
+        }
+        subscriptionService.unfollowUser(followerId, followeeId);
     }
 }
