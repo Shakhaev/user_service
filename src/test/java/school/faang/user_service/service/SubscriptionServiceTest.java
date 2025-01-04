@@ -13,7 +13,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import static school.faang.user_service.exception.MessageError.USER_ALREADY_HAS_THIS_FOLLOWER;
-import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
