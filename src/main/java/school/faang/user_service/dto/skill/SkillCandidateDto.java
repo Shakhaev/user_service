@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SkillCandidateDto {
-    private Long skillId;
+    private SkillDto skill;
     private long offersAmount;
-    //TODO Не понятно как использовать offersAmount в Mapper
 }

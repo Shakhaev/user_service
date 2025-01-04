@@ -7,12 +7,13 @@ import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.execption.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
@@ -28,16 +29,15 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final UserRepository userRepository;
     private final SkillMapper skillMapper;
-    private final UserSkillGuaranteeRepository skillGuaranteeRepository;
     private final SkillCandidateMapper skillCandidateMapper;
 
     public SkillDto create(SkillDto skillDto) {
         if (skillRepository.existsByTitle(skillDto.getTitle())) {
-            throw new IllegalArgumentException("Умение с таким названием уже существует");
+            throw new DataValidationException("Умение с таким названием уже существует");
         }
-        Skill skillEntity = skillMapper.toEntity(skillDto);
-        Skill savedSkill = skillRepository.save(skillEntity);
-        return skillMapper.toDto(savedSkill);
+        Skill skill = skillMapper.toEntity(skillDto);
+        skill = skillRepository.save(skill);
+        return skillMapper.toDto(skill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
@@ -51,30 +51,46 @@ public class SkillService {
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
         validateSkillList(offeredSkills);
-        //TODO возможно ниже не верно из-за неправильного маппинга
         return offeredSkills.stream()
-                .map(skillCandidateMapper::toDto)
+                .map(skill -> {
+                    SkillCandidateDto dto = skillCandidateMapper.toSkillCandidateDto(skill);
+                    List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId);
+                    dto.setOffersAmount(skillOffers.size());
+                    return dto;
+                })
                 .toList();
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
+        Skill skill = getSkillById(skillId);
+        User user = getUserById(userId);
         Optional<Skill> existingSkill = skillRepository.findUserSkill(skillId, userId);
-        String skillTitle = getSkillById(skillId).getTitle();
-        String username = getUserById(userId).getUsername();
         if (existingSkill.isPresent()) {
-            log.info("Умение {} уже существует у пользователя {}", skillTitle, username);
+            log.info("Присвоение умения отклонено, так как умение {} уже существует у пользователя {}",
+                    skill.getTitle(), user.getUsername());
             return null;
         }
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         if (skillOffers.size() >= MIN_SKILL_OFFERS) {
-            log.info("Умение {} присвоено пользователю {}", skillTitle, username);
-            skillRepository.assignSkillToUser(skillId,userId);
-            //TODO добавить гарантий от пользователей
-            Skill skill = existingSkill.get();
-            return skillMapper.toDto(skill);
-            //skillGuaranteeRepository.save();
+            log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых", skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
+            skillRepository.assignSkillToUser(skillId, userId);
+
+            List<UserSkillGuarantee> userSkillGuarantees = skillOffers.stream()
+                    .map(skillOffer -> {
+                        User guarantorUser = skillOffer.getRecommendation().getAuthor();
+                        return new UserSkillGuarantee(null, user, skill, guarantorUser);
+                    })
+                    .toList();
+
+            skill.setGuarantees(userSkillGuarantees);
+            log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle(), user.getUsername());
+            skillRepository.save(skill);
+        } else {
+            log.info("Недостаточное количество предложений для присвоения умения {}. Необходимо {} вместо {}",
+                    skill.getTitle(), MIN_SKILL_OFFERS, skillOffers.size());
+            return null;
         }
-        return null;
+        return skillMapper.toDto(skill);
     }
 
     private Skill getSkillById(long skillId) {
@@ -84,11 +100,11 @@ public class SkillService {
 
     private User getUserById(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException(String.format("Пользователь с ID %d не найдено", userId)));
+                .orElseThrow(() -> new NoSuchElementException(String.format("Пользователь с ID %d не найден", userId)));
     }
 
     private <T> void validateSkillList(List<T> skills) {
-        if (skills == null || skills.isEmpty()) {
+        if (skills.isEmpty()) {
             throw new NoSuchElementException("Умения не найдены");
         }
     }
