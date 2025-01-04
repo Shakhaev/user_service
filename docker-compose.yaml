@@ -1,0 +1,70 @@
+#version: '3.8'
+#
+#services:
+#  postgres:
+#    image: postgres:15
+#    container_name: user-ms-postgres
+#    environment:
+#      POSTGRES_USER: parvin
+#      POSTGRES_PASSWORD: parvin
+#    volumes:
+#      - postgres:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - spring-boot-network
+#
+#  minio:
+#    image: minio/minio
+#    container_name: minio
+#    environment:
+#      MINIO_ROOT_USER: parvin
+#      MINIO_ROOT_PASSWORD: parvinpassword
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    volumes:
+#      - minio_storage:/data
+#    command: server --console-address ":9001" /data
+#
+#networks:
+#  spring-boot-network:
+#
+#volumes:
+#  postgres: {}
+#  minio_storage: {}
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: user-service-postgres
+    env_file:
+      - .env  # Include .env for PostgreSQL
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - spring-boot-network
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    env_file:
+      - .env  # Include .env for MinIO
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_storage:/data
+    command: server --console-address ":9001" /data
+
+networks:
+  spring-boot-network:
+
+volumes:
+  postgres: {}
+  minio_storage: {}
+
