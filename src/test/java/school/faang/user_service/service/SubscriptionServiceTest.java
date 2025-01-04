@@ -57,8 +57,17 @@ public class SubscriptionServiceTest {
     }
 
     @Test
+    @DisplayName("Get Followers Count")
     void testGetFollowersCount() {
-        subscriptionService.getFollowersCount(followerId);
+        subscriptionService.getFollowersCount(followeeId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    @Test
+    @DisplayName("Get Following Count")
+    void testGetFollowingCount() {
+        subscriptionService.getFollowingCount(followerId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .findFolloweesAmountByFollowerId(followerId);
     }

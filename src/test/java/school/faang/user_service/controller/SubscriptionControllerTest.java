@@ -47,7 +47,8 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Follow To Himself")
     void testFollowUserByHimself() {
-        Assert.assertThrows(DataValidationException.class, () -> subscriptionController.followUser(followerId, followerId));
+        Assert.assertThrows(DataValidationException.class,
+                () -> subscriptionController.followUser(followerId, followerId));
     }
 
     @Test
@@ -61,7 +62,8 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Unfollow User Himself")
     void testUnfollowUserByHimself() {
-        Assert.assertThrows(DataValidationException.class, () -> subscriptionController.unfollowUser(followerId, followerId));
+        Assert.assertThrows(DataValidationException.class,
+                () -> subscriptionController.unfollowUser(followerId, followerId));
     }
 
     @Test
@@ -76,9 +78,18 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Get Followers Count")
     void testGetFollowersCount() {
-        subscriptionController.getFollowersCount(followerId);
+        subscriptionController.getFollowersCount(followeeId);
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowersCount(followerId);
+                .getFollowersCount(followeeId);
+
+    }
+
+    @Test
+    @DisplayName("Get Following Count")
+    void testGetFollowingCount() {
+        subscriptionController.getFollowingCount(followerId);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowingCount(followerId);
 
     }
 }

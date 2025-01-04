@@ -38,12 +38,22 @@ public class SubscriptionService {
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
-        this.userFilterDto = userFilterDto;
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+        this.userFilterDto = filter;
         Stream<User> userStream = subscriptionRepository.findByFollowerId(followeeId);
 
         return userStream.filter(this::filterUsers).map(userMapper::toDto).toList();
     }
+
+    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+        this.userFilterDto = filter;
+        Stream<User> userStream = subscriptionRepository.findByFolloweeId(followeeId);
+
+        return userStream.filter(this::filterUsers).map(userMapper::toDto).toList();
+
+    }
+
+
 
     private boolean filterUsers(User user) {
 
@@ -70,6 +80,10 @@ public class SubscriptionService {
     }
 
     public int getFollowersCount(long followeeId) {
-        return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    public int getFollowingCount(long followerId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 }
