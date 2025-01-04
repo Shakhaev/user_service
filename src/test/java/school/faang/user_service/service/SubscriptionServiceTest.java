@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
+import static school.faang.user_service.exception.MessageError.USER_ALREADY_HAS_THIS_FOLLOWER;
 import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,16 +44,22 @@ public class SubscriptionServiceTest {
     @DisplayName("Follow To Himself")
     void testFollowUserByHimself() {
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followerId))
-                .thenThrow(new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF));
+                .thenThrow(new DataValidationException(USER_ALREADY_HAS_THIS_FOLLOWER));
         Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
     }
 
     @Test
     @DisplayName("Unfollow Another User")
     void testUnfollowOneUserFromAnotherUser() {
-        subscriptionRepository.unfollowUser(followerId, followeeId);
+        subscriptionService.unfollowUser(followerId, followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .unfollowUser(followerId, followeeId);
     }
 
+    @Test
+    void testGetFollowersCount() {
+        subscriptionService.getFollowersCount(followerId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .findFolloweesAmountByFollowerId(followerId);
+    }
 }

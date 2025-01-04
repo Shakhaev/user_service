@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
+import static school.faang.user_service.exception.MessageError.USER_ALREADY_HAS_THIS_FOLLOWER;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class SubscriptionService {
     public void followUser(long followerId, long followeeId) {
 
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF);
+            throw new DataValidationException(USER_ALREADY_HAS_THIS_FOLLOWER);
         }
         subscriptionRepository.followUser(followerId, followeeId);
     }
@@ -67,5 +67,9 @@ public class SubscriptionService {
                 .and(checkUserPhone)
                 .and(checkUserSkill)
                 .test(user);
+    }
+
+    public int getFollowersCount(long followeeId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
     }
 }

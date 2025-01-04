@@ -72,4 +72,13 @@ class SubscriptionControllerTest {
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowers(followerId, userFilterDto);
     }
+
+    @Test
+    @DisplayName("Get Followers Count")
+    void testGetFollowersCount() {
+        subscriptionController.getFollowersCount(followerId);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowersCount(followerId);
+
+    }
 }

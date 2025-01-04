@@ -21,7 +21,6 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     public void followUser(long followerId, long followeeId) {
-
         if (followerId == followeeId) {
             throw new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF);
         }
@@ -29,7 +28,6 @@ public class SubscriptionController {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
-
         if (followerId == followeeId) {
             throw new DataValidationException(USER_CANNOT_UNFOLLOW_FROM_HIMSELF);
         }
@@ -40,6 +38,7 @@ public class SubscriptionController {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
-
-
+    public int getFollowersCount(long followerId) {
+        return subscriptionService.getFollowersCount(followerId);
+    }
 }
