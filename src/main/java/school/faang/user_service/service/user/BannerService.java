@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,20 +18,17 @@ public class BannerService {
 
     @Transactional
     public void banUsers(List<Long> userIds) {
-        List<User> bannedUsers = new ArrayList<>();
+        log.info("user ban started! user ids: {}", userIds);
         userRepository.findAllByIds(userIds)
                 .ifPresentOrElse(
-                        users -> users.stream()
-                                .peek(user -> {
-                                    user.setBanned(true);
-                                    bannedUsers.add(user);
-                                })
-                                .toList(),
-                        () -> {
-                            log.info("users by ids: {}, not found!", userIds);
-                            return;
-                        }
+                        this::setBanToUsers,
+                        () -> log.info("users by ids: {}, not found!", userIds)
                 );
-        log.info("users success banned, users ids: {}", userIds);
+    }
+
+    @Transactional
+    public void setBanToUsers(List<User> users) {
+        users.forEach(user -> user.setBanned(true));
+        log.info("users success banned");
     }
 }
