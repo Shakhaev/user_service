@@ -1,7 +1,9 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.execption.DataValidationException;
@@ -14,7 +16,7 @@ import java.util.List;
 public class SkillController {
     private final SkillService skillService;
 
-    public SkillDto create(SkillDto skill) {
+    public SkillDto create(@Valid @RequestBody SkillDto skill) {
         validateTitle(skill);
         return skillService.create(skill);
     }
@@ -36,6 +38,5 @@ public class SkillController {
             throw new DataValidationException("Название умения не может быть пустым");
         }
     }
-
 
 }
