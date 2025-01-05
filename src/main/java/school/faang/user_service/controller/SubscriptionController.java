@@ -2,8 +2,8 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.SubscriptionUserDto;
+import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
@@ -32,11 +32,11 @@ public class SubscriptionController {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+    public List<SubscriptionUserDto> getFollowers(long followeeId, SubscriptionUserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+    public List<SubscriptionUserDto> getFollowing(long followeeId, SubscriptionUserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 
