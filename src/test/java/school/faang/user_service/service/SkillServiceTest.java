@@ -158,7 +158,8 @@ public class SkillServiceTest {
         Mockito.when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
 
         List<SkillOffer> skillOffers = new ArrayList<>();
-        for (int i = 0; i < SkillService.MIN_SKILL_OFFERS; i++) {
+        int minSkillOffers = SkillService.getMinSkillOffers();
+        for (int i = 0; i < minSkillOffers; i++) {
             SkillOffer skillOffer = new SkillOffer();
             Recommendation recommendation = new Recommendation();
             recommendation.setAuthor(new User());
@@ -172,4 +173,5 @@ public class SkillServiceTest {
         Mockito.verify(skillRepository, Mockito.times(1)).assignSkillToUser(SKILL_ID, USER_ID);
         Mockito.verify(skillRepository, Mockito.times(1)).save(skill);
     }
+
 }

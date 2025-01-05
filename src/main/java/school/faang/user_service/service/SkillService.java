@@ -2,7 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -21,10 +21,10 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class SkillService {
-    public static final int MIN_SKILL_OFFERS = 3;
+    private static final int MIN_SKILL_OFFERS = 3;
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final UserRepository userRepository;
@@ -72,7 +72,8 @@ public class SkillService {
         }
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         if (skillOffers.size() >= MIN_SKILL_OFFERS) {
-            log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых", skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
+            log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых",
+                    skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
             skillRepository.assignSkillToUser(skillId, userId);
 
             List<UserSkillGuarantee> userSkillGuarantees = skillOffers.stream()
@@ -107,5 +108,9 @@ public class SkillService {
         if (skills.isEmpty()) {
             throw new NoSuchElementException("Умения не найдены");
         }
+    }
+
+    public static int getMinSkillOffers() {
+        return MIN_SKILL_OFFERS;
     }
 }
