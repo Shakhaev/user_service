@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import static java.util.Optional.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,6 +66,8 @@ class EventServiceTest {
     @Mock
     private SchedulerConfig schedulerConfig;
 
+    private ExecutorService executorService;
+
     @InjectMocks
     private EventService eventService;
 
@@ -84,7 +87,7 @@ class EventServiceTest {
     @BeforeEach
     public void setUp() {
         mockFilter = mock(EventFilter.class);
-        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig);
+        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig,executorService);
 
         skillDto1 = SkillDto.builder().id(1L).title("Java").build();
         skillDto2 = SkillDto.builder().id(2L).title("Spring").build();

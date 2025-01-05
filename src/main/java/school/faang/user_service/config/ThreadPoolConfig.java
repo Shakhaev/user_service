@@ -12,9 +12,9 @@ public class ThreadPoolConfig {
     private int coreSize;
 
     @Bean
-    public ThreadPoolTaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(coreSize);
-        return taskExecutor;
+    public ThreadPoolTaskExecutor threadPool() {
+        ThreadPoolTaskExecutor threadPool = new ThreadPoolTaskExecutor();
+        threadPool.setCorePoolSize(coreSize);
+        return threadPool;
     }
 }

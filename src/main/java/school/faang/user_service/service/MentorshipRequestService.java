@@ -70,7 +70,7 @@ public class MentorshipRequestService {
         return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
     }
 
-    @Async("taskExecutor")
+    @Async("threadPool")
     public void publishMentorshipEventAsync(MentorshipEvent event) {
         mentorshipEventPublisher.publish(event);
     }
