@@ -43,4 +43,17 @@ class SubscriptionControllerTest {
         Assertions.assertThrows(DataValidationException.class, () -> controller.followUser(4, 5),
                 "This subscription (4 - 5) already exists");
     }
+
+    @Test
+    void unfollowUser() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService);
+        Assertions.assertDoesNotThrow(() -> controller.unfollowUser(4, 5));
+    }
+
+    @Test
+    void unfollowSameUser() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService);
+        Assertions.assertThrows(DataValidationException.class, () -> controller.unfollowUser(4, 4),
+                "FollowerId 4 and FolloweeId 4 cannot be the same");
+    }
 }
