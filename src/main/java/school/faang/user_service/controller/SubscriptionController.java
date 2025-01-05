@@ -32,4 +32,8 @@ public class SubscriptionController {
         List<User> users = subscriptionService.getFollowers(followeeId, filter);
         return userMapper.toDtos(users);
     }
+
+    public int getFollowersCount(long followerId) {
+        return subscriptionService.getFollowersCount(followerId);
+    }
 }

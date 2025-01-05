@@ -48,6 +48,10 @@ public class SubscriptionService {
         return filterUsers(getAllFollowers, filter);
     }
 
+    public int getFollowersCount(long followeeId) {
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
     private List<User> filterUsers(Stream<User> users, UserFilterDto filter) {
         return users.filter(user -> Pattern.matches(filter.getNamePattern(), user.getUsername()))
                 .filter(user -> Pattern.matches(filter.getAboutPattern(), user.getAboutMe()))

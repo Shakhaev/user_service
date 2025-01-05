@@ -122,4 +122,14 @@ class SubscriptionControllerTest {
         List<UserDto> usersDto = controller.getFollowers(3L, filter);
         Assertions.assertEquals(expectedUsers, usersDto);
     }
+
+    @Test
+    void getFollowersCount() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(Mockito.anyLong()))
+                .thenReturn(77);
+        int expectedCount = 77;
+        int actualCount = controller.getFollowersCount(3L);
+        Assertions.assertEquals(expectedCount, actualCount);
+    }
 }
