@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserFilter;
+import school.faang.user_service.mapper.UserFilterMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.SubscriptionService;
 
@@ -14,10 +16,13 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
+    private final UserFilterMapper userFilterMapper;
 
-    public SubscriptionController(SubscriptionService subscriptionService, UserMapper userMapper) {
+    public SubscriptionController(SubscriptionService subscriptionService, UserMapper userMapper,
+                                  UserFilterMapper userFilterMapper) {
         this.subscriptionService = subscriptionService;
         this.userMapper = userMapper;
+        this.userFilterMapper = userFilterMapper;
     }
 
     public void followUser(long followerId, long followeeId) {
@@ -28,7 +33,8 @@ public class SubscriptionController {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followerId, UserFilterDto filter) {
+    public List<UserDto> getFollowers(long followerId, UserFilterDto filterDto) {
+        UserFilter filter = userFilterMapper.toEntity(filterDto);
         List<User> users = subscriptionService.getFollowers(followerId, filter);
         return userMapper.toDtoList(users);
     }
@@ -37,7 +43,8 @@ public class SubscriptionController {
         return subscriptionService.getFollowersCount(followerId);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+    public List<UserDto> getFollowing(long followeeId, UserFilterDto filterDto) {
+        UserFilter filter = userFilterMapper.toEntity(filterDto);
         List<User> followingUsers = subscriptionService.getFollowing(followeeId, filter);
         return userMapper.toDtoList(followingUsers);
     }

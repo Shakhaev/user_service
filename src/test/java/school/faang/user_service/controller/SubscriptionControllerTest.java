@@ -15,6 +15,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactType;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserFilterMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.SubscriptionService;
@@ -33,10 +34,12 @@ class SubscriptionControllerTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
     private final UserMapper userMapper = new UserMapper();
+    private final UserFilterMapper userFilterMapper = new UserFilterMapper();
 
     @Test
     void followUser() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(4, 5))
                 .thenReturn(false);
         Assertions.assertDoesNotThrow(() -> controller.followUser(4, 5));
@@ -44,14 +47,16 @@ class SubscriptionControllerTest {
 
     @Test
     void followSameUser() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Assertions.assertThrows(DataValidationException.class, () -> controller.followUser(4, 4),
                 "FollowerId 4 and FolloweeId 4 cannot be the same");
     }
 
     @Test
     void followIsExist() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(4, 5))
                 .thenReturn(true);
         Assertions.assertThrows(DataValidationException.class, () -> controller.followUser(4, 5),
@@ -60,20 +65,23 @@ class SubscriptionControllerTest {
 
     @Test
     void unfollowUser() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Assertions.assertDoesNotThrow(() -> controller.unfollowUser(4, 5));
     }
 
     @Test
     void unfollowSameUser() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Assertions.assertThrows(DataValidationException.class, () -> controller.unfollowUser(4, 4),
                 "FollowerId 4 and FolloweeId 4 cannot be the same");
     }
 
     @Test
     void getFollowers() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Stream<User> mockedUsers = getMockedUsers();
 
         Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
@@ -92,7 +100,8 @@ class SubscriptionControllerTest {
 
     @Test
     void getFollowersCount() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(Mockito.anyLong()))
                 .thenReturn(77);
         int expectedCount = 77;
@@ -102,7 +111,8 @@ class SubscriptionControllerTest {
 
     @Test
     void getFollowing() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Stream<User> mockedUsers = getMockedUsers();
 
         Mockito.when(subscriptionRepository.findByFolloweeId(Mockito.anyLong()))
@@ -121,7 +131,8 @@ class SubscriptionControllerTest {
 
     @Test
     void getFollowingCount() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper,
+                userFilterMapper);
         Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(Mockito.anyLong()))
                 .thenReturn(77);
         int expectedCount = 77;

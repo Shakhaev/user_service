@@ -1,8 +1,8 @@
 package school.faang.user_service.service;
 
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserFilter;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -43,7 +43,7 @@ public class SubscriptionService {
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
-    public List<User> getFollowers(long followerId, UserFilterDto filter) {
+    public List<User> getFollowers(long followerId, UserFilter filter) {
         Stream<User> getAllFollowers = subscriptionRepository.findByFollowerId(followerId);
         return filterUsers(getAllFollowers, filter);
     }
@@ -52,7 +52,7 @@ public class SubscriptionService {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
-    public List<User> getFollowing(long followeeId, UserFilterDto filter) {
+    public List<User> getFollowing(long followeeId, UserFilter filter) {
         Stream<User> followingStream = subscriptionRepository.findByFolloweeId(followeeId);
         return filterUsers(followingStream, filter);
     }
@@ -61,7 +61,7 @@ public class SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
-    private List<User> filterUsers(Stream<User> users, UserFilterDto filter) {
+    private List<User> filterUsers(Stream<User> users, UserFilter filter) {
         return users.filter(user -> Pattern.matches(filter.getNamePattern(), user.getUsername()))
                 .filter(user -> Pattern.matches(filter.getAboutPattern(), user.getAboutMe()))
                 .filter(user -> Pattern.matches(filter.getEmailPattern(), user.getEmail()))
