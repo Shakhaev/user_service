@@ -52,6 +52,18 @@ public class SkillControllerTest {
     }
 
     @Test
+    public void testOversizeTitleIsInvalid() {
+        SkillDto skill = new SkillDto();
+        skill.setTitle("AmazinglyUniqueAndLongStringForGeneratingRandomNamesInAConciseWay");
+        Set<ConstraintViolation<SkillDto>> violations = validator.validate(skill);
+
+        assertFalse(violations.isEmpty());
+        violations.forEach(violation -> {
+            assertEquals("Название умения должно быть не более 64 символов", violation.getMessage());
+        });
+    }
+
+    @Test
     public void testCreate() {
         SkillDto skill = new SkillDto();
         skill.setTitle("Java");
