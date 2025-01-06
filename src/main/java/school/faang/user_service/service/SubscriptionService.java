@@ -10,6 +10,7 @@ import school.faang.user_service.mapper.SubscriptionUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -54,6 +55,13 @@ public class SubscriptionService {
 
     }
 
+    public int getFollowersCount(long followeeId) {
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    public int getFollowingCount(long followerId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+    }
 
     private boolean filterUsers(User user) {
         /*Predicate<User> checkUserName;
@@ -64,46 +72,63 @@ public class SubscriptionService {
             checkUserName = u -> true;
         }*/
 
-        Predicate<User> checkUserName = checkPattern(user.getUsername(), subscriptionUserFilterDto.getNamePattern());
-        Predicate<User> checkAboutUser = checkPattern(user.getAboutMe(), subscriptionUserFilterDto.getAboutPattern());
+        Predicate<User> filterUserName = checkPattern(User::getUsername,
+                subscriptionUserFilterDto.getNamePattern());
+        Predicate<User> filterAboutUser = checkPattern(User::getAboutMe,
+                subscriptionUserFilterDto.getAboutPattern());
+        Predicate<User> filterUserEmail = checkPattern(User::getEmail,
+                subscriptionUserFilterDto.getEmailPattern());
+        Predicate<User> filterUserCity = checkPattern(User::getCity,
+                subscriptionUserFilterDto.getCityPattern());
+        Predicate<User> filterUserPhone = checkPattern(User::getPhone,
+                subscriptionUserFilterDto.getPhonePattern());
+        Predicate<User> filterUserCountry = checkPattern(user1 -> user1.getCountry().getTitle(),
+                subscriptionUserFilterDto.getCountryPattern());
+        //Predicate<User> filterUserSkills = checkSkillsPattern(
+        //        subscriptionUserFilterDto.getSkillPattern());
 
-        //Predicate<User> checkUserName = u -> u.getUsername().matches(subscriptionUserFilterDto.getNamePattern());
-        //Predicate<User> checkAboutUser = u -> u.getAboutMe().matches(subscriptionUserFilterDto.getAboutPattern());
-        //Predicate<User> checkUserEmail = u -> u.getEmail().matches(subscriptionUserFilterDto.getEmailPattern());
-        //Predicate<User> checkContact = u -> u.getContacts().stream().map(Contact::getContact)
-        //        .filter(c -> c.matches(subscriptionUserFilterDto.getContactPattern())).isParallel();
-        //Predicate<User> checkUserCountry = u -> u.getCountry().getTitle().matches(subscriptionUserFilterDto.getCountryPattern());
-        //Predicate<User> checkUserCity = u -> u.getCity().matches(subscriptionUserFilterDto.getCityPattern());
-        //Predicate<User> checkUserPhone = u -> u.getPhone().matches(subscriptionUserFilterDto.getPhonePattern());
-        //Predicate<User> checkUserSkill = u -> u.getSkills().stream().map(Skill::getTitle)
-        //        .filter(title -> title.matches(subscriptionUserFilterDto.getSkillPattern())).isParallel();
 
-        return checkUserName
-                .and(checkAboutUser)
-                //.and(checkUserEmail)
+        return filterUserName
+                .and(filterAboutUser)
+                .and(filterUserEmail)
                 //.and(checkContact)
-                //.and(checkUserCountry)
-                //.and(checkUserCity)
-                //.and(checkUserPhone)
-                //.and(checkUserSkill)
+                .and(filterUserCountry)
+                .and(filterUserCity)
+                .and(filterUserPhone)
+                //.and(filterUserSkills)
                 .test(user);
     }
 
-    private Predicate<User> checkPattern(String fieldValue, String checkPattern) {
+    private Predicate<User> checkPattern(Function<User, String> fieldName, String checkPattern) {
         Predicate<User> checkPredicate;
         if (checkPattern != null && !checkPattern.isEmpty()) {
-            checkPredicate = u -> fieldValue.matches(checkPattern);
+            checkPredicate = user -> fieldName.apply(user).matches(checkPattern);
         } else {
             checkPredicate = u -> true;
         }
         return checkPredicate;
     }
 
-    public int getFollowersCount(long followeeId) {
-        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+/*    private Predicate<User> checkContactPattern(List<Contact> contacts, String checkPattern) {
+        Predicate<User> checkPredicate;
+        if (checkPattern != null && !checkPattern.isEmpty()) {
+            checkPredicate = u -> contacts.stream()
+                    .filter(contact -> contact.getContact().matches(checkPattern))
+                    .isParallel();
+        } else {
+            checkPredicate = u -> true;
+        }
+        return checkPredicate;
     }
+    private Predicate<User> checkSkillsPattern(String checkPattern) {
+        Predicate<User> checkPredicate;
+        if (checkPattern != null && !checkPattern.isEmpty()) {
+            checkPredicate = u -> u.getSkills().contains(checkPattern);
 
-    public int getFollowingCount(long followerId) {
-        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+        } else {
+            checkPredicate = u -> true;
+        }
+        return checkPredicate;
     }
+*/
 }

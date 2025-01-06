@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SubscriptionUserDto;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SubscriptionUserMapperImpl;
@@ -31,7 +33,7 @@ public class SubscriptionServiceTest {
 
     @Spy
     SubscriptionUserMapperImpl subscriptionUserMapper;
-    //Mappers.getMapper(SubscriptionUserMapper.class);
+
     @InjectMocks
     SubscriptionService subscriptionService;
 
@@ -40,6 +42,11 @@ public class SubscriptionServiceTest {
 
     List<User> followers = new ArrayList<>();
     List<User> followees = new ArrayList<>();
+    SubscriptionUserFilterDto filter;
+
+    List<SubscriptionUserDto> filteredUsersDtos;
+
+    List<SubscriptionUserDto> expectedUserDtos;
 
 
     @BeforeEach
@@ -48,10 +55,8 @@ public class SubscriptionServiceTest {
         followeeId = 2L;
 
         fillFollowersAndFollowees();
+        filter = new SubscriptionUserFilterDto();
 
-
-        //followers.add(user1);
-        //followees.add(user1);
     }
 
     @Test
@@ -99,17 +104,15 @@ public class SubscriptionServiceTest {
     void testFilterFollowersByName() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
 
-        SubscriptionUserFilterDto filter = new SubscriptionUserFilterDto();
         filter.setNamePattern("m.sha");
-        List<SubscriptionUserDto> usersDtos = subscriptionService.getFollowing(followeeId, filter);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
 
-        List<SubscriptionUserDto> expectedUserDtos = followers.stream()
+        expectedUserDtos = followers.stream()
                 .filter(u -> u.getId() != 3L)
                 .map(subscriptionUserMapper::toDto)
                 .toList();
 
-        Assert.assertEquals(2, usersDtos.size());
-        Assert.assertArrayEquals(expectedUserDtos.toArray(), usersDtos.toArray());
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
     }
 
     @Test
@@ -117,16 +120,14 @@ public class SubscriptionServiceTest {
     void testFilterFollowersByEmptyName() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
 
-        SubscriptionUserFilterDto filter = new SubscriptionUserFilterDto();
         filter.setNamePattern("");
-        List<SubscriptionUserDto> usersDtos = subscriptionService.getFollowing(followeeId, filter);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
 
-        List<SubscriptionUserDto> expectedUserDtos = followers.stream()
+        expectedUserDtos = followers.stream()
                 .map(subscriptionUserMapper::toDto)
                 .toList();
 
-        Assert.assertEquals(3, usersDtos.size());
-        Assert.assertArrayEquals(expectedUserDtos.toArray(), usersDtos.toArray());
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
     }
 
     @Test
@@ -134,17 +135,45 @@ public class SubscriptionServiceTest {
     void testFilterFollowersByAboutMe() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
 
-        SubscriptionUserFilterDto filter = new SubscriptionUserFilterDto();
         filter.setAboutPattern("I'm Masha");
-        List<SubscriptionUserDto> usersDtos = subscriptionService.getFollowing(followeeId, filter);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
 
-        List<SubscriptionUserDto> expectedUserDtos = followers.stream()
+        expectedUserDtos = followers.stream()
                 .filter(u -> u.getId() == 2L)
                 .map(subscriptionUserMapper::toDto)
                 .toList();
 
-        Assert.assertEquals(1, usersDtos.size());
-        Assert.assertArrayEquals(expectedUserDtos.toArray(), usersDtos.toArray());
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by Empty Email")
+    void testFilterFollowersByEmptyEmail() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setEmailPattern("");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+    @Test
+    @DisplayName("Test user filter by Email")
+    void testFilterFollowersByEmail() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setEmailPattern("misha@mail.ru");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
     }
 
     @Test
@@ -152,21 +181,157 @@ public class SubscriptionServiceTest {
     void testFilterFollowersByEmptyAboutMe() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
 
-        SubscriptionUserFilterDto filter = new SubscriptionUserFilterDto();
-        filter.setAboutPattern(null);
-        List<SubscriptionUserDto> usersDtos = subscriptionService.getFollowing(followeeId, filter);
 
-        List<SubscriptionUserDto> expectedUserDtos = followers.stream()
+        filter.setAboutPattern(null);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
                 .map(subscriptionUserMapper::toDto)
                 .toList();
 
-        Assert.assertEquals(3, usersDtos.size());
-        Assert.assertArrayEquals(expectedUserDtos.toArray(), usersDtos.toArray());
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
     }
 
+    @Test
+    @DisplayName("Test user filter by City")
+    void testFilterFollowersByCity() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
 
-    private void fillFollowersAndFollowees()
-    {
+        filter.setCityPattern("Moscow");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by Empty City")
+    void testFilterFollowersByEmptyCity() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setCityPattern(null);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by Phone")
+    void testFilterFollowersByPhone() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPhonePattern("456");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 2L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by Empty Phone")
+    void testFilterFollowersByEmptyPhone() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setCityPattern(null);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by Country")
+    void testFilterFollowersByCountry() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setCountryPattern("China");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 3L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+    @Test
+    @DisplayName("Test user filter by Empty Country")
+    void testFilterFollowersByEmptyCountry() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setSkillPattern(null);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+    /*
+    @Test
+    @DisplayName("Test user filter by Empty Skills")
+    void testFilterFollowersByEmptySkills() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setCityPattern(null);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        //Assert.assertEquals(expectedUserDtos.size(), filteredUsersDtos.size());
+        Assert.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter by 1 of Skills")
+    void testFilterFollowersBySkills() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setSkillPattern("Skill 1");
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        //Assert.assertEquals(expectedUserDtos.size(), filteredUsersDtos.size());
+        Assert.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+*/
+
+
+    private void fillFollowersAndFollowees() {
+        Country countryRussia = Country.builder().id(1).title("Russia").build();
+        Country countryUsa = Country.builder().id(1).title("USA").build();
+        Country countryChina = Country.builder().id(1).title("China").build();
+
+        Skill skill1 = Skill.builder().id(1).title("Skill 1").build();
+        Skill skill2 = Skill.builder().id(1).title("Skill 2").build();
+        Skill skill3 = Skill.builder().id(1).title("Skill 3").build();
+
+        List<Skill> skillSet1 = new ArrayList<>(List.of(skill1));
+        List<Skill> skillSet23 = new ArrayList<>(List.of(skill2,skill3));
+        List<Skill> skillSet3 = new ArrayList<>(List.of(skill3));
+
         User user1 = User.builder()
                 .city("Moscow")
                 .active(true)
@@ -177,6 +342,9 @@ public class SubscriptionServiceTest {
                 .aboutMe("I'm Misha")
                 .email("misha@mail.ru")
                 .username("misha")
+                .phone("123")
+                .country(countryRussia)
+                .skills(skillSet1)
                 .build();
         followers.add(user1);
         followees.add(user1);
@@ -191,6 +359,9 @@ public class SubscriptionServiceTest {
                 .aboutMe("I'm Masha")
                 .email("masha@mail.ru")
                 .username("masha")
+                .phone("456")
+                .country(countryUsa)
+                .skills(skillSet23)
                 .build();
 
         followers.add(user2);
@@ -206,6 +377,9 @@ public class SubscriptionServiceTest {
                 .aboutMe("I'm Kesha")
                 .email("kesha@mail.ru")
                 .username("kesha")
+                .phone("789")
+                .country(countryChina)
+                .skills(skillSet3)
                 .build();
 
         followers.add(user3);

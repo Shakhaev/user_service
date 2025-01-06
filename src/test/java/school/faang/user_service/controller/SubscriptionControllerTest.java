@@ -17,15 +17,10 @@ import school.faang.user_service.service.SubscriptionService;
 @ExtendWith(MockitoExtension.class)
 class SubscriptionControllerTest {
 
-    //@Mock
-    //SubscriptionRepository subscriptionRepository;
     @Mock
     private SubscriptionService subscriptionService;
     @InjectMocks
     private SubscriptionController subscriptionController;
-
-    //SubscriptionUserMapper userMapper;
-    private SubscriptionUserFilterDto subscriptionUserFilterDto;
 
     long followerId;
     long followeeId;
@@ -69,7 +64,7 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Get All Followers")
     void testGetAllFollowers() {
-        subscriptionUserFilterDto = new SubscriptionUserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
         subscriptionController.getFollowers(followerId, subscriptionUserFilterDto);
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowers(followerId, subscriptionUserFilterDto);
@@ -81,7 +76,6 @@ class SubscriptionControllerTest {
         subscriptionController.getFollowersCount(followeeId);
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowersCount(followeeId);
-
     }
 
     @Test
@@ -90,6 +84,5 @@ class SubscriptionControllerTest {
         subscriptionController.getFollowingCount(followerId);
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowingCount(followerId);
-
     }
 }
