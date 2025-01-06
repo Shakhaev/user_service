@@ -71,7 +71,11 @@ public class SkillService {
             return null;
         }
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
-        if (skillOffers.size() >= MIN_SKILL_OFFERS) {
+        if (skillOffers.size() < MIN_SKILL_OFFERS) {
+            log.info("Недостаточное количество предложений для присвоения умения {}. Необходимо {} вместо {}",
+                    skill.getTitle(), MIN_SKILL_OFFERS, skillOffers.size());
+            return null;
+        } else {
             log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых",
                     skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
             skillRepository.assignSkillToUser(skillId, userId);
@@ -86,10 +90,6 @@ public class SkillService {
             skill.setGuarantees(userSkillGuarantees);
             log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle(), user.getUsername());
             skillRepository.save(skill);
-        } else {
-            log.info("Недостаточное количество предложений для присвоения умения {}. Необходимо {} вместо {}",
-                    skill.getTitle(), MIN_SKILL_OFFERS, skillOffers.size());
-            return null;
         }
         return skillMapper.toDto(skill);
     }
