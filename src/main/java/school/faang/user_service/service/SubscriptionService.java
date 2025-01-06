@@ -33,20 +33,34 @@ public class SubscriptionService {
     /*
         TODO -> Needs to test
     */
-    public long getFollowersCount(long followerId) {
-        return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
+    public long getFollowersCount(long followeeId) {
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    /*
+        TODO -> Needs to test
+    */
+    public long getFollowingCount(long followeeId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
+    }
+
+     /*
+        TODO -> Needs to test
+    */
+    public CompletableFuture<List<UserDto>> getFollowees(long followeeId, UserFilterDto userFilterDto) {
+        Stream<User> followersOfUser = subscriptionRepository.findByFolloweeId(followeeId);
+        return filterPeople(followersOfUser, userFilterDto);
     }
 
     /*
         TODO -> Needs to test
     */
     public CompletableFuture<List<UserDto>> getFollowers(long followeeId, UserFilterDto userFilterDto) {
-        Stream<User> followersOfUser = subscriptionRepository.findByFolloweeId(followeeId);
-        return filterFollowers(followersOfUser, userFilterDto);
+        Stream<User> followersOfUser = subscriptionRepository.findByFollowerId(followeeId);
+        return filterPeople(followersOfUser, userFilterDto);
     }
 
-    @Async
-    private CompletableFuture<List<UserDto>> filterFollowers(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
+    private CompletableFuture<List<UserDto>> filterPeople(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
         List<User> followers = followersOfUser.toList();
 
         logger.info("Halfing the list of followers async go!");
@@ -54,8 +68,8 @@ public class SubscriptionService {
         List<User> firstHalf = followers.subList(0, middle);
         List<User> secondHalf = followers.subList(middle, followers.size());
 
-        CompletableFuture<List<UserDto>> firstTask = processFollowers(firstHalf.stream(), userFilterDto);
-        CompletableFuture<List<UserDto>> secondTask = processFollowers(secondHalf.stream(), userFilterDto);
+        CompletableFuture<List<UserDto>> firstTask = processPeople(firstHalf.stream(), userFilterDto);
+        CompletableFuture<List<UserDto>> secondTask = processPeople(secondHalf.stream(), userFilterDto);
 
         return firstTask.thenCombine(secondTask, (firstHalfResult, secondHalfResult) -> {
             List<UserDto> result = new ArrayList<>();
@@ -67,7 +81,7 @@ public class SubscriptionService {
     }
 
     @Async
-    private CompletableFuture<List<UserDto>> processFollowers(Stream<User> followersStream, UserFilterDto userFilterDto) {
+    private CompletableFuture<List<UserDto>> processPeople(Stream<User> followersStream, UserFilterDto userFilterDto) {
         logger.info("Making some filters -> {}!", followersStream.toList());
 
         return CompletableFuture.completedFuture(followersStream
