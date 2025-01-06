@@ -74,7 +74,53 @@ class SubscriptionControllerTest {
     @Test
     void getFollowers() {
         SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
-        Stream<User> mockedUsers = IntStream.rangeClosed(0, 100)
+        Stream<User> mockedUsers = getMockedUsers();
+
+        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
+                .thenReturn(mockedUsers);
+
+        List<UserDto> expectedUsers = IntStream.range(0, 20)
+                .boxed()
+                .map(i -> new UserDto(i.longValue(), "user%d".formatted(i), "user%d@email.com".formatted(i)))
+                .toList();
+
+        UserFilterDto filter = getFilter();
+
+        List<UserDto> usersDto = controller.getFollowers(3L, filter);
+        Assertions.assertEquals(expectedUsers, usersDto);
+    }
+
+    @Test
+    void getFollowersCount() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(Mockito.anyLong()))
+                .thenReturn(77);
+        int expectedCount = 77;
+        int actualCount = controller.getFollowersCount(3L);
+        Assertions.assertEquals(expectedCount, actualCount);
+    }
+
+    @Test
+    void getFollowing() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        Stream<User> mockedUsers = getMockedUsers();
+
+        Mockito.when(subscriptionRepository.findByFolloweeId(Mockito.anyLong()))
+                .thenReturn(mockedUsers);
+
+        List<UserDto> expectedUsers = IntStream.range(0, 20)
+                .boxed()
+                .map(i -> new UserDto(i.longValue(), "user%d".formatted(i), "user%d@email.com".formatted(i)))
+                .toList();
+
+        UserFilterDto filter = getFilter();
+
+        List<UserDto> usersDto = controller.getFollowing(3L, filter);
+        Assertions.assertEquals(expectedUsers, usersDto);
+    }
+
+    private Stream<User> getMockedUsers() {
+        return IntStream.rangeClosed(0, 100)
                 .boxed()
                 .map(i -> {
                     User user = new User();
@@ -96,15 +142,9 @@ class SubscriptionControllerTest {
                     user.setExperience(5);
                     return user;
                 });
+    }
 
-        Mockito.when(subscriptionRepository.findByFolloweeId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        List<UserDto> expectedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> new UserDto(i.longValue(), "user%d".formatted(i), "user%d@email.com".formatted(i)))
-                .toList();
-
+    private UserFilterDto getFilter() {
         UserFilterDto filter = new UserFilterDto();
         filter.setNamePattern("\\w+");
         filter.setAboutPattern("[\\w*\\s*]*");
@@ -119,17 +159,6 @@ class SubscriptionControllerTest {
         filter.setPage(2);
         filter.setPageSize(10);
 
-        List<UserDto> usersDto = controller.getFollowers(3L, filter);
-        Assertions.assertEquals(expectedUsers, usersDto);
-    }
-
-    @Test
-    void getFollowersCount() {
-        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
-        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(Mockito.anyLong()))
-                .thenReturn(77);
-        int expectedCount = 77;
-        int actualCount = controller.getFollowersCount(3L);
-        Assertions.assertEquals(expectedCount, actualCount);
+        return filter;
     }
 }

@@ -28,12 +28,17 @@ public class SubscriptionController {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        List<User> users = subscriptionService.getFollowers(followeeId, filter);
+    public List<UserDto> getFollowers(long followerId, UserFilterDto filter) {
+        List<User> users = subscriptionService.getFollowers(followerId, filter);
         return userMapper.toDtoList(users);
     }
 
     public int getFollowersCount(long followerId) {
         return subscriptionService.getFollowersCount(followerId);
+    }
+
+    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+        List<User> followingUsers = subscriptionService.getFollowing(followeeId, filter);
+        return userMapper.toDtoList(followingUsers);
     }
 }

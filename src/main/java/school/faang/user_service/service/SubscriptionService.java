@@ -44,12 +44,17 @@ public class SubscriptionService {
     }
 
     public List<User> getFollowers(long followerId, UserFilterDto filter) {
-        Stream<User> getAllFollowers = subscriptionRepository.findByFolloweeId(followerId);
+        Stream<User> getAllFollowers = subscriptionRepository.findByFollowerId(followerId);
         return filterUsers(getAllFollowers, filter);
     }
 
     public int getFollowersCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    public List<User> getFollowing(long followeeId, UserFilterDto filter) {
+        Stream<User> followingStream = subscriptionRepository.findByFolloweeId(followeeId);
+        return filterUsers(followingStream, filter);
     }
 
     private List<User> filterUsers(Stream<User> users, UserFilterDto filter) {
