@@ -23,6 +23,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.message.producer.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.Integrations.avatar.AvatarService;
@@ -80,6 +81,8 @@ public class UserServiceTest {
 
     @Spy
     private UserProfilePicMapper mapper = Mappers.getMapper(UserProfilePicMapper.class);
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
 
     private User user;
     private MultipartFile multipartFile;

@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
@@ -19,6 +20,8 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.message.event.ProfileViewEvent;
+import school.faang.user_service.message.producer.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.CountryService;
@@ -51,6 +54,7 @@ public class UserService {
     private final AvatarService avatarService;
     private final CountryService countryService;
     private final PasswordService passwordService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     @Transactional
     public void banUsers(List<Long> userIdsToBan) {
@@ -58,6 +62,7 @@ public class UserService {
         List<User> usersToBan = getAllUsersByIds(userIdsToBan);
         usersToBan.forEach(User::ban);
     }
+
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -75,6 +80,12 @@ public class UserService {
     public void updateAllUsers(List<User> users) {
         userRepository.saveAll(users);
     }
+
+    public User getUserById(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new
+                EntityNotFoundException("User do not found by " + userId));
+    }
+
 
     public UserForNotificationDto getUserByIdForNotification(long userId) {
         User user = getUserById(userId);
@@ -185,6 +196,11 @@ public class UserService {
         updateUser(user);
 
         s3Service.deleteFiles(fileId, smallFileId);
+    }
+
+    @Async("threadPool")
+    public void publishProfileViewEvent(ProfileViewEvent profileViewEvent) {
+        profileViewEventPublisher.publish(profileViewEvent);
     }
 
     private void validateAvatarSize(MultipartFile file) {

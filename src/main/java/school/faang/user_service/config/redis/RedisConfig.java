@@ -21,26 +21,6 @@ public class RedisConfig {
 
     private final ObjectMapper objectMapper;
 
-    private final UsersBanListener usersBanListener;
-
-    private final BanUserEventListener banUserEventListener;
-
-    @Value("${spring.data.redis.channels.users-ban-channel.name}")
-    private String usersBanTopicName;
-
-    @Bean
-    public MessageListenerAdapter banUserEventListenerAdapter(BanUserEventListener banUserEventListener) {
-        return new MessageListenerAdapter(banUserEventListener);
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(banUserEventListener, banUserTopic());
-        return container;
-    }
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -49,22 +29,5 @@ public class RedisConfig {
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
         template.setValueSerializer(serializer);
         return template;
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory redisConnectionFactory) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(redisConnectionFactory);
-
-        ChannelTopic usersBanTopic = new ChannelTopic(usersBanTopicName);
-        MessageListenerAdapter usersBanMessageListener = new MessageListenerAdapter(usersBanListener);
-        container.addMessageListener(usersBanMessageListener, usersBanTopic);
-
-        return container;
-    }
-
-    @Bean("banUserTopic")
-    public ChannelTopic banUserTopic() {
-        return new ChannelTopic(usersBanTopicName);
     }
 }
