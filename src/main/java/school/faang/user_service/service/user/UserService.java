@@ -76,11 +76,6 @@ public class UserService {
         userRepository.saveAll(users);
     }
 
-    public User getUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new
-                EntityNotFoundException("User do not found by " + userId));
-    }
-
     public UserForNotificationDto getUserByIdForNotification(long userId) {
         User user = getUserById(userId);
         return userMapper.toUserForNotificationDto(user);
