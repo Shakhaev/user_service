@@ -8,6 +8,8 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ public interface UserMapper {
 
     @Mapping(source = "mentees", target = "menteeIds", qualifiedByName = "mapToId")
     @Mapping(source = "mentors", target = "mentorIds", qualifiedByName = "mapToId")
+    @Mapping(source = "contactPreference", target = "preference", qualifiedByName = "mapContactToPreference")
     UserDto toDto(User user);
 
     @Mapping(target = "mentees", ignore = true)
@@ -25,6 +28,14 @@ public interface UserMapper {
     @Named("mapToId")
     default List<Long> map(List<User> users) {
         return users.stream().map(User::getId).toList();
+    }
+
+    @Named("mapContactToPreference")
+    default PreferredContact map(ContactPreference contactPreference) {
+        if (contactPreference == null) {
+            return null;
+        }
+        return contactPreference.getPreference();
     }
 
     default User toEntity(Person person) {

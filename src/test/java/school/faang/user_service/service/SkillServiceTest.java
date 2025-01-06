@@ -113,7 +113,7 @@ public class SkillServiceTest {
     @Test
     public void testAcquireSkillFromOffersLessThree() {
         when(skillRepository.findUserSkill(anyLong(), anyLong()))
-                .thenReturn(Optional.of(new Skill()));
+                .thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(anyLong(), anyLong()))
                 .thenReturn(List.of(new SkillOffer()));
         Optional<SkillDto> result = skillService.acquireSkillFromOffers(anyLong(), anyLong());
@@ -124,12 +124,17 @@ public class SkillServiceTest {
     @Test
     public void testAcquireSkillFromOffersOverThree() {
         when(skillRepository.findUserSkill(anyLong(), anyLong()))
-                .thenReturn(Optional.of(Skill.builder().guarantees(new ArrayList<>()).build()));
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(Skill.builder().guarantees(new ArrayList<>()).build()));;
         when(skillOfferRepository.findAllOffersOfSkill(anyLong(), anyLong()))
                 .thenReturn(List.of(new SkillOffer(), new SkillOffer(), new SkillOffer()
                         , new SkillOffer()));
+
+
         skillService.acquireSkillFromOffers(anyLong(), anyLong());
-        verify(skillRepository).assignSkillToUser(anyLong(), anyLong());
+
+        verify(skillRepository, times(1))
+                .assignSkillToUser(anyLong(), anyLong());
         verify(skillAcquiredEventPublisher)
                 .publish(any(SkillAcquiredEvent.class));
     }

@@ -29,9 +29,9 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("{userId}")
-    public ResponseEntity<UserDto> getUser(@NotNull @PathVariable long userId) {
-        return ResponseEntity.ok().body(userService.getUserDtoById(userId));
+    @GetMapping("{id}")
+    public ResponseEntity<UserDto> getUser(@NotNull @PathVariable long id) {
+        return ResponseEntity.ok().body(userService.getUserDtoById(id));
     }
 
     @GetMapping
