@@ -119,6 +119,16 @@ class SubscriptionControllerTest {
         Assertions.assertEquals(expectedUsers, usersDto);
     }
 
+    @Test
+    void getFollowingCount() {
+        SubscriptionController controller = new SubscriptionController(subscriptionService, userMapper);
+        Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(Mockito.anyLong()))
+                .thenReturn(77);
+        int expectedCount = 77;
+        int actualCount = controller.getFollowingCount(3L);
+        Assertions.assertEquals(expectedCount, actualCount);
+    }
+
     private Stream<User> getMockedUsers() {
         return IntStream.rangeClosed(0, 100)
                 .boxed()

@@ -41,4 +41,8 @@ public class SubscriptionController {
         List<User> followingUsers = subscriptionService.getFollowing(followeeId, filter);
         return userMapper.toDtoList(followingUsers);
     }
+
+    public int getFollowingCount(long followeeId) {
+        return subscriptionService.getFollowingCount(followeeId);
+    }
 }
