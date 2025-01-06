@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.SkillCandidateDto;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.dto.skill.SkillAcquiredEvent;
@@ -54,8 +55,9 @@ public class SkillService {
         return skillCandidateMapper.toCandidateDto(candidateSkills);
     }
 
+    @Transactional
     public Optional<SkillDto> acquireSkillFromOffers(long skillId, long userId) {
-        if (skillRepository.findUserSkill(skillId, userId).isEmpty()) {
+        if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
             return Optional.empty();
         }
         List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
@@ -69,11 +71,7 @@ public class SkillService {
                 guaranteeSkill.get().getGuarantees().add(guarantee);
                 skillRepository.save(guaranteeSkill.get());
             }
-            skillAcquiredEventPublisher.publish(SkillAcquiredEvent
-                    .builder()
-                    .userId(userId)
-                    .userId(userId)
-                    .build());
+            skillAcquiredEventPublisher.publish(new SkillAcquiredEvent(userId, skillId));
             return Optional.of(skillMapper.toDto(guaranteeSkill.get()));
         }
         return Optional.empty();

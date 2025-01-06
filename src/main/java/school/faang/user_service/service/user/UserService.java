@@ -130,9 +130,10 @@ public class UserService {
     }
 
     public UserSkillGuarantee addGuaranty(long userId, SkillOffer skillOffer) {
-        UserSkillGuarantee guarantee = UserSkillGuarantee.builder().user(
-                        userRepository.findById(userId).get()
-                ).guarantor(skillOffer.getRecommendation().getAuthor())
+        UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
+                .user(userRepository.findById(userId).get())
+                .guarantor(skillOffer.getRecommendation().getAuthor())
+                .skill(skillOffer.getSkill())
                 .build();
         return userSkillGuaranteeRepository.save(guarantee);
     }

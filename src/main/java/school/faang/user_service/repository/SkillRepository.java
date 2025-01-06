@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.Skill;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     @Query(nativeQuery = true, value = "INSERT INTO user_skill (skill_id, user_id) VALUES (:skillId, :userId)")
     @Modifying
+    @Transactional
     void assignSkillToUser(long skillId, long userId);
 
     @Query(nativeQuery = true, value = """
