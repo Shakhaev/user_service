@@ -104,7 +104,7 @@ public class SkillService {
                 .orElseThrow(() -> new NoSuchElementException(String.format("Пользователь с ID %d не найден", userId)));
     }
 
-    private <T> void validateSkillList(List<T> skills) {
+    private void validateSkillList(List<?> skills) {
         if (skills.isEmpty()) {
             throw new NoSuchElementException("Умения не найдены");
         }
