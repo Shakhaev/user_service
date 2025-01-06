@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
 public class ThreadPoolConfig {
@@ -16,6 +15,7 @@ public class ThreadPoolConfig {
     public ThreadPoolTaskExecutor threadPool() {
         ThreadPoolTaskExecutor threadPool = new ThreadPoolTaskExecutor();
         threadPool.setCorePoolSize(coreSize);
+        threadPool.initialize();
         return threadPool;
     }
 }

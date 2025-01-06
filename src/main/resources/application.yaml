@@ -29,6 +29,12 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        ban-user-channel:
+          name: ban_user_channel
+        recommendation-channel:
+          name: recommendation_channel
+        users-ban-channel:
+          name: users_ban_event
         profile-view-channel:
           name: profile_view_event
 
@@ -46,6 +52,13 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+integration:
+  dice-bear:
+    base-url: https://api.dicebear.com
+    version: 9.x
+    styles: adventurer, bottts, big-ears
+    seed-names: Brian, Adrian, Chase, Oliver, Robert
 
 scheduler:
   clear-events-cron: "0 0 * * * *"
