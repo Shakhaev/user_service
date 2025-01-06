@@ -19,32 +19,32 @@ import java.util.concurrent.CompletableFuture;
 public class SubscriptonController {
     private final SubscriptionService subscriptionService;
 
-    @GetMapping
+    @GetMapping("/followees")
     public CompletableFuture<List<UserDto>> getFollowees(long followeeId, UserFilterDto userFilterDto) {
         return subscriptionService.getFollowees(followeeId, userFilterDto);
     }
 
-    @GetMapping
+    @GetMapping("/followers")
     public CompletableFuture<List<UserDto>> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         return subscriptionService.getFollowers(followeeId, userFilterDto);
     }
 
-    @GetMapping
+    @GetMapping("/followeesCount")
     public long getFollowingCount(long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
     }
 
-    @GetMapping
+    @GetMapping("/followersCount")
     public long getFollowersCount(long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
-    @PostMapping
+    @PostMapping("/follow")
     public void followerUser(FollowingFeatureDto followingFeatureDto) {
         subscriptionService.followUser(followingFeatureDto);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/unfollow")
     public void unfollowUser(FollowingFeatureDto followingFeatureDto) {
         subscriptionService.unfollowUser(followingFeatureDto);
     }
