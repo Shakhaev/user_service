@@ -1,7 +1,6 @@
 package school.faang.user_service.service;
 
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,13 +9,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
+import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.execption.DataValidationException;
-import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -43,18 +42,19 @@ public class SkillServiceTest {
     @Mock
     private SkillMapper skillMapper;
 
-    @Mock
-    private SkillCandidateMapper skillCandidateMapper;
-
     @InjectMocks
     private SkillService skillService;
 
     private SkillDto skillDto;
+    private SkillCreateDto skillCreateDto;
     private User user;
     private Skill skill;
 
     @BeforeEach
     public void beforeEach() {
+        skillCreateDto = new SkillCreateDto();
+        skillCreateDto.setTitle("Java");
+
         skillDto = new SkillDto();
         skillDto.setTitle("Java");
 
@@ -73,7 +73,7 @@ public class SkillServiceTest {
 
         Assert.assertThrows(
                 DataValidationException.class,
-                () -> skillService.create(skillDto)
+                () -> skillService.create(skillCreateDto)
         );
     }
 
@@ -81,9 +81,9 @@ public class SkillServiceTest {
     public void testNotExistingSkillCreate() {
         Mockito.when(skillRepository.existsByTitle("Java")).thenReturn(false);
 
-        Mockito.when(skillMapper.toEntity(skillDto)).thenReturn(new Skill());
-        skillService.create(skillDto);
-        Skill skill = skillMapper.toEntity(skillDto);
+        Mockito.when(skillMapper.toEntity(skillCreateDto)).thenReturn(new Skill());
+        skillService.create(skillCreateDto);
+        Skill skill = skillMapper.toEntity(skillCreateDto);
         Mockito.verify(skillRepository, Mockito.times(1)).save(skill);
     }
 
@@ -99,10 +99,7 @@ public class SkillServiceTest {
 
     @Test
     public void testGetUserSkills() {
-        Mockito.when(skillMapper.toEntity(skillDto)).thenReturn(new Skill());
-        Skill skill = skillMapper.toEntity(skillDto);
-
-        Mockito.when(skillRepository.findAllByUserId(USER_ID)).thenReturn(List.of(skill));
+        Mockito.when(skillRepository.findAllByUserId(USER_ID)).thenReturn(List.of(new Skill()));
         skillService.getUserSkills(USER_ID);
 
         Mockito.verify(skillRepository, Mockito.times(1)).findAllByUserId(USER_ID);
@@ -121,7 +118,7 @@ public class SkillServiceTest {
     @Test
     public void testGetOfferedSkills() {
         Skill skill = new Skill();
-        Mockito.when(skillCandidateMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
+        Mockito.when(skillMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
 
         Mockito.when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill));
         skillService.getOfferedSkills(USER_ID);

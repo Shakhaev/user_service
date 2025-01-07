@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.service.SkillService;
 
 import java.util.Set;
@@ -31,7 +31,7 @@ public class SkillControllerTest {
 
     @Test
     public void testNullTitleIsInvalid() {
-        Set<ConstraintViolation<SkillDto>> violations = validator.validate(new SkillDto());
+        Set<ConstraintViolation<SkillCreateDto>> violations = validator.validate(new SkillCreateDto());
 
         assertFalse(violations.isEmpty());
         violations.forEach(violation -> {
@@ -41,9 +41,9 @@ public class SkillControllerTest {
 
     @Test
     public void testBlankTitleIsInvalid() {
-        SkillDto skill = new SkillDto();
+        SkillCreateDto skill = new SkillCreateDto();
         skill.setTitle("  ");
-        Set<ConstraintViolation<SkillDto>> violations = validator.validate(skill);
+        Set<ConstraintViolation<SkillCreateDto>> violations = validator.validate(skill);
 
         assertFalse(violations.isEmpty());
         violations.forEach(violation -> {
@@ -53,9 +53,9 @@ public class SkillControllerTest {
 
     @Test
     public void testOversizeTitleIsInvalid() {
-        SkillDto skill = new SkillDto();
+        SkillCreateDto skill = new SkillCreateDto();
         skill.setTitle("AmazinglyUniqueAndLongStringForGeneratingRandomNamesInAConciseWay");
-        Set<ConstraintViolation<SkillDto>> violations = validator.validate(skill);
+        Set<ConstraintViolation<SkillCreateDto>> violations = validator.validate(skill);
 
         assertFalse(violations.isEmpty());
         violations.forEach(violation -> {
@@ -65,7 +65,7 @@ public class SkillControllerTest {
 
     @Test
     public void testCreate() {
-        SkillDto skill = new SkillDto();
+        SkillCreateDto skill = new SkillCreateDto();
         skill.setTitle("Java");
         Mockito.when(skillService.create(skill)).thenReturn(null);
 
