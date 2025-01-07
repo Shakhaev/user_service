@@ -124,7 +124,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testGetOfferedSkills() {
+    public void testGetOfferedSkillsSuccessCase() {
         Skill skill = new Skill();
         Mockito.when(skillCandidateMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
 
