@@ -11,6 +11,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.execption.DataValidationException;
+import school.faang.user_service.mapper.SkillCandidateMapper;
+import school.faang.user_service.mapper.SkillCreateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -29,21 +31,23 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final UserRepository userRepository;
     private final SkillMapper skillMapper;
+    private final SkillCreateMapper skillCreateMapper;
+    private final SkillCandidateMapper skillCandidateMapper;
 
     public SkillDto create(SkillCreateDto skillCreateDto) {
         if (skillRepository.existsByTitle(skillCreateDto.getTitle())) {
             throw new DataValidationException("Умение с таким названием уже существует");
         }
-        Skill skill = skillMapper.toEntity(skillCreateDto);
+        Skill skill = skillCreateMapper.toEntity(skillCreateDto);
         skill = skillRepository.save(skill);
-        return skillMapper.toSkillDto(skill);
+        return skillMapper.toDto(skill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         validateSkillList(skills);
         return skills.stream()
-                .map(skillMapper::toSkillDto)
+                .map(skillMapper::toDto)
                 .toList();
     }
 
@@ -52,7 +56,7 @@ public class SkillService {
         validateSkillList(offeredSkills);
         return offeredSkills.stream()
                 .map(skill -> {
-                    SkillCandidateDto dto = skillMapper.toSkillCandidateDto(skill);
+                    SkillCandidateDto dto = skillCandidateMapper.toSkillCandidateDto(skill);
                     List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId);
                     dto.setOffersAmount(skillOffers.size());
                     return dto;
@@ -90,7 +94,7 @@ public class SkillService {
         log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle(), user.getUsername());
         skillRepository.save(skill);
 
-        return skillMapper.toSkillDto(skill);
+        return skillMapper.toDto(skill);
     }
 
     private Skill getSkillById(long skillId) {

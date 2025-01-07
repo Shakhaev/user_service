@@ -16,6 +16,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.execption.DataValidationException;
+import school.faang.user_service.mapper.SkillCandidateMapper;
+import school.faang.user_service.mapper.SkillCreateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -41,6 +43,12 @@ public class SkillServiceTest {
 
     @Mock
     private SkillMapper skillMapper;
+
+    @Mock
+    private SkillCreateMapper skillCreateMapper;
+
+    @Mock
+    private SkillCandidateMapper skillCandidateMapper;
 
     @InjectMocks
     private SkillService skillService;
@@ -81,9 +89,9 @@ public class SkillServiceTest {
     public void testNotExistingSkillCreate() {
         Mockito.when(skillRepository.existsByTitle("Java")).thenReturn(false);
 
-        Mockito.when(skillMapper.toEntity(skillCreateDto)).thenReturn(new Skill());
+        Mockito.when(skillCreateMapper.toEntity(skillCreateDto)).thenReturn(new Skill());
         skillService.create(skillCreateDto);
-        Skill skill = skillMapper.toEntity(skillCreateDto);
+        Skill skill = skillCreateMapper.toEntity(skillCreateDto);
         Mockito.verify(skillRepository, Mockito.times(1)).save(skill);
     }
 
@@ -118,7 +126,7 @@ public class SkillServiceTest {
     @Test
     public void testGetOfferedSkills() {
         Skill skill = new Skill();
-        Mockito.when(skillMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
+        Mockito.when(skillCandidateMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
 
         Mockito.when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill));
         skillService.getOfferedSkills(USER_ID);
