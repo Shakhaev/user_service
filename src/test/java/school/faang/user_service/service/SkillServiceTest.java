@@ -78,7 +78,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testNotExistingSkillCreate() {
+    public void testCreateSuccessCase() {
         Mockito.when(skillRepository.existsByTitle("Java")).thenReturn(false);
 
         Mockito.when(skillMapper.toEntity(skillCreateDto)).thenReturn(new Skill());
