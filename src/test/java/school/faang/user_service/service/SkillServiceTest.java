@@ -68,7 +68,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testExistingSkillCreate() {
+    public void testCreateWithExistingTitle() {
         Mockito.when(skillRepository.existsByTitle("Java")).thenReturn(true);
 
         Assert.assertThrows(
