@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
+import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -11,6 +12,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.execption.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
+import school.faang.user_service.mapper.SkillCreateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -29,13 +31,14 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final UserRepository userRepository;
     private final SkillMapper skillMapper;
+    private final SkillCreateMapper skillCreateMapper;
     private final SkillCandidateMapper skillCandidateMapper;
 
-    public SkillDto create(SkillDto skillDto) {
-        if (skillRepository.existsByTitle(skillDto.getTitle())) {
+    public SkillDto create(SkillCreateDto skillCreateDto) {
+        if (skillRepository.existsByTitle(skillCreateDto.getTitle())) {
             throw new DataValidationException("Умение с таким названием уже существует");
         }
-        Skill skill = skillMapper.toEntity(skillDto);
+        Skill skill = skillCreateMapper.toEntity(skillCreateDto);
         skill = skillRepository.save(skill);
         return skillMapper.toDto(skill);
     }
