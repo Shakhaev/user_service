@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SkillService {
+public class SkillService implements SkillServiceInterface {
     final int MIN_SKILL_OFFERS = 3;
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
@@ -76,5 +76,10 @@ public class SkillService {
             log.error("Пустое имя умения.");
             throw new DataValidationException("Имя умения не должно быть пустым.");
         }
+    }
+
+    @Override
+    public List<Skill> getSKillsByIds(List<Long> skillIds) {
+        return skillRepository.findAllById(skillIds);
     }
 }
