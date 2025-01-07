@@ -64,71 +64,75 @@ public class SubscriptionService {
     }
 
     private boolean filterUsers(User user) {
-        /*Predicate<User> checkUserName;
-        String UsernamePattern = subscriptionUserFilterDto.getNamePattern();
-        if (UsernamePattern != null && !UsernamePattern.isEmpty()) {
-            checkUserName = u -> u.getUsername().matches(subscriptionUserFilterDto.getNamePattern());
-        } else {
-            checkUserName = u -> true;
-        }*/
-
-        Predicate<User> filterUserName = checkPattern(User::getUsername,
+        Predicate<User> filterUserName = checkStringField(User::getUsername,
                 subscriptionUserFilterDto.getNamePattern());
-        Predicate<User> filterAboutUser = checkPattern(User::getAboutMe,
+        Predicate<User> filterAboutUser = checkStringField(User::getAboutMe,
                 subscriptionUserFilterDto.getAboutPattern());
-        Predicate<User> filterUserEmail = checkPattern(User::getEmail,
+        Predicate<User> filterUserEmail = checkStringField(User::getEmail,
                 subscriptionUserFilterDto.getEmailPattern());
-        Predicate<User> filterUserCity = checkPattern(User::getCity,
+        Predicate<User> filterUserCity = checkStringField(User::getCity,
                 subscriptionUserFilterDto.getCityPattern());
-        Predicate<User> filterUserPhone = checkPattern(User::getPhone,
+        Predicate<User> filterUserPhone = checkStringField(User::getPhone,
                 subscriptionUserFilterDto.getPhonePattern());
-        Predicate<User> filterUserCountry = checkPattern(user1 -> user1.getCountry().getTitle(),
+        Predicate<User> filterUserCountry = checkStringField(user1 -> user1.getCountry().getTitle(),
                 subscriptionUserFilterDto.getCountryPattern());
-        //Predicate<User> filterUserSkills = checkSkillsPattern(
-        //        subscriptionUserFilterDto.getSkillPattern());
-
+        Predicate<User> filterUserSkills = checkSkills(
+                subscriptionUserFilterDto.getSkillPattern());
+        Predicate<User> filterUserContacts = checkContacts(
+                subscriptionUserFilterDto.getContactPattern());
+        Predicate<User> filterUserExperience = checkExperience(
+                subscriptionUserFilterDto.getExperienceMin(), subscriptionUserFilterDto.getExperienceMax());
 
         return filterUserName
                 .and(filterAboutUser)
                 .and(filterUserEmail)
-                //.and(checkContact)
+                .and(filterUserContacts)
                 .and(filterUserCountry)
                 .and(filterUserCity)
                 .and(filterUserPhone)
-                //.and(filterUserSkills)
+                .and(filterUserSkills)
+                .and(filterUserExperience)
                 .test(user);
     }
 
-    private Predicate<User> checkPattern(Function<User, String> fieldName, String checkPattern) {
+    private Predicate<User> checkStringField(Function<User, String> fieldName, String checkPattern) {
         Predicate<User> checkPredicate;
         if (checkPattern != null && !checkPattern.isEmpty()) {
             checkPredicate = user -> fieldName.apply(user).matches(checkPattern);
         } else {
-            checkPredicate = u -> true;
+            checkPredicate = user -> true;
         }
         return checkPredicate;
     }
 
-/*    private Predicate<User> checkContactPattern(List<Contact> contacts, String checkPattern) {
+    private Predicate<User> checkSkills(String checkPattern) {
         Predicate<User> checkPredicate;
         if (checkPattern != null && !checkPattern.isEmpty()) {
-            checkPredicate = u -> contacts.stream()
-                    .filter(contact -> contact.getContact().matches(checkPattern))
-                    .isParallel();
+            checkPredicate = user -> user.getSkills().stream().anyMatch(s -> s.getTitle().matches(checkPattern));
         } else {
-            checkPredicate = u -> true;
+            checkPredicate = user -> true;
         }
         return checkPredicate;
     }
-    private Predicate<User> checkSkillsPattern(String checkPattern) {
-        Predicate<User> checkPredicate;
-        if (checkPattern != null && !checkPattern.isEmpty()) {
-            checkPredicate = u -> u.getSkills().contains(checkPattern);
 
+    private Predicate<User> checkContacts(String checkPattern) {
+        Predicate<User> checkPredicate;
+        if (checkPattern != null && !checkPattern.isEmpty()) {
+            checkPredicate = user -> user.getContacts().stream().anyMatch(c -> c.getContact().matches(checkPattern));
         } else {
-            checkPredicate = u -> true;
+            checkPredicate = user -> true;
         }
         return checkPredicate;
     }
-*/
+
+    private Predicate<User> checkExperience(int minExperience, int maxExperience) {
+        Predicate<User> checkPredicate;
+        if (minExperience > 0 && maxExperience >0 && maxExperience > minExperience) {
+            checkPredicate = user -> (user.getExperience() >= minExperience && user.getExperience() < maxExperience);
+        } else {
+            checkPredicate = user -> true;
+        }
+        return checkPredicate;
+    }
+
 }
