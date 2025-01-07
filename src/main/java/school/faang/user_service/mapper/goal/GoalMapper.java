@@ -6,6 +6,7 @@ import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.skill.Skill;
 
@@ -21,6 +22,9 @@ public interface GoalMapper {
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
     GoalDto toDto(Goal goal);
+
+    @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
+    Goal updateGoalDtoToEntity(UpdateGoalDto goal);
 
     @Named(value = "mapSkillsIdsToSkills")
     default List<Skill> mapSkillsIdsToSkills(List<Long> skillsToAchieveIds) {

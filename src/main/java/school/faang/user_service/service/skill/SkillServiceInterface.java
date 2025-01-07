@@ -8,4 +8,6 @@ public interface SkillServiceInterface {
 
     List<Skill> getSKillsByIds(List<Long> skillIds);
 
+    void addSkillsToUsersByGoalId(Long goalId);
+
 }

@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -40,5 +42,19 @@ public class GoalServiceImpl implements GoalService {
         createdGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
         createdGoal.setUsers(List.of(User.builder().id(userId).build()));
         return goalMapper.toDto(createdGoal);
+    }
+
+    @Override
+    public GoalDto update(UpdateGoalDto goalDto) {
+        goalServiceValidator.validateForUpdating(goalDto);
+        Goal goal = goalMapper.updateGoalDtoToEntity(goalDto);
+        Goal updatedGoal = goalRepository.save(goal);
+        if(goalDto.getSkillsToAchieveIds() != null) {
+            updatedGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
+        }
+        if(GoalStatus.COMPLETED.equals(updatedGoal.getStatus())) {
+            skillService.addSkillsToUsersByGoalId(updatedGoal.getId());
+        }
+        return goalMapper.toDto(updatedGoal);
     }
 }

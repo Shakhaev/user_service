@@ -3,6 +3,7 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -50,4 +51,10 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Query("""
+            SELECT g.status FROM Goal g WHERE
+            g.id = :goalId
+            """)
+    GoalStatus getGoalStatusById(Long goalId);
 }
