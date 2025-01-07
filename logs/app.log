@@ -1,342 +1,342 @@
-2025-01-09 18:17:21.049 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'updaterBatchSize' of type [null] on target object [school.faang.user_service.scheduler.premium.PremiumRemover@1322b575] or target class [class school.faang.user_service.scheduler.premium.PremiumRemover] to value [50]
-2025-01-09 18:17:21.093 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - updating premiums are working
-2025-01-09 18:17:21.117 [ForkJoinPool.commonPool-worker-1] INFO  s.f.u.s.premium.PremiumRemover - premiums deleted
-2025-01-09 18:17:21.150 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'updaterBatchSize' of type [null] on target object [school.faang.user_service.scheduler.premium.PremiumRemover@71b0289b] or target class [class school.faang.user_service.scheduler.premium.PremiumRemover] to value [50]
-2025-01-09 18:17:21.151 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - updating premiums are working
-2025-01-09 18:17:21.152 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - premium users not found!
-2025-01-09 18:17:21.988 [Test worker] DEBUG org.jboss.logging - Logging Provider: org.jboss.logging.Log4j2LoggerProvider
-2025-01-09 18:17:21.989 [Test worker] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.0.Final
-2025-01-09 18:17:22.035 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:22.035 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:22.040 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:22.044 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:22.045 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:22.045 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:22.056 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:22.057 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:22.256 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:22.268 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:22.268 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:22.268 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:22.268 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:22.268 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:22.486 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+2025-01-09 18:21:10.158 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'updaterBatchSize' of type [null] on target object [school.faang.user_service.scheduler.premium.PremiumRemover@60c96eb4] or target class [class school.faang.user_service.scheduler.premium.PremiumRemover] to value [50]
+2025-01-09 18:21:10.196 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - updating premiums are working
+2025-01-09 18:21:10.218 [ForkJoinPool.commonPool-worker-1] INFO  s.f.u.s.premium.PremiumRemover - premiums deleted
+2025-01-09 18:21:10.248 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'updaterBatchSize' of type [null] on target object [school.faang.user_service.scheduler.premium.PremiumRemover@da34eb0] or target class [class school.faang.user_service.scheduler.premium.PremiumRemover] to value [50]
+2025-01-09 18:21:10.249 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - updating premiums are working
+2025-01-09 18:21:10.249 [Test worker] INFO  s.f.u.s.premium.PremiumRemover - premium users not found!
+2025-01-09 18:21:11.081 [Test worker] DEBUG org.jboss.logging - Logging Provider: org.jboss.logging.Log4j2LoggerProvider
+2025-01-09 18:21:11.082 [Test worker] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.0.Final
+2025-01-09 18:21:11.116 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:11.117 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:11.121 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:11.123 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:11.124 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:11.124 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:11.132 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:11.133 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:11.299 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:11.310 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:11.311 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:11.311 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:11.311 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:11.311 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:11.522 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.r.RecommendationRequestController:
-	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
-	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
 	{POST [/recommendation/request]}: requestRecommendation(RecommendationRequestDto)
+	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
 	{POST [/recommendation/requests]}: getRecommendationRequests(RequestFilterDto)
-2025-01-09 18:17:22.495 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:23.193 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.263 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.314 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:23.314 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:23.318 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:23.319 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:23.320 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@25c3a441
-2025-01-09 18:17:23.320 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@2057d8ec
-2025-01-09 18:17:23.320 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:23.321 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 6 ms
-2025-01-09 18:17:23.439 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/recommendation/request/1", parameters={}
-2025-01-09 18:17:23.469 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#rejectRequest(long, RejectionDto)
-2025-01-09 18:17:23.605 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json" to [RejectionDto(reason=Test)]
-2025-01-09 18:17:23.726 [Test worker] INFO  s.f.u.c.r.RecommendationRequestController - A request was received to reject a recommendation request, by id: 1, with a rejection: RejectionDto(reason=Test)
-2025-01-09 18:17:23.756 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
-2025-01-09 18:17:23.763 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [RecommendationRequestDto(id=null, message=null, status=REJECTED, skillIds=null, requesterId=null, re (truncated)...]
-2025-01-09 18:17:23.774 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
-2025-01-09 18:17:23.807 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:23.807 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:23.807 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:23.807 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:23.807 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:23.808 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:23.808 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:23.808 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:23.809 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:23.812 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
+2025-01-09 18:21:11.532 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:12.089 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:12.162 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:12.312 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:12.312 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:12.317 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:12.318 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:12.319 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@7c4b7bc3
+2025-01-09 18:21:12.319 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@5a36a405
+2025-01-09 18:21:12.319 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:12.321 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 7 ms
+2025-01-09 18:21:12.720 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/recommendation/request/1", parameters={}
+2025-01-09 18:21:12.747 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#rejectRequest(long, RejectionDto)
+2025-01-09 18:21:12.925 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json" to [RejectionDto(reason=Test)]
+2025-01-09 18:21:13.060 [Test worker] INFO  s.f.u.c.r.RecommendationRequestController - A request was received to reject a recommendation request, by id: 1, with a rejection: RejectionDto(reason=Test)
+2025-01-09 18:21:13.129 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
+2025-01-09 18:21:13.139 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [RecommendationRequestDto(id=null, message=null, status=REJECTED, skillIds=null, requesterId=null, re (truncated)...]
+2025-01-09 18:21:13.152 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
+2025-01-09 18:21:13.184 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.186 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.186 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.186 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.186 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.187 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.187 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.187 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.188 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.188 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.189 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.189 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.189 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.189 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.193 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.r.RecommendationRequestController:
-	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
-	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
 	{POST [/recommendation/request]}: requestRecommendation(RecommendationRequestDto)
+	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
 	{POST [/recommendation/requests]}: getRecommendationRequests(RequestFilterDto)
-2025-01-09 18:17:23.813 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:23.816 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.817 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:23.817 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@4c36416b
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@4515dfae
-2025-01-09 18:17:23.817 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:23.817 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:23.823 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/recommendation/request/1", parameters={}
-2025-01-09 18:17:23.824 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#getRecommendationRequest(long)
-2025-01-09 18:17:23.824 [Test worker] INFO  s.f.u.c.r.RecommendationRequestController - Received a request to receive a recommendation request by id: 1
-2025-01-09 18:17:23.829 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
-2025-01-09 18:17:23.830 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [RecommendationRequestDto(id=1, message=null, status=null, skillIds=null, requesterId=null, receiverI (truncated)...]
-2025-01-09 18:17:23.832 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
-2025-01-09 18:17:23.836 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:23.836 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:23.837 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:23.837 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:23.837 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:23.837 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:23.837 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:23.838 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:23.838 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:23.839 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:23.839 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:23.839 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:23.839 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:23.839 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:23.841 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
+2025-01-09 18:21:13.194 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.198 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.199 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.200 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.200 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.200 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.200 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.200 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@4b9fd79
+2025-01-09 18:21:13.200 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@1989e9ec
+2025-01-09 18:21:13.200 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.200 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
+2025-01-09 18:21:13.209 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/recommendation/request/1", parameters={}
+2025-01-09 18:21:13.210 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#getRecommendationRequest(long)
+2025-01-09 18:21:13.211 [Test worker] INFO  s.f.u.c.r.RecommendationRequestController - Received a request to receive a recommendation request by id: 1
+2025-01-09 18:21:13.220 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
+2025-01-09 18:21:13.220 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [RecommendationRequestDto(id=1, message=null, status=null, skillIds=null, requesterId=null, receiverI (truncated)...]
+2025-01-09 18:21:13.223 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
+2025-01-09 18:21:13.227 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.227 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.228 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.228 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.229 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.229 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.229 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.229 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.232 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.236 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.r.RecommendationRequestController:
-	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
-	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
 	{POST [/recommendation/request]}: requestRecommendation(RecommendationRequestDto)
+	{PUT [/recommendation/request/{id}]}: rejectRequest(long,RejectionDto)
 	{POST [/recommendation/requests]}: getRecommendationRequests(RequestFilterDto)
-2025-01-09 18:17:23.843 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:23.846 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.846 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.847 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:23.847 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:23.847 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:23.847 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:23.847 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@43ca45af
-2025-01-09 18:17:23.847 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@1a4132b2
-2025-01-09 18:17:23.847 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:23.847 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:23.849 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/recommendation/request/1", parameters={}
-2025-01-09 18:17:23.849 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#rejectRequest(long, RejectionDto)
-2025-01-09 18:17:23.851 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json" to [RejectionDto(reason=null)]
-2025-01-09 18:17:23.858 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - ValidationMessages not found.
-2025-01-09 18:17:23.860 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - ContributorValidationMessages not found.
-2025-01-09 18:17:23.862 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - org.hibernate.validator.ValidationMessages found.
-2025-01-09 18:17:23.914 [Test worker] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public school.faang.user_service.dto.recommendation.RecommendationRequestDto school.faang.user_service.controller.recommendation.RecommendationRequestController.rejectRequest(long,school.faang.user_service.dto.rejection.RejectionDto): [Field error in object 'rejectionDto' on field 'reason': rejected value [null]; codes [NotNull.rejectionDto.reason,NotNull.reason,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [rejectionDto.reason,reason]; arguments []; default message [reason]]; default message [must not be null]] ]
-2025-01-09 18:17:23.915 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 400 BAD_REQUEST
-2025-01-09 18:17:23.946 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:23.946 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:23.948 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:23.949 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:23.952 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	{GET [/recommendation/request/{id}]}: getRecommendationRequest(long)
+2025-01-09 18:21:13.237 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.241 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.241 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.242 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.242 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.242 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.242 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.242 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@1ffd6df2
+2025-01-09 18:21:13.242 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@7fb689fe
+2025-01-09 18:21:13.242 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.242 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
+2025-01-09 18:21:13.245 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/recommendation/request/1", parameters={}
+2025-01-09 18:21:13.245 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.recommendation.RecommendationRequestController#rejectRequest(long, RejectionDto)
+2025-01-09 18:21:13.247 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json" to [RejectionDto(reason=null)]
+2025-01-09 18:21:13.255 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - ValidationMessages not found.
+2025-01-09 18:21:13.257 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - ContributorValidationMessages not found.
+2025-01-09 18:21:13.259 [Test worker] DEBUG o.h.v.r.PlatformResourceBundleLocator - org.hibernate.validator.ValidationMessages found.
+2025-01-09 18:21:13.309 [Test worker] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public school.faang.user_service.dto.recommendation.RecommendationRequestDto school.faang.user_service.controller.recommendation.RecommendationRequestController.rejectRequest(long,school.faang.user_service.dto.rejection.RejectionDto): [Field error in object 'rejectionDto' on field 'reason': rejected value [null]; codes [NotNull.rejectionDto.reason,NotNull.reason,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [rejectionDto.reason,reason]; arguments []; default message [reason]]; default message [must not be null]] ]
+2025-01-09 18:21:13.310 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 400 BAD_REQUEST
+2025-01-09 18:21:13.351 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.353 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.353 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.353 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.354 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.354 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.354 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.354 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.356 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.356 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.356 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.357 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.357 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.357 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.360 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.s.SkillController:
 	{POST [/skill]}: create(SkillDto)
 	{GET [/skill/{userId}]}: getUserSkills(long)
 	{GET [/skill]}: getOfferedSkills(long)
 	{PUT [/skill]}: acquireSkillFromOffers(long,long)
-2025-01-09 18:17:23.952 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:23.955 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.955 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:23.955 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:23.956 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:23.956 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:23.956 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:23.956 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@ee9b7ac
-2025-01-09 18:17:23.956 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@6b4b6cd6
-2025-01-09 18:17:23.956 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:23.956 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:23.958 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/skill/1", parameters={}
-2025-01-09 18:17:23.958 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#getUserSkills(long)
-2025-01-09 18:17:23.959 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
-2025-01-09 18:17:23.961 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [[SkillDto(id=null, title=null), SkillDto(id=null, title=null)]]
-2025-01-09 18:17:23.963 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
-2025-01-09 18:17:24.025 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:24.035 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:24.036 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:24.036 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:24.037 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:24.039 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+2025-01-09 18:21:13.361 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.365 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.367 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.367 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.367 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.368 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.368 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.368 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@5775485
+2025-01-09 18:21:13.368 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@ae094e8
+2025-01-09 18:21:13.368 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.368 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2025-01-09 18:21:13.369 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/skill/1", parameters={}
+2025-01-09 18:21:13.369 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#getUserSkills(long)
+2025-01-09 18:21:13.373 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
+2025-01-09 18:21:13.374 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [[SkillDto(id=null, title=null), SkillDto(id=null, title=null)]]
+2025-01-09 18:21:13.377 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
+2025-01-09 18:21:13.450 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
+2025-01-09 18:21:13.465 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.465 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.466 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.466 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.468 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.470 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.470 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.471 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.474 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.474 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.474 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.474 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.476 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.476 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.478 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.s.SkillController:
 	{POST [/skill]}: create(SkillDto)
 	{GET [/skill/{userId}]}: getUserSkills(long)
 	{GET [/skill]}: getOfferedSkills(long)
 	{PUT [/skill]}: acquireSkillFromOffers(long,long)
-2025-01-09 18:17:24.040 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:24.043 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.043 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.043 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:24.044 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:24.044 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:24.044 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:24.044 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@71ebd1d9
-2025-01-09 18:17:24.044 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@49f82f95
-2025-01-09 18:17:24.044 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:24.044 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:24.046 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/skill?userId=1", parameters={masked}
-2025-01-09 18:17:24.046 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#getOfferedSkills(long)
-2025-01-09 18:17:24.050 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
-2025-01-09 18:17:24.052 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [[SkillCandidateDto(skill=null, offersAmount=0), SkillCandidateDto(skill=null, offersAmount=0)]]
-2025-01-09 18:17:24.054 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
-2025-01-09 18:17:24.054 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
-2025-01-09 18:17:24.056 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:24.056 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:24.056 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:24.057 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:24.057 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:24.057 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:24.057 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:24.057 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:24.058 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:24.059 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:24.059 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:24.059 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:24.059 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:24.059 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:24.061 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+2025-01-09 18:21:13.479 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.486 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.488 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.488 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.488 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.489 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.489 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.489 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@6bc72ab6
+2025-01-09 18:21:13.489 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@7ce299c6
+2025-01-09 18:21:13.489 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.489 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2025-01-09 18:21:13.492 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - GET "/skill?userId=1", parameters={masked}
+2025-01-09 18:21:13.492 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#getOfferedSkills(long)
+2025-01-09 18:21:13.499 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
+2025-01-09 18:21:13.503 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [[SkillCandidateDto(skill=null, offersAmount=0), SkillCandidateDto(skill=null, offersAmount=0)]]
+2025-01-09 18:21:13.507 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
+2025-01-09 18:21:13.507 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
+2025-01-09 18:21:13.512 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.512 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.513 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.513 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.514 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.515 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.515 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.515 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.518 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.519 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.519 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.519 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.519 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.519 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.524 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.s.SkillController:
 	{POST [/skill]}: create(SkillDto)
 	{GET [/skill/{userId}]}: getUserSkills(long)
 	{GET [/skill]}: getOfferedSkills(long)
 	{PUT [/skill]}: acquireSkillFromOffers(long,long)
-2025-01-09 18:17:24.062 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:24.066 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.067 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:24.067 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@5b5b9038
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@56912047
-2025-01-09 18:17:24.067 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:24.067 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:24.069 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/skill", parameters={masked}
-2025-01-09 18:17:24.070 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#acquireSkillFromOffers(long, long)
-2025-01-09 18:17:24.073 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
-2025-01-09 18:17:24.073 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [Optional[SkillDto(id=1, title=skill)]]
-2025-01-09 18:17:24.075 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
-2025-01-09 18:17:24.075 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
-2025-01-09 18:17:24.079 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
-2025-01-09 18:17:24.079 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
-2025-01-09 18:17:24.079 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
-2025-01-09 18:17:24.079 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
-2025-01-09 18:17:24.080 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
-2025-01-09 18:17:24.080 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
-2025-01-09 18:17:24.080 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
-2025-01-09 18:17:24.080 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
-2025-01-09 18:17:24.081 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
-2025-01-09 18:17:24.082 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
-2025-01-09 18:17:24.082 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
-2025-01-09 18:17:24.082 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
-2025-01-09 18:17:24.082 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
-2025-01-09 18:17:24.082 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
-2025-01-09 18:17:24.084 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+2025-01-09 18:21:13.525 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.531 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.533 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.533 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.534 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.534 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.534 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.535 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@31a65ddd
+2025-01-09 18:21:13.535 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@3ca1a69b
+2025-01-09 18:21:13.535 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.535 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2025-01-09 18:21:13.539 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - PUT "/skill", parameters={masked}
+2025-01-09 18:21:13.539 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to school.faang.user_service.controller.skill.SkillController#acquireSkillFromOffers(long, long)
+2025-01-09 18:21:13.545 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/cbor]
+2025-01-09 18:21:13.546 [Test worker] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [Optional[SkillDto(id=1, title=skill)]]
+2025-01-09 18:21:13.548 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Completed 200 OK
+2025-01-09 18:21:13.549 [Test worker] DEBUG c.j.j.internal.path.CompiledPath - Evaluating path: $
+2025-01-09 18:21:13.555 [Test worker] DEBUG o.h.v.m.ResourceBundleMessageInterpolator - Loaded expression factory via original TCCL
+2025-01-09 18:21:13.555 [Test worker] DEBUG o.h.v.i.e.AbstractConfigurationImpl - Setting custom MessageInterpolator of type org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator
+2025-01-09 18:21:13.556 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - Trying to load META-INF/validation.xml for XML based Validator configuration.
+2025-01-09 18:21:13.556 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via TCCL
+2025-01-09 18:21:13.556 [Test worker] DEBUG o.h.v.i.x.c.ResourceLoaderHelper - Trying to load META-INF/validation.xml via Hibernate Validator's class loader
+2025-01-09 18:21:13.556 [Test worker] DEBUG o.h.v.i.x.config.ValidationXmlParser - No META-INF/validation.xml found. Using annotation based configuration only.
+2025-01-09 18:21:13.557 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Found jakarta.persistence.Persistence on classpath containing 'getPersistenceUtil'. Assuming JPA 2 environment. Trying to instantiate JPA aware TraversableResolver
+2025-01-09 18:21:13.557 [Test worker] DEBUG o.h.v.i.e.r.TraversableResolvers - Instantiated JPA aware TraversableResolver of type org.hibernate.validator.internal.engine.resolver.JPATraversableResolver.
+2025-01-09 18:21:13.558 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000252: Using org.hibernate.validator.internal.engine.DefaultPropertyNodeNameProvider as property node name provider.
+2025-01-09 18:21:13.559 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator as ValidatorFactory-scoped message interpolator.
+2025-01-09 18:21:13.560 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.resolver.JPATraversableResolver as ValidatorFactory-scoped traversable resolver.
+2025-01-09 18:21:13.560 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.util.ExecutableParameterNameProvider as ValidatorFactory-scoped parameter name provider.
+2025-01-09 18:21:13.560 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.DefaultClockProvider as ValidatorFactory-scoped clock provider.
+2025-01-09 18:21:13.560 [Test worker] DEBUG o.h.v.i.e.ValidatorFactoryConfigurationHelper - HV000234: Using org.hibernate.validator.internal.engine.scripting.DefaultScriptEvaluatorFactory as ValidatorFactory-scoped script evaluator factory.
+2025-01-09 18:21:13.563 [Test worker] DEBUG _.s.w.s.HandlerMapping.Mappings - 
 	s.f.u.c.s.SkillController:
 	{POST [/skill]}: create(SkillDto)
 	{GET [/skill/{userId}]}: getUserSkills(long)
 	{GET [/skill]}: getOfferedSkills(long)
 	{PUT [/skill]}: acquireSkillFromOffers(long,long)
-2025-01-09 18:17:24.084 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
-2025-01-09 18:17:24.088 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.088 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-01-09 18:17:24.089 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
-2025-01-09 18:17:24.089 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
-2025-01-09 18:17:24.089 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-01-09 18:17:24.089 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
-2025-01-09 18:17:24.089 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@1f93cdc0
-2025-01-09 18:17:24.089 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@162807e5
-2025-01-09 18:17:24.089 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-01-09 18:17:24.089 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
-2025-01-09 18:17:24.172 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Applying filter 'RecommendationCreatedAfterFilter'. Recommendation request CreatedAt: 2024-11-15T23:35:58, Filter CreatedAfter: 2024-11-14T23:35:58, Result: true
-2025-01-09 18:17:24.173 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Applying filter 'RecommendationCreatedAfterFilter'. Recommendation request CreatedAt: 2024-11-14T23:35:58, Filter CreatedAfter: 2024-11-15T23:35:58, Result: false
-2025-01-09 18:17:24.174 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Checking if filter 'RecommendationCreatedAfterFilter' is applicable. CreatedAfter: null, Result: false
-2025-01-09 18:17:24.175 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Checking if filter 'RecommendationCreatedAfterFilter' is applicable. CreatedAfter: 2025-01-09T18:17:24.175980400, Result: true
-2025-01-09 18:17:24.178 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Applying filter 'RecommendationCreatedBeforeFilter'. Recommendation CreatedAt: 2024-11-14T23:35:58, Filter CreatedBefore: 2024-11-15T23:35:58, Result: true
-2025-01-09 18:17:24.179 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Applying filter 'RecommendationCreatedBeforeFilter'. Recommendation CreatedAt: 2024-11-15T23:35:58, Filter CreatedBefore: 2024-11-14T23:35:58, Result: false
-2025-01-09 18:17:24.181 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Checking if filter 'RecommendationCreatedBeforeFilter' is applicable. CreatedBefore: null, Result: false
-2025-01-09 18:17:24.182 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Checking if filter 'RecommendationCreatedBeforeFilter' is applicable. CreatedBefore: 2025-01-09T18:17:24.182982100, Result: true
-2025-01-09 18:17:24.185 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Applying filter 'RecommendationStatusFilter'. Recommendation Status: REJECTED, Filter Status: REJECTED, Result: true
-2025-01-09 18:17:24.187 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Applying filter 'RecommendationStatusFilter'. Recommendation Status: PENDING, Filter Status: REJECTED, Result: false
-2025-01-09 18:17:24.188 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Checking if filter 'RecommendationStatusFilter' is applicable. Status: null, Result: false
-2025-01-09 18:17:24.189 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Checking if filter 'RecommendationStatusFilter' is applicable. Status: REJECTED, Result: true
-2025-01-09 18:17:24.891 [Test worker] ERROR s.f.u.p.m.MentorshipAcceptedEventPublisher - Error converting object MentorshipAcceptedEvent(id=1, authorId=2, receiverId=3, acceptedAt=2025-01-09T18:17:24.887588300) to JSON: N/A
-2025-01-09 18:17:24.899 [Test worker] ERROR s.f.u.p.m.MentorshipStartEventPublisher - Error converting object MentorshipStartEvent(mentorId=1, menteeId=2, createdAt=2025-01-09T18:17:24.898709600) to JSON: N/A
-2025-01-09 18:17:24.907 [Test worker] ERROR s.f.u.p.m.MentorshipRequestedEventPublisher - Error converting object MentorshipRequestedEvent(id=1, requesterId=2, receiverId=3, createdAt=2025-01-09T18:17:24.906787900) to JSON: N/A
-2025-01-09 18:17:24.916 [Test worker] ERROR s.f.u.p.p.PremiumBoughtEventPublisher - Error converting object PremiumBoughtEvent(id=1, userId=1, premiumType=Basic, startDate=2025-01-09T18:17:24.913787500, endDate=2025-01-09T18:17:24.913787500) to JSON: N/A
-2025-01-09 18:17:24.926 [Test worker] ERROR s.f.u.p.r.RecommendationEventPublisher - Error converting object RecommendationEvent(id=1, authorId=1, receiverId=1, createdAt=2025-01-09T18:17:24.926439900) to JSON: N/A
-2025-01-09 18:17:24.933 [Test worker] ERROR s.f.u.p.RecommendationReceivedEventPublisher - Error converting object RecommendationReceivedEvent(id=1, authorId=2, receiverId=3, content=Content, recommendationTime=2025-01-09T18:17:24.933517400) to JSON: N/A
-2025-01-09 18:17:24.945 [Test worker] ERROR s.f.u.p.s.FollowerEventPublisher - Error converting object FollowerEvent(followerUserId=1, targetUserId=2, targetProjectId=null, createdAt=2025-01-09T18:17:24.944607900) to JSON: N/A
-2025-01-09 18:17:24.972 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@36477cf] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [3]
-2025-01-09 18:17:24.973 [Test worker] INFO  s.f.u.scheduler.EventScheduler - No events to delete.
-2025-01-09 18:17:24.976 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@1eb08757] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [3]
-2025-01-09 18:17:24.976 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@1eb08757] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [1]
-2025-01-09 18:17:24.978 [Test worker] INFO  s.f.u.scheduler.EventScheduler - Starting clearing events...
-2025-01-09 18:17:24.980 [ForkJoinPool.commonPool-worker-1] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
-2025-01-09 18:17:24.981 [ForkJoinPool.commonPool-worker-3] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
-2025-01-09 18:17:24.985 [ForkJoinPool.commonPool-worker-2] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
-2025-01-09 18:17:24.985 [ForkJoinPool.commonPool-worker-2] INFO  s.f.u.scheduler.EventScheduler - Past events deleted.
-2025-01-09 18:17:26.154 [Test worker] WARN  s.f.u.service.event.EventService - not found such event by id:1
-2025-01-09 18:17:26.161 [Test worker] INFO  s.f.u.service.event.EventService - event success updated Event(id=1, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=User(id=1, username=null, email=null, phone=null, password=null, active=false, aboutMe=null, country=null, city=null, experience=null, createdAt=null, updatedAt=null, followers=null, followees=null, ownedEvents=null, mentees=null, mentors=null, receivedMentorshipRequests=null, sentMentorshipRequests=null, sentGoalInvitations=null, receivedGoalInvitations=null, setGoals=null, goals=null, skills=null, participatedEvents=null, recommendationsGiven=null, recommendationsReceived=null, contacts=null, ratings=null, userProfilePic=null, contactPreference=null, premium=null, rankScore=null, banned=false), relatedSkills=[Skill(id=1, title=programming, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null), Skill(id=2, title=Spring, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null)], type=null, status=null, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.191 [Test worker] ERROR s.f.u.service.event.EventService - creating event wasn't successfully EventDto(id=null, title=null, startDate=null, endDate=null, ownerId=1, description=null, relatedSkills=[SkillDto(id=1, title=programming)], location=null, maxAttendees=null)
-2025-01-09 18:17:26.199 [Test worker] WARN  s.f.u.service.event.EventService - not such event by id: 1
-2025-01-09 18:17:26.201 [Test worker] INFO  s.f.u.service.event.EventService - get PARTICIPATED events: [EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)], by userId: 1
-2025-01-09 18:17:26.204 [Test worker] WARN  s.f.u.service.event.EventService - not found such event by id:2
-2025-01-09 18:17:26.208 [Test worker] INFO  s.f.u.service.event.EventService - got OWNED events: [EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)], by userId: 1
-2025-01-09 18:17:26.211 [Test worker] INFO  s.f.u.service.event.EventService - success get event dto: EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)
-2025-01-09 18:17:26.214 [Test worker] INFO  s.f.u.service.event.EventService - event success created Event(id=0, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=User(id=1, username=null, email=null, phone=null, password=null, active=false, aboutMe=null, country=null, city=null, experience=null, createdAt=null, updatedAt=null, followers=null, followees=null, ownedEvents=null, mentees=null, mentors=null, receivedMentorshipRequests=null, sentMentorshipRequests=null, sentGoalInvitations=null, receivedGoalInvitations=null, setGoals=null, goals=null, skills=null, participatedEvents=null, recommendationsGiven=null, recommendationsReceived=null, contacts=null, ratings=null, userProfilePic=null, contactPreference=null, premium=null, rankScore=null, banned=false), relatedSkills=[Skill(id=1, title=programming, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null), Skill(id=2, title=Spring, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null)], type=null, status=null, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.218 [Test worker] INFO  s.f.u.service.event.EventService - get event filters EventFilterDto(titlePattern=social media, userId=null, dateTime=null)
-2025-01-09 18:17:26.219 [Test worker] INFO  s.f.u.service.event.EventService - got events by filter: [EventDto(id=0, title=social media startup, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)]
-2025-01-09 18:17:26.222 [Test worker] ERROR s.f.u.service.event.EventService - creating event wasn't successfully EventDto(id=null, title=null, startDate=null, endDate=null, ownerId=1, description=null, relatedSkills=[SkillDto(id=1, title=programming)], location=null, maxAttendees=null)
-2025-01-09 18:17:26.225 [Test worker] INFO  s.f.u.service.event.EventService - success deleted event by id: Event(id=1, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=null, relatedSkills=null, type=null, status=null, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.541 [Test worker] INFO  s.f.u.service.premium.PremiumService - sending request to payment service api PaymentRequest[paymentNumber=1, amount=10, currency=USD]
-2025-01-09 18:17:26.548 [Test worker] INFO  s.f.u.service.premium.PremiumService - response <200 OK OK,PaymentResponse[status=SUCCESS, verificationCode=0, paymentNumber=0, amount=null, currency=null, message=null],[]> from payment service to request PaymentRequest[paymentNumber=1, amount=10, currency=USD]
-2025-01-09 18:17:26.548 [Test worker] INFO  s.f.u.service.premium.PremiumService - premium entity (entityID:0) saved success
-2025-01-09 18:17:26.552 [Test worker] INFO  s.f.u.service.premium.PremiumService - sending request to payment service api PaymentRequest[paymentNumber=1, amount=10, currency=USD]
-2025-01-09 18:17:26.553 [Test worker] INFO  s.f.u.service.premium.PremiumService - response <400 BAD_REQUEST Bad Request,PaymentResponse[status=ERROR, verificationCode=0, paymentNumber=0, amount=null, currency=null, message=null],[]> from payment service to request PaymentRequest[paymentNumber=1, amount=10, currency=USD]
-2025-01-09 18:17:26.553 [Test worker] ERROR s.f.u.service.premium.PremiumService - payment wasn't success, cause: null
-2025-01-09 18:17:26.555 [Test worker] ERROR s.f.u.service.premium.PremiumService - User not found
-2025-01-09 18:17:26.559 [Test worker] ERROR s.f.u.service.premium.PremiumService - Already have premium period
-2025-01-09 18:17:26.691 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequest for ID: 1
-2025-01-09 18:17:26.692 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing getRequest for ID: 1. Result: RecommendationRequestDto(id=1, message=null, status=null, skillIds=null, requesterId=null, receiverId=null, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.696 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=TEST)
-2025-01-09 18:17:26.697 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing rejectRequest for ID: 1. Result: RecommendationRequestDto(id=1, message=null, status=REJECTED, skillIds=[], requesterId=null, receiverId=null, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.702 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequests with filter: RequestFilterDto(id=null, requesterId=null, receiverId=null, status=null, createdAfter=null, createdBefore=null, updatedAfter=null, updatedBefore=null, skillIds=null, messageContains=null, rejectionReasonContains=null)
-2025-01-09 18:17:26.710 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing getRequests. Filtered results count: 2
-2025-01-09 18:17:26.715 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start creating RecommendationRequest: RecommendationRequestDto(id=1, message=null, status=null, skillIds=[1, 2], requesterId=2, receiverId=3, createdAt=null, updatedAt=null)
-2025-01-09 18:17:26.718 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - The null was created in the database
-2025-01-09 18:17:26.721 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=null)
-2025-01-09 18:17:26.723 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=null)
-2025-01-09 18:17:26.726 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequest for ID: 1
-2025-01-09 18:17:26.905 [Test worker] ERROR s.f.u.service.skill.SkillService - Имя умения занято.
-2025-01-09 18:17:27.258 [Test worker] INFO  s.f.u.service.user.BannerService - user ban started! user ids: [1, 2]
-2025-01-09 18:17:27.259 [Test worker] INFO  s.f.u.service.user.BannerService - users success banned
-2025-01-09 18:17:27.261 [Test worker] INFO  s.f.u.service.user.BannerService - user ban started! user ids: [1]
-2025-01-09 18:17:27.262 [Test worker] INFO  s.f.u.service.user.BannerService - users by ids: [1], not found!
-2025-01-09 18:17:27.263 [Test worker] INFO  s.f.u.service.user.BannerService - users success banned
-2025-01-09 18:17:27.313 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={1=1.0, 2=2.0, 3=3.0, 4=4.0, 5=5.0, 6=6.0, 7=7.0, 8=8.0, 9=9.0, 10=10.0, 11=11.0, 12=12.0, 13=13.0, 14=14.0, 15=15.0, 16=16.0, 17=17.0, 18=18.0, 19=19.0, 20=20.0, 21=21.0, 22=22.0, 23=23.0, 24=24.0, 25=25.0, 26=26.0, 27=27.0, 28=28.0, 29=29.0, 30=30.0, 31=31.0, 32=32.0, 33=33.0, 34=34.0, 35=35.0, 36=36.0, 37=37.0, 38=38.0, 39=39.0, 40=40.0, 41=41.0, 42=42.0, 43=43.0, 44=44.0, 45=45.0, 46=46.0, 47=47.0, 48=48.0, 49=49.0, 50=50.0, 51=51.0, 52=52.0, 53=53.0, 54=54.0, 55=55.0, 56=56.0, 57=57.0, 58=58.0, 59=59.0, 60=60.0}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
-2025-01-09 18:17:27.319 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
-2025-01-09 18:17:27.331 [Test worker] INFO  s.f.u.service.user.UserService - upload csv file: students.csv starting
-2025-01-09 18:17:27.335 [Test worker] INFO  s.f.u.service.user.UserService - success saved all users form file
-2025-01-09 18:17:27.337 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={1=10.555, 2=20.123, 3=0.0}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
-2025-01-09 18:17:27.337 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
-2025-01-09 18:17:27.348 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={1=10.0, 2=15.0}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
-2025-01-09 18:17:27.349 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
-2025-01-09 18:17:27.365 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: six-month request limit. Requester ID: 1, Receiver ID: 2
-2025-01-09 18:17:27.368 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: requester and receiver exist in database. Requester ID: 1, Receiver ID: 2
-2025-01-09 18:17:27.370 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: requester and receiver exist in database. Requester ID: 1, Receiver ID: null
-2025-01-09 18:17:27.373 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: all skills exist in database. Skill IDs: [1, 2]
+2025-01-09 18:21:13.564 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 4 mappings in org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+2025-01-09 18:21:13.571 [Test worker] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.572 [Test worker] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-01-09 18:21:13.572 [Test worker] INFO  o.s.mock.web.MockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-01-09 18:21:13.572 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-01-09 18:21:13.572 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-01-09 18:21:13.572 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected FixedThemeResolver
+2025-01-09 18:21:13.573 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@497c267a
+2025-01-09 18:21:13.573 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@38f553d0
+2025-01-09 18:21:13.573 [Test worker] DEBUG o.s.t.w.s.TestDispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-01-09 18:21:13.573 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2025-01-09 18:21:13.680 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Applying filter 'RecommendationCreatedAfterFilter'. Recommendation request CreatedAt: 2024-11-15T23:35:58, Filter CreatedAfter: 2024-11-14T23:35:58, Result: true
+2025-01-09 18:21:13.682 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Applying filter 'RecommendationCreatedAfterFilter'. Recommendation request CreatedAt: 2024-11-14T23:35:58, Filter CreatedAfter: 2024-11-15T23:35:58, Result: false
+2025-01-09 18:21:13.683 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Checking if filter 'RecommendationCreatedAfterFilter' is applicable. CreatedAfter: null, Result: false
+2025-01-09 18:21:13.685 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedAfterFilter - Checking if filter 'RecommendationCreatedAfterFilter' is applicable. CreatedAfter: 2025-01-09T18:21:13.685710700, Result: true
+2025-01-09 18:21:13.688 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Applying filter 'RecommendationCreatedBeforeFilter'. Recommendation CreatedAt: 2024-11-14T23:35:58, Filter CreatedBefore: 2024-11-15T23:35:58, Result: true
+2025-01-09 18:21:13.690 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Applying filter 'RecommendationCreatedBeforeFilter'. Recommendation CreatedAt: 2024-11-15T23:35:58, Filter CreatedBefore: 2024-11-14T23:35:58, Result: false
+2025-01-09 18:21:13.691 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Checking if filter 'RecommendationCreatedBeforeFilter' is applicable. CreatedBefore: null, Result: false
+2025-01-09 18:21:13.692 [Test worker] INFO  s.f.u.f.r.RecommendationCreatedBeforeFilter - Checking if filter 'RecommendationCreatedBeforeFilter' is applicable. CreatedBefore: 2025-01-09T18:21:13.692709400, Result: true
+2025-01-09 18:21:13.695 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Applying filter 'RecommendationStatusFilter'. Recommendation Status: REJECTED, Filter Status: REJECTED, Result: true
+2025-01-09 18:21:13.696 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Applying filter 'RecommendationStatusFilter'. Recommendation Status: PENDING, Filter Status: REJECTED, Result: false
+2025-01-09 18:21:13.697 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Checking if filter 'RecommendationStatusFilter' is applicable. Status: null, Result: false
+2025-01-09 18:21:13.699 [Test worker] INFO  s.f.u.f.r.RecommendationStatusFilter - Checking if filter 'RecommendationStatusFilter' is applicable. Status: REJECTED, Result: true
+2025-01-09 18:21:14.360 [Test worker] ERROR s.f.u.p.m.MentorshipAcceptedEventPublisher - Error converting object MentorshipAcceptedEvent(id=1, authorId=2, receiverId=3, acceptedAt=2025-01-09T18:21:14.355868200) to JSON: N/A
+2025-01-09 18:21:14.369 [Test worker] ERROR s.f.u.p.m.MentorshipStartEventPublisher - Error converting object MentorshipStartEvent(mentorId=1, menteeId=2, createdAt=2025-01-09T18:21:14.369030300) to JSON: N/A
+2025-01-09 18:21:14.377 [Test worker] ERROR s.f.u.p.m.MentorshipRequestedEventPublisher - Error converting object MentorshipRequestedEvent(id=1, requesterId=2, receiverId=3, createdAt=2025-01-09T18:21:14.376027600) to JSON: N/A
+2025-01-09 18:21:14.385 [Test worker] ERROR s.f.u.p.p.PremiumBoughtEventPublisher - Error converting object PremiumBoughtEvent(id=1, userId=1, premiumType=Basic, startDate=2025-01-09T18:21:14.383029100, endDate=2025-01-09T18:21:14.383029100) to JSON: N/A
+2025-01-09 18:21:14.396 [Test worker] ERROR s.f.u.p.r.RecommendationEventPublisher - Error converting object RecommendationEvent(id=1, authorId=1, receiverId=1, createdAt=2025-01-09T18:21:14.395031400) to JSON: N/A
+2025-01-09 18:21:14.404 [Test worker] ERROR s.f.u.p.RecommendationReceivedEventPublisher - Error converting object RecommendationReceivedEvent(id=1, authorId=2, receiverId=3, content=Content, recommendationTime=2025-01-09T18:21:14.403109800) to JSON: N/A
+2025-01-09 18:21:14.415 [Test worker] ERROR s.f.u.p.s.FollowerEventPublisher - Error converting object FollowerEvent(followerUserId=1, targetUserId=2, targetProjectId=null, createdAt=2025-01-09T18:21:14.414606400) to JSON: N/A
+2025-01-09 18:21:14.443 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@687d4471] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [3]
+2025-01-09 18:21:14.444 [Test worker] INFO  s.f.u.scheduler.EventScheduler - No events to delete.
+2025-01-09 18:21:14.446 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@449ca6b6] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [3]
+2025-01-09 18:21:14.446 [Test worker] DEBUG o.s.test.util.ReflectionTestUtils - Setting field 'batchSize' of type [null] on target object [school.faang.user_service.scheduler.EventScheduler@449ca6b6] or target class [class school.faang.user_service.scheduler.EventScheduler] to value [1]
+2025-01-09 18:21:14.448 [Test worker] INFO  s.f.u.scheduler.EventScheduler - Starting clearing events...
+2025-01-09 18:21:14.449 [ForkJoinPool.commonPool-worker-1] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
+2025-01-09 18:21:14.450 [ForkJoinPool.commonPool-worker-3] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
+2025-01-09 18:21:14.450 [ForkJoinPool.commonPool-worker-2] DEBUG s.f.u.scheduler.EventScheduler - Event deleted
+2025-01-09 18:21:14.450 [ForkJoinPool.commonPool-worker-2] INFO  s.f.u.scheduler.EventScheduler - Past events deleted.
+2025-01-09 18:21:15.620 [Test worker] WARN  s.f.u.service.event.EventService - not found such event by id:1
+2025-01-09 18:21:15.627 [Test worker] INFO  s.f.u.service.event.EventService - event success updated Event(id=1, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=User(id=1, username=null, email=null, phone=null, password=null, active=false, aboutMe=null, country=null, city=null, experience=null, createdAt=null, updatedAt=null, followers=null, followees=null, ownedEvents=null, mentees=null, mentors=null, receivedMentorshipRequests=null, sentMentorshipRequests=null, sentGoalInvitations=null, receivedGoalInvitations=null, setGoals=null, goals=null, skills=null, participatedEvents=null, recommendationsGiven=null, recommendationsReceived=null, contacts=null, ratings=null, userProfilePic=null, contactPreference=null, premium=null, rankScore=null, banned=false), relatedSkills=[Skill(id=1, title=programming, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null), Skill(id=2, title=Spring, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null)], type=null, status=null, createdAt=null, updatedAt=null)
+2025-01-09 18:21:15.658 [Test worker] ERROR s.f.u.service.event.EventService - creating event wasn't successfully EventDto(id=null, title=null, startDate=null, endDate=null, ownerId=1, description=null, relatedSkills=[SkillDto(id=1, title=programming)], location=null, maxAttendees=null)
+2025-01-09 18:21:15.666 [Test worker] WARN  s.f.u.service.event.EventService - not such event by id: 1
+2025-01-09 18:21:15.668 [Test worker] INFO  s.f.u.service.event.EventService - get PARTICIPATED events: [EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)], by userId: 1
+2025-01-09 18:21:15.671 [Test worker] WARN  s.f.u.service.event.EventService - not found such event by id:2
+2025-01-09 18:21:15.674 [Test worker] INFO  s.f.u.service.event.EventService - got OWNED events: [EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)], by userId: 1
+2025-01-09 18:21:15.676 [Test worker] INFO  s.f.u.service.event.EventService - success get event dto: EventDto(id=1, title=null, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)
+2025-01-09 18:21:15.679 [Test worker] INFO  s.f.u.service.event.EventService - event success created Event(id=0, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=User(id=1, username=null, email=null, phone=null, password=null, active=false, aboutMe=null, country=null, city=null, experience=null, createdAt=null, updatedAt=null, followers=null, followees=null, ownedEvents=null, mentees=null, mentors=null, receivedMentorshipRequests=null, sentMentorshipRequests=null, sentGoalInvitations=null, receivedGoalInvitations=null, setGoals=null, goals=null, skills=null, participatedEvents=null, recommendationsGiven=null, recommendationsReceived=null, contacts=null, ratings=null, userProfilePic=null, contactPreference=null, premium=null, rankScore=null, banned=false), relatedSkills=[Skill(id=1, title=programming, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null), Skill(id=2, title=Spring, users=null, guarantees=null, events=null, goals=null, createdAt=null, updatedAt=null)], type=null, status=null, createdAt=null, updatedAt=null)
+2025-01-09 18:21:15.683 [Test worker] INFO  s.f.u.service.event.EventService - get event filters EventFilterDto(titlePattern=social media, userId=null, dateTime=null)
+2025-01-09 18:21:15.684 [Test worker] INFO  s.f.u.service.event.EventService - got events by filter: [EventDto(id=0, title=social media startup, startDate=null, endDate=null, ownerId=null, description=null, relatedSkills=null, location=null, maxAttendees=0)]
+2025-01-09 18:21:15.687 [Test worker] ERROR s.f.u.service.event.EventService - creating event wasn't successfully EventDto(id=null, title=null, startDate=null, endDate=null, ownerId=1, description=null, relatedSkills=[SkillDto(id=1, title=programming)], location=null, maxAttendees=null)
+2025-01-09 18:21:15.690 [Test worker] INFO  s.f.u.service.event.EventService - success deleted event by id: Event(id=1, title=null, description=null, startDate=null, endDate=null, location=null, maxAttendees=0, attendees=null, ratings=null, owner=null, relatedSkills=null, type=null, status=null, createdAt=null, updatedAt=null)
+2025-01-09 18:21:16.054 [Test worker] INFO  s.f.u.service.premium.PremiumService - sending request to payment service api PaymentRequest[paymentNumber=1, amount=10, currency=USD]
+2025-01-09 18:21:16.061 [Test worker] INFO  s.f.u.service.premium.PremiumService - response <200 OK OK,PaymentResponse[status=SUCCESS, verificationCode=0, paymentNumber=0, amount=null, currency=null, message=null],[]> from payment service to request PaymentRequest[paymentNumber=1, amount=10, currency=USD]
+2025-01-09 18:21:16.061 [Test worker] INFO  s.f.u.service.premium.PremiumService - premium entity (entityID:0) saved success
+2025-01-09 18:21:16.065 [Test worker] INFO  s.f.u.service.premium.PremiumService - sending request to payment service api PaymentRequest[paymentNumber=1, amount=10, currency=USD]
+2025-01-09 18:21:16.065 [Test worker] INFO  s.f.u.service.premium.PremiumService - response <400 BAD_REQUEST Bad Request,PaymentResponse[status=ERROR, verificationCode=0, paymentNumber=0, amount=null, currency=null, message=null],[]> from payment service to request PaymentRequest[paymentNumber=1, amount=10, currency=USD]
+2025-01-09 18:21:16.065 [Test worker] ERROR s.f.u.service.premium.PremiumService - payment wasn't success, cause: null
+2025-01-09 18:21:16.068 [Test worker] ERROR s.f.u.service.premium.PremiumService - User not found
+2025-01-09 18:21:16.070 [Test worker] ERROR s.f.u.service.premium.PremiumService - Already have premium period
+2025-01-09 18:21:16.186 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequest for ID: 1
+2025-01-09 18:21:16.187 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing getRequest for ID: 1. Result: RecommendationRequestDto(id=1, message=null, status=null, skillIds=null, requesterId=null, receiverId=null, createdAt=null, updatedAt=null)
+2025-01-09 18:21:16.191 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=TEST)
+2025-01-09 18:21:16.192 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing rejectRequest for ID: 1. Result: RecommendationRequestDto(id=1, message=null, status=REJECTED, skillIds=[], requesterId=null, receiverId=null, createdAt=null, updatedAt=null)
+2025-01-09 18:21:16.196 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequests with filter: RequestFilterDto(id=null, requesterId=null, receiverId=null, status=null, createdAfter=null, createdBefore=null, updatedAfter=null, updatedBefore=null, skillIds=null, messageContains=null, rejectionReasonContains=null)
+2025-01-09 18:21:16.204 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Completed processing getRequests. Filtered results count: 2
+2025-01-09 18:21:16.209 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start creating RecommendationRequest: RecommendationRequestDto(id=1, message=null, status=null, skillIds=[1, 2], requesterId=2, receiverId=3, createdAt=null, updatedAt=null)
+2025-01-09 18:21:16.212 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - The null was created in the database
+2025-01-09 18:21:16.217 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=null)
+2025-01-09 18:21:16.220 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing rejectRequest for ID: 1 with Rejection: RejectionDto(reason=null)
+2025-01-09 18:21:16.223 [Test worker] INFO  s.f.u.s.r.RecommendationRequestService - Start processing getRequest for ID: 1
+2025-01-09 18:21:16.379 [Test worker] ERROR s.f.u.service.skill.SkillService - Имя умения занято.
+2025-01-09 18:21:16.737 [Test worker] INFO  s.f.u.service.user.BannerService - user ban started! user ids: [1, 2]
+2025-01-09 18:21:16.738 [Test worker] INFO  s.f.u.service.user.BannerService - users success banned
+2025-01-09 18:21:16.741 [Test worker] INFO  s.f.u.service.user.BannerService - user ban started! user ids: [1]
+2025-01-09 18:21:16.741 [Test worker] INFO  s.f.u.service.user.BannerService - users by ids: [1], not found!
+2025-01-09 18:21:16.743 [Test worker] INFO  s.f.u.service.user.BannerService - users success banned
+2025-01-09 18:21:16.796 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={1=1.0, 2=2.0, 3=3.0, 4=4.0, 5=5.0, 6=6.0, 7=7.0, 8=8.0, 9=9.0, 10=10.0, 11=11.0, 12=12.0, 13=13.0, 14=14.0, 15=15.0, 16=16.0, 17=17.0, 18=18.0, 19=19.0, 20=20.0, 21=21.0, 22=22.0, 23=23.0, 24=24.0, 25=25.0, 26=26.0, 27=27.0, 28=28.0, 29=29.0, 30=30.0, 31=31.0, 32=32.0, 33=33.0, 34=34.0, 35=35.0, 36=36.0, 37=37.0, 38=38.0, 39=39.0, 40=40.0, 41=41.0, 42=42.0, 43=43.0, 44=44.0, 45=45.0, 46=46.0, 47=47.0, 48=48.0, 49=49.0, 50=50.0, 51=51.0, 52=52.0, 53=53.0, 54=54.0, 55=55.0, 56=56.0, 57=57.0, 58=58.0, 59=59.0, 60=60.0}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
+2025-01-09 18:21:16.802 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
+2025-01-09 18:21:16.814 [Test worker] INFO  s.f.u.service.user.UserService - upload csv file: students.csv starting
+2025-01-09 18:21:16.817 [Test worker] INFO  s.f.u.service.user.UserService - success saved all users form file
+2025-01-09 18:21:16.819 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={2=20.123, 3=0.0, 1=10.555}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
+2025-01-09 18:21:16.820 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
+2025-01-09 18:21:16.832 [Test worker] INFO  s.f.u.service.user.UserService - batch is starting UpdateUsersRankDto(usersRankByIds={1=10.0, 2=15.0}, maximumGrowthRating=9.9, halfUserRank=50.0, maximumUserRating=100.0, minimumUserRating=0.0, ratingGrowthIntensive=0.05)
+2025-01-09 18:21:16.832 [Test worker] INFO  s.f.u.service.user.UserService - users rank success updated!
+2025-01-09 18:21:16.849 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: six-month request limit. Requester ID: 1, Receiver ID: 2
+2025-01-09 18:21:16.853 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: requester and receiver exist in database. Requester ID: 1, Receiver ID: 2
+2025-01-09 18:21:16.856 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: requester and receiver exist in database. Requester ID: 1, Receiver ID: null
+2025-01-09 18:21:16.859 [Test worker] INFO  s.f.u.v.r.RecommendationRequestServiceValidator - Start validation: all skills exist in database. Skill IDs: [1, 2]
