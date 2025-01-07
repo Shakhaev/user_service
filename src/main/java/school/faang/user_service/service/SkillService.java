@@ -75,22 +75,22 @@ public class SkillService {
             log.info("Недостаточное количество предложений для присвоения умения {}. Необходимо {} вместо {}",
                     skill.getTitle(), MIN_SKILL_OFFERS, skillOffers.size());
             return null;
-        } else {
-            log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых",
-                    skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
-            skillRepository.assignSkillToUser(skillId, userId);
-
-            List<UserSkillGuarantee> userSkillGuarantees = skillOffers.stream()
-                    .map(skillOffer -> {
-                        User guarantorUser = skillOffer.getRecommendation().getAuthor();
-                        return new UserSkillGuarantee(null, user, skill, guarantorUser);
-                    })
-                    .toList();
-
-            skill.setGuarantees(userSkillGuarantees);
-            log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle(), user.getUsername());
-            skillRepository.save(skill);
         }
+        log.info("Умение {} присвоено пользователю {}, так как получено {} предложения из {} необходимых",
+                skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
+        skillRepository.assignSkillToUser(skillId, userId);
+
+        List<UserSkillGuarantee> userSkillGuarantees = skillOffers.stream()
+                .map(skillOffer -> {
+                    User guarantorUser = skillOffer.getRecommendation().getAuthor();
+                    return new UserSkillGuarantee(null, user, skill, guarantorUser);
+                })
+                .toList();
+
+        skill.setGuarantees(userSkillGuarantees);
+        log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle(), user.getUsername());
+        skillRepository.save(skill);
+
         return skillMapper.toDto(skill);
     }
 
