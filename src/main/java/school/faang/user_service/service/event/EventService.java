@@ -1,12 +1,12 @@
 package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -27,11 +27,11 @@ public class EventService {
 
     public EventDto create(EventDto event) {
 
-        checkUserSkills(event);
+        List<Skill> UserSkills = checkGetUserSkills(event);
 
         Event newEventCandidate = eventMapper.toEntityEvent(event);
 
-        newEventCandidate.setRelatedSkills(checkUserSkills(event).get(userRepository.findById(event.getOwnerId())));
+        newEventCandidate.setRelatedSkills(UserSkills);
 
         newEventCandidate.setOwner(userRepository.findById(event.getOwnerId()).get());
 
@@ -41,30 +41,21 @@ public class EventService {
 
     }
 
-    private Map<User,List<Skill>> checkUserSkills(EventDto event) throws DataIntegrityViolationException {
+    private List<Skill> checkGetUserSkills(EventDto event) throws DataValidationException {
         Map<User,List<Skill>> userSkills = new HashMap<>();
         Long ownerId = event.getOwnerId();
+
         User skillOwner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataValidationException("User not found"));
 
 
         if (!skillOwner.getSkills().stream()
                 .map(Skill::getId)
                 .anyMatch(id -> id.equals(skillOwner.getId()))) {
-            throw new DataIntegrityViolationException("User has no skills!");
+            throw new DataValidationException("User has no skills!");
         }
 
-        List<Skill> skills = skillOwner.getSkills();
-
-        return (Map<User, List<Skill>>) userSkills.put(skillOwner,skills);
-    }
-
-    private Map.Entry getUserSkills(EventDto event) {
-        Map<User, List<Skill>> userSkills = new HashMap<>();
-        userSkills.put(
-                userRepository.findById(event.getOwnerId()).get(),
-                userRepository.findById(event.getOwnerId()).get().getSkills());
-        return userSkills.entrySet().stream().findFirst().orElse(null);
+        return skillOwner.getSkills();
     }
 
     public Event updateEvent(EventDto event) {
