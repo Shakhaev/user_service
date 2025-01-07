@@ -3,12 +3,14 @@ package school.faang.user_service.service.skill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
@@ -16,6 +18,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +82,30 @@ public class SkillService implements SkillServiceInterface {
     }
 
     @Override
+    @Transactional
     public List<Skill> getSKillsByIds(List<Long> skillIds) {
         return skillRepository.findAllById(skillIds);
+    }
+
+    @Async
+    @Override
+    @Transactional
+    public void addSkillsToUsersByGoalId(Long goalId) {
+        var skills = skillRepository.findSkillsByGoalId(goalId);
+        var users = userService.getUsersByGoalId(goalId);
+        users.forEach(user -> {
+            List<Skill> userSkills = user.getSkills();
+            if(userSkills != null) {
+                userSkills.forEach(skill -> {
+                    if(skills.contains(skill)) {
+                        skill.setUpdatedAt(LocalDateTime.now());
+                    } else {
+                        user.getSkills().add(skill);
+                    }
+                });
+            } else {
+                user.setSkills(skills);
+            }
+        });
     }
 }
