@@ -106,7 +106,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testGetUserSkills() {
+    public void testGetUserSkillsSuccessCase() {
         Mockito.when(skillRepository.findAllByUserId(USER_ID)).thenReturn(List.of(new Skill()));
         skillService.getUserSkills(USER_ID);
 
