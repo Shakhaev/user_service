@@ -24,6 +24,7 @@ public interface GoalMapper {
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     GoalDto toDto(Goal goal);
 
     @Mapping(source = "skillsToAchieveIds", target = "skillsToAchieve", qualifiedByName = "mapSkillsIdsToSkills")

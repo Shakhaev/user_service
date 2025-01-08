@@ -3,9 +3,9 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.entity.goal.Goal;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,4 +57,12 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             g.id = :goalId
             """)
     GoalStatus getGoalStatusById(Long goalId);
+
+    @Query("""
+            SELECT g FROM Goal g
+            WHERE g.parent.id = :parentId AND
+            (:title IS NULL OR g.title = :title) AND
+            (:status IS NULL OR g.status = :status)
+            """)
+    Stream<Goal> findByParentIdAndFilter(long parentId, String title, GoalStatus status);
 }

@@ -68,4 +68,14 @@ public class GoalServiceImpl implements GoalService {
         goalRepository.deleteById(goalId);
         log.info("success deleted goal by id: {}", goalId);
     }
+
+    @Override
+    @Transactional
+    public List<GoalDto> findSubtasksByGoalId(long goalId, String title, String status) {
+        goalServiceValidator.existsById(goalId);
+        GoalStatus goalStatus = (status != null) ? GoalStatus.valueOf(status) : null;
+        return goalRepository.findByParentIdAndFilter(goalId, title, goalStatus)
+                .map(goalMapper::toDto)
+                .toList();
+    }
 }

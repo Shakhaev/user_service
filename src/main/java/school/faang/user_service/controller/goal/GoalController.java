@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.service.goal.GoalService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,5 +43,13 @@ public class GoalController {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void deleteGoal(@PathVariable @NotNull long id) {
         goalService.delete(id);
+    }
+
+    @GetMapping("{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable long id,
+                                              @RequestParam(required = false) String title,
+                                              @RequestParam(required = false) String status) {
+        return goalService.findSubtasksByGoalId(id, title, status);
     }
 }
