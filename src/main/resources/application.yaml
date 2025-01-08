@@ -33,6 +33,8 @@ spring:
           name: recommendation_channel
         mentorship-requested-channel:
           name: mentorship_requested_channel
+        ban_user_channel:
+          name: ban_user
 
 server:
   port: 8080
