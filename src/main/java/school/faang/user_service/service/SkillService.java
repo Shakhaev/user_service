@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,6 @@ import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,14 +57,13 @@ public class SkillService {
     }
 
 
+    @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
-        Optional<Skill> userSkill = skillRepository.findUserSkill(skillId, userId);
-        if (userSkill.isPresent()) {
-            return skillMapper.toDto(userSkill.get());
-        }
+        skillRepository.findUserSkill(skillId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Такой скил уже есть у игрока"));
 
         skillRepository.findById(skillId)
                 .orElseThrow(() -> new EntityNotFoundException("Скилл не существует"));
