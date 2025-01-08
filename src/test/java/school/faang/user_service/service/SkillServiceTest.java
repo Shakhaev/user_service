@@ -4,11 +4,9 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mapstruct.factory.Mappers;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -23,6 +21,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,8 +38,11 @@ public class SkillServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private SkillMapper skillMapper;
+    @Spy
+    private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
+
+    @Captor
+    private ArgumentCaptor<Skill> skillCaptor;
 
     @InjectMocks
     private SkillService skillService;
@@ -81,10 +83,11 @@ public class SkillServiceTest {
     public void testCreateSuccessCase() {
         Mockito.when(skillRepository.existsByTitle("Java")).thenReturn(false);
 
-        Mockito.when(skillMapper.toEntity(skillCreateDto)).thenReturn(new Skill());
         skillService.create(skillCreateDto);
-        Skill skill = skillMapper.toEntity(skillCreateDto);
-        Mockito.verify(skillRepository, Mockito.times(1)).save(skill);
+        Mockito.verify(skillRepository, Mockito.times(1)).save(skillCaptor.capture());
+
+        Skill skill = skillCaptor.getValue();
+        assertEquals(skillCreateDto.getTitle(), skill.getTitle());
     }
 
     @Test
@@ -117,8 +120,7 @@ public class SkillServiceTest {
 
     @Test
     public void testGetOfferedSkillsSuccessCase() {
-        Skill skill = new Skill();
-        Mockito.when(skillMapper.toSkillCandidateDto(skill)).thenReturn(new SkillCandidateDto());
+        Skill skill = skillMapper.toEntity(skillCreateDto);
 
         Mockito.when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill));
         skillService.getOfferedSkills(USER_ID);
