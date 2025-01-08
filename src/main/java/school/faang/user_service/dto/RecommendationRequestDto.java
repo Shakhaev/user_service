@@ -17,5 +17,4 @@ public class RecommendationRequestDto {
     private Long receiverId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }
