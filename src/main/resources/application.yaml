@@ -21,6 +21,7 @@ spring:
       port: 6379
       host: localhost
       channels:
+        mentorship_accepted: mentorship_accept_channel
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
@@ -32,6 +33,8 @@ spring:
           name: recommendation_channel
         mentorship-requested-channel:
           name: mentorship_requested_channel
+        ban_user_channel:
+          name: ban_user
         premium-bought-channel:
           name: premium_bought_channel
 
