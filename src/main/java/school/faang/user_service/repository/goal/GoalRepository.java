@@ -1,6 +1,7 @@
 package school.faang.user_service.repository.goal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.goal.Goal;
@@ -75,4 +76,10 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
           AND (?3 IS NULL OR g.status = ?3)
         """)
     Stream<Goal> findByUserIdAndFilter(long userId, String title, Integer status);
+
+    @Query("""
+            DELETE FROM Goal g WHERE g.id = :id
+            """)
+    @Modifying
+    void deleteById(long id);
 }
