@@ -404,6 +404,106 @@ public class SubscriptionServiceTest {
         Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
     }
 
+    @Test
+    @DisplayName("Test user filter all followers in one page")
+    void testFilterFollowersAllOnOnePage() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(1);
+        filter.setPageSize(5);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter followers on first page")
+    void testFilterFollowersOnFirstPage() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(1);
+        filter.setPageSize(1);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter folowers on second page")
+    void testFilterFollowersOnSecondPage() {
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(2);
+        filter.setPageSize(1);
+        filteredUsersDtos = subscriptionService.getFollowing(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 2L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter all followees in one page")
+    void testFilterFolloweesAllOnOnePage() {
+        Mockito.when(subscriptionRepository.findByFollowerId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(1);
+        filter.setPageSize(5);
+        filteredUsersDtos = subscriptionService.getFollowers(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter followees on first page")
+    void testFilterFolloweesOnFirstPage() {
+        Mockito.when(subscriptionRepository.findByFollowerId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(1);
+        filter.setPageSize(1);
+        filteredUsersDtos = subscriptionService.getFollowers(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
+    @Test
+    @DisplayName("Test user filter followees on second page")
+    void testFilterFolloweesOnSecondPage() {
+        Mockito.when(subscriptionRepository.findByFollowerId(followeeId)).thenReturn(followers.stream());
+
+        filter.setPage(2);
+        filter.setPageSize(1);
+        filteredUsersDtos = subscriptionService.getFollowers(followeeId, filter);
+
+        expectedUserDtos = followers.stream()
+                .filter(u -> u.getId() == 2L)
+                .map(subscriptionUserMapper::toDto)
+                .toList();
+
+        Assertions.assertArrayEquals(expectedUserDtos.toArray(), filteredUsersDtos.toArray());
+    }
+
     private void fillFollowersAndFollowees() {
         Country countryRussia = Country.builder().id(1).title("Russia").build();
         Country countryUsa = Country.builder().id(1).title("USA").build();

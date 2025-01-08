@@ -39,18 +39,47 @@ public class SubscriptionService {
 
     public List<SubscriptionUserDto> getFollowers(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
+        int pageNum = 0;
+        int pageSize = 0;
+
+        if (this.subscriptionUserFilterDto.getPageSize() > 0) {
+            pageSize = this.subscriptionUserFilterDto.getPageSize();
+        }
+
+        if (this.subscriptionUserFilterDto.getPage() > 0) {
+            pageNum = this.subscriptionUserFilterDto.getPage();
+        }
+
         Stream<User> userStream = subscriptionRepository.findByFollowerId(followeeId);
 
-        return userStream.filter(this::filterUsers).map(subscriptionUserMapper::toDto).toList();
+        return userStream
+                .filter(this::filterUsers)
+                .map(subscriptionUserMapper::toDto)
+                .skip((long) (pageNum - 1) * pageSize)
+                .limit(pageSize)
+                .toList();
     }
 
     public List<SubscriptionUserDto> getFollowing(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
+        int pageNum = 0;
+
+        int pageSize = 0;
+        if (this.subscriptionUserFilterDto.getPageSize() > 0) {
+            pageSize = this.subscriptionUserFilterDto.getPageSize();
+        }
+
+        if (this.subscriptionUserFilterDto.getPage() > 0) {
+            pageNum = this.subscriptionUserFilterDto.getPage();
+        }
+
         Stream<User> userStream = subscriptionRepository.findByFolloweeId(followeeId);
 
         return userStream
                 .filter(this::filterUsers)
                 .map(subscriptionUserMapper::toDto)
+                .skip((long) (pageNum - 1) * pageSize)
+                .limit(pageSize)
                 .toList();
 
     }
@@ -127,12 +156,13 @@ public class SubscriptionService {
 
     private Predicate<User> checkExperience(int minExperience, int maxExperience) {
         Predicate<User> checkPredicate;
-        if (minExperience > 0 && maxExperience >0 && maxExperience > minExperience) {
+        if (minExperience > 0 && maxExperience > 0 && maxExperience > minExperience) {
             checkPredicate = user -> (user.getExperience() >= minExperience && user.getExperience() < maxExperience);
         } else {
             checkPredicate = user -> true;
         }
         return checkPredicate;
     }
+
 
 }
