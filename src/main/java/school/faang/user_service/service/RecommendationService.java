@@ -3,10 +3,12 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -14,16 +16,23 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
 
-    public Recommendation giveRecommendation(RecommendationDto recommendation) {
+    public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
         validateRecommendation(recommendation);
         create(recommendation);
-        return null;
+        saveSkillOffer(recommendation);
+        return recommendation;
+    }
+
+    private void saveSkillOffer(RecommendationDto recommendation) {
+        recommendation.getSkillOffers()
+                .forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), skillOfferDto.getRecommendationId()));
     }
 
     public Long create(RecommendationDto recommendation) {
-        return recommendationRepository.create(recommendation.getAuthorId(),
-                recommendation.getReceiverId(),
-                recommendation.getContent());
+        if (recommendation.getCreatedAt().isBefore(ChronoLocalDateTime.from(LocalDateTime.now().minusMonths(6)))) {
+            return recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
+        }
+        return null;
     }
 
     private void validateRecommendation(RecommendationDto recommendation) {
