@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.FollowingFeatureDto;
@@ -16,13 +17,13 @@ public class SubscriptonController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping("/followees/{followeeId}")
-    public List<UserDto> getFollowees(@PathVariable long followeeId, @RequestBody UserFilterDto userFilterDto) {
+    public List<UserDto> getFollowees(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto userFilterDto) {
         return subscriptionService.getFollowees(followeeId, userFilterDto);
     }
 
-    @GetMapping("/followers")
-    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestBody UserFilterDto userFilterDto) {
-        return subscriptionService.getFollowers(followeeId, userFilterDto);
+    @GetMapping("/followers/{followerId}")
+    public List<UserDto> getFollowers(@PathVariable long followerId, @Valid @RequestBody UserFilterDto userFilterDto) {
+        return subscriptionService.getFollowers(followerId, userFilterDto);
     }
 
     @GetMapping("/followeesCount")
@@ -36,12 +37,12 @@ public class SubscriptonController {
     }
 
     @PostMapping("/follow")
-    public void followerUser(@RequestBody FollowingFeatureDto followingFeatureDto) {
+    public void followerUser(@Valid @RequestBody FollowingFeatureDto followingFeatureDto) {
         subscriptionService.followUser(followingFeatureDto);
     }
 
     @DeleteMapping("/unfollow")
-    public void unfollowUser(@RequestBody FollowingFeatureDto followingFeatureDto) {
+    public void unfollowUser(@Valid @RequestBody FollowingFeatureDto followingFeatureDto) {
         subscriptionService.unfollowUser(followingFeatureDto);
     }
 }

@@ -1,3 +1,6 @@
 package school.faang.user_service.dto;
 
-public record FollowingFeatureDto(long followerId, long followeeId) { }
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+public record FollowingFeatureDto(@Positive @NotNull long followerId, @Positive @NotNull long followeeId) { }
