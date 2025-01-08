@@ -53,7 +53,6 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "goal")
 public class Goal {
 
     @Id

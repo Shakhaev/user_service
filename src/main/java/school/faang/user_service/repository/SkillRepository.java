@@ -3,6 +3,7 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.Skill;
 
 import java.util.List;
@@ -53,5 +54,8 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
                 VALUES (:goalId, :skillId, NOW())
             """)
     void assignSkillToGoal(long goalId, long skillId);
+
+    @Query("SELECT COUNT(s) FROM Skill s WHERE s.id IN :skillIds")
+    Long getExistingSkillCountByIds(@Param("skillIds") List<Long> skillIds);
 
 }

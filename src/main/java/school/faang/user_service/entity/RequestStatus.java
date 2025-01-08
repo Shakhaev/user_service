@@ -1,7 +1,17 @@
 package school.faang.user_service.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum RequestStatus {
-    PENDING,
-    ACCEPTED,
-    REJECTED
+
+    PENDING(0),
+    ACCEPTED(1),
+    REJECTED(2);
+
+    private final int value;
+
+
 }

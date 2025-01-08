@@ -10,31 +10,35 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.proxy.HibernateProxy;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Getter
+@Setter
 @Entity
-@Table(name = "recommendation")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Recommendation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "content", length = 4096, nullable = false)
     private String content;
@@ -48,6 +52,7 @@ public class Recommendation {
     private User receiver;
 
     @OneToMany(mappedBy = "recommendation", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<SkillOffer> skillOffers;
 
     @OneToOne(mappedBy = "recommendation")
@@ -66,4 +71,26 @@ public class Recommendation {
     public void addSkillOffer(SkillOffer skillOffer) {
         skillOffers.add(skillOffer);
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Recommendation that = (Recommendation) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this)
+                .getHibernateLazyInitializer()
+                .getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
 }

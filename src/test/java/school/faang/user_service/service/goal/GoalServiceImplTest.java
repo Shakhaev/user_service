@@ -32,23 +32,23 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.enums.FilterOperation.EQUAL;
-import static school.faang.user_service.testConstants.GoalTestConstants.ACTIVE_GOALS_COUNT;
-import static school.faang.user_service.testConstants.GoalTestConstants.ACTIVE_GOAL_EXCEPTION_MESSAGE;
-import static school.faang.user_service.testConstants.GoalTestConstants.ASSERT_EXCEPTION_MESSAGE;
-import static school.faang.user_service.testConstants.GoalTestConstants.EXCEEDING_ACTIVE_GOALS;
-import static school.faang.user_service.testConstants.GoalTestConstants.EXISTING_SKILLS_COUNT;
-import static school.faang.user_service.testConstants.GoalTestConstants.FILTER_FIELD;
-import static school.faang.user_service.testConstants.GoalTestConstants.GOAL_DESCRIPTION;
-import static school.faang.user_service.testConstants.GoalTestConstants.GOAL_DOES_NOT_EXIST_EXCEPTION_MESSAGE;
-import static school.faang.user_service.testConstants.GoalTestConstants.GOAL_TITLE;
-import static school.faang.user_service.testConstants.GoalTestConstants.INVALID_GOAL_ID;
-import static school.faang.user_service.testConstants.GoalTestConstants.MAX_ACTIVE_GOALS;
-import static school.faang.user_service.testConstants.GoalTestConstants.PARENT_GOAL_ID;
-import static school.faang.user_service.testConstants.GoalTestConstants.SKILL_IDS;
-import static school.faang.user_service.testConstants.GoalTestConstants.USER_ID;
-import static school.faang.user_service.testConstants.GoalTestConstants.USER_IDS;
-import static school.faang.user_service.testConstants.GoalTestConstants.VALID_GOAL_ID;
-import static school.faang.user_service.testConstants.GoalTestConstants.VALID_SKILLS_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.ACTIVE_GOALS_COUNT;
+import static school.faang.user_service.testConstants.TestConstants.ACTIVE_GOAL_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.ASSERT_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.EXCEEDING_ACTIVE_GOALS;
+import static school.faang.user_service.testConstants.TestConstants.EXISTING_SKILLS_COUNT;
+import static school.faang.user_service.testConstants.TestConstants.FILTER_FIELD;
+import static school.faang.user_service.testConstants.TestConstants.GOAL_DESCRIPTION;
+import static school.faang.user_service.testConstants.TestConstants.GOAL_DOES_NOT_EXIST_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.GOAL_TITLE;
+import static school.faang.user_service.testConstants.TestConstants.INVALID_GOAL_ID;
+import static school.faang.user_service.testConstants.TestConstants.MAX_ACTIVE_GOALS;
+import static school.faang.user_service.testConstants.TestConstants.PARENT_GOAL_ID;
+import static school.faang.user_service.testConstants.TestConstants.SKILL_IDS;
+import static school.faang.user_service.testConstants.TestConstants.VALID_USER_ID;
+import static school.faang.user_service.testConstants.TestConstants.USER_IDS;
+import static school.faang.user_service.testConstants.TestConstants.VALID_GOAL_ID;
+import static school.faang.user_service.testConstants.TestConstants.VALID_SKILLS_EXCEPTION_MESSAGE;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalServiceImplTest {
@@ -123,11 +123,11 @@ public class GoalServiceImplTest {
     public void testValidateActiveGoalLimit_whenActiveIsMoreThenThree_thenThrowsException() {
         // Arrange
         when(goalRepository.countActiveGoalsPerUser(anyLong())).thenReturn(EXCEEDING_ACTIVE_GOALS);
-        String expectedMessage = String.format(ACTIVE_GOAL_EXCEPTION_MESSAGE, USER_ID, MAX_ACTIVE_GOALS);
+        String expectedMessage = String.format(ACTIVE_GOAL_EXCEPTION_MESSAGE, VALID_USER_ID, MAX_ACTIVE_GOALS);
 
         // Act
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> goalService.createGoal(USER_ID, createGoalRequestDto), ASSERT_EXCEPTION_MESSAGE);
+                () -> goalService.createGoal(VALID_USER_ID, createGoalRequestDto), ASSERT_EXCEPTION_MESSAGE);
 
         // Assert
         assertEquals(expectedMessage, exception.getMessage(), "Exception message did not match expected value");
@@ -144,7 +144,7 @@ public class GoalServiceImplTest {
 
         // Act
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> goalService.createGoal(USER_ID, createGoalRequestDto), ASSERT_EXCEPTION_MESSAGE);
+                () -> goalService.createGoal(VALID_USER_ID, createGoalRequestDto), ASSERT_EXCEPTION_MESSAGE);
 
         // Assert
         assertEquals(VALID_SKILLS_EXCEPTION_MESSAGE, exception.getMessage());
@@ -165,7 +165,7 @@ public class GoalServiceImplTest {
         when(goalMapper.toCreateGoalResponseDto(goal)).thenReturn(createGoalResponseDto);
 
         // Act
-        CreateGoalResponseDto result = goalService.createGoal(USER_ID, createGoalRequestDto);
+        CreateGoalResponseDto result = goalService.createGoal(VALID_USER_ID, createGoalRequestDto);
 
         // Assert
         assertEquals(createGoalResponseDto, result);

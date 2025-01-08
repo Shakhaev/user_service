@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1/goals")
 public class GoalController {
 
-    private final GoalServiceImpl service;
+    private final GoalServiceImpl goalService;
 
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
@@ -30,25 +30,25 @@ public class GoalController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<CreateGoalResponseDto> create(@PathVariable Long userId,
+    public ResponseEntity<CreateGoalResponseDto> create(@PathVariable(name = "id") Long userId,
                                                         @RequestBody CreateGoalRequestDto request) {
-        return ResponseEntity.ok(service.createGoal(userId, request));
+        return ResponseEntity.ok(goalService.createGoal(userId, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long goalId) {
-        service.deleteGoal(goalId);
+    public ResponseEntity<String> delete(@PathVariable(name = "id") Long goalId) {
+        goalService.deleteGoal(goalId);
         return ResponseEntity.ok("Goal successfully deleted");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<GoalDto>> findAllSubtasks(@PathVariable Long parentGoalId) {
-        return ResponseEntity.ok(service.findSubtasksByGoalId(parentGoalId));
+    public ResponseEntity<List<GoalDto>> findAllSubtasks(@PathVariable(name = "id") Long parentGoalId) {
+        return ResponseEntity.ok(goalService.findSubtasksByGoalId(parentGoalId));
     }
 
     @PostMapping("/search")
     public ResponseEntity<List<GoalDto>> search(@RequestBody SearchRequest request) {
-        return ResponseEntity.ok(service.search(request));
+        return ResponseEntity.ok(goalService.search(request));
     }
 
 }
