@@ -35,6 +35,8 @@ spring:
           name: mentorship_requested_channel
         ban_user_channel:
           name: ban_user
+        premium-bought-channel:
+          name: premium_bought_channel
 
 server:
   port: 8080
