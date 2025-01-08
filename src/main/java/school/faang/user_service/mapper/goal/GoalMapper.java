@@ -1,8 +1,11 @@
 package school.faang.user_service.mapper.goal;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalDto;
@@ -23,8 +26,9 @@ public interface GoalMapper {
     @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
     GoalDto toDto(Goal goal);
 
-    @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
-    Goal updateGoalDtoToEntity(UpdateGoalDto goal);
+    @Mapping(source = "skillsToAchieveIds", target = "skillsToAchieve", qualifiedByName = "mapSkillsIdsToSkills")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateGoalFromDto(UpdateGoalDto dto, @MappingTarget Goal entity);
 
     @Named(value = "mapSkillsIdsToSkills")
     default List<Skill> mapSkillsIdsToSkills(List<Long> skillsToAchieveIds) {

@@ -45,16 +45,17 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public GoalDto update(UpdateGoalDto goalDto) {
         goalServiceValidator.validateForUpdating(goalDto);
-        Goal goal = goalMapper.updateGoalDtoToEntity(goalDto);
-        Goal updatedGoal = goalRepository.save(goal);
-        if(goalDto.getSkillsToAchieveIds() != null) {
-            updatedGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
+        Goal goal = goalRepository.findById(goalDto.getId()).get();
+        goalMapper.updateGoalFromDto(goalDto, goal);
+        if (goalDto.getSkillsToAchieveIds() != null) {
+            goal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
         }
-        if(GoalStatus.COMPLETED.equals(updatedGoal.getStatus())) {
-            skillService.addSkillsToUsersByGoalId(updatedGoal.getId());
+        if (GoalStatus.COMPLETED.equals(goal.getStatus())) {
+            skillService.addSkillsToUsersByGoalId(goal.getId());
         }
-        return goalMapper.toDto(updatedGoal);
+        return goalMapper.toDto(goal);
     }
 }

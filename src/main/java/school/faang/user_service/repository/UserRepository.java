@@ -80,7 +80,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<List<User>> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query(nativeQuery = true, value = """
-            SELECT u FROM users u
+            SELECT u.* FROM users u
             JOIN user_goal ug ON u.id = ug.user_id 
             AND ug.goal_id = ?1
             """)
