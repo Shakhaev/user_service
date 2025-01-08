@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
+import school.faang.user_service.exceptions.BadRequestException;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -17,11 +18,17 @@ public class GoalController {
 
     @PostMapping
     public GoalDTO createGoal(@RequestParam Long userId, @RequestBody GoalDTO goalDTO) {
+        if (goalDTO.getTitle() == null || goalDTO.getTitle().isBlank()) {
+            throw new BadRequestException("Title can not be empty");
+        }
         return goalService.createGoal(userId, goalDTO);
     }
 
     @PutMapping("/{goalId}")
     public GoalDTO updateGoal(@PathVariable Long goalId, @RequestBody GoalDTO goalDTO) {
+        if (goalDTO.getTitle() == null || goalDTO.getTitle().isBlank()) {
+            throw new BadRequestException("Title can not be empty");
+        }
         return goalService.updateGoal(goalId, goalDTO);
     }
 

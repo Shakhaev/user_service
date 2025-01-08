@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
 import school.faang.user_service.entity.Skill;
@@ -20,10 +19,8 @@ import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.filter.goal.GoalStatusFilter;
 import school.faang.user_service.filter.goal.GoalTitleFilter;
 import school.faang.user_service.mapper.GoalMapper;
-import school.faang.user_service.mapper.GoalMapperImpl;
 import school.faang.user_service.repository.goal.GoalRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -216,12 +213,6 @@ public class GoalServiceTest {
         Assertions.assertThrows(BadRequestException.class, () -> goalService.updateGoal(1L, goalDTO));
     }
 
-
-    @Test
-    public void testCreateWithBlankTitle() {
-        goalDTO.setTitle(" ");
-        Assertions.assertThrows(BadRequestException.class, () -> goalService.createGoal(1L, goalDTO));
-    }
 
     @Test
     public void testCreateWithSkillsNotExists() {

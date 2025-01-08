@@ -137,9 +137,6 @@ public class GoalService {
     }
 
     private void validateGoal(GoalDTO goalDTO) {
-        if (goalDTO.getTitle() == null || goalDTO.getTitle().isBlank()) {
-            throw new BadRequestException("Title can not be empty");
-        }
         if (!skillService.skillsExist(goalDTO.getSkillToAchieveIds())) {
             throw new ResourceNotFoundException("Unable to find skills");
         }
