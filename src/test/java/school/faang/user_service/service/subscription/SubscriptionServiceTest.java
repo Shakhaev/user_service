@@ -7,11 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.subscription.FollowerEvent;
 import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.mapper.user.ShortUserMapper;
+import school.faang.user_service.publisher.subscription.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.filters.user.UserFilter;
 
@@ -34,6 +36,8 @@ class SubscriptionServiceTest {
     private ShortUserMapper shortUserMapper;
     @Mock
     private List<UserFilter> userFilters;
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
     @InjectMocks
     private SubscriptionService subscriptionService;
 
@@ -66,6 +70,7 @@ class SubscriptionServiceTest {
 
         assertDoesNotThrow(() -> subscriptionService.followUser(followerId, followeeId));
         verify(subscriptionRepository, times(1)).followUser(followerId, followeeId);
+        verify(followerEventPublisher, times(1)).publish(new FollowerEvent(followerId, followeeId));
     }
 
     @Test

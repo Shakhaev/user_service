@@ -18,18 +18,18 @@ import school.faang.user_service.service.subscription.SubscriptionService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/subscription")
+@RequestMapping("/api/v1/subscription")
 @AllArgsConstructor
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
-    @PostMapping("follow/{followerId}/to/{followeeId}")
+    @PostMapping("/follow/{followerId}/{followeeId}")
     public ResponseEntity<Void> followUser(@PathVariable @NotNull Long followerId, @PathVariable @NotNull Long followeeId) {
         subscriptionService.followUser(followerId, followeeId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("unfollow/{followerId}/to/{followeeId}")
+    @PostMapping("unfollow/{followerId}/{followeeId}")
     public ResponseEntity<Void> unfollowUser(@PathVariable @NotNull Long followerId, @PathVariable @NotNull Long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
         return ResponseEntity.noContent().build();

@@ -25,7 +25,7 @@ spring:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event
+          name: follower_channel
         recommendation_topic: recommendation_topic
         recommendation-received-channel:
           name: recommendation_received_channel
