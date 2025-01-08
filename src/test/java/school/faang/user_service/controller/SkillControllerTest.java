@@ -64,7 +64,7 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testCreate() {
+    public void testCreateWithSuccessValidation() {
         SkillCreateDto skill = new SkillCreateDto();
         skill.setTitle("Java");
         Mockito.when(skillService.create(skill)).thenReturn(null);
