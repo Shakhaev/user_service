@@ -1,52 +1,46 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.SkillCreateDto;
+import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.NoSuchElementException;
 
-@Slf4j
-@RequiredArgsConstructor
+
 @Service
+@RequiredArgsConstructor
 public class SkillService {
-
     private final SkillRepository skillRepository;
+    private final SkillMapper skillMapper;
+    private final UserRepository userRepository;
 
-    public boolean skillExistsByTitle(String title) {
-        return skillRepository.existsByTitle(title);
-    }
-
-    public void assignSkillToGoal(long skillId, long goalId) {
-        skillRepository.assignSkillToGoal(skillId, goalId);
-    }
-
-    public List<Skill> findSkillsByGoalId(long goalId) {
-        return skillRepository.findSkillsByGoalId(goalId);
-    }
-
-    public void deleteSkill(Skill skill) {
-        skillRepository.delete(skill);
-    }
-
-    public List<Skill> getSkills(List<Long> ids) {
-        log.info("Getting Skills with ids {}", ids);
-        if (ids.isEmpty()) {
-            return Collections.emptyList();
+    public SkillDto create(SkillCreateDto skillCreateDto) {
+        if (skillRepository.existsByTitle(skillCreateDto.getTitle())) {
+            throw new DataValidationException(" Skill с таким названием уже существует .");
         }
+        Skill skill = skillMapper.toEntity(skillCreateDto);
+        skill = skillRepository.save(skill);
+        return skillMapper.toSkillDto(skill);
+    }
 
-        List<Skill> skills = skillRepository.findAllByIds(ids);
-        if (skills.size() != ids.size()) {
-            List<Long> missingSkillsIds = ids.stream()
-                    .filter(id -> skills.stream()
-                            .noneMatch(skill -> Objects.equals(skill.getId(), id)))
-                    .toList();
-            log.warn("Not found skills with ids {}", missingSkillsIds);
+    public List<SkillDto> getUserSkills(long userId) {
+        List<Skill> skills = skillRepository.findAllByUserId(userId);
+        validateSkillList(skills);
+        return skills.stream()
+                .map(skillMapper::toSkillDto)
+                .toList();
+    }
+
+    private void validateSkillList(List<?> skills) {
+        if (skills.isEmpty()) {
+            throw new NoSuchElementException("Умения не найдены .");
         }
-        return skills;
     }
 }
