@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.subscription;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +19,30 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/follow")
-    public ResponseEntity<String> followUser(@RequestParam @NotNull long followerId, @RequestParam @NotNull long followeeId) throws DataValidationException {
+    public ResponseEntity<String> followUser(@RequestParam @NotNull @Valid long followerId,
+                                             @RequestParam @NotNull @Valid long followeeId) throws DataValidationException {
+        if (followerId == followeeId) {
+            throw new DataValidationException("Нельзя подписаться или отписаться от самого себя");
+        }
         subscriptionService.followUser(followerId, followeeId);
         return ResponseEntity.ok("Success");
     }
 
     @PostMapping("/unfollow")
-    public ResponseEntity<String> unfollowUser(@RequestParam @NotNull long followerId, @RequestParam @NotNull long followeeId) throws DataValidationException {
+    public ResponseEntity<String> unfollowUser(@RequestParam @NotNull long followerId,
+                                               @RequestParam @NotNull long followeeId) throws DataValidationException {
+        if (followerId == followeeId) {
+            throw new DataValidationException("Нельзя отписаться от самого себя");
+        }
         subscriptionService.unfollowUser(followerId, followeeId);
         return ResponseEntity.ok("Success");
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<List<UserDto>> getFollowers(@RequestParam @NotNull long followeeId) {
-        List<UserDto> followers = subscriptionService.getFollowers(followeeId);
+    public ResponseEntity<List<UserDto>> getFollowers(
+            @RequestParam @NotNull long followeeId,
+            @RequestBody(required = false) UserFilterDto filter) {
+        List<UserDto> followers = subscriptionService.getFollowers(followeeId, filter);
         return ResponseEntity.ok(followers);
     }
 

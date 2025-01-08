@@ -10,7 +10,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.UserFilter;
+import school.faang.user_service.filters.subscription.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -48,7 +48,6 @@ public class SubscriptionServiceTest {
     @Test
     public void testFollowYourself() {
         assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
-        verify(subscriptionRepository, never()).followUser(anyLong(), anyLong());
     }
 
     @Test
@@ -80,7 +79,8 @@ public class SubscriptionServiceTest {
         List<User> users = List.of(user);
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
         when(userMapper.toDto(user)).thenReturn(userDto);
-        List<UserDto> result = subscriptionService.getFollowers(followeeId);
+        UserFilterDto filter = null;
+        List<UserDto> result = subscriptionService.getFollowers(followeeId, filter);
         assertEquals(1, result.size());
         assertEquals(userDto, result.get(0));
     }

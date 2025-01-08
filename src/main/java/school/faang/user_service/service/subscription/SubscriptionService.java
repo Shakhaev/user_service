@@ -6,7 +6,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.UserFilter;
+import school.faang.user_service.filters.subscription.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,19 +36,20 @@ public class SubscriptionService {
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
     @Transactional(readOnly = true)
-    public List<UserDto> getFollowers(long followeeId) {
-        return subscriptionRepository.findByFolloweeId(followeeId)
-                .map(userMapper::toDto)
-                .toList();
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+        try (Stream<User> users = subscriptionRepository.findByFolloweeId(followeeId)) {
+            return filterUsers(users, filter);
+        }
     }
 
-    private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filters) {
+    private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filter) {
         List<User> userList = users.toList();
         userFilters.stream()
-                .filter(filter -> filter.isApplicable(filters))
-                .forEach(filter -> filter.apply((Stream<User>) userList, filters));
+                .filter(f -> f.isApplicable(filter))
+                .forEach(f -> f.apply(users, filter));
         return userList.stream().map(userMapper::toDto).toList();
     }
+
 
     public int getFollowersCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
