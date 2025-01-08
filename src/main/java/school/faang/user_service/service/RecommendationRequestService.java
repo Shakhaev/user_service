@@ -131,7 +131,6 @@ public class RecommendationRequestService {
                 .filter(request -> filterMatches(request, filter))
                 .map(recommendationRequestMapper::toDto)
                 .toList();
-
         log.info("Recommendation requests matching filter: {}", filter);
         return result;
     }

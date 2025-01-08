@@ -9,4 +9,5 @@ public class RequestFilterDto {
     private Long requesterId;
     private Long receiverId;
     private RequestStatus status;
+
 }
