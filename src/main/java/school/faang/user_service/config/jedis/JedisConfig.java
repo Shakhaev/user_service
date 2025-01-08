@@ -52,6 +52,9 @@ public class JedisConfig {
     @Value("${spring.data.redis.channels.user_search_appearance_topic.name}")
     private String userSearchAppearanceTopic;
 
+    @Value("${spring.data.redis.channels.recommendation_requested_topic.name}")
+    private String recommendationRequestedTopic;
+
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
@@ -96,6 +99,11 @@ public class JedisConfig {
 
     @Bean ChannelTopic recommendationReceivedTopic() {
         return new ChannelTopic(recommendationReceivedTopic);
+    }
+
+    @Bean
+    public ChannelTopic recommendationRequestedTopic() {
+        return new ChannelTopic(recommendationRequestedTopic);
     }
 
     @Bean
