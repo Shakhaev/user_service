@@ -44,6 +44,9 @@ public interface UserMapper {
     }
 
     default List<Long> mapUsersToUserIds(List<User> users) {
+        if(users == null) {
+            return null;
+        }
         return users.stream()
                 .map(User::getId)
                 .toList();

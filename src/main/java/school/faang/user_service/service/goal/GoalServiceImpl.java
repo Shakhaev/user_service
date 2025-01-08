@@ -53,18 +53,18 @@ public class GoalServiceImpl implements GoalService {
     @Transactional
     public GoalDto update(UpdateGoalDto goalDto) {
         goalServiceValidator.validateForUpdating(goalDto);
-        Goal goal = goalMapper.updateGoalDtoToEntity(goalDto);
-        Goal updatedGoal = goalRepository.save(goal);
+        Goal goal = goalRepository.findById(goalDto.getId()).get();
+        goalMapper.updateGoalFromDto(goalDto, goal);
         if (goalDto.getSkillsToAchieveIds() != null) {
-            updatedGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
+            goal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
         }
-        if (GoalStatus.COMPLETED.equals(updatedGoal.getStatus())) {
-            skillService.addSkillsToUsersByGoalId(updatedGoal.getId());
+        if (GoalStatus.COMPLETED.equals(goal.getStatus())) {
+            skillService.addSkillsToUsersByGoalId(goal.getId());
             goalCompletedEventPublisher.publish(GoalCompletedEvent.builder()
-                                        .userIds(userMapper.mapUsersToUserIds(updatedGoal.getUsers()))
-                                        .goalId(updatedGoal.getId())
-                                        .build());
+                    .userIds(userMapper.mapUsersToUserIds(goal.getUsers()))
+                    .goalId(goal.getId())
+                    .build());
         }
-        return goalMapper.toDto(updatedGoal);
+        return goalMapper.toDto(goal);
     }
 }

@@ -18,7 +18,6 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.user.UserService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,19 +92,8 @@ public class SkillService implements SkillServiceInterface {
     public void addSkillsToUsersByGoalId(Long goalId) {
         var skills = skillRepository.findSkillsByGoalId(goalId);
         var users = userService.getUsersByGoalId(goalId);
-        users.forEach(user -> {
-            List<Skill> userSkills = user.getSkills();
-            if(userSkills != null) {
-                userSkills.forEach(skill -> {
-                    if(skills.contains(skill)) {
-                        skill.setUpdatedAt(LocalDateTime.now());
-                    } else {
-                        user.getSkills().add(skill);
-                    }
-                });
-            } else {
-                user.setSkills(skills);
-            }
+        skills.forEach(skill -> {
+            skill.setUsers(users);
         });
     }
 }
