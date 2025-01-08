@@ -20,6 +20,9 @@ import static school.faang.user_service.exception.MessageError.USER_ALREADY_HAS_
 @RequiredArgsConstructor
 public class SubscriptionService {
 
+    private static final int DEFAULT_PAGE_NUMBER = 1;
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionUserMapper subscriptionUserMapper;
     private SubscriptionUserFilterDto subscriptionUserFilterDto;
@@ -39,8 +42,8 @@ public class SubscriptionService {
 
     public List<SubscriptionUserDto> getFollowers(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
-        int pageNum = 0;
-        int pageSize = 0;
+        int pageNum = DEFAULT_PAGE_NUMBER;
+        int pageSize = DEFAULT_PAGE_SIZE;
 
         if (this.subscriptionUserFilterDto.getPageSize() > 0) {
             pageSize = this.subscriptionUserFilterDto.getPageSize();
@@ -62,9 +65,9 @@ public class SubscriptionService {
 
     public List<SubscriptionUserDto> getFollowing(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
-        int pageNum = 0;
+        int pageNum = DEFAULT_PAGE_NUMBER;
+        int pageSize = DEFAULT_PAGE_SIZE;
 
-        int pageSize = 0;
         if (this.subscriptionUserFilterDto.getPageSize() > 0) {
             pageSize = this.subscriptionUserFilterDto.getPageSize();
         }
