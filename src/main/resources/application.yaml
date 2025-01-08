@@ -1,4 +1,11 @@
 spring:
+  config:
+    min_skill_offers: 3
+
+  mvc:
+    servlet:
+      path: /api/v1
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -12,6 +19,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
