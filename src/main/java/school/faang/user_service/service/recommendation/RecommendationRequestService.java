@@ -7,7 +7,9 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestRejecti
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.events.RecommendationRequestedEvent;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.publisher.RecommendationRequestedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
@@ -26,6 +28,7 @@ public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
+    private final RecommendationRequestedEventPublisher recommendationRequestedEventPublisher;
 
     public RecommendationRequestDto create(RecommendationRequestDto request) {
         validateRecommendationRequest(request);
@@ -45,7 +48,11 @@ public class RecommendationRequestService {
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest.setSkills(skillService.findByRequestId(recommendationRequest.getId()));
 
-        return recommendationRequestMapper.toDto(recommendationRequestRepository.save(recommendationRequest));
+        recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
+
+        publishRecommendationRequestEvent(recommendationRequest);
+
+        return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
     public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filters) {
@@ -113,5 +120,14 @@ public class RecommendationRequestService {
                 throw new IllegalArgumentException("Skill id %s not exist".formatted(skillId));
             }
         });
+    }
+
+    private void publishRecommendationRequestEvent(RecommendationRequest recommendationRequest) {
+        RecommendationRequestedEvent recommendationRequestedEvent = new RecommendationRequestedEvent(
+                recommendationRequest.getRequester().getId(),
+                recommendationRequest.getReceiver().getId(),
+                recommendationRequest.getId()
+        );
+        recommendationRequestedEventPublisher.publish(recommendationRequestedEvent);
     }
 }
