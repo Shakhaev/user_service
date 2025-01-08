@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SkillCandidateDto {
-    private SkillDto skill;
+    private SkillReadDto skill;
     private long offersAmount;
 }

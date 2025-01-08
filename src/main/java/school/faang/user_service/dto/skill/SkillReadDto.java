@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SkillDto {
+public class SkillReadDto {
     private Long id;
-    @NotBlank(message = "Название умения не может быть пустым")
-    @Size(max = 64, message = "Название умения должно быть не более 64 символов")
     private String title;
 }
