@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -17,9 +17,7 @@ import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -30,84 +28,49 @@ public class SubscriptionService {
     private final UserFollowingMapper userFollowingMapper;
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
 
-    /*
-        TODO -> Needs to test
-    */
     public long getFollowersCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
-    /*
-        TODO -> Needs to test
-    */
     public long getFollowingCount(long followeeId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
     }
 
-     /*
-        TODO -> Needs to test
-    */
-    public CompletableFuture<List<UserDto>> getFollowees(long followeeId, UserFilterDto userFilterDto) {
+    @Transactional
+    public List<UserDto> getFollowees(long followeeId, UserFilterDto userFilterDto) {
         Stream<User> followersOfUser = subscriptionRepository.findByFolloweeId(followeeId);
         return filterPeople(followersOfUser, userFilterDto);
     }
 
-    /*
-        TODO -> Needs to test
-    */
-    public CompletableFuture<List<UserDto>> getFollowers(long followeeId, UserFilterDto userFilterDto) {
+    @Transactional
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         Stream<User> followersOfUser = subscriptionRepository.findByFollowerId(followeeId);
         return filterPeople(followersOfUser, userFilterDto);
     }
 
-    private CompletableFuture<List<UserDto>> filterPeople(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
-        List<User> followers = followersOfUser.toList();
-
-        logger.info("Halfing the list of followers async go!");
-        int middle = followers.size() / 2;
-        List<User> firstHalf = followers.subList(0, middle);
-        List<User> secondHalf = followers.subList(middle, followers.size());
-
-        CompletableFuture<List<UserDto>> firstTask = processPeople(firstHalf.stream(), userFilterDto);
-        CompletableFuture<List<UserDto>> secondTask = processPeople(secondHalf.stream(), userFilterDto);
-
-        return firstTask.thenCombine(secondTask, (firstHalfResult, secondHalfResult) -> {
-            List<UserDto> result = new ArrayList<>();
-            result.addAll(firstHalfResult);
-            result.addAll(secondHalfResult);
-            logger.info("Returning the combining!!");
-            return result;
-        });
-    }
-
-    @Async
-    private CompletableFuture<List<UserDto>> processPeople(Stream<User> followersStream, UserFilterDto userFilterDto) {
-        logger.info("Making some filters -> {}!", followersStream.toList());
-
-        return CompletableFuture.completedFuture(followersStream
-                .filter(user -> matchesPattern(userFilterDto.getNamePattern(), user.getUsername()))
-                .filter(user -> matchesPattern(userFilterDto.getAboutPattern(), user.getAboutMe()))
-                .filter(user -> matchesPattern(userFilterDto.getEmailPattern(), user.getEmail()))
-                .filter(user -> userFilterDto.getContactPattern() == null ||
+    private List<UserDto> filterPeople(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
+        return followersOfUser
+                .parallel()
+                .filter(user -> matchesPattern(userFilterDto.namePattern(), user.getUsername()))
+                .filter(user -> matchesPattern(userFilterDto.aboutPattern(), user.getAboutMe()))
+                .filter(user -> matchesPattern(userFilterDto.emailPattern(), user.getEmail()))
+                .filter(user -> userFilterDto.contactPattern() == null ||
                         user.getContacts().stream()
-                                .allMatch(contact -> matchesPattern(userFilterDto.getContactPattern(), contact.getContact())))
-                .filter(user -> matchesPattern(userFilterDto.getCountryPattern(), user.getCountry().getTitle()))
-                .filter(user -> matchesPattern(userFilterDto.getCityPattern(), user.getCity()))
-                .filter(user -> matchesPattern(userFilterDto.getPhonePattern(), user.getPhone()))
-                .filter(user -> userFilterDto.getSkillPattern() == null ||
+                                .allMatch(contact -> matchesPattern(userFilterDto.contactPattern(), contact.getContact())))
+                .filter(user -> matchesPattern(userFilterDto.countryPattern(), user.getCountry().getTitle()))
+                .filter(user -> matchesPattern(userFilterDto.cityPattern(), user.getCity()))
+                .filter(user -> matchesPattern(userFilterDto.phonePattern(), user.getPhone()))
+                .filter(user -> userFilterDto.skillPattern() == null ||
                         user.getSkills().stream()
-                                .allMatch(skill -> matchesPattern(userFilterDto.getSkillPattern(), skill.getTitle())))
-                .filter(user -> userFilterDto.getExperienceMin() <= user.getExperience() &&
-                        userFilterDto.getExperienceMax() >= user.getExperience())
-                .skip((long) userFilterDto.getPage() * userFilterDto.getPageSize())
-                .limit(userFilterDto.getPageSize())
+                                .allMatch(skill -> matchesPattern(userFilterDto.skillPattern(), skill.getTitle())))
+                .filter(user -> userFilterDto.experienceMin() <= user.getExperience() &&
+                        userFilterDto.experienceMax() >= user.getExperience())
+                .skip((long) userFilterDto.page() * userFilterDto.pageSize())
+                .limit(userFilterDto.pageSize())
                 .map(userFollowingMapper::toDto)
-                .toList());
+                .toList();
     }
 
-    /*
-        TODO -> Needs to test
-    */
     public ResponseEntity<Void> followUser(FollowingFeatureDto followingFeatureDTO) {
         long followerId = followingFeatureDTO.followerId();
         long followeeId = followingFeatureDTO.followeeId();
@@ -135,9 +98,6 @@ public class SubscriptionService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /*
-        TODO -> Needs to test
-     */
     public ResponseEntity<Void> unfollowUser(FollowingFeatureDto followingFeatureDTO) {
         long followerId = followingFeatureDTO.followerId();
         long followeeId = followingFeatureDTO.followeeId();
