@@ -28,11 +28,12 @@ public class RecommendationService {
                 .forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), skillOfferDto.getRecommendationId()));
     }
 
-    public Long create(RecommendationDto recommendation) {
+    public RecommendationDto create(RecommendationDto recommendation) {
         if (recommendation.getCreatedAt().isBefore(ChronoLocalDateTime.from(LocalDateTime.now().minusMonths(6)))) {
-            return recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
+            recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
+            return recommendation;
         }
-        return null;
+        return recommendation;
     }
 
     private void validateRecommendation(RecommendationDto recommendation) {
