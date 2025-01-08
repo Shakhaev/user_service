@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
 
 import java.time.LocalDateTime;
 

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 
 import java.math.BigDecimal;
 import java.util.List;

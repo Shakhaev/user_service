@@ -15,13 +15,13 @@ import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
-import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.entity.country.Country;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.CountryService;
+import school.faang.user_service.service.country.CountryService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
