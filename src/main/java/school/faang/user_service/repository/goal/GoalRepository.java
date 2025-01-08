@@ -65,4 +65,14 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             (:status IS NULL OR g.status = :status)
             """)
     Stream<Goal> findByParentIdAndFilter(long parentId, String title, GoalStatus status);
+
+    @Query(nativeQuery = true, value = """
+        SELECT g.* 
+        FROM goal g 
+        JOIN user_goal ug ON g.id = ug.goal_id 
+        WHERE ug.user_id = ?1 
+          AND (?2 IS NULL OR g.title = ?2) 
+          AND (?3 IS NULL OR g.status = ?3)
+        """)
+    Stream<Goal> findByUserIdAndFilter(long userId, String title, Integer status);
 }

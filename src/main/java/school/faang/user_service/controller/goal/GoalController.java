@@ -52,4 +52,12 @@ public class GoalController {
                                               @RequestParam(required = false) String status) {
         return goalService.findSubtasksByGoalId(id, title, status);
     }
+
+    @GetMapping("/user/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<GoalDto> findGoalsByUserIdAndFilter(@PathVariable long id,
+                                                    @RequestParam(required = false) String title,
+                                                    @RequestParam(required = false) String status) {
+        return goalService.findGoalsByUserIdAndFilter(id, title, status);
+    }
 }

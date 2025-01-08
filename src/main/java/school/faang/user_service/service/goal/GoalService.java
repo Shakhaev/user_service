@@ -14,4 +14,6 @@ public interface GoalService {
     void delete(long goalId);
 
     List<GoalDto> findSubtasksByGoalId(long goalId, String title, String status);
+
+    List<GoalDto> findGoalsByUserIdAndFilter(long userId, String title, String status);
 }

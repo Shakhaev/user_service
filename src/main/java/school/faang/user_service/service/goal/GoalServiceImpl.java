@@ -73,9 +73,27 @@ public class GoalServiceImpl implements GoalService {
     @Transactional
     public List<GoalDto> findSubtasksByGoalId(long goalId, String title, String status) {
         goalServiceValidator.existsById(goalId);
-        GoalStatus goalStatus = (status != null) ? GoalStatus.valueOf(status) : null;
+        GoalStatus goalStatus = getGoalStatus(status);
         return goalRepository.findByParentIdAndFilter(goalId, title, goalStatus)
                 .map(goalMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<GoalDto> findGoalsByUserIdAndFilter(long userId, String title, String status) {
+        userServiceValidator.existsById(userId);
+        Integer goalStatus = getGoalStatusOrdinal(status);
+        return goalRepository.findByUserIdAndFilter(userId, title, goalStatus)
+                .map(goalMapper::toDto)
+                .toList();
+    }
+
+    private GoalStatus getGoalStatus(String status) {
+        return (status != null) ? GoalStatus.valueOf(status) : null;
+    }
+
+    private Integer getGoalStatusOrdinal(String status) {
+        return (status != null) ? GoalStatus.valueOf(status).ordinal() : null;
     }
 }
