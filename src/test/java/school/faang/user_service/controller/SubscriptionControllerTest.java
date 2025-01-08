@@ -79,6 +79,15 @@ class SubscriptionControllerTest {
     }
 
     @Test
+    @DisplayName("Get All Followees")
+    void testGetAllFollowees() {
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
+        subscriptionController.getFollowing(followeeId, subscriptionUserFilterDto);
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowing(followeeId, subscriptionUserFilterDto);
+    }
+
+    @Test
     @DisplayName("Get Following Count")
     void testGetFollowingCount() {
         subscriptionController.getFollowingCount(followerId);
