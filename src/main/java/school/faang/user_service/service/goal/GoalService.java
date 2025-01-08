@@ -8,4 +8,6 @@ public interface GoalService {
     GoalDto create(Long userId, GoalDto goalDto);
 
     GoalDto update(UpdateGoalDto updateGoalDto);
+
+    void delete(long goalId);
 }

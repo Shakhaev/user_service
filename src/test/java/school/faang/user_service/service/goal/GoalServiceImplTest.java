@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -219,5 +220,32 @@ public class GoalServiceImplTest {
         verify(goalRepository, never()).findById(anyLong());
         verify(skillService, never()).getSKillsByIds(anyList());
         verify(skillService, never()).addSkillsToUsersByGoalId(anyLong());
+    }
+
+    @Test
+    public void testToDelete_WhenValidGoalId_SuccessDeleted() {
+        when(goalServiceValidator.existsById(anyLong()))
+                .thenReturn(goal);
+        doNothing()
+                .when(goalRepository)
+                .deleteById(anyLong());
+
+        goalService.delete(anyLong());
+
+        verify(goalServiceValidator).existsById(anyLong());
+        verify(goalRepository).deleteById(anyLong());
+    }
+
+    @Test
+    public void testToDelete_WhenInvalidGoalId_ThrowEntityNotFoundException() {
+        doThrow(new EntityNotFoundException("message", 1L))
+                .when(goalServiceValidator)
+                .existsById(anyLong());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> goalService.delete(anyLong()));
+
+        verify(goalServiceValidator).existsById(anyLong());
+        verify(goalRepository, never()).deleteById(anyLong());
     }
 }

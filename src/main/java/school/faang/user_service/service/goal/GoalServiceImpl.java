@@ -41,6 +41,7 @@ public class GoalServiceImpl implements GoalService {
                 create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId(), goalDto.getDeadline());
         createdGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
         createdGoal.setUsers(List.of(User.builder().id(userId).build()));
+        log.info("success created goal by id: {}", createdGoal.getId());
         return goalMapper.toDto(createdGoal);
     }
 
@@ -56,6 +57,15 @@ public class GoalServiceImpl implements GoalService {
         if (GoalStatus.COMPLETED.equals(goal.getStatus())) {
             skillService.addSkillsToUsersByGoalId(goal.getId());
         }
+        log.info("success updated goal by id: {}", goalDto.getId());
         return goalMapper.toDto(goal);
+    }
+
+    @Override
+    @Transactional
+    public void delete(long goalId) {
+        goalServiceValidator.existsById(goalId);
+        goalRepository.deleteById(goalId);
+        log.info("success deleted goal by id: {}", goalId);
     }
 }
