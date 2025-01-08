@@ -41,17 +41,21 @@ public class EventService {
 
     }
 
+    public EventDto getEvent(long eventId) {
+        return eventMapper.toDto(eventRepository.getReferenceById(eventId));
+    }
+
     private List<Skill> checkGetUserSkills(EventDto event) throws DataValidationException {
-        Map<User,List<Skill>> userSkills = new HashMap<>();
+        Map<User, List<Skill>> userSkills = new HashMap<>();
         Long ownerId = event.getOwnerId();
 
         User skillOwner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new DataValidationException("User not found"));
 
 
-        if (!skillOwner.getSkills().stream()
+        if (skillOwner.getSkills().stream()
                 .map(Skill::getId)
-                .anyMatch(id -> id.equals(skillOwner.getId()))) {
+                .noneMatch(id -> id.equals(skillOwner.getId()))) {
             throw new DataValidationException("User has no skills!");
         }
 
@@ -63,4 +67,17 @@ public class EventService {
     }
 
 
+    public String deleteEvent(Long eventId) {
+        Long id = eventRepository.getReferenceById(eventId).getId();
+        eventRepository.deleteById(id);
+        return "Event with id " + id + " deleted";
+    }
+
+    public List<Event> getParticipatedEvents(long userId) {
+        return eventRepository.findParticipatedEventsByUserId(userId);
+    }
+
+    public List<Event> getOwnedEvents(Long ownerId) {
+        return eventRepository.findAllByUserId(ownerId);
+    }
 }
