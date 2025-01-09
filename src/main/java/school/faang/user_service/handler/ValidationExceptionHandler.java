@@ -8,7 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.data.DataValidationException;
 
 import java.util.HashMap;
 import java.util.Map;

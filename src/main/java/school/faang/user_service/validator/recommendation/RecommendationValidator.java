@@ -6,7 +6,7 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static school.faang.user_service.entity.RequestStatus.PENDING;
+import static school.faang.user_service.entity.requeststatus.RequestStatus.PENDING;
 
 @Component
 @RequiredArgsConstructor

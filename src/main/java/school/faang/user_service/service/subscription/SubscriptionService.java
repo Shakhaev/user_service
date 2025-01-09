@@ -2,14 +2,17 @@ package school.faang.user_service.service.subscription;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.user.ShortUserMapper;
-import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.dto.subscription.FollowerEvent;
+import school.faang.user_service.dto.user.ShortUserDto;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
+import school.faang.user_service.mapper.user.ShortUserMapper;
+import school.faang.user_service.publisher.subscription.FollowerEventPublisher;
+import school.faang.user_service.repository.SubscriptionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,6 +22,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final ShortUserMapper shortUserMapper;
     private final List<UserFilter> userFilters;
+    private final FollowerEventPublisher followerEventPublisher;
 
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
@@ -30,6 +34,13 @@ public class SubscriptionService {
             throw new DataValidationException(String.format("Subscribing exist. FollowerId = %s, followeeId = %s ", followerId, followeeId));
         }
         subscriptionRepository.followUser(followerId, followeeId);
+
+        followerEventPublisher.publish(FollowerEvent.builder()
+                .followerUserId(followerId)
+                .targetUserId(followeeId)
+                .createdAt(LocalDateTime.now())
+                .build());
+
     }
 
     public void unfollowUser(long followerId, long followeeId) {
