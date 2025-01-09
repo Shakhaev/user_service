@@ -2,14 +2,18 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserSubResponseDto;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.FollowerEvent;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,12 +23,15 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
     private final List<UserFilter> filters;
+    private final FollowerEventPublisher followerEventPublisher;
 
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("User is already following this user");
         } else {
             subscriptionRepository.followUser(followerId, followeeId);
+            followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, null, LocalDateTime.now()));
         }
     }
 

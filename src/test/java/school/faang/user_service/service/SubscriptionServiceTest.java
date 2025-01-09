@@ -6,12 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class SubscriptionServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -64,7 +68,7 @@ public class SubscriptionServiceTest {
                 UserSubResponseDto.builder().id(2L).username("user2").email("user2@example.com").build()
         );
         mockFilter = mock(UserFilter.class);
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
+        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter), followerEventPublisher);
     }
 
     @Test
