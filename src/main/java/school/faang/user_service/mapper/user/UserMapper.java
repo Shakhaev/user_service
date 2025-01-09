@@ -42,4 +42,10 @@ public interface UserMapper {
                                 "employer: " + person.getEmployer()))
                 .build();
     }
+
+    default List<Long> mapUsersToUserIds(List<User> users) {
+        return users.stream()
+                .map(User::getId)
+                .toList();
+    }
 }

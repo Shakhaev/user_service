@@ -13,6 +13,8 @@ import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.exception.data.DataNotMatchException;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
+import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.publisher.goal.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillServiceInterface;
 import school.faang.user_service.validator.goal.GoalServiceValidator;
@@ -50,6 +52,12 @@ public class GoalServiceImplTest {
 
     @Spy
     private GoalMapperImpl goalMapper;
+
+    @Spy
+    private UserMapper userMapper;
+
+    @Mock
+    private GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     @InjectMocks
     private GoalServiceImpl goalService;

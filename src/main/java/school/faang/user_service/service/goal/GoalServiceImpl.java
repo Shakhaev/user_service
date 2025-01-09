@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.goal.GoalCompletedEvent;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.publisher.goal.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillServiceInterface;
 import school.faang.user_service.validator.goal.GoalServiceValidator;
@@ -29,6 +32,8 @@ public class GoalServiceImpl implements GoalService {
     private final UserServiceValidator userServiceValidator;
     private final SkillServiceInterface skillService;
     private final GoalMapper goalMapper;
+    private final UserMapper userMapper;
+    private final GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     @Override
     @Transactional
@@ -45,15 +50,20 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public GoalDto update(UpdateGoalDto goalDto) {
         goalServiceValidator.validateForUpdating(goalDto);
         Goal goal = goalMapper.updateGoalDtoToEntity(goalDto);
         Goal updatedGoal = goalRepository.save(goal);
-        if(goalDto.getSkillsToAchieveIds() != null) {
+        if (goalDto.getSkillsToAchieveIds() != null) {
             updatedGoal.setSkillsToAchieve(skillService.getSKillsByIds(goalDto.getSkillsToAchieveIds()));
         }
-        if(GoalStatus.COMPLETED.equals(updatedGoal.getStatus())) {
+        if (GoalStatus.COMPLETED.equals(updatedGoal.getStatus())) {
             skillService.addSkillsToUsersByGoalId(updatedGoal.getId());
+            goalCompletedEventPublisher.publish(GoalCompletedEvent.builder()
+                                        .userIds(userMapper.mapUsersToUserIds(updatedGoal.getUsers()))
+                                        .goalId(updatedGoal.getId())
+                                        .build());
         }
         return goalMapper.toDto(updatedGoal);
     }

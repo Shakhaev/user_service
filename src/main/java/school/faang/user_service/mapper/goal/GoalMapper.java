@@ -23,7 +23,7 @@ public interface GoalMapper {
     @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
     GoalDto toDto(Goal goal);
 
-    @Mapping(source = "skillsToAchieve", target = "skillsToAchieveIds", qualifiedByName = "mapSkillsToSkillIds")
+    @Mapping(source = "skillsToAchieveIds", target = "skillsToAchieve", qualifiedByName = "mapSkillsIdsToSkills")
     Goal updateGoalDtoToEntity(UpdateGoalDto goal);
 
     @Named(value = "mapSkillsIdsToSkills")
