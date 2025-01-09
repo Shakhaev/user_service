@@ -6,7 +6,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,11 +14,7 @@ public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
 
     public void registerParticipant(long eventId, long userId) {
-        List<User> allParticipants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        Optional<User> participant = allParticipants.stream()
-                .filter((user -> user.getId().equals(userId)))
-                .findFirst();
-        if (participant.isEmpty()) {
+        if (!eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
             eventParticipationRepository.register(eventId, userId);
         } else {
             throw new IllegalStateException(
@@ -28,12 +23,8 @@ public class EventParticipationService {
         }
     }
 
-    public void unregisterParticipant(long eventId, long userId){
-        List<User> allParticipants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        Optional<User> participant = allParticipants.stream()
-                .filter((user -> user.getId().equals(userId)))
-                .findFirst();
-        if (participant.isPresent()) {
+    public void unregisterParticipant(long eventId, long userId) {
+        if (eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
             eventParticipationRepository.unregister(eventId, userId);
         } else {
             throw new IllegalStateException(
@@ -46,7 +37,7 @@ public class EventParticipationService {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
-    public int getParticipantsCount(long eventId){
+    public int getParticipantsCount(long eventId) {
         return eventParticipationRepository.countParticipants(eventId);
     }
 }
