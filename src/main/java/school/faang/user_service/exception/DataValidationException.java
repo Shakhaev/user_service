@@ -1,4 +1,4 @@
-package school.faang.user_service.execption;
+package school.faang.user_service.exception;
 
 /**
  * Исключение, которое выбрасывается при ошибке валидации данных в приложении.
