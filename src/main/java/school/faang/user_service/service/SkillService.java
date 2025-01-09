@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.AppConfig;
+import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -31,7 +32,7 @@ public class SkillService {
     private final AppConfig appConfig;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-    public SkillDto create(SkillDto skillDto) {
+    public SkillDto create(CreateSkillDto skillDto) {
         if (skillRepository.existsByTitle(skillDto.title())) {
             throw new IllegalArgumentException("Скилл уже существует");
         }

@@ -1,6 +1,8 @@
-spring:
+app:
   config:
     min_skill_offers: 3
+
+spring:
 
   mvc:
     servlet:

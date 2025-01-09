@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 public class AppConfig {
-    @Value("${spring.config.min_skill_offers:3}")
+    @Value("${app.config.min_skill_offers:3}")
     private int minSkillOffers;
 }
