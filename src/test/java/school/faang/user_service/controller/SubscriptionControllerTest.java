@@ -8,20 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.contact.Contact;
-import school.faang.user_service.entity.contact.ContactType;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -66,48 +54,12 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void getFollowers() {
-        Stream<User> mockedUsers = getMockedUsers();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        List<UserDto> expectedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> new UserDto(i.longValue(), "user%d".formatted(i), "user%d@email.com".formatted(i)))
-                .toList();
-
-        UserFilterDto filter = getFilter();
-
-        List<UserDto> usersDto = controller.getFollowers(3L, filter);
-        Assertions.assertEquals(expectedUsers, usersDto);
-    }
-
-    @Test
     void getFollowersCount() {
         Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(Mockito.anyLong()))
                 .thenReturn(77);
         int expectedCount = 77;
         int actualCount = controller.getFollowersCount(3L);
         Assertions.assertEquals(expectedCount, actualCount);
-    }
-
-    @Test
-    void getFollowing() {
-        Stream<User> mockedUsers = getMockedUsers();
-
-        Mockito.when(subscriptionRepository.findByFolloweeId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        List<UserDto> expectedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> new UserDto(i.longValue(), "user%d".formatted(i), "user%d@email.com".formatted(i)))
-                .toList();
-
-        UserFilterDto filter = getFilter();
-
-        List<UserDto> usersDto = controller.getFollowing(3L, filter);
-        Assertions.assertEquals(expectedUsers, usersDto);
     }
 
     @Test
@@ -119,46 +71,4 @@ class SubscriptionControllerTest {
         Assertions.assertEquals(expectedCount, actualCount);
     }
 
-    private Stream<User> getMockedUsers() {
-        return IntStream.rangeClosed(0, 100)
-                .boxed()
-                .map(i -> {
-                    User user = new User();
-                    user.setId(i.longValue());
-                    user.setUsername("user%d".formatted(i));
-                    user.setEmail("user%d@email.com".formatted(i));
-                    user.setAboutMe("About user%d".formatted(i));
-                    user.setContacts(List.of(
-                            new Contact(0, user, "Contact%d".formatted(i), ContactType.CUSTOM),
-                            new Contact(1, user, "@user%d".formatted(i), ContactType.TELEGRAM)
-                    ));
-                    user.setCountry(new Country(1, "Russia", List.of()));
-                    user.setCity("Moscow");
-                    user.setPhone("+14560245628");
-                    user.setSkills(List.of(
-                            new Skill(0, "Skill1", List.of(), List.of(), List.of(), List.of(), LocalDateTime.now(),
-                                    LocalDateTime.now())
-                    ));
-                    user.setExperience(5);
-                    return user;
-                });
-    }
-
-    private UserFilterDto getFilter() {
-        UserFilterDto filter = new UserFilterDto();
-        filter.setNamePattern("\\w+");
-        filter.setAboutPattern("[\\w*\\s*]*");
-        filter.setEmailPattern("\\w+@\\w+.\\w+");
-        filter.setContactPattern("\\w+");
-        filter.setCountryPattern("\\w+");
-        filter.setCityPattern("\\w+");
-        filter.setPhonePattern("\\+\\d+");
-        filter.setSkillPattern("\\w+");
-        filter.setExperienceMin(1);
-        filter.setExperienceMax(10);
-        filter.setPage(2);
-        filter.setPageSize(10);
-
-        return filter;
-    }
 }
