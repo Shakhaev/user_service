@@ -15,7 +15,7 @@ import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 public class PremiumBoughtEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
-    @Value("${spring.data.redis.channels.premium-bought-channel.name}")
+    @Value("${spring.data.redis.channels.premium-bought-channel}")
     private String premiumBoughtChannel;
 
     public void publish(PremiumBoughtEvent event) {

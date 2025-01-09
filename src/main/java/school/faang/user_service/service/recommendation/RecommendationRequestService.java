@@ -8,13 +8,13 @@ import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 import school.faang.user_service.dto.rejection.RejectionDto;
-import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.exception.entity.EntityNotFoundExceptionWithId;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestedEventMapper;
@@ -97,7 +97,7 @@ public class RecommendationRequestService {
         log.info("Start processing getRequest for ID: {}", id);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithId("The RecommendationRequest will not be found in the database", id));
         RecommendationRequestDto result = mapper.toDTO(recommendationRequest);
 
         log.info("Completed processing getRequest for ID: {}. Result: {}", id, result);
@@ -109,7 +109,7 @@ public class RecommendationRequestService {
         log.info("Start processing rejectRequest for ID: {} with Rejection: {}", id, rejection);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithId("The RecommendationRequest will not be found in the database", id));
 
         RequestStatus status = recommendationRequest.getStatus();
         if (status != RequestStatus.PENDING) {

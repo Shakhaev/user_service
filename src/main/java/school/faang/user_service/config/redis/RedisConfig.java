@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import school.faang.user_service.eventListener.user.UsersForBanReceivedEventListener;
 
@@ -26,10 +27,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.channels.recommendation-channel.name}")
-    private String recommendationChannel;
-
-    @Value("${spring.data.redis.channels.ban_user_channel.name}")
+    @Value("${spring.data.redis.channels.ban_user_channel}")
     private String userBanChannelTopic;
 
     @Bean
