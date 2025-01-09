@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserFilterDto {
-    private String name;
-    private String about;
-    private String email;
-    private String contact;
-    private String country;
-    private String city;
-    private String phone;
-    private String skill;
+    private String namePattern;
+    private String aboutPattern;
+    private String emailPattern;
+    private String contactPattern;
+    private String countryPattern;
+    private String cityPattern;
+    private String phonePattern;
+    private String skillPattern;
     private Integer experienceMin;
     private Integer experienceMax;
     private int page = 1;
