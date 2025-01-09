@@ -28,7 +28,6 @@ public class SubscriptionService {
     private SubscriptionUserFilterDto subscriptionUserFilterDto;
 
     public void followUser(long followerId, long followeeId) {
-
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException(USER_ALREADY_HAS_THIS_FOLLOWER);
         }
@@ -36,25 +35,14 @@ public class SubscriptionService {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
-
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
     public List<SubscriptionUserDto> getFollowers(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
-        int pageNum = DEFAULT_PAGE_NUMBER;
-        int pageSize = DEFAULT_PAGE_SIZE;
-
-        if (this.subscriptionUserFilterDto.getPageSize() > 0) {
-            pageSize = this.subscriptionUserFilterDto.getPageSize();
-        }
-
-        if (this.subscriptionUserFilterDto.getPage() > 0) {
-            pageNum = this.subscriptionUserFilterDto.getPage();
-        }
-
+        int pageNum = calcPage(filter);
+        int pageSize = calcPageSize(filter);
         Stream<User> userStream = subscriptionRepository.findByFollowerId(followeeId);
-
         return userStream
                 .filter(this::filterUsers)
                 .map(subscriptionUserMapper::toDto)
@@ -65,26 +53,15 @@ public class SubscriptionService {
 
     public List<SubscriptionUserDto> getFollowing(long followeeId, SubscriptionUserFilterDto filter) {
         this.subscriptionUserFilterDto = filter;
-        int pageNum = DEFAULT_PAGE_NUMBER;
-        int pageSize = DEFAULT_PAGE_SIZE;
-
-        if (this.subscriptionUserFilterDto.getPageSize() > 0) {
-            pageSize = this.subscriptionUserFilterDto.getPageSize();
-        }
-
-        if (this.subscriptionUserFilterDto.getPage() > 0) {
-            pageNum = this.subscriptionUserFilterDto.getPage();
-        }
-
+        int pageNum = calcPage(filter);
+        int pageSize = calcPageSize(filter);
         Stream<User> userStream = subscriptionRepository.findByFolloweeId(followeeId);
-
         return userStream
                 .filter(this::filterUsers)
                 .map(subscriptionUserMapper::toDto)
                 .skip((long) (pageNum - 1) * pageSize)
                 .limit(pageSize)
                 .toList();
-
     }
 
     public int getFollowersCount(long followeeId) {
@@ -93,6 +70,22 @@ public class SubscriptionService {
 
     public int getFollowingCount(long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+    }
+
+    private int calcPage(SubscriptionUserFilterDto filter) {
+        int pageNum = DEFAULT_PAGE_NUMBER;
+        if (filter.getPage() > 0) {
+            pageNum = filter.getPage();
+        }
+        return pageNum;
+    }
+
+    private int calcPageSize(SubscriptionUserFilterDto filter) {
+        int pageSize = DEFAULT_PAGE_SIZE;
+        if (filter.getPage() > 0) {
+            pageSize = filter.getPageSize();
+        }
+        return pageSize;
     }
 
     private boolean filterUsers(User user) {
@@ -166,6 +159,4 @@ public class SubscriptionService {
         }
         return checkPredicate;
     }
-
-
 }

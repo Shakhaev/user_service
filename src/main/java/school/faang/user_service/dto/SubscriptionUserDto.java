@@ -1,8 +1,8 @@
 package school.faang.user_service.dto;
 
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 public class SubscriptionUserDto {
     Long id;
     String username;
