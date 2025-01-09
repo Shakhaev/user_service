@@ -14,7 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper {
 
-    @Mapping(source = "user", target = "userId", qualifiedByName = "map")
+    @Mapping(source = "users", target = "userId", qualifiedByName = "map")
     SkillDto toSkillDto(Skill skill);
 
     @Mapping(target = "users", ignore = true)
@@ -22,6 +22,8 @@ public interface SkillMapper {
 
     @Named("map")
     default List<Long> map(List<User> users) {
-        return users.stream().map(User::getId).toList();
+
+        return users.stream()
+                .map(User::getId).toList();
     }
 }
