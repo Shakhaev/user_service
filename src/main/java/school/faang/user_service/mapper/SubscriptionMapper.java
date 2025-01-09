@@ -6,6 +6,6 @@ import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserMapper {
+public interface SubscriptionMapper {
     SubscriptionUserDto toDto(User user);
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.subscription.SubscriptionFollowDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
@@ -26,14 +25,12 @@ public class SubscriptionController {
 
     @PostMapping("follow")
     private void follow(@Valid @RequestBody SubscriptionFollowDto dto) {
-        validateDto(dto);
         subscriptionService.followUser(dto.followerId(), dto.followeeId());
     }
 
     @DeleteMapping("follow")
     private void unfollow(@Valid @RequestBody SubscriptionFollowDto dto) {
-        validateDto(dto);
-        subscriptionService.unfollow(dto.followerId(), dto.followeeId());
+        subscriptionService.unfollowUser(dto.followerId(), dto.followeeId());
     }
 
     @GetMapping("{followeeId}/followers")
@@ -45,7 +42,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("{followerId}/followers/count")
-    private long getFollowersCount(@PathVariable Long followerId) {
+    private int getFollowersCount(@PathVariable Long followerId) {
         return subscriptionService.getFollowersCount(followerId);
     }
 
@@ -58,13 +55,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("{followerId}/following/count")
-    private long getFollowingCount(@PathVariable Long followerId) {
+    private int getFollowingCount(@PathVariable Long followerId) {
         return subscriptionService.getFollowingCount(followerId);
-    }
-
-    private void validateDto(SubscriptionFollowDto dto) {
-        if (dto.followerId().equals(dto.followeeId())) {
-            throw new DataValidationException("Follower и followee не могут быть одинаковыми");
-        }
     }
 }

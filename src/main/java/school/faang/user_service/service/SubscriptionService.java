@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.SubscriptionMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -19,22 +20,24 @@ import java.util.stream.Stream;
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final List<UserFilter> userFilters;
-    private final UserMapper userMapper;
+    private final SubscriptionMapper subscriptionMapper;
 
     @Transactional
-    public void followUser(long followId, long followeeId) {
-        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followId, followeeId)) {
-            throw new DataValidationException("Пользователь уже подписан на данного пользователя");
+    public void followUser(long followerId, long followeeId) {
+        validateDifferentFollowerAndFollowee(followerId, followeeId);
+        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new BusinessException("Пользователь уже подписан на данного пользователя");
         }
-        subscriptionRepository.followUser(followId, followeeId);
+        subscriptionRepository.followUser(followerId, followeeId);
     }
 
     @Transactional
-    public void unfollow(long followId, long followeeId) {
-        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followId, followeeId)) {
-            throw new DataValidationException("Пользователь не подписан на данного пользователя");
+    public void unfollowUser(long followerId, long followeeId) {
+        validateDifferentFollowerAndFollowee(followerId, followeeId);
+        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new BusinessException("Пользователь не подписан на данного пользователя");
         }
-        subscriptionRepository.unfollowUser(followId, followeeId);
+        subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
     @Transactional
@@ -44,7 +47,7 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public long getFollowersCount(Long followerId) {
+    public int getFollowersCount(Long followerId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
     }
 
@@ -55,7 +58,7 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public long getFollowingCount(Long followerId) {
+    public int getFollowingCount(Long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
@@ -68,7 +71,13 @@ public class SubscriptionService {
         return followers
                 .skip(skip)
                 .limit(pageSize)
-                .map(userMapper::toDto)
+                .map(subscriptionMapper::toDto)
                 .toList();
+    }
+
+    private void validateDifferentFollowerAndFollowee(long followerId, long followeeId) {
+        if (followerId == followeeId) {
+            throw new DataValidationException("Follower и followee не могут быть одинаковыми");
+        }
     }
 }
