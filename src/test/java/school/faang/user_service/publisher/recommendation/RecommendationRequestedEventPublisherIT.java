@@ -55,7 +55,7 @@ class RecommendationRequestedEventPublisherIT {
         registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     }
 
-    @Value("${spring.data.redis.channels.recommendation-requested-channel.name}")
+    @Value("${spring.data.redis.channels.recommendation-requested-channel}")
     private String channel;
 
     @Autowired
