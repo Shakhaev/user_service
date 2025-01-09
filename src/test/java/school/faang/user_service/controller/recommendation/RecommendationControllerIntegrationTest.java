@@ -54,17 +54,17 @@ class RecommendationEventPublisherIntegrationTest {
 
     @Test
     void testPublishToRecommendationPublishesCorrectMessage() throws Exception {
-        // Arrange: Create a RecommendationEvent
+
         RecommendationEvent event = new RecommendationEvent(1L, 2L, 3L, LocalDateTime.now());
 
-        // Clear Redis for a clean test
+
         redisTemplate.getConnectionFactory().getConnection().flushAll();
 
-        // Create a latch to wait for the message
+
         CountDownLatch latch = new CountDownLatch(1);
         List<RecommendationEvent> receivedMessages = new ArrayList<>();
 
-        // Set up a Redis message listener
+
         redisConnectionFactory.getConnection().subscribe(
                 (message, pattern) -> {
                     try {
@@ -78,10 +78,10 @@ class RecommendationEventPublisherIntegrationTest {
                 "recommendation_event_topic".getBytes()
         );
 
-        // Act: Publish the event to the Redis topic
+
         recommendationEventPublisher.publishToRecommendation(event);
 
-        // Assert: Verify the message is received
+
         boolean messageReceived = latch.await(5, TimeUnit.SECONDS);
         assertEquals(true, messageReceived, "No message was received within the timeout period.");
         assertEquals(1, receivedMessages.size(), "Unexpected number of messages received.");
