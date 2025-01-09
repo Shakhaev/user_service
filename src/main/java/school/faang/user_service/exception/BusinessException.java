@@ -1,4 +1,4 @@
-package school.faang.user_service.execption;
+package school.faang.user_service.exception;
 
 /**
  * Это исключение выбрасывается при нарушении бизнес-правила или ограничения бизнес-логики.
