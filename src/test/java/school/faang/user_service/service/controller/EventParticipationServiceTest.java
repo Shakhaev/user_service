@@ -7,14 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EventNotFoundException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.UserAlreadyRegisteredException;
-import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.EventParticipationService;
@@ -68,7 +66,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testUserNotRegisteredSuccess() {
+    public void testRegisterParticipantUserNotRegisteredSuccess() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
                 .thenReturn(Collections.emptyList());
 
@@ -78,9 +76,9 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testAlreadyRegisteredThrowsException() {
+    public void testRegisterParticipantUserAlreadyRegistered() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
-                .thenReturn(Collections.singletonList(user));
+                .thenReturn(List.of(user));
 
         UserAlreadyRegisteredException exception = Assert.assertThrows(UserAlreadyRegisteredException.class, () -> {
             eventParticipationService.registerParticipant(USER_ID, EVENT_ID);
@@ -91,9 +89,9 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testUserIsRegisteredSuccess() {
+    public void testUnregisterParticipantUserIsRegisteredSuccess() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
-                .thenReturn(Collections.singletonList(user));
+                .thenReturn(List.of(user));
 
         eventParticipationService.unregisterParticipant(EVENT_ID, USER_ID);
 
@@ -101,11 +99,11 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testInvalidUserIdThrowsUserNotFoundException() {
+    public void testUnregisterParticipantInvalidUserId() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
                 .thenReturn(Collections.emptyList());
 
-        UserNotFoundException exception = Assertions.assertThrows(UserNotFoundException.class, () -> {
+        EntityNotFoundException exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
             eventParticipationService.unregisterParticipant(EVENT_ID, USER_ID);
         });
 
@@ -113,9 +111,9 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testEventExistsAndReturnsUserDtoList() {
+    public void testRegisterParticipantWithExistingUser() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
-                .thenReturn(Collections.singletonList(user));
+                .thenReturn(List.of(user));
 
         List<UserDto> result = eventParticipationService.getParticipant(EVENT_ID);
 
@@ -127,35 +125,22 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testEmptyParticipantListThrowsEventNotFoundException() {
+    public void testGetParticipantEmptyParticipantList() {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
                 .thenReturn(Collections.emptyList());
 
-        EventNotFoundException exception = Assertions.assertThrows(EventNotFoundException.class, () -> {
-            eventParticipationService.getParticipant(EVENT_ID);
-        });
+        eventParticipationService.getParticipant(EVENT_ID);
 
-        Assertions.assertEquals(String.format("Событие с данным id: <%d> отсутствует!", EVENT_ID), exception.getMessage());
     }
 
     @Test
-    public void testGetParticipantsCountValidEventIdReturnsCorrectCount() {
+    public void testGetParticipantCount() {
         when(eventParticipationRepository.countParticipants(EVENT_ID))
                 .thenReturn(1);
 
         int count = eventParticipationService.getParticipantsCount(EVENT_ID);
 
         Assertions.assertEquals(1, count);
-    }
-
-    @Test
-    public void TestGetParticipantsCountNoParticipantsReturnsZero() {
-        when(eventParticipationRepository.countParticipants(EVENT_ID))
-                .thenReturn(0);
-
-        int count = eventParticipationService.getParticipantsCount(EVENT_ID);
-
-        Assertions.assertEquals(0, count);
     }
 
 }

@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.EventParticipationService;
@@ -15,11 +14,11 @@ public class EventParticipationController {
     private final EventParticipationService participationService;
 
 
-    public void registerParticipant(@PathVariable long userId, @PathVariable long eventId) {
+    public void registerParticipant(long userId, long eventId) {
         participationService.registerParticipant(userId, eventId);
     }
 
-    public void unregisterParticipant(@PathVariable long userId, @PathVariable long eventId) {
+    public void unregisterParticipant(long userId, long eventId) {
         participationService.unregisterParticipant(eventId, userId);
     }
 
