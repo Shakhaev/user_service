@@ -47,7 +47,6 @@ public class EventParticipationServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
 
         user = User.builder()
                 .id(USER_ID)
