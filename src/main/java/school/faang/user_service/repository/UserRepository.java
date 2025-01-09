@@ -2,6 +2,7 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Stream<User> findPremiumUsers();
 
     List<User> findByUsernameLike(String username);
+
+    UserDto getUserById(long id);
 }
