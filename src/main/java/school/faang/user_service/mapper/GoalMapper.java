@@ -5,8 +5,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.GoalDto;
+import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING,
-        nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface GoalMapper {
     @Mapping(source = "mentorId", target = "mentor.id", defaultExpression = "java(null)")
@@ -41,7 +43,7 @@ public interface GoalMapper {
         return skills.stream().map(Skill::getId).collect(Collectors.toList());
     }
 
-    default List<Long> invitationsToInvitationIds(List<GoalInvitation> invitations){
+    default List<Long> invitationsToInvitationIds(List<GoalInvitation> invitations) {
         return invitations.stream().map(GoalInvitation::getId).collect(Collectors.toList());
     }
 }
