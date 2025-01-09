@@ -8,7 +8,6 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -16,7 +15,6 @@ import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,26 +27,16 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final UserSkillGuaranteeRepository guaranteeRepository;
     private final UserService userService;
+    private final ValidationService validationService;
     private final SkillMapper skillMapper;
     private final SkillCandidateMapper skillCandidateMapper;
 
-    private void validateSkill(SkillDto skillDto) {
-        Objects.requireNonNull(skillDto);
-
-        String title = skillDto.title();
-        Objects.requireNonNull(title);
-
-        if (title.isBlank()) {
-            throw new DataValidationException("Название скила не может быть пустым");
-        }
-
-        if (skillRepository.existsByTitle(title)) {
-            throw new DataValidationException("Скилл с таким названием уже существует");
-        }
+    public boolean existsByTitle(String title){
+        return skillRepository.existsByTitle(title);
     }
 
     public SkillDto create(SkillDto skillDto) {
-        validateSkill(skillDto);
+        validationService.validateSkill(skillDto);
 
         Skill skill = skillMapper.toEntity(skillDto);
         skill.setUsers(userService.getAllById(skillDto.userIds()));
