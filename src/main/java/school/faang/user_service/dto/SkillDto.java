@@ -12,5 +12,5 @@ public class SkillDto {
 
     @NotBlank(message = "Назавание не может быть пустым или NULL .")
     private String title;
-    private List<Long> userIds;
+    private List<Long> userId;
 }
