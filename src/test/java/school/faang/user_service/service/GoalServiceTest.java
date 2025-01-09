@@ -11,6 +11,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import school.faang.user_service.event.GoalCompletedEvent;
+import school.faang.user_service.exception.GoalAlreadyCompletedException;
 import school.faang.user_service.outbox.OutboxEventProcessor;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
@@ -19,8 +21,11 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.event.GoalCompletedEvent;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.GoalAlreadyCompletedException;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
@@ -74,6 +79,9 @@ class GoalServiceTest {
 
     @Mock
     private OutboxEventProcessor outboxEventProcessor;
+
+    @Mock
+    private GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     @Mock
     private Helper helper;
@@ -406,6 +414,70 @@ class GoalServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> goalService.completeTheGoal(userId, goalId));
     }
+
+    @Test
+    @DisplayName("Test Goal Complete Positive")
+    void testGoalCompletePositive() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .status(GoalStatus.ACTIVE)
+                .build();
+
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.of(goal));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
+
+        goalService.completeGoalAndPublishEvent(goalId, userId);
+
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
+        verify(goalRepository, times(1)).save(goal);
+        verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEvent.class));
+    }
+
+    @Test
+    @DisplayName("Test Goal Complete Negative - Goal Already Completed")
+    void testGoalCompleteNegativeGoalAlreadyCompleted() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .status(GoalStatus.COMPLETED)
+                .build();
+
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.of(goal));
+
+        GoalAlreadyCompletedException exception = assertThrows(GoalAlreadyCompletedException.class,
+                () -> goalService.completeGoalAndPublishEvent(goalId, userId));
+
+        assertEquals("Goal already completed", exception.getMessage());
+
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
+    }
+
+    @Test
+    @DisplayName("Test Goal Complete Negative - Goal Not Found")
+    void testGoalCompleteNegativeGoalNotFound() {
+        long userId = 4L;
+        long goalId = 14L;
+
+        when(goalRepository.findByUserIdAndGoalId(goalId, userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> goalService.completeGoalAndPublishEvent(goalId, userId));
+
+        assertEquals(String.format("Goal with id %s not found for user %s", goalId, userId), exception.getMessage());
+
+        verify(goalRepository, times(1)).findByUserIdAndGoalId(goalId, userId);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verify(goalCompletedEventPublisher, never()).publish(any(GoalCompletedEvent.class));
+    }
+
+
 
     private User setUpUserWithoutGoals() {
         User user = new User();

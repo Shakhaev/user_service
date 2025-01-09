@@ -198,6 +198,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(errorMessage, "Json processing error"));
     }
 
+    @ExceptionHandler(GoalAlreadyCompletedException.class)
+    public ResponseEntity<String> handleGoalAlreadyCompletedException(GoalAlreadyCompletedException ex) {
+        log.error("GoalAlreadyCompletedException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     private String extractMessage(String fullMessage) {
         int lastBracketIndex = fullMessage.lastIndexOf("[");
         if (lastBracketIndex != -1 && lastBracketIndex + 1 < fullMessage.length()) {
