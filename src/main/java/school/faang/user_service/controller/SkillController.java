@@ -1,19 +1,17 @@
 package school.faang.user_service.controller;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.service.SkillService;
 
 import java.util.List;
 
-@Data
+@RequiredArgsConstructor
 @Component
 public class SkillController {
     private final SkillService skillService;
-    private final SkillMapper skillMapper;
 
     public SkillDto create(SkillDto skillDto) {
         return skillService.create(skillDto);
