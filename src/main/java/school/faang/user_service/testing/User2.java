@@ -1,11 +1,11 @@
-package school.faang.user_service.service;
+package school.faang.user_service.testing;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class User {
+public class User2 {
 
     private String id;
     private String firstName;

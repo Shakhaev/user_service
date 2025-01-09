@@ -17,7 +17,7 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class User2ServiceTest {
 
     @InjectMocks
     private UserService userService;
