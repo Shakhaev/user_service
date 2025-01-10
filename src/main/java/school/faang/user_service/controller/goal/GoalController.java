@@ -83,10 +83,14 @@ public class GoalController {
         }
     }
 
-    @PostMapping("/{parent_id}/filters")
+    @PostMapping("/find/{parent_id}/filters")
     public ResponseEntity<List<ResponseGoalDto>> findSubtasksByGoalId(
             @PathVariable("parent_id") final Long parentId,
             @RequestBody GoalFilterDto filters) {
+
+        if (filters == null) {
+            throw new IllegalArgumentException("GoalFilterDto is null");
+        }
 
         final List<Goal> filteredSubtasksByGoal = goalService.findSubtasksByGoalId(parentId, filters);
         List<ResponseGoalDto> filteredSubtasksByGoalDto = goalMapper.toDto(filteredSubtasksByGoal);
@@ -95,10 +99,14 @@ public class GoalController {
     }
 
 
-    @PostMapping("/{user_id}/filters")
+    @PostMapping("/get/{user_id}/filters")
     public ResponseEntity<List<ResponseGoalDto>> getGoalsByUser(
             @PathVariable("user_id") final Long userId,
             @RequestBody GoalFilterDto filters) {
+
+        if (filters == null) {
+            throw new IllegalArgumentException("GoalFilterDto is null");
+        }
 
         final List<Goal> filteredGoals = goalService.getGoalsByUserId(userId, filters);
         List<ResponseGoalDto> filteredGoalsDto = goalMapper.toDto(filteredGoals);
