@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
-@EnableAsync
 public class UserServiceApplication {
 
     public static void main(String[] args) {

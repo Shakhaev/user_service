@@ -16,7 +16,7 @@ import java.util.List;
 public class SubscriptonController {
     private final SubscriptionService subscriptionService;
 
-    @GetMapping("/followees/{followeeId}")
+    @GetMapping("/{followeeId}")
     public List<UserDto> getFollowees(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto userFilterDto) {
         return subscriptionService.getFollowees(followeeId, userFilterDto);
     }
