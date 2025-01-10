@@ -122,17 +122,15 @@ public class SubscriptionService {
         return true;
     }
 
-    private boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId) {
+    public boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId) {
         User requestUser = findUserById(followerId);
         User requestedUser = findUserById(followeeId);
-        List<User> followedUsers = requestUser.getFollowers();
 
         logger.info("Checked existing by follower and followee!");
-        return followedUsers.stream()
-                .anyMatch(user -> user.getFollowees().contains(requestedUser));
+        return requestUser.getFollowees().contains(requestedUser);
     }
 
-    private User findUserById(long id) {
+    public User findUserById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserWasNotFoundException("User was not found with id : " + id));
     }
