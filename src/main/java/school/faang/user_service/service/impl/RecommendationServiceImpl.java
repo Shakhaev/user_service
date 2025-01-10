@@ -1,19 +1,21 @@
 package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.UserSkillGuaranteeMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.RecommendationService;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,63 +26,65 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
-    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserSkillGuaranteeMapper guaranteeMapper;
+    private final RecommendationMapper recommendationMapper;
 
     @Override
-    public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        validateRecommendation(recommendation);
-        RecommendationDto createdRecommendation = create(recommendation);
-        saveSkillOffers(createdRecommendation);
-
-        return createdRecommendation;
-    }
-
-    private void saveSkillOffers(RecommendationDto recommendation) {
-        for (SkillOfferDto skillOffer : recommendation.getSkillOffers()) {
-            createSkillOffer(recommendation, skillOffer);
-
-            if (skillRepository
-                    .findUserSkill(skillOffer.getSkillId(), recommendation.getReceiverId())
-                    .isPresent()) {
-                if (!userSkillGuaranteeRepository
-                        .existsUserSkillGuaranteeBySkill_IdAndGuarantor_id(skillOffer.getSkillId(), recommendation.getAuthorId())) {
-                    userSkillGuaranteeRepository
-                            .create(recommendation.getReceiverId(), skillOffer.getSkillId(), recommendation.getAuthorId());
-                }
-            }
-        }
-    }
-
-
     public RecommendationDto create(RecommendationDto recommendation) {
+        validateRecommendation(recommendation);
         checkForLastRecommendationPeriod(recommendation);
-        Long recommendationId = recommendationRepository
-                .create(recommendation.getAuthorId(),
-                        recommendation.getReceiverId(),
-                        recommendation.getContent());
+
+        Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
         recommendation.setId(recommendationId);
+        saveSkillOffers(recommendation);
 
         return recommendation;
     }
 
+    private void saveSkillOffers(RecommendationDto recommendation) {
+        Optional.ofNullable(recommendation.getSkillOffers()).orElse(Collections.emptyList()).forEach(skillOffer -> {
+            createSkillOffer(recommendation, skillOffer);
+            saveSkillWithGuarantee(recommendation, skillOffer);
+        });
+    }
+
     @Override
-    public Recommendation updateRecommendation(RecommendationDto updated) {
+    public RecommendationDto update(RecommendationDto updated) {
         validateRecommendation(updated);
         checkForLastRecommendationPeriod(updated);
+        recommendationRepository.update(updated.getAuthorId(), updated.getReceiverId(), updated.getContent());
         skillOfferRepository.deleteAllByRecommendationId(updated.getId());
 
-        for (SkillOfferDto skillOfferDto: updated.getSkillOffers()){
+        for (SkillOfferDto skillOfferDto : updated.getSkillOffers()) {
             createSkillOffer(updated, skillOfferDto);
-            Optional<Skill> optionalSkill = skillRepository.findUserSkill(skillOfferDto.getSkillId(), updated.getReceiverId());
-            optionalSkill.ifPresent(skill -> skill.addGuarantee(
-                    UserSkillGuarantee.builder()
-                            .skill(skill)
-                            .build()
-                    // TODO
-            ));
+            saveSkillWithGuarantee(updated, skillOfferDto);
         }
+        return updated;
+    }
 
-        return null;
+    @Override
+    public void delete(Long id) {
+        if (recommendationRepository.findById(id).isPresent()) {
+            recommendationRepository.deleteById(id);
+        }
+        throw new DataValidationException("No recommendation found with id: " + id);
+    }
+
+    @Override
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        return recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(recommendationMapper::toDto)
+                .toList();
+    }
+
+    private void saveSkillWithGuarantee(RecommendationDto updated, SkillOfferDto skillOfferDto) {
+        skillRepository.findUserSkill(skillOfferDto.getSkillId(), updated.getReceiverId()).ifPresent(skill -> {
+            UserSkillGuarantee guarantee = guaranteeMapper.toEntity(updated.getReceiverId(), updated.getAuthorId(), skill);
+            skill.addGuarantee(guarantee);
+            skillRepository.save(skill);
+        });
     }
 
     private void createSkillOffer(RecommendationDto recommendation, SkillOfferDto skillOffer) {
@@ -88,9 +92,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     private void validateRecommendation(RecommendationDto recommendation) {
-        if (recommendation.getContent() == null || recommendation.getContent()
-                .trim()
-                .isEmpty()) {
+        if (recommendation.getContent() == null || recommendation.getContent().trim().isEmpty()) {
             throw new DataValidationException("Recommendation content cannot be empty");
         }
         if (recommendation.getCreatedAt() == null) {
@@ -101,13 +103,11 @@ public class RecommendationServiceImpl implements RecommendationService {
             throw new DataValidationException("Author and receiver must be specified");
         }
 
-        if (recommendation.getAuthorId()
-                .equals(recommendation.getReceiverId())) {
+        if (recommendation.getAuthorId().equals(recommendation.getReceiverId())) {
             throw new DataValidationException("Users cannot give recommendations to themselves");
         }
 
-        if (recommendation.getSkillOffers() != null && !recommendation.getSkillOffers()
-                .isEmpty()) {
+        if (recommendation.getSkillOffers() != null && !recommendation.getSkillOffers().isEmpty()) {
             checkForExistingSkills(recommendation);
         }
     }
@@ -115,18 +115,13 @@ public class RecommendationServiceImpl implements RecommendationService {
     private void checkForExistingSkills(RecommendationDto recommendation) {
         if (!recommendation.getSkillOffers()
                 .stream()
-                .allMatch(skillOfferDto ->
-                        skillRepository.existsById(skillOfferDto.getSkillId())
-                )) {
+                .allMatch(skillOfferDto -> skillRepository.existsById(skillOfferDto.getSkillId()))) {
             throw new DataValidationException("These skills do not exists in system");
         }
     }
 
     private void checkForLastRecommendationPeriod(RecommendationDto recommendation) {
-        recommendationRepository
-                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
-                        recommendation.getAuthorId(),
-                        recommendation.getReceiverId())
+        recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendation.getAuthorId(), recommendation.getReceiverId())
                 .ifPresent(lastRecommendation -> {
                     if (lastRecommendation.getCreatedAt()
                             .plusMonths(LAST_RECOMMENDATION_PERIOD)

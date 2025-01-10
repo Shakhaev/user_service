@@ -1,10 +1,15 @@
 package school.faang.user_service.service;
 
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.entity.recommendation.Recommendation;
+
+import java.util.List;
 
 public interface RecommendationService {
-    RecommendationDto giveRecommendation(RecommendationDto recommendation);
+    RecommendationDto create(RecommendationDto recommendation);
 
-    Recommendation updateRecommendation(RecommendationDto updated);
+    RecommendationDto update(RecommendationDto updated);
+
+    void delete(Long id);
+
+    List<RecommendationDto> getAllUserRecommendations(long receiverId);
 }
