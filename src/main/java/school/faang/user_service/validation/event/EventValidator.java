@@ -7,11 +7,6 @@ import school.faang.user_service.validation.CustomValidation;
 
 public class EventValidator implements ConstraintValidator<CustomValidation, EventDto> {
 
-//    @Override
-//    public void intialize(CustomValidation constraintAnnotation) {
-//
-//    }
-
     @Override
     public boolean isValid(EventDto eventDto, ConstraintValidatorContext context) {
         if (eventDto.getStartTime().isAfter(eventDto.getEndTime())) {

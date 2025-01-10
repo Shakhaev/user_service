@@ -89,7 +89,7 @@ public class EventServiceTest {
 
     @Test
     public void testGetEventsByFilter() {
-        Long eventId = 1L;
+        long eventId = 1L;
         String eventTitle = "Test Event";
 
         Event event = new Event();
@@ -153,9 +153,9 @@ public class EventServiceTest {
 
     @Test
     public void testGetOwnedEvents() {
-        Long userId = 1L;
+        long userId = 1L;
 
-        Long eventId = 1L;
+        long eventId = 1L;
         String eventTitle = "Test Event";
 
         Event event = new Event();
@@ -184,9 +184,9 @@ public class EventServiceTest {
 
     @Test
     public void testGetParticipatedEvents() {
-        Long userId = 1L;
+        long userId = 1L;
 
-        Long eventId = 1L;
+        long eventId = 1L;
         String eventTitle = "Test Event";
 
         Event event = new Event();

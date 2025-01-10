@@ -8,7 +8,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -50,7 +49,7 @@ public class EventService {
                 .filter(event -> filter.getStartTime() == null || event.getStartDate().isBefore(filter.getStartTime()))
                 .filter(event -> filter.getEndTime() == null || event.getEndDate().isAfter(filter.getEndTime()))
                 .filter(event -> filter.getOwnerId() == null || event.getOwner().getId().equals(filter.getOwnerId()))
-                .filter(event -> filter.getRelatedSkills() == null || new HashSet<>(event.getRelatedSkills()).containsAll(filter.getRelatedSkills()))
+                .filter(event -> filter.getRelatedSkills() == null || event.getRelatedSkills().containsAll(filter.getRelatedSkills()))
                 .filter(event -> filter.getLocation() == null || event.getLocation().contains(filter.getLocation()))
                 .filter(event -> filter.getEventType() == null || event.getType().equals(filter.getEventType()))
                 .filter(event -> filter.getEventStatus() == null || event.getStatus().equals(filter.getEventStatus()))
