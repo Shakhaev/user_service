@@ -63,25 +63,25 @@ public class GoalService {
 
     @Transactional
     public void updateGoal(Long goalId, Goal goal) {
-        Goal updatedGoal = goalRepository.findById(goalId)
+        Goal pulledGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new IllegalArgumentException("Goal not found"));
 
-        if (goal.getStatus().equals(GoalStatus.ACTIVE)) {
-            if (goal.getSkillsToAchieve().stream().anyMatch(skill -> skillRepository.existsByTitle(skill.getTitle()))) {
+        if (pulledGoal.getStatus().equals(GoalStatus.ACTIVE)) {
+        //    if (pulledGoal.getSkillsToAchieve().stream().anyMatch(skill -> skillRepository.existsByTitle(skill.getTitle()))) {
 
-                updatedGoal.setParent(goal.getParent());
-                updatedGoal.setDescription(goal.getDescription());
-                updatedGoal.setDeadline(goal.getDeadline());
-                updatedGoal.setInvitations(goal.getInvitations());
-                updatedGoal.setStatus(goal.getStatus());
+                pulledGoal.setParent(goal.getParent());
+                pulledGoal.setDescription(goal.getDescription());
+                pulledGoal.setDeadline(goal.getDeadline());
+                pulledGoal.setInvitations(goal.getInvitations());
+                pulledGoal.setStatus(goal.getStatus());
 
                 goal.setUpdatedAt(LocalDateTime.now());
 
-                goalRepository.save(updatedGoal);
-                log.info("Goal updated successfully with id: {}", goalId);
-            } else {
+                goalRepository.save(pulledGoal);
+
+          /*  } else {
                 throw new IllegalArgumentException("The goal contains non-existent skills");
-            }
+            }*/
         } else { // new method
             List<Skill> oldSkillsToAchieve = skillRepository.findSkillsByGoalId(goalId);
 
@@ -92,11 +92,10 @@ public class GoalService {
                 }
             }
 
-            updatedGoal.getSkillsToAchieve().forEach(skill -> skillRepository.delete(skill));
+            pulledGoal.getSkillsToAchieve().forEach(skill -> skillRepository.delete(skill));
 
-            updatedGoal.setSkillsToAchieve(goal.getSkillsToAchieve());
-            goalRepository.save(updatedGoal);
-            log.info("SkillsToAchieve updated successfully");
+            pulledGoal.setSkillsToAchieve(goal.getSkillsToAchieve());
+            goalRepository.save(pulledGoal);
         }
     }
 
@@ -106,7 +105,6 @@ public class GoalService {
                 .orElseThrow(() -> new IllegalArgumentException("Goal not found"));
 
         goalRepository.delete(goal);
-        log.info("Goal with id {} deleted successfully", goalId);
     }
 
     @Transactional
