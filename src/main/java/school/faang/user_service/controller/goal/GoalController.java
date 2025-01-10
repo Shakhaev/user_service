@@ -27,19 +27,19 @@ public class GoalController {
 
     private final GoalService goalService;
 
-    @PostMapping("goal")
+    @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public GoalDto createGoal(@RequestParam Long userId, @RequestBody @Valid GoalDto goalDto) {
         return goalService.create(userId, goalDto);
     }
 
-    @PutMapping("goal")
+    @PutMapping
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public GoalDto updateGoal(@RequestBody @Valid UpdateGoalDto goalDto) {
         return goalService.update(goalDto);
     }
 
-    @DeleteMapping("goal/{id}")
+    @DeleteMapping("{id}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void deleteGoal(@PathVariable @NotNull long id) {
         goalService.delete(id);
@@ -53,11 +53,11 @@ public class GoalController {
         return goalService.findSubtasksByGoalId(id, title, status);
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
-    public List<GoalDto> findGoalsByUserIdAndFilter(@PathVariable long id,
+    public List<GoalDto> findGoalsByUserIdAndFilter(@RequestParam long userId,
                                                     @RequestParam(required = false) String title,
                                                     @RequestParam(required = false) String status) {
-        return goalService.findGoalsByUserIdAndFilter(id, title, status);
+        return goalService.findGoalsByUserIdAndFilter(userId, title, status);
     }
 }

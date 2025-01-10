@@ -29,6 +29,6 @@ public class UpdateGoalDto {
 
     private List<Long> skillsToAchieveIds;
 
-    @Enumerated(value = EnumType.ORDINAL)
+    @Enumerated(value = EnumType.STRING)
     private GoalStatus status;
 }
