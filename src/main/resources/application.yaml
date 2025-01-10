@@ -38,3 +38,6 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+recommendation-request:
+  min-month: 6
