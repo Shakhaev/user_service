@@ -67,13 +67,25 @@ public class GoalInvitationService {
 
     private void validateInvitationUsers(GoalInvitationDto dto) {
         long inviterId = dto.getInviterId();
+        validateInviter(inviterId);
+        long invitedUserId = dto.getInvitedUserId();
+        validateInvitedUser(invitedUserId);
+        validateDifferentUsers(inviterId, invitedUserId);
+    }
+
+    private void validateInviter(long inviterId) {
         if (isNotExistsUser(inviterId)) {
             throw new IllegalArgumentException("Inviter user with id = " + inviterId + " doesn't exist");
         }
-        long invitedUserId = dto.getInvitedUserId();
+    }
+
+    private void validateInvitedUser(long invitedUserId) {
         if (isNotExistsUser(invitedUserId)) {
             throw new IllegalArgumentException("Invited user with id = " + invitedUserId + " doesn't exist");
         }
+    }
+
+    private void validateDifferentUsers(long inviterId, long invitedUserId) {
         if (!isUsersDifferent(inviterId, invitedUserId)) {
             throw new IllegalArgumentException("Inviter user and invited user not different");
         }
@@ -93,12 +105,24 @@ public class GoalInvitationService {
     }
 
     private void validateUserAndGoal(User user, long goalId) {
+        validateGoalFewerThanMax(user);
+        validateIsNotExistGoal(goalId);
+        validateGoalNotInWork(user, goalId);
+    }
+
+    private void validateGoalFewerThanMax(User user) {
         if (isGoalsMoreThanMax(user)) {
             throw new IllegalArgumentException("User goals is more than max");
         }
+    }
+
+    private void validateIsNotExistGoal(long goalId) {
         if (!isExistsGoal(goalId)) {
             throw new IllegalArgumentException("Goal with id = " + goalId + " doesn't exists");
         }
+    }
+
+    private void validateGoalNotInWork(User user, long goalId) {
         if (isGoalInWorkByUser(user, getGoalById(goalId))) {
             throw new IllegalArgumentException("Goal with id = "
                     + goalId + " already in work for user with id = " + user.getId());
@@ -106,11 +130,14 @@ public class GoalInvitationService {
     }
 
     private boolean isGoalsMoreThanMax(User user) {
-        int activeGoalsCount = user.getGoals().stream()
+        return getActiveGoalsCount(user) >= MAX_GOALS;
+    }
+
+    private static int getActiveGoalsCount(User user) {
+        return user.getGoals().stream()
                 .filter(goal -> goal.getStatus().equals(GoalStatus.ACTIVE))
                 .toList()
                 .size();
-        return activeGoalsCount >= MAX_GOALS;
     }
 
     private boolean isExistsGoal(Long id) {

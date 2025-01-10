@@ -6,7 +6,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import java.util.List;
 
 @Component
-public class InvitedIdFilter implements InvitationFilter {
+public class InvitedUserIdFilter implements InvitationFilter {
     @Override
     public boolean isApplicable(InvitationFilterDto filters) {
         return filters.getInvitedId() != null;
