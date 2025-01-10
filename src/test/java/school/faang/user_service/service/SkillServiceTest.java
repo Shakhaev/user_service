@@ -61,6 +61,7 @@ class SkillServiceTest {
     private Skill skill2;
     private SkillDto skillDto1;
     private SkillDto skillDto2;
+    private User user;
 
     @BeforeEach
     void setUp() {
@@ -68,6 +69,7 @@ class SkillServiceTest {
         skill2 = Skill.builder().id(2L).title("Python").build();
         skillDto1 = new SkillDto(1L, "Java");
         skillDto2 = new SkillDto(2L, "Python");
+        user = User.builder().id(1L).username("John Doe").build();
     }
 
     @Test
@@ -192,7 +194,6 @@ class SkillServiceTest {
         long skillId = 1L;
         int minSkillOffers = 2;
 
-        User user = User.builder().id(userId).username("John Doe").build();
         Skill skill = Skill.builder().id(skillId).title("Java").build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -252,14 +253,6 @@ class SkillServiceTest {
         long userId = 1L;
         long skillId = 1L;
 
-        User user = new User();
-        user.setId(userId);
-        user.setUsername("John Doe");
-
-        Skill skill = new Skill();
-        skill.setId(skillId);
-        skill.setTitle("Java");
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.of(new Skill())); // Навык уже есть
 
@@ -282,10 +275,6 @@ class SkillServiceTest {
     void testAcquireSkillFromOffers_SkillNotFound() {
         long userId = 1L;
         long skillId = 1L;
-
-        User user = new User();
-        user.setId(userId);
-        user.setUsername("John Doe");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
@@ -312,20 +301,12 @@ class SkillServiceTest {
         long skillId = 1L;
         int minSkillOffers = 3;
 
-        User user = new User();
-        user.setId(userId);
-        user.setUsername("John Doe");
-
-        Skill skill = new Skill();
-        skill.setId(skillId);
-        skill.setTitle("Java");
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
+        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill1));
 
         Recommendation recommendation1 = Recommendation.builder().author(new User()).build();
-        SkillOffer offer1 = SkillOffer.builder().skill(skill).recommendation(recommendation1).build();
+        SkillOffer offer1 = SkillOffer.builder().skill(skill1).recommendation(recommendation1).build();
 
         List<SkillOffer> skillOffers = Collections.singletonList(offer1);
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(skillOffers);
