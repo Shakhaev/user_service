@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.event.EventFilters;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -15,6 +15,8 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +39,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
     @Mock
+    private UserService userService;
+    @Mock
+    private SkillService skillService;
+    @Mock
     private EventRepository eventRepository;
     @Spy
     private EventMapper eventMapper;
@@ -47,12 +53,15 @@ class EventServiceTest {
 
     private Event event;
     private User owner;
+    private List<Skill> skills;
+    private List<Long> skillIds;
 
     @BeforeEach
     void setUp() {
         Skill firstSkill = Skill.builder().title("Java").build();
         Skill secondSkill = Skill.builder().title("Spring").build();
-        List<Skill> skills = List.of(firstSkill, secondSkill);
+        skills = List.of(firstSkill, secondSkill);
+        skillIds = eventMapper.mapSkillsToSkillIds(skills);
         owner = User.builder()
                 .id(1L)
                 .skills(skills)
@@ -66,39 +75,46 @@ class EventServiceTest {
 
     @Test
     void testCreateEventValidSkills() {
-        when(eventRepository.save(any(Event.class))).thenReturn(event);
+        Long userId = owner.getId();
+        when(eventRepository.save(any())).thenReturn(event);
+        when(userService.getUser(any())).thenReturn(owner);
+        when(skillService.getSkills(any())).thenReturn(skills);
 
-        Event createdEvent = eventService.create(event);
+        Event createdEvent = eventService.create(event, userId, skillIds);
 
         assertNotNull(createdEvent);
-        assertEquals(createdEvent.getOwner().getId(), owner.getId());
+        assertEquals(createdEvent.getOwner().getId(), userId);
         assertEquals(createdEvent.getRelatedSkills().size(), owner.getSkills().size());
         verify(eventRepository, times(1)).save(event);
     }
 
     @Test
     void testCreateEventInvalidSkills() {
+        Long userId = owner.getId();
         Skill testSkill = Skill.builder().title("Python").build();
-        List<Skill> modifiedList = new ArrayList<>(owner.getSkills());
-        modifiedList.add(testSkill);
-        event.setRelatedSkills(modifiedList);
+        List<Skill> modifiedSkillListForEvent = new ArrayList<>(owner.getSkills());
+        modifiedSkillListForEvent.add(testSkill);
+        List<Long> modifiedSkillIdsForEvent = eventMapper.mapSkillsToSkillIds(modifiedSkillListForEvent);
 
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> eventService.create(event));
+        when(userService.getUser(any())).thenReturn(owner);
+        when(skillService.getSkills(any())).thenReturn(modifiedSkillListForEvent);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> eventService.create(event, userId, modifiedSkillIdsForEvent));
         assertEquals(String.format(
                 "User with id %d don't have all related skills to create event id %d",
-                owner.getId(), event.getId()), exception.getMessage());
+                userId, event.getId()), exception.getMessage());
     }
 
     @Test
     void testGetEvent() {
         Long eventId = event.getId();
-        when(eventRepository.findById(eventId))
-                .thenReturn(Optional.of(event));
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
         Event foundEvent = eventService.getEvent(eventId);
 
         assertNotNull(foundEvent);
-        assertEquals(1L, foundEvent.getId());
+        assertEquals(owner.getId(), foundEvent.getId());
         verify(eventRepository, times(1)).findById(eventId);
     }
 
@@ -113,7 +129,7 @@ class EventServiceTest {
 
     @Test
     void testGetEventsByFilter() {
-        EventFilters filters = EventFilters.builder().title("Test").build();
+        EventFiltersDto filters = EventFiltersDto.builder().title("Test").build();
         when(eventRepository.findAll()).thenReturn(Collections.singletonList(event));
         when(eventFilters.stream()).thenReturn(Stream.of(mock(EventFilter.class)));
 
@@ -125,24 +141,30 @@ class EventServiceTest {
 
     @Test
     void testDeleteEvent() {
-        doNothing().when(eventRepository).deleteById(1L);
+        Long eventId = event.getId();
+        doNothing().when(eventRepository).deleteById(eventId);
 
-        eventService.deleteEvent(1L);
+        eventService.deleteEvent(eventId);
 
-        verify(eventRepository, times(1)).deleteById(1L);
+        verify(eventRepository, times(1)).deleteById(eventId);
     }
 
     @Test
     void testUpdateEvent() {
+        Long eventId = event.getId();
         Event eventToUpdate = Event.builder()
-                .id(1L)
+                .id(eventId)
                 .owner(owner)
                 .build();
-        eventToUpdate.setRelatedSkills(Collections.singletonList(
-                Skill.builder().title("Java").build()));
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        List<Skill> relatedSkills = Collections.singletonList(Skill.builder().title("Java").build());
+        List<Long> eventToUpdateSkillIds = eventMapper.mapSkillsToSkillIds(relatedSkills);
+        eventToUpdate.setRelatedSkills(relatedSkills);
 
-        eventService.updateEvent(eventToUpdate);
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(userService.getUser(any())).thenReturn(owner);
+        when(skillService.getSkills(any())).thenReturn(skills);
+
+        eventService.updateEvent(eventToUpdate, eventToUpdate.getId(), eventToUpdateSkillIds);
 
         verify(eventRepository, times(1)).save(any(Event.class));
     }
@@ -151,9 +173,11 @@ class EventServiceTest {
     void testUpdateEventNotFound() {
         Long eventId = event.getId();
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(userService.getUser(any())).thenReturn(owner);
+        when(skillService.getSkills(any())).thenReturn(skills);
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> eventService.updateEvent(event));
+                () -> eventService.updateEvent(event, eventId, skillIds));
 
         assertEquals(String.format("Event id %d not found", eventId), exception.getMessage());
         verify(eventRepository, never()).save(any(Event.class));
@@ -161,19 +185,21 @@ class EventServiceTest {
 
     @Test
     void testGetOwnedEvents() {
-        when(eventRepository.findAllByUserId(owner.getId())).thenReturn(Collections.emptyList());
+        Long ownerId = owner.getId();
+        when(eventRepository.findAllByUserId(ownerId)).thenReturn(Collections.emptyList());
 
-        eventService.getOwnedEvents(owner.getId());
+        eventService.getOwnedEvents(ownerId);
 
-        verify(eventRepository, times(1)).findAllByUserId(owner.getId());
+        verify(eventRepository, times(1)).findAllByUserId(ownerId);
     }
 
     @Test
     void testGetParticipatedEvents() {
-        when(eventRepository.findParticipatedEventsByUserId(owner.getId())).thenReturn(Collections.emptyList());
+        Long ownerId = owner.getId();
+        when(eventRepository.findParticipatedEventsByUserId(ownerId)).thenReturn(Collections.emptyList());
 
-        eventService.getParticipatedEvents(owner.getId());
+        eventService.getParticipatedEvents(ownerId);
 
-        verify(eventRepository, times(1)).findParticipatedEventsByUserId(owner.getId());
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(ownerId);
     }
 }

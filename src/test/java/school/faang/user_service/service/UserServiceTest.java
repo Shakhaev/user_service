@@ -36,7 +36,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_ShouldReturnUser_WhenUserExists() {
+    void getUserShouldReturnUserWhenUserExists() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
 
         User result = userService.getUser(USER_ID);
@@ -47,7 +47,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_ShouldThrowException_WhenUserDoesNotExist() {
+    void getUserShouldThrowExceptionWhenUserNotExists() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> userService.getUser(USER_ID));
@@ -57,7 +57,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_ShouldNotCallRepositoryForNullId() {
+    void getUserNotCallRepositoryForNullId() {
         Long nullUserId = null;
 
         assertThrows(IllegalArgumentException.class, () -> userService.getUser(nullUserId));

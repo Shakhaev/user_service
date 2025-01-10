@@ -2,7 +2,7 @@ package school.faang.user_service.filter.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.event.EventFilters;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventFilterOwnerNameTest {
-    private EventFilters matchName;
-    private EventFilters notMatchName;
-    private EventFilters nullName;
+    private EventFiltersDto matchName;
+    private EventFiltersDto notMatchName;
+    private EventFiltersDto nullName;
     private Event firstEvent;
     private Event secondEvent;
     private final EventFilter eventFilter = new EventFilterOwnerName();
@@ -31,27 +31,27 @@ class EventFilterOwnerNameTest {
         firstEvent.setOwner(firstUser);
         secondEvent.setOwner(secondUser);
 
-        matchName = EventFilters.builder().ownerName("   JoHn ").build();
-        notMatchName = EventFilters.builder().ownerName("Sergio").build();
-        nullName = EventFilters.builder().ownerName(null).build();
+        matchName = EventFiltersDto.builder().ownerName("   JoHn ").build();
+        notMatchName = EventFiltersDto.builder().ownerName("Sergio").build();
+        nullName = EventFiltersDto.builder().ownerName(null).build();
     }
 
     @Test
-    void testIsApplicable_ReturnsTrue_WhenOwnerNameNotNull() {
+    void testIsApplicableReturnsTrueOwnerNameNotNull() {
         boolean result = eventFilter.isApplicable(notMatchName);
 
         assertTrue(result);
     }
 
     @Test
-    void testIsApplicable_ReturnsFalse_WhenOwnerNameIsNull() {
+    void testIsApplicableReturnsFalseOwnerNameIsNull() {
         boolean result = eventFilter.isApplicable(nullName);
 
         assertFalse(result);
     }
 
     @Test
-    void testApply_FiltersEvents_WhenOwnerNameMatches() {
+    void testApplyFiltersEventsOwnerNameMatches() {
         List<Event> events = getEvents(matchName);
 
         assertEquals(1, events.size());
@@ -59,13 +59,13 @@ class EventFilterOwnerNameTest {
     }
 
     @Test
-    void testApply_DoesNotFilterEvents_WhenOwnerNameNotMatch() {
+    void testApplyDoesNotFilterEventsOwnerNameNotMatch() {
         List<Event> events = getEvents(notMatchName);
 
         assertTrue(events.isEmpty());
     }
 
-    private List<Event> getEvents(EventFilters toCheck) {
+    private List<Event> getEvents(EventFiltersDto toCheck) {
         return eventFilter
                 .apply(Stream.of(firstEvent, secondEvent), toCheck)
                 .toList();

@@ -40,9 +40,8 @@ class EventValidatorUtilsImplTest {
     void testCheckFutureDateNegative() {
         LocalDateTime beforeDate = LocalDateTime.now().minusMinutes(1L);
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkFutureDate(beforeDate, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkFutureDate(beforeDate, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }
@@ -60,15 +59,14 @@ class EventValidatorUtilsImplTest {
         LocalDateTime startDate = LocalDateTime.now().minusMinutes(1L);
         LocalDateTime endDate = LocalDateTime.now().plusHours(1L);
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkChronology(endDate, startDate, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkChronology(endDate, startDate, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }
 
     @Test
-    void testCheckEnumValuePositve() {
+    void testCheckEnumValueExists() {
         EventStatus status = EventStatus.PLANNED;
         EventStatus[] validStatuses = EventStatus.values();
 
@@ -76,7 +74,7 @@ class EventValidatorUtilsImplTest {
     }
 
     @Test
-    void testCheckEnumTypePositve() {
+    void testCheckEnumTypeExists() {
         EventType type = EventType.MEETING;
         EventType[] types = EventType.values();
 
@@ -88,9 +86,8 @@ class EventValidatorUtilsImplTest {
         EventStatus status = null;
         EventStatus[] validStatuses = EventStatus.values();
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkEnumValue(status, validStatuses, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkEnumValue(status, validStatuses, errorMessage));
         assertEquals(errorMessage, ex.getMessage());
     }
 
@@ -99,9 +96,8 @@ class EventValidatorUtilsImplTest {
         EventType type = null;
         EventType[] types = EventType.values();
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkEnumValue(type, types, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkEnumValue(type, types, errorMessage));
         assertEquals(errorMessage, ex.getMessage());
     }
 }

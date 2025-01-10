@@ -2,7 +2,7 @@ package school.faang.user_service.filter.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.event.EventFilters;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventLocationFilterTest {
-    private EventFilters matchLocation;
-    private EventFilters notMatchLocation;
-    private EventFilters nullLocation;
+    private EventFiltersDto matchLocation;
+    private EventFiltersDto notMatchLocation;
+    private EventFiltersDto nullLocation;
     private Event firstEvent;
     private Event secondEvent;
     private final EventFilter eventFilter = new EventLocationFilter();
@@ -29,27 +29,27 @@ class EventLocationFilterTest {
         firstEvent.setLocation("Moscow");
         secondEvent.setLocation("Cupertino");
 
-        matchLocation = EventFilters.builder().location("  MOScoW  ").build();
-        notMatchLocation = EventFilters.builder().location("spb").build();
-        nullLocation = EventFilters.builder().location(null).build();
+        matchLocation = EventFiltersDto.builder().location("  MOScoW  ").build();
+        notMatchLocation = EventFiltersDto.builder().location("spb").build();
+        nullLocation = EventFiltersDto.builder().location(null).build();
     }
 
     @Test
-    void testIsApplicable_ReturnsTrue_WhenLocationIsNotNull() {
+    void testIsApplicableReturnsTrueLocationNotNull() {
         boolean result = eventFilter.isApplicable(notMatchLocation);
 
         assertTrue(result);
     }
 
     @Test
-    void testIsApplicable_ReturnsFalse_WhenLocationIsNull() {
+    void testIsApplicableReturnsFalseLocationIsNull() {
         boolean result = eventFilter.isApplicable(nullLocation);
 
         assertFalse(result);
     }
 
     @Test
-    void testApply_FiltersEvents_WhenLocationMatches() {
+    void testApplyFiltersEventsLocationMatches() {
         List<Event> events = getEvents(matchLocation);
 
         assertEquals(1, events.size());
@@ -57,13 +57,13 @@ class EventLocationFilterTest {
     }
 
     @Test
-    void testApply_DoesNotFilterEvents_WhenLocationNotMatch() {
+    void testApplyDoesNotFilterEventsLocationNotMatch() {
         List<Event> events = getEvents(notMatchLocation);
 
         assertTrue(events.isEmpty());
     }
 
-    private List<Event> getEvents(EventFilters toCheck) {
+    private List<Event> getEvents(EventFiltersDto toCheck) {
         return eventFilter
                 .apply(Stream.of(firstEvent, secondEvent), toCheck)
                 .toList();
