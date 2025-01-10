@@ -13,8 +13,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -64,7 +64,9 @@ public class SkillService {
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
         skillRepository.findUserSkill(skillId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Такой скил уже есть у игрока"));
+                .ifPresent(s -> {
+                    throw new IllegalArgumentException("Такой скил уже есть у игрока");
+                });
 
         skillRepository.findById(skillId)
                 .orElseThrow(() -> new EntityNotFoundException("Скилл не существует"));
