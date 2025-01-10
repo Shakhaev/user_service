@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
@@ -11,6 +10,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
 import school.faang.user_service.mapper.SubscriptionMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,45 +19,40 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final SubscriptionMapper subscriptionMapper;
 
-    @Transactional
     public void followUser(long followerId, long followeeId) {
-        validateDifferentFollowerAndFollowee(followerId, followeeId);
+        validateFollowerAndFollowee(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new BusinessException("Пользователь уже подписан на данного пользователя");
         }
         subscriptionRepository.followUser(followerId, followeeId);
     }
 
-    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
-        validateDifferentFollowerAndFollowee(followerId, followeeId);
+        validateFollowerAndFollowee(followerId, followeeId);
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new BusinessException("Пользователь не подписан на данного пользователя");
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
-    @Transactional
-    public List<SubscriptionUserDto> getFollowers(Long followeeId, UserFilterDto dto) {
+    public List<SubscriptionUserDto> getFollowers(long followeeId, UserFilterDto dto) {
         Stream<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
         return applyFiltersAndPagination(dto, followers);
     }
 
-    @Transactional
     public int getFollowersCount(Long followerId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
     }
 
-    @Transactional
-    public List<SubscriptionUserDto> getFollowing(Long followerId, UserFilterDto dto) {
+    public List<SubscriptionUserDto> getFollowing(long followerId, UserFilterDto dto) {
         Stream<User> followers = subscriptionRepository.findByFollowerId(followerId);
         return applyFiltersAndPagination(dto, followers);
     }
 
-    @Transactional
     public int getFollowingCount(Long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
@@ -75,9 +70,15 @@ public class SubscriptionService {
                 .toList();
     }
 
-    private void validateDifferentFollowerAndFollowee(long followerId, long followeeId) {
+    private void validateFollowerAndFollowee(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new DataValidationException("Follower и followee не могут быть одинаковыми");
+            throw new BusinessException("Follower и followee не могут быть одинаковыми");
+        }
+        if (!userRepository.existsById(followerId)) {
+            throw new DataValidationException("Пользователь с id " + followerId + " не найден");
+        }
+        if (!userRepository.existsById(followeeId)) {
+            throw new DataValidationException("Пользователь с id " + followeeId + " не найден");
         }
     }
 }
