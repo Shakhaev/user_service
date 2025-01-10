@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.CreateGoalDto;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -34,7 +35,7 @@ public class GoalService {
     private final UserRepository userRepository;
 
     @Transactional
-    public GoalDto createGoal(long userId, GoalDto goalDto) {
+    public GoalDto createGoal(long userId, CreateGoalDto goalDto) {
         userValid(userId);
 
         if (goalRepository.countActiveGoalsPerUser(userId) >= USER_GOAL_MAX_COUNT) {
@@ -48,6 +49,17 @@ public class GoalService {
         goal = goalRepository.save(goal);
 
         return goalMapper.toDto(goal);
+    }
+
+    private List<Skill> getSkillsFromDto(CreateGoalDto goalDto) {
+        if (goalDto.skillsToAchieveIds() != null) {
+            return goalDto.skillsToAchieveIds().stream()
+                    .map(id -> skillRepository.findById(id).orElseThrow(
+                            () -> new SkillNotFoundException("Скилл с ID: " + id + " не существует")))
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
     private List<Skill> getSkillsFromDto(GoalDto goalDto) {
@@ -71,6 +83,7 @@ public class GoalService {
         if (!skillsToGoal.isEmpty()) {
             goal.setSkillsToAchieve(skillsToGoal);
         }
+
         goalMapper.updateEntityFromDto(goalDto, goal);
 
         if (goal.getStatus() == GoalStatus.COMPLETED && currentStatus == GoalStatus.ACTIVE) {
@@ -87,12 +100,11 @@ public class GoalService {
 
     public void deleteGoal(long goalId) {
         Goal goal = getGoalById(goalId);
-
         goalRepository.delete(goal);
     }
 
     public List<GoalDto> getSubtasksGoal(long goalId) {
-        Goal goal = getGoalById(goalId);
+        getGoalById(goalId);
 
         return goalRepository.findByParent(goalId)
                 .map(g -> goalMapper.toDto(g))
