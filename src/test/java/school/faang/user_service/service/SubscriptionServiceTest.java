@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -43,14 +44,12 @@ public class SubscriptionServiceTest {
 
         Mockito.when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
         Mockito.when(userRepository.findById(followeeId)).thenReturn(Optional.of(followee));
+        Mockito.when(subscriptionService.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
 
-        Mockito.when(follower.getFollowees().contains(followee)).thenReturn(true);
-
-        var response = subscriptionService.followUser(followingFeatureDto);
+        ResponseEntity<Void> response = subscriptionService.followUser(followingFeatureDto);
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        
-        verify(userRepository, never()).save(any());
+        Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
