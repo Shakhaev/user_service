@@ -24,6 +24,11 @@ public class EventController {
         return eventService.create(event);
     }
 
+    public EventDto update (EventDto event){
+        validation(event);
+        return eventService.updateEvent(event);
+    }
+
     public EventDto getEvent(EventDto event) {
         return eventService.getEvent(event.getId());
     }

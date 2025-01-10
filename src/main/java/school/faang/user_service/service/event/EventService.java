@@ -12,6 +12,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,47 +26,29 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public EventDto create(EventDto event) {
+    public EventDto create(EventDto event) throws DataValidationException {
 
-        List<Skill> UserSkills = checkGetUserSkills(event);
-
-        Event newEventCandidate = eventMapper.toEntityEvent(event);
-
-        newEventCandidate.setRelatedSkills(UserSkills);
-
-        newEventCandidate.setOwner(userRepository.findById(event.getOwnerId()).get());
-
-        Event newSaveEvent = eventRepository.save(newEventCandidate);
+        Event newSaveEvent = eventRepository.save(prepareEventCandidate(event));
 
         return eventMapper.toDto(newSaveEvent);
 
     }
 
+    public EventDto updateEvent(EventDto event) throws DataValidationException {
+
+        User user = getOwner(event);
+        List<Long> ownerListIdSkills = getOwnerListIdSkills(event);
+        if (ownerListIdSkills.isEmpty()) {
+            throw new DataValidationException("User hasn't skills");
+        }
+        Event newEventCandidate = eventMapper.toEntityEvent(event);
+
+        return null;
+    }
+
     public EventDto getEvent(long eventId) {
         return eventMapper.toDto(eventRepository.getReferenceById(eventId));
     }
-
-    private List<Skill> checkGetUserSkills(EventDto event) throws DataValidationException {
-        Map<User, List<Skill>> userSkills = new HashMap<>();
-        Long ownerId = event.getOwnerId();
-
-        User skillOwner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new DataValidationException("User not found"));
-
-
-        if (skillOwner.getSkills().stream()
-                .map(Skill::getId)
-                .noneMatch(id -> id.equals(skillOwner.getId()))) {
-            throw new DataValidationException("User has no skills!");
-        }
-
-        return skillOwner.getSkills();
-    }
-
-    public Event updateEvent(EventDto event) {
-        return eventMapper.toEntityEvent(event);
-    }
-
 
     public String deleteEvent(Long eventId) {
         Long id = eventRepository.getReferenceById(eventId).getId();
@@ -79,5 +62,44 @@ public class EventService {
 
     public List<Event> getOwnedEvents(Long ownerId) {
         return eventRepository.findAllByUserId(ownerId);
+    }
+
+    private User getOwner(EventDto event) throws DataValidationException {
+        Long ownerId = event.getOwnerId();
+        return userRepository.findById(ownerId)
+                .orElseThrow(() -> new DataValidationException("User not found"));
+    }
+
+    private List<Long> getOwnerListIdSkills(EventDto event){
+        List<Long> skillsId = new ArrayList<>();
+        User owner = getOwner(event);
+        skillsId = owner.getSkills().stream()
+                .map(Skill::getId)
+                .toList();
+        return skillsId;
+    }
+
+    private List<Skill> checkGetUserSkills(EventDto event) throws DataValidationException {
+        Map<User, List<Skill>> userSkills = new HashMap<>();
+        Long ownerId = event.getOwnerId();
+
+        User skillOwner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new DataValidationException("User not found"));
+
+
+        List<Long> ownerListIdSkills = getOwnerListIdSkills(event);
+        if (ownerListIdSkills.isEmpty()) {
+            throw new DataValidationException("User hasn't skills");
+        }
+
+        return skillOwner.getSkills();
+    }
+
+    private Event prepareEventCandidate(EventDto event) {
+
+        Event newEventCandidate = eventMapper.toEntityEvent(event);
+        newEventCandidate.setOwner(getOwner(event));
+        newEventCandidate.setRelatedSkills(checkGetUserSkills(event));
+        return eventMapper.toEntityEvent(event);
     }
 }
