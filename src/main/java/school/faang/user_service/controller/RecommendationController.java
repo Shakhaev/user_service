@@ -1,7 +1,9 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
 
@@ -10,11 +12,11 @@ import school.faang.user_service.service.RecommendationService;
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public void giveRecommendation(RecommendationDto recommendation) {
+    public void giveRecommendation(@Valid @RequestBody RecommendationDto recommendation) {
         recommendationService.create(recommendation);
     }
 
-    public void updateRecommendation(RecommendationDto recommendation) {
+    public void updateRecommendation(@Valid @RequestBody RecommendationDto recommendation) {
         recommendationService.update(recommendation);
     }
 
