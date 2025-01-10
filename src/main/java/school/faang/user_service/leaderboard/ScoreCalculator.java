@@ -5,5 +5,5 @@ import school.faang.user_service.dto.user.UserScoreDto;
 
 public interface ScoreCalculator {
 
-    long getScore(@NotNull UserScoreDto userDto);
+    int getScore(@NotNull UserScoreDto userDto);
 }
