@@ -14,7 +14,7 @@ public class UserPageSizeFilter implements UserFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, UserFilterDto filters) {
-        users.limit(filters.getPageSize());
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        return users.limit(filters.getPageSize());
     }
 }

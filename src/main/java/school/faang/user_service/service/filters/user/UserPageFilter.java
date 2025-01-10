@@ -14,7 +14,7 @@ public class UserPageFilter implements UserFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, UserFilterDto filters) {
-        users.skip((long) filters.getPage() * filters.getPageSize());
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        return users.skip((long) filters.getPage() * filters.getPageSize());
     }
 }
