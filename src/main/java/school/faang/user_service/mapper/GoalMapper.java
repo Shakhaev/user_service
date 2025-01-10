@@ -25,8 +25,8 @@ public interface GoalMapper {
     @Mapping(target = "mentor", ignore = true)
     Goal toEntity(RequestGoalDto goalDto);
 
- //   @Mapping(target = "parentId", source = "parent.id")
- //   @Mapping(target = "mentorId", source = "mentor.id")
+    @Mapping(target = "parentId", source = "parent.id")
+    @Mapping(target = "mentorId", source = "mentor.id")
  //   @Mapping(target = "invitationIds", source = "invitations", qualifiedByName = "mapInvitationsToInvitationIds")
  //   @Mapping(target = "users", source = "userIds", qualifiedByName = "mapUsersToUserIds")
  //   @Mapping(target = "skillIds", source = "skillsToAchieve", qualifiedByName = "mapSkillsToAchieveToSkillIds")
