@@ -5,6 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
@@ -43,6 +44,10 @@ public class EventController {
 
     public List<Event> getOwnedEvents(EventDto event){
         return eventService.getOwnedEvents(event.getOwnerId());
+    }
+
+    public List<Event> getEventsByFilter(EventFilterDto filter){
+        eventService.getEventsByFilter(filter);
     }
 
     private void validation(EventDto event) throws DataValidationException {

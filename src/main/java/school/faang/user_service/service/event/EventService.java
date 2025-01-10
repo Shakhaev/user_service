@@ -3,10 +3,12 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filters.Filter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -64,13 +66,17 @@ public class EventService {
         return eventRepository.findAllByUserId(ownerId);
     }
 
+    public List<Event> getEventsByFilter(EventFilterDto eventFilterDto, EventDto filter) {
+        return null;
+    }
+
     private User getOwner(EventDto event) throws DataValidationException {
         Long ownerId = event.getOwnerId();
         return userRepository.findById(ownerId)
                 .orElseThrow(() -> new DataValidationException("User not found"));
     }
 
-    private List<Long> getOwnerListIdSkills(EventDto event){
+    private List<Long> getOwnerListIdSkills(EventDto event) {
         List<Long> skillsId = new ArrayList<>();
         User owner = getOwner(event);
         skillsId = owner.getSkills().stream()
