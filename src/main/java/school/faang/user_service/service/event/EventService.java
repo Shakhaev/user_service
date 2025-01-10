@@ -9,7 +9,7 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.data.DataNotMatchException;
-import school.faang.user_service.exception.entity.EntityNotFoundException;
+import school.faang.user_service.exception.entity.EntityNotFoundExceptionWithId;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -38,14 +38,14 @@ public class EventService {
         return ResponseEntity.status(201).body(eventMapper.toDto(eventRepository.save(event)));
     }
 
-    public ResponseEntity<EventDto> getEvent(Long eventId) throws EntityNotFoundException {
+    public ResponseEntity<EventDto> getEvent(Long eventId) throws EntityNotFoundExceptionWithId {
         EventDto eventDto = eventMapper.toDto(getEventById(eventId));
 
         log.info("success get event dto: {}", eventDto);
         return ResponseEntity.status(200).body(eventDto);
     }
 
-    public ResponseEntity<EventDto> deleteEvent(Long eventId) throws EntityNotFoundException {
+    public ResponseEntity<EventDto> deleteEvent(Long eventId) throws EntityNotFoundExceptionWithId {
         Event event = getEventById(eventId);
 
         log.info("success deleted event by id: {}", event);
@@ -67,7 +67,7 @@ public class EventService {
         return ResponseEntity.status(200).body(eventDtos);
     }
 
-    public ResponseEntity<EventDto> updateEvent(EventDto eventDto) throws EntityNotFoundException {
+    public ResponseEntity<EventDto> updateEvent(EventDto eventDto) throws EntityNotFoundExceptionWithId {
         if (eventRepository.existsById(eventDto.getId())) {
             checkUserSkillsWithRelatedSkills(eventDto);
 
@@ -78,7 +78,7 @@ public class EventService {
 
         String warnMessage = String.format("not such event by id: %d", eventDto.getId());
         log.warn(warnMessage);
-        throw new EntityNotFoundException(warnMessage, eventDto.getId());
+        throw new EntityNotFoundExceptionWithId(warnMessage, eventDto.getId());
     }
 
     public ResponseEntity<List<EventDto>> getOwnedEvents(Long userId) {
@@ -117,7 +117,7 @@ public class EventService {
                 .orElseThrow(() -> {
                     String warnMessage = String.format("not found such event by id:%d", eventId);
                     log.warn(warnMessage);
-                    return new EntityNotFoundException(warnMessage, eventId);
+                    return new EntityNotFoundExceptionWithId(warnMessage, eventId);
                 });
     }
 

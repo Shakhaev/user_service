@@ -16,7 +16,7 @@ public class FollowerEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.data.redis.channels.follower-event-channel.name}")
+    @Value("${spring.data.redis.channels.follower-event-channel}")
     private String followersChannel;
 
     public void publish(FollowerEvent event) {

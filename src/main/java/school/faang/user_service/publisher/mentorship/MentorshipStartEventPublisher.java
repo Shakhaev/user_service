@@ -17,7 +17,7 @@ public class MentorshipStartEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.data.redis.channels.mentorship-channel.name}")
+    @Value("${spring.data.redis.channels.mentorship-channel}")
     private String mentorshipChannel;
 
     public void publish(MentorshipStartEvent event) {
