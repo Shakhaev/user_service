@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,17 +48,21 @@ public class GoalController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/update/{goal_id}") // не считывает - создается новая запись, сделать так же invitations skillsToAchieve
+    @PutMapping("/update/{goal_id}")
     public ResponseEntity<Void> updateGoal(
             @PathVariable("goal_id") final Long goalId,
-            @RequestBody RequestGoalDto goalUpdateDto) {
+            @RequestBody RequestGoalDto goalDto) {
 
-        if (goalUpdateDto.getTitle().isBlank()) {
-            throw new IllegalArgumentException("The Goal cannot find");
+        if (goalDto == null) {
+            throw new IllegalArgumentException("RequestGoalDto is null");
         }
 
-        Goal goal = goalMapper.toEntity(goalUpdateDto);
-        goalService.createGoal(goalId, goal);
+        if (goalDto.getTitle().isBlank()) {
+            throw new IllegalArgumentException("The Goal hasn't a title");
+        }
+
+        Goal goal = goalMapper.toEntity(goalDto);
+        goalService.updateGoal(goalId, goal);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
