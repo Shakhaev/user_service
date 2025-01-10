@@ -22,49 +22,46 @@ class ValidatorUtilsImplTest {
     }
 
     @Test
-    void testCheckNotNullPositive() {
+    void testCheckNotNull() {
         Event event = Event.builder().id(12L).build();
 
         assertDoesNotThrow(() -> validator.checkNotNull(event, errorMessage));
     }
 
     @Test
-    void testCheckNotNullNegative() {
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkNotNull(null, errorMessage);
-        });
+    void testCheckNotNullIsNull() {
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkNotNull(null, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }
 
     @Test
-    void testCheckStringNotNullOrEmptyPositive() {
+    void testCheckStringNotNullOrEmpty() {
         String value = "new value";
         assertDoesNotThrow(() -> validator.checkStringNotNullOrEmpty(value, errorMessage));
     }
 
     @Test
-    void testCheckStringNotNullOrEmptyNegativeNull() {
+    void testCheckStringNotNullOrEmptyIsNull() {
         String value = null;
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkStringNotNullOrEmpty(value, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkStringNotNullOrEmpty(value, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }
 
     @Test
-    void testCheckStringNotNullOrEmptyNegativeBlank() {
+    void testCheckStringNotNullOrEmptyIsBlank() {
         String value = "";
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkStringNotNullOrEmpty(value, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkStringNotNullOrEmpty(value, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }
 
     @Test
-    void checkCollectionNotNullOrEmptyPositive() {
+    void testCollectionNotNullOrEmpty() {
         Event event = Event.builder().id(12L).build();
         List<Event> list = List.of(event);
 
@@ -72,12 +69,11 @@ class ValidatorUtilsImplTest {
     }
 
     @Test
-    void checkCollectionNotNullOrEmptyNegativeNull() {
+    void testCollectionNotNullOrEmptyIsNull() {
         List<Event> list = null;
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            validator.checkCollectionNotNullOrEmpty(list, errorMessage);
-        });
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkCollectionNotNullOrEmpty(list, errorMessage));
 
         assertEquals(errorMessage, ex.getMessage());
     }

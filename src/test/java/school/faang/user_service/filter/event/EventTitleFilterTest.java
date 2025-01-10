@@ -2,7 +2,7 @@ package school.faang.user_service.filter.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.event.EventFilters;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventTitleFilterTest {
-    private EventFilters matchTitle;
-    private EventFilters notMatchTitle;
-    private EventFilters nullTitle;
+    private EventFiltersDto matchTitle;
+    private EventFiltersDto notMatchTitle;
+    private EventFiltersDto nullTitle;
     private Event firstEvent;
     private Event secondEvent;
     private final EventFilter eventFilter = new EventTitleFilter();
@@ -29,27 +29,27 @@ class EventTitleFilterTest {
         firstEvent.setTitle("Event in Moscow city");
         secondEvent.setTitle("Cupertino event, USA");
 
-        matchTitle = EventFilters.builder().title("  MOScoW  ").build();
-        notMatchTitle = EventFilters.builder().title("spb").build();
-        nullTitle = EventFilters.builder().title(null).build();
+        matchTitle = EventFiltersDto.builder().title("  MOScoW  ").build();
+        notMatchTitle = EventFiltersDto.builder().title("spb").build();
+        nullTitle = EventFiltersDto.builder().title(null).build();
     }
 
     @Test
-    void testIsApplicable_ReturnsTrue_WhenTitleIsNotNull() {
+    void testIsApplicableReturnsTrueWhenTitleNotNull() {
         boolean result = eventFilter.isApplicable(notMatchTitle);
 
         assertTrue(result);
     }
 
     @Test
-    void testIsApplicable_ReturnsFalse_WhenTitleIsNull() {
+    void testIsApplicableReturnsFalseWhenTitleIsNull() {
         boolean result = eventFilter.isApplicable(nullTitle);
 
         assertFalse(result);
     }
 
     @Test
-    void testApply_FiltersEvents_WhenTitleMatches() {
+    void testApplyFiltersEventsWhenTitleMatches() {
         List<Event> events = getEvents(matchTitle);
 
         assertEquals(1, events.size());
@@ -57,13 +57,13 @@ class EventTitleFilterTest {
     }
 
     @Test
-    void testApply_DoesNotFilterEvents_WhenTitleNotMatch() {
+    void testApplyDoesNotFilterEventsWhenTitleNotMatch() {
         List<Event> events = getEvents(notMatchTitle);
 
         assertTrue(events.isEmpty());
     }
 
-    private List<Event> getEvents(EventFilters toCheck) {
+    private List<Event> getEvents(EventFiltersDto toCheck) {
         return eventFilter
                 .apply(Stream.of(firstEvent, secondEvent), toCheck)
                 .toList();

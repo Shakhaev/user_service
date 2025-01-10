@@ -5,9 +5,8 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record EventFilters(
+public record EventFiltersDto(
         String title,
         LocalDateTime startDate,
         String location,
-        String ownerName) {
-}
+        String ownerName) {}

@@ -1,15 +1,12 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventFilters;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
-import school.faang.user_service.service.SkillService;
-import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.utility.validator.DataValidator;
 
@@ -17,19 +14,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class EventController {
     private final EventService eventService;
-    private final UserService userService;
-    private final SkillService skillService;
     private final DataValidator<EventDto> eventDtoValidator;
-    private final DataValidator<EventFilters> eventFilterValidator;
+    private final DataValidator<EventFiltersDto> eventFilterValidator;
     private final EventMapper eventMapper;
 
     public EventDto create(EventDto eventDto) {
         eventDtoValidator.validate(eventDto);
-        Event inputEvent = createFromDtoAddUserAndSkills(eventDto);
+        Event inputEvent = eventMapper.toEntity(eventDto);
 
-        Event createdEvent = eventService.create(inputEvent);
+        Event createdEvent = eventService.create(inputEvent, eventDto.ownerId(), eventDto.relatedSkillIds());
         return eventMapper.toDto(createdEvent);
     }
 
@@ -38,23 +34,21 @@ public class EventController {
         return eventMapper.toDto(event);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilters filters) {
+    public List<EventDto> getEventsByFilter(EventFiltersDto filters) {
         eventFilterValidator.validate(filters);
-
         List<Event> events = eventService.getEventsByFilter(filters);
-        return events.stream()
-                .map(eventMapper::toDto)
-                .toList();
+        return eventMapper.toDtoList(events);
     }
 
     public void deleteEvent(long eventId) {
         eventService.deleteEvent(eventId);
     }
 
-    public EventDto updateEvent(EventDto event) {
-        eventDtoValidator.validate(event);
-        Event inputEvent = createFromDtoAddUserAndSkills(event);
-        eventService.updateEvent(inputEvent);
+    public EventDto updateEvent(EventDto eventDto, Long ownerId, List<Long> relatedSkillIds) {
+        eventDtoValidator.validate(eventDto);
+        Event inputEvent = eventMapper.toEntity(eventDto);
+
+        eventService.updateEvent(inputEvent, ownerId, relatedSkillIds);
         return eventMapper.toDto(inputEvent);
     }
 
@@ -66,16 +60,5 @@ public class EventController {
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> participatedEvents = eventService.getParticipatedEvents(userId);
         return eventMapper.toDtoList(participatedEvents);
-    }
-
-
-    private Event createFromDtoAddUserAndSkills(EventDto eventDto) {
-        User owner = userService.getUser(eventDto.ownerId());
-        List<Skill> skills = skillService.getSkills(eventDto.relatedSkillIds());
-
-        Event event = eventMapper.toEntity(eventDto);
-        event.setOwner(owner);
-        event.setRelatedSkills(skills);
-        return event;
     }
 }

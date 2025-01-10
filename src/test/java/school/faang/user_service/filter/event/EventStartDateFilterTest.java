@@ -2,7 +2,7 @@ package school.faang.user_service.filter.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.event.EventFilters;
+import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventStartDateFilterTest {
-    private EventFilters matchDate;
-    private EventFilters notMatchDate;
-    private EventFilters nullDate;
+    private EventFiltersDto matchDate;
+    private EventFiltersDto notMatchDate;
+    private EventFiltersDto nullDate;
     private Event firstEvent;
     private Event secondEvent;
     private final EventFilter eventFilter = new EventStartDateFilter();
@@ -32,31 +32,31 @@ class EventStartDateFilterTest {
         firstEvent.setStartDate(FIXED_NOW.plusHours(2));
         secondEvent.setStartDate(FIXED_NOW.plusHours(10));
 
-        matchDate = EventFilters.builder()
+        matchDate = EventFiltersDto.builder()
                 .startDate(FIXED_NOW.plusHours(5))
                 .build();
-        notMatchDate = EventFilters.builder()
+        notMatchDate = EventFiltersDto.builder()
                 .startDate(FIXED_NOW.plusHours(12))
                 .build();
-        nullDate = EventFilters.builder().startDate(null).build();
+        nullDate = EventFiltersDto.builder().startDate(null).build();
     }
 
     @Test
-    void testIsApplicable_ReturnsTrue_WhenStartDateIsNotNull() {
+    void testIsApplicableReturnsTrueStartDateNotNull() {
         boolean result = eventFilter.isApplicable(notMatchDate);
 
         assertTrue(result);
     }
 
     @Test
-    void testIsApplicable_ReturnsFalse_WhenStartDateIsNull() {
+    void testIsApplicableReturnsFalseStartDateIsNull() {
         boolean result = eventFilter.isApplicable(nullDate);
 
         assertFalse(result);
     }
 
     @Test
-    void testApply_FiltersEvents_WhenStartDateMatches() {
+    void testApplyFiltersEventsStartDateMatches() {
         List<Event> events = getEvents(matchDate);
 
         assertEquals(1, events.size());
@@ -64,13 +64,13 @@ class EventStartDateFilterTest {
     }
 
     @Test
-    void testApply_DoesNotFilterEvents_WhenStartDateNotMatch() {
+    void testApplyNotFilterEventsStartDateNotMatch() {
         List<Event> events = getEvents(notMatchDate);
 
         assertTrue(events.isEmpty());
     }
 
-    private List<Event> getEvents(EventFilters toCheck) {
+    private List<Event> getEvents(EventFiltersDto toCheck) {
         return eventFilter
                 .apply(Stream.of(firstEvent, secondEvent), toCheck)
                 .toList();

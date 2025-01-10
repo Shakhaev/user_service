@@ -19,5 +19,4 @@ public record EventDto(
         Long ownerId,
         List<Long> relatedSkillIds,
         EventType type,
-        EventStatus status) {
-}
+        EventStatus status) {}

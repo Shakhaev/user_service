@@ -48,7 +48,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkills_ShouldReturnSkills_WhenAllIdsExist() {
+    void getSkillsReturnSkillsWhenAllIdsExist() {
         List<Long> ids = List.of(firstSkill.getId(), secondSkill.getId());
         Set<Skill> mockSkills = Set.of(firstSkill, secondSkill);
         when(skillRepository.findAllByIds(ids)).thenReturn(mockSkills);
@@ -63,19 +63,19 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkills_ShouldThrowException_WhenSomeIdsAreMissing() {
-        List<Long> ids = List.of(1L, 2L, 3L);
+    void getSkillsThrowExceptionWhenMissingId() {
+        List<Long> missingIds = List.of(1L, 2L, 3L);
         Set<Skill> mockSkills = Set.of(firstSkill, secondSkill);
-        when(skillRepository.findAllByIds(ids)).thenReturn(mockSkills);
+        when(skillRepository.findAllByIds(missingIds)).thenReturn(mockSkills);
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> skillService.getSkills(ids));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> skillService.getSkills(missingIds));
 
         assertEquals("Not found skills with ids [3]", exception.getMessage());
-        verify(skillRepository, times(1)).findAllByIds(ids);
+        verify(skillRepository, times(1)).findAllByIds(missingIds);
     }
 
     @Test
-    void getSkills_ShouldReturnEmptyList_WhenIdsAreEmpty() {
+    void getSkillsReturnEmptyListWhenIdsEmpty() {
         List<Long> ids = Collections.emptyList();
         when(skillRepository.findAllByIds(ids)).thenReturn(Collections.emptySet());
 
@@ -87,7 +87,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkills_ShouldNotCallRepository_WhenIdsAreNull() {
+    void getSkillsNotCallRepositoryWhenNullIds() {
         List<Long> ids = null;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> skillService.getSkills(ids));
