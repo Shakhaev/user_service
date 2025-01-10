@@ -6,10 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.request.RecommendationRequestDto;
-import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.dto.request.RejectionDto;
+import school.faang.user_service.dto.request.SearchRequest;
+import school.faang.user_service.dto.response.RecommendationRequestResponseDto;
+import school.faang.user_service.dto.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.RecommendationFrequencyException;
+import school.faang.user_service.repository.genericSpecification.GenericSpecification;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -18,10 +23,13 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import school.faang.user_service.service.impl.RecommendationRequestServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -29,6 +37,10 @@ import static org.mockito.Mockito.when;
 import static school.faang.user_service.testConstants.TestConstants.EXISTING_SKILLS_COUNT;
 import static school.faang.user_service.testConstants.TestConstants.INVALID_RECEIVER_ID;
 import static school.faang.user_service.testConstants.TestConstants.INVALID_REQUESTER_ID;
+import static school.faang.user_service.testConstants.TestConstants.MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.RECOMMENDATION_REQUEST_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.RECOMMENDATION_REQUEST_NOT_FOUND_EXCEPTION_MESSAGE;
+import static school.faang.user_service.testConstants.TestConstants.REJECTION_REASON;
 import static school.faang.user_service.testConstants.TestConstants.SKILLS_EMPTY_OR_NULL_EXCEPTION_MESSAGE;
 import static school.faang.user_service.testConstants.TestConstants.SKILL_IDS;
 import static school.faang.user_service.testConstants.TestConstants.SOME_SKILLS_DOES_NOT_EXIST_EXCEPTION_MESSAGE;
@@ -36,6 +48,7 @@ import static school.faang.user_service.testConstants.TestConstants.SUCCESS_MESS
 import static school.faang.user_service.testConstants.TestConstants.USER_NOT_FOUND_EXCEPTION_MESSAGE;
 import static school.faang.user_service.testConstants.TestConstants.USER_SENT_RECOMMENDATION_REQUEST_LAST_SIX_MONTH_EXCEPTION_MESSAGE;
 import static school.faang.user_service.testConstants.TestConstants.VALID_RECEIVER_ID;
+import static school.faang.user_service.testConstants.TestConstants.VALID_RECOMMENDATION_ID;
 import static school.faang.user_service.testConstants.TestConstants.VALID_REQUESTER_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,23 +68,36 @@ public class RecommendationRequestServiceImplTest {
     @Mock
     UserRepository userRepository;
 
+    private RecommendationRequestResponseDto recommendationRequestResponseDto;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequest recommendationRequest;
+    private SearchRequest searchRequest;
+    private RejectionDto rejectionDto;
 
     @BeforeEach
     public void init() {
+        // recommendationRequestResponseDto
+        recommendationRequestResponseDto = new RecommendationRequestResponseDto();
+        recommendationRequestResponseDto.setMessage(MESSAGE);
+
         // recommendationRequestDto
         recommendationRequestDto = new RecommendationRequestDto();
         recommendationRequestDto.setRequesterId(VALID_REQUESTER_ID);
         recommendationRequestDto.setReceiverId(VALID_RECEIVER_ID);
         recommendationRequestDto.setSkillIds(SKILL_IDS);
-        recommendationRequestDto.setMessage("salam");
+        recommendationRequestDto.setMessage(MESSAGE);
 
         // recommendationRequest
         recommendationRequest = new RecommendationRequest();
         recommendationRequest.setId(VALID_REQUESTER_ID);
-        recommendationRequest.setMessage("salam");
+        recommendationRequest.setMessage(MESSAGE);
 
+        // rejectionDto
+        rejectionDto = new RejectionDto();
+        rejectionDto.setRejectionReason(REJECTION_REASON);
+
+        // searchRequest
+        searchRequest = new SearchRequest();
     }
 
     @Test
@@ -212,6 +238,102 @@ public class RecommendationRequestServiceImplTest {
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository,
                 recommendationRequestMapper, skillRepository
         );
+    }
+
+    @Test
+    public void testFindRecommendationRequestById_whenInvalidIdIsProvided_thenEntityNotFoundExceptionThrown() {
+        // Arrange
+        when(recommendationRequestRepository.findById(INVALID_REQUESTER_ID)).thenReturn(Optional.empty());
+
+        // Act
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.getById(INVALID_REQUESTER_ID));
+
+        // Assert
+        assertEquals(String.format(RECOMMENDATION_REQUEST_NOT_FOUND_EXCEPTION_MESSAGE, INVALID_REQUESTER_ID),
+                exception.getMessage());
+
+        // Verify interactions
+        verify(recommendationRequestRepository, times(1)).findById(INVALID_REQUESTER_ID);
+        verifyNoMoreInteractions(recommendationRequestRepository);
+    }
+
+    @Test
+    public void testGetById_whenValidIdProvided_thenRecommendationRequestResponseDtoReturned() {
+        // Arrange
+        when(recommendationRequestRepository.findById(VALID_REQUESTER_ID))
+                .thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestMapper.toResponse(recommendationRequest))
+                .thenReturn(recommendationRequestResponseDto);
+
+        // Act
+        RecommendationRequestResponseDto result = recommendationRequestService.getById(VALID_REQUESTER_ID);
+
+        // Assert
+        assertEquals(recommendationRequestResponseDto, result);
+
+        // Verify interactions
+        verify(recommendationRequestRepository, times(1)).findById(VALID_REQUESTER_ID);
+        verify(recommendationRequestMapper, times(1)).toResponse(recommendationRequest);
+        verifyNoMoreInteractions(recommendationRequestRepository);
+    }
+
+    @Test
+    public void testRejectRequest_whenRecommendationNotFound_thenEntityNotFoundExceptionThrown() {
+        // Arrange
+        when(recommendationRequestRepository
+                .findRecommendationRequestByIdAndStatus(anyLong(), any())).thenReturn(Optional.empty());
+
+        // Act
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.rejectRequest(anyLong(), any()));
+
+        // Assert
+        assertEquals(RECOMMENDATION_REQUEST_EXCEPTION_MESSAGE, exception.getMessage());
+
+        // Verify interactions
+        verify(recommendationRequestRepository, times(1))
+                .findRecommendationRequestByIdAndStatus(anyLong(), any());
+        verifyNoMoreInteractions(recommendationRequestRepository);
+    }
+
+    @Test
+    public void testRejectRequest_whenValidRequest_thenSuccessMessage() {
+        // Arrange
+        when(recommendationRequestRepository
+                .findRecommendationRequestByIdAndStatus(anyLong(), any())).thenReturn(Optional.of(recommendationRequest));
+
+        // Act
+        String result = recommendationRequestService.rejectRequest(VALID_RECOMMENDATION_ID, rejectionDto);
+
+        // Assert
+        assertEquals("Recommendation successfully rejected", result);
+
+        // Verify interactions
+        verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
+        verify(recommendationRequestRepository, times(1))
+                .findRecommendationRequestByIdAndStatus(anyLong(), any());
+    }
+
+    @Test
+    public void testSearch_whenValidSearchRequest_thenListOfRecommendationRequestResponseDto() {
+        // Arrange
+        List<RecommendationRequest> mockEntities = List.of(new RecommendationRequest(), new RecommendationRequest());
+        List<RecommendationRequestResponseDto> mockResponseDtos = List.of(new RecommendationRequestResponseDto(), new RecommendationRequestResponseDto());
+
+        when(recommendationRequestRepository.findAll(any(GenericSpecification.class))).thenReturn(mockEntities);
+        when(recommendationRequestMapper.toResponse(mockEntities)).thenReturn(mockResponseDtos);
+
+        // Act
+        List<RecommendationRequestResponseDto> result = recommendationRequestService.search(searchRequest);
+
+        // Assert
+        assertEquals(mockResponseDtos, result);
+
+        // Verify interactions
+        verify(recommendationRequestRepository, times(1)).findAll(Mockito.any(GenericSpecification.class));
+        verify(recommendationRequestMapper, times(1)).toResponse(mockEntities);
+
     }
 
 }

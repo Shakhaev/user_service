@@ -7,6 +7,7 @@ public interface TestConstants {
     Long VALID_USER_ID = 1L;
     Long VALID_REQUESTER_ID = 1L;
     Long VALID_RECEIVER_ID = 2L;
+    Long VALID_RECOMMENDATION_ID = 1L;
     Long INVALID_REQUESTER_ID = -1L;
     Long INVALID_RECEIVER_ID = -2L;
     Long VALID_GOAL_ID = 1L;
@@ -14,10 +15,14 @@ public interface TestConstants {
     Long INVALID_GOAL_ID = -1L;
     Long INVALID_USER_ID = -1L;
     String FILTER_FIELD = "id";
+    String MESSAGE = "Hello FAANG school";
     String GOAL_TITLE = "Learn Java";
+    String REJECTION_REASON = "test rejection reason";
     String SUCCESS_MESSAGE = "Successfully completed";
     String GOAL_DESCRIPTION = "Master Java Core and Spring Boot";
     String ACTIVE_GOAL_EXCEPTION_MESSAGE = "User with ID %d cannot have more than %d active goals.";
+    String RECOMMENDATION_REQUEST_NOT_FOUND_EXCEPTION_MESSAGE = "Recommendation request not found with ID: %d";
+    String RECOMMENDATION_REQUEST_EXCEPTION_MESSAGE = "Recommendation request not found";
     String GOAL_DOES_NOT_EXIST_EXCEPTION_MESSAGE = "Goal with ID %d does not exist.";
     String USER_NOT_FOUND_EXCEPTION_MESSAGE = "User not found with id: %d";
     String SKILLS_EMPTY_OR_NULL_EXCEPTION_MESSAGE = "You have not provided any skill IDs";
