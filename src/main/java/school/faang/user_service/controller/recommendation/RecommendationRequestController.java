@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
+import com.amazonaws.util.StringUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -17,7 +18,7 @@ public class RecommendationRequestController {
     private final RecommendationRequestMapper recommendationRequestMapper;
 
     public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
-        if (recommendationRequest == null || recommendationRequest.getMessage() == null) {
+        if (recommendationRequest == null || StringUtils.isNullOrEmpty(recommendationRequest.getMessage())) {
             throw new IllegalArgumentException("message must not be null");
         }
 

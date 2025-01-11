@@ -12,11 +12,15 @@ import java.util.List;
 public class SkillService {
     private final SkillRepository skillRepository;
 
-    public boolean checkSkillsExist(List<Skill> skills) {
+    public boolean checkSkillsExist(List<Long> skills) {
         if (skills == null || skills.isEmpty()) {
             throw new IllegalArgumentException("Skill list is empty");
         }
 
-        return skillRepository.findAllById(skills.stream().map(Skill::getId).toList()).size() == skills.size();
+        return skillRepository.findAllById(skills).size() == skills.size();
+    }
+
+    public Skill getSkillById(Long id) {
+        return skillRepository.findById(id).orElseThrow(() -> new IllegalStateException("Not found skill by id: " + id));
     }
 }
