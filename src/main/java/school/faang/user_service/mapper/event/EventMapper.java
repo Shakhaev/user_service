@@ -3,32 +3,46 @@ package school.faang.user_service.mapper.event;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import school.faang.user_service.dto.event.EventDto;
+import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.EventForClientDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(target = "relatedSkillsIds", expression = "java(mapSkillsToIds(event.getRelatedSkills()))")
-    EventDto toDto(Event event);
+    EventForClientDto toForClientDto(Event event);
 
-    @Mapping(target = "owner", ignore = true)
-    @Mapping(target = "relatedSkills", ignore = true)
-    Event toEntity(EventDto eventDto);
+    @Mapping(source = "ownerId", target = "owner.id")
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventCreateDto.getRelatedSkillsIds()))")
+    Event fromCreateDtoToEntity(EventCreateDto eventCreateDto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "owner", ignore = true)
-    @Mapping(target = "relatedSkills", ignore = true)
-    void update(@MappingTarget Event entity, EventDto dto);
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
+    Event fromUpdateDtoToEntity(EventUpdateDto eventUpdateDto);
+
+    //@Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
+    void update(@MappingTarget Event entity, EventUpdateDto eventUpdateDto);
 
     default List<Long> mapSkillsToIds(List<Skill> relatedSkills) {
-        return relatedSkills == null ? Collections.emptyList() :
+        return relatedSkills == null ? new ArrayList<>() :
                 relatedSkills.stream()
                         .map(Skill::getId)
                         .toList();
+    }
+
+    default List<Skill> idsToSkillsIds(List<Long> skillsIds) {
+        return skillsIds == null ? new ArrayList<>() :
+                skillsIds.stream()
+                .map(id -> {
+                    Skill skill = new Skill();
+                    skill.setId(id);
+                    return skill;
+                }).toList();
     }
 }

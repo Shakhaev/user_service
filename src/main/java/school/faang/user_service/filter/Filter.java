@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.stream.Stream;
 
-@Component
+@Component()
 public interface Filter<Entity, FilterDto> {
     boolean isApplicable(FilterDto filters);
 

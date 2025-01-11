@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
@@ -58,6 +59,7 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
+    @ToString.Exclude
     private List<User> attendees;
 
     @OneToMany(mappedBy = "event")
