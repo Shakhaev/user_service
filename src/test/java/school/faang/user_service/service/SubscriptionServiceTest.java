@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +24,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,18 +39,15 @@ public class SubscriptionServiceTest {
     private UserRepository userRepository;
     @Spy
     private SubscriptionMapperImpl subscriptionMapper;
-    @Spy
+    @Mock
     private List<UserFilter> userFilters;
+
+    User user1 = User.builder().id(1L).username("Mary").email("user@gmail.com").build();
+    User user2 = User.builder().id(2L).username("John").email("admin@gmail.com").build();
+
 
     private static final long FOLLOWER_ID = 2;
     private static final long FOLLOWEE_ID = 1;
-
-    @BeforeEach
-    public void setUp() {
-        userFilters = new ArrayList<>();
-        userFilters.add(mock(UserNameFilter.class));
-        userFilters.add(mock(UserEmailFilter.class));
-    }
 
     @Test
     public void testFollowUserAndUnfollowUserValidationWithSameIds() {
@@ -63,7 +58,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testFollowUserAndUnfollowUserValidationWithFollowerNotExist() {
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(false);
+        mockUserExistById(false, FOLLOWER_ID);
         assertThrows(DataValidationException.class, () ->
                 subscriptionService.followUser(FOLLOWER_ID, FOLLOWEE_ID)
         );
@@ -71,8 +66,8 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testFollowUserAndUnfollowUserValidationWithFolloweeNotExist() {
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
-        when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(false);
+        mockUserExistById(true, FOLLOWER_ID);
+        mockUserExistById(false, FOLLOWEE_ID);
         assertThrows(DataValidationException.class, () ->
                 subscriptionService.followUser(FOLLOWER_ID, FOLLOWEE_ID)
         );
@@ -80,8 +75,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testFollowUserWhenSubscriptionExist() {
-        when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(true);
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
+        mockFolloweeAndFollowerExist();
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID, FOLLOWEE_ID))
                 .thenReturn(true);
 
@@ -93,8 +87,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testUnfollowUserWhenSubscriptionNotExist() {
-        when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(true);
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
+        mockFolloweeAndFollowerExist();
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID, FOLLOWEE_ID))
                 .thenReturn(false);
 
@@ -106,8 +99,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testFollowUserSuccessCase() {
-        when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(true);
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
+        mockFolloweeAndFollowerExist();
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID, FOLLOWEE_ID))
                 .thenReturn(false);
 
@@ -118,8 +110,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testUnfollowUserSuccessCase() {
-        when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(true);
-        when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
+        mockFolloweeAndFollowerExist();
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID, FOLLOWEE_ID))
                 .thenReturn(true);
 
@@ -131,9 +122,10 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testGetFollowersWithBlankUserFilterDto() {
-        User user = User.builder().id(1L).email("user@gmail.com").build();
-        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user));
-        SubscriptionUserDto subscriptionUserDto = subscriptionMapper.toDto(user);
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWEE_ID);
+        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user1));
+        SubscriptionUserDto subscriptionUserDto = subscriptionMapper.toDto(user1);
 
         List<SubscriptionUserDto> followers = subscriptionService.getFollowers(FOLLOWEE_ID, new UserFilterDto());
 
@@ -143,8 +135,8 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testGetFollowersWithFewFilters() {
-        User user1 = User.builder().id(1L).username("Mary").email("user@gmail.com").build();
-        User user2 = User.builder().id(2L).username("John").email("admin@gmail.com").build();
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWEE_ID);
         when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user1, user2));
         SubscriptionUserDto subscriptionUserDto = subscriptionMapper.toDto(user2);
         UserFilterDto dto = new UserFilterDto();
@@ -152,8 +144,104 @@ public class SubscriptionServiceTest {
         dto.setEmailPattern("admin");
 
         List<SubscriptionUserDto> followers = subscriptionService.getFollowers(FOLLOWEE_ID, dto);
-
         assertEquals(1, followers.size());
         assertEquals(subscriptionUserDto, followers.get(0));
+    }
+
+    @Test
+    public void testGetFollowersWithDifferentPage() {
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWEE_ID);
+        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user1, user2));
+        SubscriptionUserDto subscriptionUserDto = subscriptionMapper.toDto(user2);
+        UserFilterDto dto = new UserFilterDto();
+        dto.setPage(2);
+        dto.setPageSize(1);
+
+        List<SubscriptionUserDto> followers = subscriptionService.getFollowers(FOLLOWEE_ID, dto);
+        assertEquals(1, followers.size());
+        assertEquals(subscriptionUserDto, followers.get(0));
+    }
+
+    @Test
+    public void testGetFollowersWithPageLessThanOne() {
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWEE_ID);
+        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user1, user2));
+        UserFilterDto dto = new UserFilterDto();
+        dto.setPage(0);
+
+        assertThrows(
+                DataValidationException.class,
+                () -> subscriptionService.getFollowers(FOLLOWEE_ID, dto)
+        );
+    }
+
+    @Test
+    public void testGetFollowersWithPageSizeLessThanOne() {
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWEE_ID);
+        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID)).thenReturn(Stream.of(user1, user2));
+        UserFilterDto dto = new UserFilterDto();
+        dto.setPageSize(0);
+
+        assertThrows(
+                DataValidationException.class,
+                () -> subscriptionService.getFollowers(FOLLOWEE_ID, dto)
+        );
+    }
+
+    @Test
+    public void testGetFollowersCountSuccessCase() {
+        mockUserExistById(true, FOLLOWEE_ID);
+
+        subscriptionService.getFollowersCount(FOLLOWEE_ID);
+
+        verify(
+                subscriptionRepository,
+                times(1)
+        ).findFollowersAmountByFolloweeId(FOLLOWEE_ID);
+    }
+
+    @Test
+    public void testGetFollowingSuccessCase() {
+        createServiceWithFilters();
+        mockUserExistById(true, FOLLOWER_ID);
+
+        subscriptionService.getFollowing(FOLLOWER_ID, new UserFilterDto());
+        verify(subscriptionRepository, times(1))
+                .findByFollowerId(FOLLOWER_ID);
+    }
+
+    @Test
+    public void testGetFollowingCountSuccessCase() {
+        mockUserExistById(true, FOLLOWER_ID);
+        subscriptionService.getFollowersCount(FOLLOWER_ID);
+
+        verify(
+                subscriptionRepository,
+                times(1)
+        ).findFollowersAmountByFolloweeId(FOLLOWER_ID);
+    }
+
+    private void mockFolloweeAndFollowerExist() {
+        mockUserExistById(true, FOLLOWER_ID);
+        mockUserExistById(true, FOLLOWEE_ID);
+    }
+
+    private void mockUserExistById(boolean exist, long id) {
+        when(userRepository.existsById(id)).thenReturn(exist);
+    }
+
+    private void createServiceWithFilters() {
+        userFilters = new ArrayList<>();
+        userFilters.add(new UserNameFilter());
+        userFilters.add(new UserEmailFilter());
+        subscriptionService = new SubscriptionService(
+                subscriptionRepository,
+                userRepository,
+                userFilters,
+                subscriptionMapper
+        );
     }
 }

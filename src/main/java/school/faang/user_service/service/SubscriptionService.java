@@ -40,15 +40,18 @@ public class SubscriptionService {
     }
 
     public List<SubscriptionUserDto> getFollowers(long followeeId, UserFilterDto dto) {
+        checkIdOnExist(followeeId);
         Stream<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
         return applyFiltersAndPagination(dto, followers);
     }
 
     public int getFollowersCount(Long followerId) {
+        checkIdOnExist(followerId);
         return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
     }
 
     public List<SubscriptionUserDto> getFollowing(long followerId, UserFilterDto dto) {
+        checkIdOnExist(followerId);
         Stream<User> followers = subscriptionRepository.findByFollowerId(followerId);
         return applyFiltersAndPagination(dto, followers);
     }
@@ -62,7 +65,14 @@ public class SubscriptionService {
             followers = userFilter.apply(followers, dto);
         }
         int pageSize = dto.getPageSize();
-        int skip = (dto.getPage() - 1) * pageSize;
+        int page = dto.getPage();
+        if (pageSize < 1) {
+            throw new DataValidationException("Размер страницы должен быть больше 0");
+        }
+        if (page < 1) {
+            throw new DataValidationException("Номер страницы должен быть больше 0");
+        }
+        int skip = (page - 1) * pageSize;
         return followers
                 .skip(skip)
                 .limit(pageSize)
@@ -74,11 +84,13 @@ public class SubscriptionService {
         if (followerId == followeeId) {
             throw new BusinessException("Follower и followee не могут быть одинаковыми");
         }
-        if (!userRepository.existsById(followerId)) {
-            throw new DataValidationException("Пользователь с id " + followerId + " не найден");
-        }
-        if (!userRepository.existsById(followeeId)) {
-            throw new DataValidationException("Пользователь с id " + followeeId + " не найден");
+        checkIdOnExist(followerId);
+        checkIdOnExist(followeeId);
+    }
+
+    private void checkIdOnExist(long id) {
+        if (!userRepository.existsById(id)) {
+            throw new DataValidationException("Пользователь с id " + id + " не найден");
         }
     }
 }
