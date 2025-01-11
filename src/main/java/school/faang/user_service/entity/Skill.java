@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
@@ -39,6 +40,7 @@ public class Skill {
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(
             name = "user_skill",
