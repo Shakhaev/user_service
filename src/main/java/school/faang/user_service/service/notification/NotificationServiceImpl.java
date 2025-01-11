@@ -6,12 +6,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.SearchAppearanceEvent;
-import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.publisher.user.SearchAppearanceEventPublisher;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -24,10 +22,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async("notificationPublisherExecutor")
-    public void publish(List<User> users) {
+    public void publish(long userId) {
         SearchAppearanceEvent event = SearchAppearanceEvent.builder()
-                .authorId(userContext.getUserId())
-                .userIds(userMapper.map(users))
+                .actorId(userContext.getUserId())
+                .receiverId(userId)
                 .viewTime(LocalDateTime.now())
                 .build();
         searchAppearanceEventPublisher.publish(event);

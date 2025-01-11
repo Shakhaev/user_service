@@ -28,7 +28,6 @@ import school.faang.user_service.service.notification.NotificationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -117,14 +116,13 @@ public class UserService {
     public UserDto getUserDtoById(long userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("user not found!"));
-        notificationService.publish(Arrays.asList(user));
+        notificationService.publish(user.getId());
         return userMapper.toDto(user);
     }
 
     public List<UserDto> getUserDtosByIds(List<Long> userIds) {
         List<User> users = userRepository.findAllByIds(userIds)
                 .orElseThrow(() -> new DataValidationException("users not found!"));
-        notificationService.publish(users);
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
