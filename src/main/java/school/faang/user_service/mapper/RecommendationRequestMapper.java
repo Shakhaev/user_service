@@ -7,7 +7,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.recommendation.SkillRequest;
 
 import java.util.List;
 
@@ -38,6 +37,6 @@ public interface RecommendationRequestMapper {
         if (request == null) {
             return List.of();
         }
-        return request.getSkills().stream().map(SkillRequest::getId).toList();
+        return request.getSkills().stream().map(skillRequest -> skillRequest.getSkill().getId()).toList();
     }
 }

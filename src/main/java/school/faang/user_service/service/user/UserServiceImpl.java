@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,10 +10,10 @@ import java.util.Set;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public List<User> findByIds(Set<Long> id) {
-        return userRepository.findAllById(id);
+    public List<User> findByIds(Set<Long> ids) {
+        return userRepository.findAllById(ids);
     }
 }
