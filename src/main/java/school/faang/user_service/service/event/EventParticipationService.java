@@ -22,7 +22,7 @@ public class EventParticipationService {
                 .stream()
                 .anyMatch(user -> user.getId() == userId);
         if (isAlreadyRegister) {
-            throw new IllegalArgumentException("Пользователь уже является участником события! ");
+            throw new IllegalArgumentException("The user is already a participant in the event! ");
         }
         registerParticipant(eventId, userId);
 
@@ -34,7 +34,7 @@ public class EventParticipationService {
                 .stream()
                 .anyMatch(user -> user.getId() == userId);
         if (!isAlreadyUnregister) {
-            throw new IllegalArgumentException("Пользователь не был найден в данном событии! ");
+            throw new IllegalArgumentException("The user was not found in this event! ");
         }
         eventParticipationRepository
                 .unregister(eventId, userId);
