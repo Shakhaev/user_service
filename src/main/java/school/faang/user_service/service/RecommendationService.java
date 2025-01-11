@@ -9,7 +9,7 @@ public interface RecommendationService {
 
     RecommendationDto update(RecommendationDto updated);
 
-    void delete(Long id);
+    void delete(Long recommendationId);
 
     List<RecommendationDto> getAllUserRecommendations(long receiverId);
 }

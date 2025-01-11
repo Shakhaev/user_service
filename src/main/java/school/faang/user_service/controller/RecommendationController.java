@@ -26,9 +26,9 @@ public class RecommendationController {
         return recommendationService.update(updated);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteRecommendation(@PathVariable Long id) {
-        recommendationService.delete(id);
+    @DeleteMapping("/{recommendationId}")
+    public void deleteRecommendation(@PathVariable Long recommendationId) {
+        recommendationService.delete(recommendationId);
     }
 
     @GetMapping(value = "/by-receiver-id/{receiverId}")

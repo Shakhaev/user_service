@@ -26,7 +26,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
-    private final UserSkillGuaranteeMapper guaranteeMapper;
+    private final UserSkillGuaranteeMapper userSkillGuaranteeMapper;
     private final RecommendationMapper recommendationMapper;
 
     @Override
@@ -34,7 +34,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         validateRecommendation(recommendation);
         checkForLastRecommendationPeriod(recommendation);
 
-        Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
+        Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(),
+                recommendation.getReceiverId(), recommendation.getContent());
         recommendation.setId(recommendationId);
         saveSkillOffers(recommendation);
 
@@ -63,11 +64,10 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public void delete(Long id) {
-        if (recommendationRepository.findById(id).isPresent()) {
-            recommendationRepository.deleteById(id);
-        }
-        throw new DataValidationException("No recommendation found with id: " + id);
+    public void delete(Long recommendationId) {
+        recommendationRepository.findById(recommendationId)
+                .orElseThrow(() -> new DataValidationException("No recommendation found with id: " + recommendationId));
+        recommendationRepository.deleteById(recommendationId);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private void saveSkillWithGuarantee(RecommendationDto updated, SkillOfferDto skillOfferDto) {
         skillRepository.findUserSkill(skillOfferDto.getSkillId(), updated.getReceiverId()).ifPresent(skill -> {
-            UserSkillGuarantee guarantee = guaranteeMapper.toEntity(updated.getReceiverId(), updated.getAuthorId(), skill);
+            UserSkillGuarantee guarantee = userSkillGuaranteeMapper.toEntity(updated.getReceiverId(), updated.getAuthorId(), skill);
             skill.addGuarantee(guarantee);
             skillRepository.save(skill);
         });
@@ -92,19 +92,8 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     private void validateRecommendation(RecommendationDto recommendation) {
-        if (recommendation.getContent() == null || recommendation.getContent().trim().isEmpty()) {
-            throw new DataValidationException("Recommendation content cannot be empty");
-        }
-        if (recommendation.getCreatedAt() == null) {
-            throw new DataValidationException("Created date is null");
-        }
-
-        if (recommendation.getAuthorId() == null || recommendation.getReceiverId() == null) {
-            throw new DataValidationException("Author and receiver must be specified");
-        }
-
-        if (recommendation.getAuthorId().equals(recommendation.getReceiverId())) {
-            throw new DataValidationException("Users cannot give recommendations to themselves");
+        if (recommendation.getContent().isBlank()) {
+            throw new DataValidationException("Recommendation content is blank");
         }
 
         if (recommendation.getSkillOffers() != null && !recommendation.getSkillOffers().isEmpty()) {
