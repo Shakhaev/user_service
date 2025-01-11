@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/events")
+@RequestMapping("${events.domain.path}/events")
 public class EventController {
     private final EventService eventService;
 
