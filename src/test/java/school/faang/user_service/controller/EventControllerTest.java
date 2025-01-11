@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.service.EventService;
+import school.faang.user_service.service.EventServiceImpl;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import static school.faang.user_service.utils.event.EventPrepareData.getFilterLo
 @ExtendWith(MockitoExtension.class)
 class EventControllerTest {
     @Mock
-    private EventService eventService;
+    private EventServiceImpl eventServiceImpl;
 
     @InjectMocks
     private EventController eventController;
@@ -31,22 +31,22 @@ class EventControllerTest {
     @Test
     public void testCreateEvent() {
         EventDto eventDto = getEventDto();
-        when(eventService.create(eq(eventDto))).thenReturn(eventDto);
+        when(eventServiceImpl.create(eq(eventDto))).thenReturn(eventDto);
 
         EventDto resultEventDto = eventController.create(eventDto);
 
-        verify(eventService).create(eq(eventDto));
+        verify(eventServiceImpl).create(eq(eventDto));
         assertEquals(eventDto, resultEventDto);
     }
 
     @Test
     public void testGetEvent() {
         EventDto eventDto = getEventDto();
-        when(eventService.getEvent(eq(1L))).thenReturn(eventDto);
+        when(eventServiceImpl.getEvent(eq(1L))).thenReturn(eventDto);
 
         EventDto resultEventDto = eventController.getEvent(1L);
 
-        verify(eventService).getEvent(eq(1L));
+        verify(eventServiceImpl).getEvent(eq(1L));
         assertEquals(eventDto, resultEventDto);
     }
 
@@ -54,51 +54,51 @@ class EventControllerTest {
     public void testGetEventsByFilter() {
         EventFilterDto filterDto = getFilterLocationDto();
         EventDto eventDto = getEventDto();
-        when(eventService.getEventByFilters(eq(filterDto))).thenReturn(List.of(eventDto));
+        when(eventServiceImpl.getEventByFilters(eq(filterDto))).thenReturn(List.of(eventDto));
 
         List<EventDto> resultEventsDto = eventController.getEventsByFilter(filterDto);
 
-        verify(eventService).getEventByFilters(eq(filterDto));
+        verify(eventServiceImpl).getEventByFilters(eq(filterDto));
         assertEquals(List.of(eventDto), resultEventsDto);
     }
 
     @Test
     public void testDeleteEvent() {
-        doNothing().when(eventService).deleteEvent(anyLong());
+        doNothing().when(eventServiceImpl).deleteEvent(anyLong());
 
         eventController.deleteEvent(1L);
 
-        verify(eventService).deleteEvent(anyLong());
+        verify(eventServiceImpl).deleteEvent(anyLong());
     }
 
     @Test
     public void testUpdateEvent() {
         EventDto expectedEventDto = getEventDto();
-        when(eventService.updateEvent(eq(expectedEventDto))).thenReturn(expectedEventDto);
+        when(eventServiceImpl.updateEvent(eq(expectedEventDto))).thenReturn(expectedEventDto);
 
         EventDto actualEventDto = eventController.updateEvent(expectedEventDto);
 
-        verify(eventService).updateEvent(eq(expectedEventDto));
+        verify(eventServiceImpl).updateEvent(eq(expectedEventDto));
         assertEquals(expectedEventDto, actualEventDto);
     }
 
     @Test
     public void testGetOwnedEvent() {
-        when(eventService.getOwnedEvents(anyLong())).thenReturn(List.of(getEventDto()));
+        when(eventServiceImpl.getOwnedEvents(anyLong())).thenReturn(List.of(getEventDto()));
 
         List<EventDto> ownedEvents = eventController.getOwnedEvents(1L);
 
-        verify(eventService).getOwnedEvents(anyLong());
+        verify(eventServiceImpl).getOwnedEvents(anyLong());
         assertEquals(1, ownedEvents.size());
     }
 
     @Test
     public void testGetParticipatedEvents() {
-        when(eventService.getParticipatedEvents(anyLong())).thenReturn(List.of(getEventDto()));
+        when(eventServiceImpl.getParticipatedEvents(anyLong())).thenReturn(List.of(getEventDto()));
 
         List<EventDto> ownedEvents = eventController.getParticipatedEvents(1L);
 
-        verify(eventService).getParticipatedEvents(anyLong());
+        verify(eventServiceImpl).getParticipatedEvents(anyLong());
         assertEquals(1, ownedEvents.size());
     }
 }
