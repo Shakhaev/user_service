@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.subscription.FollowRequestDto;
-import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 

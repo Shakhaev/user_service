@@ -25,9 +25,11 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
             join subscription as subs on u.id = subs.follower_id
             where subs.followee_id = :userId
             """)
+    // old method name Stream<User> findByFolloweeId(long followeeId);
     Stream<User> findFolloweesByUserId(long userId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where followee_id = :userId")
+    // old method name int findFollowersAmountByFolloweeId(long followeeId);
     int findFollowersAmountByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
@@ -35,8 +37,10 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
             join subscription as subs on u.id = subs.followee_id
             where subs.follower_id = :userId
             """)
+    // old method name Stream<User> findByFollowerId(long followerId);
     Stream<User> findFollowersByUserId(long userId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :userId")
+    // old method name int findFolloweesAmountByFollowerId(long followerId);
     int findFolloweesAmountByUserId(long userId);
 }
