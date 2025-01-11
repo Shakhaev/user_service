@@ -122,7 +122,7 @@ public class SubscriptionService {
         return true;
     }
 
-    public boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId) {
+    private boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId) {
         User requestUser = findUserById(followerId);
         User requestedUser = findUserById(followeeId);
 
@@ -130,7 +130,7 @@ public class SubscriptionService {
         return requestUser.getFollowees().contains(requestedUser);
     }
 
-    public User findUserById(long id) {
+    User findUserById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserWasNotFoundException("User was not found with id : " + id));
     }
