@@ -16,8 +16,8 @@ public class EventSkillsContainingFilter implements EventFilter {
     }
 
     @Override
-    public void apply(Stream<Event> events, EventFilterDto filters) {
-        events.filter(event -> event.getRelatedSkills()
+    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+        return events.filter(event -> event.getRelatedSkills()
                 .stream()
                 .map(Skill::getId)
                 .collect(Collectors.toCollection(HashSet::new))

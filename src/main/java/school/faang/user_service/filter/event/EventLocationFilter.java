@@ -13,7 +13,7 @@ public class EventLocationFilter implements EventFilter {
     }
 
     @Override
-    public void apply(Stream<Event> events, EventFilterDto filters) {
-        events.filter(e -> e.getLocation().equals(filters.getLocation()));
+    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+        return events.filter(e -> e.getLocation().equals(filters.getLocation()));
     }
 }

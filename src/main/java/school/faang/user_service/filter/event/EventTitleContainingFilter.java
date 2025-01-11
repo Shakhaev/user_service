@@ -12,7 +12,8 @@ public class EventTitleContainingFilter implements EventFilter {
     }
 
     @Override
-    public void apply(Stream<Event> events, EventFilterDto filters) {
-        events.filter(e -> e.getTitle().contains(filters.getTitle()));
+    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+        return events.filter(e -> e.getTitle().toLowerCase()
+                .contains(filters.getTitle().toLowerCase()));
     }
 }

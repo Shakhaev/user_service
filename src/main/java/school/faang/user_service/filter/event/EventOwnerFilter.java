@@ -12,7 +12,7 @@ public class EventOwnerFilter implements EventFilter {
     }
 
     @Override
-    public void apply(Stream<Event> events, EventFilterDto filters) {
-        events.filter(event -> event.getOwner().getId().equals(filters.getOwnerId()));
+    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+        return events.filter(event -> event.getOwner().getId().equals(filters.getOwnerId()));
     }
 }
