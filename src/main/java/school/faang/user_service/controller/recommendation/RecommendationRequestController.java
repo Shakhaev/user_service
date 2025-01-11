@@ -3,17 +3,42 @@ package school.faang.user_service.controller.recommendation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.RecommendationRequestService;
+
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
-        if (recommendationRequest == null) {
-            throw new IllegalArgumentException("recommendationRequest cannot be null");
+    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto requestDto) {
+        if (requestDto == null) {
+            throw new IllegalArgumentException("requestDto cannot be null");
         }
-        return recommendationRequestService.create(recommendationRequest);
+        if (requestDto.getMessage() == null || requestDto.getMessage().isBlank()) {
+            throw new IllegalArgumentException("Message cannot be empty");
+        }
+        return recommendationRequestService.create(requestDto);
+    }
+
+    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+        return recommendationRequestService.getRequests(filter);
+    }
+
+    public RecommendationRequestDto getRecommendationRequest(long id) {
+        return recommendationRequestService.getRequest(id);
+    }
+
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
+        if (rejectionDto == null) {
+            throw new IllegalArgumentException("rejectionDto cannot be null");
+        }
+        if (rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
+            throw new IllegalArgumentException("Reason cannot be empty");
+        }
+        return recommendationRequestService.rejectRequest(id, rejectionDto);
     }
 }

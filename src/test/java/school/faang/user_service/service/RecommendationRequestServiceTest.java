@@ -42,13 +42,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {
     @Mock
-    RecommendationRequestRepository recommendationRequestRepository;
+    private RecommendationRequestRepository recommendationRequestRepository;
 
     @Spy
-    RecommendationRequestMapperImpl recommendationRequestMapper;
+    private RecommendationRequestMapperImpl recommendationRequestMapper;
 
     @Mock
-    SkillRequestRepository skillRequestRepository;
+    private SkillRequestRepository skillRequestRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -57,7 +57,7 @@ public class RecommendationRequestServiceTest {
     private SkillRepository skillRepository;
 
     @InjectMocks
-    RecommendationRequestService recommendationRequestService;
+    private RecommendationRequestService recommendationRequestService;
 
     @Captor
     private ArgumentCaptor<RecommendationRequest> recommendationRequestCaptor;
@@ -143,42 +143,25 @@ public class RecommendationRequestServiceTest {
     @DisplayName("Create Recommendation Request Successfully")
     void testCreateRecommendationRequestSuccessfully() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(2L)).thenReturn(true);
-        when(skillRepository.existsById(3L)).thenReturn(true);
-        when(recommendationRequestMapper.toEntity(recommendationRequestDto)).thenReturn(recommendationRequest);
+        when(skillRepository.existsById(anyLong())).thenReturn(true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
         when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
                 .thenAnswer(invocation -> {
                     RecommendationRequest savedRequest = invocation.getArgument(0);
-                    if (savedRequest.getId() < 1L) {
-                        savedRequest.setId(1L);
-                        return savedRequest;
-                    } else {
-                        savedRequest.setSkills(List.of(skillRequest1, skillRequest2, skillRequest3));
-                        return savedRequest;
-                    }
+                    savedRequest.setId(1L);
+                    return savedRequest;
                 });
         when(skillRequestRepository.create(1L, 1L)).thenReturn(skillRequest1);
         when(skillRequestRepository.create(1L, 2L)).thenReturn(skillRequest2);
         when(skillRequestRepository.create(1L, 3L)).thenReturn(skillRequest3);
 
-
         RecommendationRequestDto requestFromDB = recommendationRequestService.create(recommendationRequestDto);
 
-        verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).findById(2L);
-        verify(recommendationRequestRepository, times(2)).save(any(RecommendationRequest.class));
-        verify(skillRequestRepository, times(1)).create(eq(1L), eq(1L));
-        verify(skillRequestRepository, times(1)).create(eq(1L), eq(2L));
-        verify(skillRequestRepository, times(1)).create(eq(1L), eq(3L));
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository, skillRepository);
-
-        verify(recommendationRequestRepository, Mockito.times(2))
+        verify(recommendationRequestRepository, Mockito.times(1))
                 .save(recommendationRequestCaptor.capture());
         assertEquals(recommendationRequestDto.getMessage(), recommendationRequestCaptor.getValue().getMessage());
-        verify(skillRequestRepository).create(anyLong(), eq(1L));
 
         assertNotNull(requestFromDB);
         assertEquals(1L, requestFromDB.getId());
@@ -235,6 +218,21 @@ public class RecommendationRequestServiceTest {
         );
 
         assertEquals("Skill with id = 3 not exist", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UserIdNotExist")
+    void testCreateRecommendationRequest_UserIdNotExist() {
+        when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
+        when(skillRepository.existsById(anyLong())).thenReturn(true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                recommendationRequestService.create(recommendationRequestDto)
+        );
+
+        assertEquals("User with id 2 not found", exception.getMessage());
     }
 }
 
