@@ -12,6 +12,7 @@ import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -24,38 +25,45 @@ import java.util.Optional;
 public class RecommendationService {
     private final static int PERIOD_TO_ADD_NEW_RECOMMENDATION = 6;
     private final RecommendationRepository recommendationRepository;
+    private final UserRepository userRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
     private final RecommendationMapper recommendationMapper;
 
-    public RecommendationDto create(RecommendationDto recommendation) {
-        validateRecommendationForPeriod(recommendation);
-        validateSkillsInSystem(recommendation);
+    public RecommendationDto create(RecommendationDto recommendationDto) {
+        validateRecommendationForPeriod(recommendationDto);
+        validateSkillsInSystem(recommendationDto);
 
-        List<Long> skillIds = getSkillIds(recommendation);
-        Long recommendationId = recommendationRepository
-                .create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
-        saveSkillOffers(recommendationId, skillIds);
+        Recommendation recommendation = recommendationRepository
+                .save(createRecommendationEntityFromDto(recommendationDto));
 
-        return recommendation;
+        saveNewSkillOffers(recommendation);
+        recommendationRepository.create(
+                recommendation.getAuthor().getId(),
+                recommendation.getReceiver().getId(),
+                recommendation.getContent()
+        );
+
+        return recommendationMapper.toDto(recommendation);
     }
 
-    public RecommendationDto update(RecommendationDto recommendation) {
-        validateRecommendationForPeriod(recommendation);
-        validateSkillsInSystem(recommendation);
+    public RecommendationDto update(RecommendationDto recommendationDto) {
+        validateRecommendationForPeriod(recommendationDto);
+        validateSkillsInSystem(recommendationDto);
 
-        recommendationRepository
-                .update(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
-        skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
-        List<Long> skillIds = getSkillIds(recommendation);
-        for (Long skillId : skillIds) {
-            skillOfferRepository.create(skillId, recommendation.getId());
-        }
+        recommendationRepository.update(
+                recommendationDto.getAuthorId(),
+                recommendationDto.getReceiverId(),
+                recommendationDto.getContent()
+        );
+        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
+        updateSkillOffers(recommendationDto);
 
-        return recommendation;
+        return recommendationDto;
     }
 
     public void delete(Long recommendationId) {
+        validateRecommendationExistsById(recommendationId);
         recommendationRepository.deleteById(recommendationId);
     }
 
@@ -75,11 +83,11 @@ public class RecommendationService {
         return recommendationMapper.mapToDtoList(recommendations);
     }
 
-    private void validateRecommendationForPeriod(RecommendationDto recommendation) {
-        Optional<LocalDateTime> lastRecommendationDate;
-        lastRecommendationDate = getLastRecommendationDate(recommendation.getAuthorId(), recommendation.getReceiverId());
+    private void validateRecommendationForPeriod(RecommendationDto recommendationDto) {
+        Optional<LocalDateTime> lastRecommendationDate = getLastRecommendationDate(
+                recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
         lastRecommendationDate.ifPresent(date -> {
-            if (date.plusMonths(PERIOD_TO_ADD_NEW_RECOMMENDATION).isAfter(LocalDateTime.now())) {
+            if (date.isAfter(LocalDateTime.now().minusMonths(PERIOD_TO_ADD_NEW_RECOMMENDATION))) {
                 throw new BusinessException(
                         String.format("Новая рекомендация может быть дана не ранее, чем через %s месяцев",
                                 PERIOD_TO_ADD_NEW_RECOMMENDATION));
@@ -87,8 +95,14 @@ public class RecommendationService {
         });
     }
 
-    private void validateSkillsInSystem(RecommendationDto recommendation) {
-        List<Long> skillIds = getSkillIds(recommendation);
+    private void validateRecommendationExistsById(Long recommendationId) {
+        if (!recommendationRepository.existsById(recommendationId)) {
+            throw new DataValidationException("Рекомендация с id:" + recommendationId + " не найдена в системе");
+        }
+    }
+
+    private void validateSkillsInSystem(RecommendationDto recommendationDto) {
+        List<Long> skillIds = getSkillIds(recommendationDto);
         List<Skill> skillsFromDb = skillRepository.findAllById(skillIds);
 
         if (skillsFromDb.size() != skillIds.size()) {
@@ -96,14 +110,8 @@ public class RecommendationService {
         }
     }
 
-    private void saveSkillOffers(Long recommendationId, List<Long> skillIds) {
-        for (Long skillId : skillIds) {
-            skillOfferRepository.create(skillId, recommendationId);
-        }
-    }
-
-    private List<Long> getSkillIds(RecommendationDto recommendation) {
-        return recommendation.getSkillOffers().stream()
+    private List<Long> getSkillIds(RecommendationDto recommendationDto) {
+        return recommendationDto.getSkillOffers().stream()
                 .map(SkillOfferDto::getSkillId)
                 .toList();
     }
@@ -112,10 +120,38 @@ public class RecommendationService {
         Optional<Recommendation> lastRecommendation = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
         if (lastRecommendation.isPresent()) {
-            LocalDateTime date = lastRecommendation.get().getCreatedAt();
-            return Optional.ofNullable(date);
+            LocalDateTime lastRecommendationDate = lastRecommendation.get().getCreatedAt();
+            return Optional.ofNullable(lastRecommendationDate);
         } else {
             return Optional.empty();
         }
+    }
+
+    private Recommendation createRecommendationEntityFromDto(RecommendationDto recommendationDto) {
+        Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
+        recommendation.setAuthor(userRepository.findById(recommendationDto.getAuthorId())
+                .orElseThrow(() -> new DataValidationException(String.format("Автора с id: %s не существует",
+                        recommendationDto.getAuthorId()))));
+
+        recommendation.setReceiver(userRepository.findById(recommendationDto.getReceiverId())
+                .orElseThrow(() -> new DataValidationException(String.format("Получателя рекомендации с id: %s не существует",
+                        recommendationDto.getReceiverId()))));
+        recommendation.setSkillOffers(skillOfferRepository.findAllByUserId(recommendationDto.getReceiverId()));
+
+        return recommendation;
+    }
+
+    private void saveNewSkillOffers(Recommendation recommendation) {
+        validateRecommendationExistsById(recommendation.getId());
+        recommendation.getSkillOffers().forEach(skillOffer ->
+                skillOfferRepository.create(skillOffer.getSkill().getId(), recommendation.getId())
+        );
+    }
+
+    private void updateSkillOffers(RecommendationDto recommendationDto) {
+        validateRecommendationExistsById(recommendationDto.getId());
+        recommendationDto.getSkillOffers().forEach(skillOffer ->
+                skillOfferRepository.create(skillOffer.getSkillId(), recommendationDto.getId())
+        );
     }
 }

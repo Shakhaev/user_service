@@ -12,12 +12,12 @@ import school.faang.user_service.service.RecommendationService;
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public void giveRecommendation(@Valid @RequestBody RecommendationDto recommendation) {
-        recommendationService.create(recommendation);
+    public void giveRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        recommendationService.create(recommendationDto);
     }
 
-    public void updateRecommendation(@Valid @RequestBody RecommendationDto recommendation) {
-        recommendationService.update(recommendation);
+    public void updateRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        recommendationService.update(recommendationDto);
     }
 
     public void deleteRecommendation(long recommendationId) {
