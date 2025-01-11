@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +13,9 @@ import school.faang.user_service.dto.goal.filter.InviterIdFilter;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +39,7 @@ import static school.faang.user_service.utils.goal.GoalInvitationPrepareData.get
 import static school.faang.user_service.utils.goal.GoalInvitationPrepareData.getUserWithMaxGoals;
 
 @ExtendWith(MockitoExtension.class)
-class GoalInvitationServiceTest {
+class GoalInvitationServiceImplTest {
     private static final long INVITER_ID = 1L;
     private static final long INVITED_USER_ID = 2L;
     private static final long EXISTING_GOAL_ID = 1L;
@@ -48,27 +50,27 @@ class GoalInvitationServiceTest {
     private GoalInvitationRepository repository;
 
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Mock
-    private GoalService goalService;
+    private GoalRepository goalRepository;
 
     @Spy
     private GoalInvitationMapperImpl mapper;
 
     private final List<InvitationFilter> invitationFilters = new ArrayList<>();
 
-    private GoalInvitationService service;
+    private GoalInvitationServiceImpl service;
 
     @BeforeEach
     void init() {
         invitationFilters.add(new InviterIdFilter());
-        service = new GoalInvitationService(repository, mapper, userService, goalService, invitationFilters);
+        service = new GoalInvitationServiceImpl(repository, mapper, userRepository, goalRepository, invitationFilters);
     }
 
     @Test
     public void shouldCreateInvitationSuccessTest() {
-        when(userService.existsById(anyLong())).thenReturn(true);
+        when(userRepository.existsById(anyLong())).thenReturn(true);
         when(repository.save(any())).thenReturn(any());
 
         service.createInvitation(getGoalInvitationDto());
@@ -78,37 +80,37 @@ class GoalInvitationServiceTest {
 
     @Test
     public void testCreateInvitationWithNotExistInviterUser() {
-        when(userService.existsById(eq(INVITER_ID))).thenReturn(false);
+        when(userRepository.existsById(eq(INVITER_ID))).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.createInvitation(getGoalInvitationDto()));
     }
 
     @Test
     public void testCreateInvitationWithNotExistsInvitedUser() {
-        when(userService.existsById(eq(INVITER_ID))).thenReturn(true);
-        when(userService.existsById(eq(INVITED_USER_ID))).thenReturn(false);
+        when(userRepository.existsById(eq(INVITER_ID))).thenReturn(true);
+        when(userRepository.existsById(eq(INVITED_USER_ID))).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.createInvitation(getGoalInvitationDto()));
     }
 
     @Test
     public void testCreateInvitationWithIdenticalUsers() {
         long sameUserIdForInviterAndInvited = 1L;
-        when(userService.existsById(eq(sameUserIdForInviterAndInvited))).thenReturn(true);
+        when(userRepository.existsById(eq(sameUserIdForInviterAndInvited))).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.createInvitation(getGoalInvitationDto()));
     }
 
     @Test
     public void testAcceptInvitationSuccess() {
         findInvitationByIdMockWithGoal(NEW_GOAL_ID);
-        when(userService.findById(eq(INVITED_USER_ID))).thenReturn(getUser(INVITED_USER_ID));
-        when(goalService.existsById(eq(NEW_GOAL_ID))).thenReturn(true);
-        when(goalService.findById(eq(NEW_GOAL_ID))).thenReturn(getActiveGoal(NEW_GOAL_ID));
-        doNothing().when(goalService).update(any());
+        when(userRepository.findById(eq(INVITED_USER_ID))).thenReturn(Optional.ofNullable(getUser(INVITED_USER_ID)));
+        when(goalRepository.existsById(eq(NEW_GOAL_ID))).thenReturn(true);
+        when(goalRepository.findById(eq(NEW_GOAL_ID))).thenReturn(Optional.ofNullable(getActiveGoal(NEW_GOAL_ID)));
+        when(goalRepository.save(any())).thenReturn(any());
 
         service.acceptGoalInvitation(NEW_GOAL_INVITATION_ID);
 
@@ -118,37 +120,39 @@ class GoalInvitationServiceTest {
     @Test
     public void testAcceptInvitationWithMoreThanMaxGoals() {
         findInvitationByIdMockWithGoal(NEW_GOAL_ID);
-        when(userService.findById(eq(INVITED_USER_ID))).thenReturn(getUserWithMaxGoals());
+        when(userRepository.findById(eq(INVITED_USER_ID))).thenReturn(Optional.ofNullable(getUserWithMaxGoals()));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.acceptGoalInvitation(NEW_GOAL_INVITATION_ID));
     }
 
     @Test
     public void testAcceptInvitationWithAlreadyExistingGoal() {
         findInvitationByIdMockWithGoal(EXISTING_GOAL_ID);
-        when(userService.findById(eq(INVITED_USER_ID))).thenReturn(getUserWithAlreadyExistingGoal());
-        when(goalService.existsById(eq(EXISTING_GOAL_ID))).thenReturn(true);
-        when(goalService.findById(eq(EXISTING_GOAL_ID))).thenReturn(getActiveGoal(EXISTING_GOAL_ID));
+        when(userRepository.findById(eq(INVITED_USER_ID)))
+                .thenReturn(Optional.ofNullable(getUserWithAlreadyExistingGoal()));
+        when(goalRepository.existsById(eq(EXISTING_GOAL_ID))).thenReturn(true);
+        when(goalRepository.findById(eq(EXISTING_GOAL_ID)))
+                .thenReturn(Optional.ofNullable(getActiveGoal(EXISTING_GOAL_ID)));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.acceptGoalInvitation(NEW_GOAL_INVITATION_ID));
     }
 
     @Test
     public void testAcceptInvitationWithNotExistGoal() {
         findInvitationByIdMockWithGoal(NEW_GOAL_ID);
-        when(userService.findById(eq(INVITED_USER_ID))).thenReturn(getUser(INVITED_USER_ID));
-        when(goalService.existsById(eq(NEW_GOAL_ID))).thenReturn(false);
+        when(userRepository.findById(eq(INVITED_USER_ID))).thenReturn(Optional.ofNullable(getUser(INVITED_USER_ID)));
+        when(goalRepository.existsById(eq(NEW_GOAL_ID))).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.acceptGoalInvitation(NEW_GOAL_INVITATION_ID));
     }
 
     @Test
     public void testRejectInvitationSuccessTest() {
         when(repository.findById(anyLong())).thenReturn(Optional.of(getInvitationWithNewGoal(RequestStatus.PENDING)));
-        when(goalService.existsById(eq(NEW_GOAL_ID))).thenReturn(true);
+        when(goalRepository.existsById(eq(NEW_GOAL_ID))).thenReturn(true);
 
         service.rejectGoalInvitation(NEW_GOAL_INVITATION_ID);
 
@@ -159,9 +163,9 @@ class GoalInvitationServiceTest {
     public void testRejectInvitationWithNotExistGoalId() {
         when(repository.findById(anyLong()))
                 .thenReturn(Optional.of(getInvitationWithNewGoal(RequestStatus.PENDING)));
-        when(goalService.existsById(eq(NEW_GOAL_ID))).thenReturn(false);
+        when(goalRepository.existsById(eq(NEW_GOAL_ID))).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> service.rejectGoalInvitation(NEW_GOAL_INVITATION_ID));
     }
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.goal.filter;
+package school.faang.user_service.dto.goal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

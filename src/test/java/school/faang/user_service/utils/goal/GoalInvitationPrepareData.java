@@ -2,7 +2,7 @@ package school.faang.user_service.utils.goal;
 
 import lombok.experimental.UtilityClass;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.filter.InvitationFilterDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;

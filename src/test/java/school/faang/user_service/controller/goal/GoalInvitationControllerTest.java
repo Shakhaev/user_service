@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.service.GoalInvitationService;
+import school.faang.user_service.service.GoalInvitationServiceImpl;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ class GoalInvitationControllerTest {
     private static final long GOAL_INVITATION_ID = 1L;
 
     @Mock
-    private GoalInvitationService service;
+    private GoalInvitationServiceImpl service;
 
     @InjectMocks
     private GoalInvitationController controller;
