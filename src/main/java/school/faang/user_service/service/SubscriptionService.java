@@ -3,8 +3,6 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.FollowingFeatureDto;
@@ -64,7 +62,7 @@ public class SubscriptionService {
                 .toList();
     }
 
-    public ResponseEntity<Void> followUser(FollowingFeatureDto followingFeatureDTO) {
+    public void followUser(FollowingFeatureDto followingFeatureDTO) {
         long followerId = followingFeatureDTO.followerId();
         long followeeId = followingFeatureDTO.followeeId();
 
@@ -78,7 +76,6 @@ public class SubscriptionService {
 
         if (existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             logger.error("The user already followed! : {} -> {}", followerId, followeeId);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         followedUsers.add(requestedUser);
@@ -88,10 +85,9 @@ public class SubscriptionService {
         userRepository.save(requestedUser);
 
         logger.info("Succeed of following user!");
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> unfollowUser(FollowingFeatureDto followingFeatureDTO) {
+    public void unfollowUser(FollowingFeatureDto followingFeatureDTO) {
         long followerId = followingFeatureDTO.followerId();
         long followeeId = followingFeatureDTO.followeeId();
 
@@ -111,7 +107,6 @@ public class SubscriptionService {
         userRepository.save(requestedUser);
 
         logger.info("Succeed of unfollowing user!");
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private boolean isFollowingUserNotFollower(long followerId, long followeeId) {
@@ -130,7 +125,7 @@ public class SubscriptionService {
         return requestUser.getFollowees().contains(requestedUser);
     }
 
-    User findUserById(long id) {
+    private User findUserById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserWasNotFoundException("User was not found with id : " + id));
     }

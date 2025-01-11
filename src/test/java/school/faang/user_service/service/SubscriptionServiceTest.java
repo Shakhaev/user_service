@@ -1,12 +1,11 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -23,6 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
 
     @InjectMocks
@@ -40,19 +40,19 @@ class SubscriptionServiceTest {
     @Mock
     private List<UserFilter> filters;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private static final int RETURN_VALUE = 5;
+
+    @Spy
+    private UserFilter userFilter;
 
     @Test
     void testGetFollowersCount() {
         long followeeId = 1L;
-        when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(5);
+        when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(RETURN_VALUE);
 
         long result = subscriptionService.getFollowersCount(followeeId);
 
-        assertEquals(5L, result);
+        assertEquals(RETURN_VALUE, result);
         verify(subscriptionRepository, times(1)).findFollowersAmountByFolloweeId(followeeId);
     }
 
@@ -68,9 +68,8 @@ class SubscriptionServiceTest {
         when(userRepository.findById(2L)).thenReturn(Optional.of(followee));
         when(subscriptionRepository.findFollowersAmountByFolloweeId(anyLong())).thenReturn(0);
 
-        ResponseEntity<Void> response = subscriptionService.followUser(dto);
+        subscriptionService.followUser(dto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(follower.getFollowees().contains(followee));
         assertTrue(followee.getFollowers().contains(follower));
         verify(userRepository, times(2)).save(any(User.class));
@@ -87,9 +86,8 @@ class SubscriptionServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(follower));
         when(userRepository.findById(2L)).thenReturn(Optional.of(followee));
 
-        ResponseEntity<Void> response = subscriptionService.followUser(dto);
+        subscriptionService.followUser(dto);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -112,9 +110,8 @@ class SubscriptionServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(follower));
         when(userRepository.findById(2L)).thenReturn(Optional.of(followee));
 
-        ResponseEntity<Void> response = subscriptionService.unfollowUser(dto);
+        subscriptionService.unfollowUser(dto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertFalse(follower.getFollowees().contains(followee));
         assertFalse(followee.getFollowers().contains(follower));
         verify(userRepository, times(2)).save(any(User.class));
@@ -136,10 +133,14 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testFindUserByIdThrowsException() {
+    void testFollowUserThrowsExceptionWhenUserNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(UserWasNotFoundException.class, () -> subscriptionService.findUserById(1L));
+        FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
+
+        Exception exception = assertThrows(UserWasNotFoundException.class, () -> subscriptionService.followUser(dto));
         assertEquals("User was not found with id : 1", exception.getMessage());
+
+        verify(userRepository, never()).save(any(User.class));
     }
 }
