@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.RequestGoalDto;
 import school.faang.user_service.dto.goal.ResponseGoalDto;
-import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.dto.goal.RequestGoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.service.goal.GoalService;
@@ -24,7 +23,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/goals")
+@RequestMapping("/goal")
 public class GoalController {
     private final GoalService goalService;
     private final GoalMapper goalMapper;
@@ -77,9 +76,6 @@ public class GoalController {
 
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,7 +93,6 @@ public class GoalController {
 
         return new ResponseEntity<>(filteredSubtasksByGoalDto, HttpStatus.OK);
     }
-
 
     @PostMapping("/get/{user_id}/filters")
     public ResponseEntity<List<ResponseGoalDto>> getGoalsByUser(

@@ -9,12 +9,13 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.filters.goal.GoalFilter;
+import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,22 +25,19 @@ import java.util.stream.Stream;
 @Service
 public class GoalService {
     private final GoalRepository goalRepository;
-    private final UserRepository userRepository;
-    private final SkillRepository skillRepository;
+    private final SkillService skillService;
+    private final UserService userService;
     private final List<GoalFilter> goalFilters;
 
     @Transactional
     public void createGoal(Long userId, Goal goal) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found with id: {}", userId);
-                    return new IllegalArgumentException("User not found");
-                });
+        User user = userService.findUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         long numberOfActiveGoals = goalRepository.countActiveGoalsPerUser(userId);
 
         if (numberOfActiveGoals <= 3) {
-            if (goal.getSkillsToAchieve().stream().anyMatch(skill -> skillRepository.existsByTitle(skill.getTitle()))) {
+            if (goal.getSkillsToAchieve().stream().anyMatch(skill -> skillService.skillExistsByTitle(skill.getTitle()))) {
 
                 if (goal.getUsers() == null) {
                     goal.setUsers(new ArrayList<>());
@@ -61,43 +59,55 @@ public class GoalService {
         }
     }
 
+    public void assignSkillToGoal(long skillId, long goalId) {
+        skillService.assignSkillToGoal(skillId, goalId);
+    }
+
     @Transactional
     public void updateGoal(Long goalId, Goal goal) {
-        Goal pulledGoal = goalRepository.findById(goalId)
+        Goal existingGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new IllegalArgumentException("Goal not found"));
 
-        if (pulledGoal.getStatus().equals(GoalStatus.ACTIVE)) {
-        //    if (pulledGoal.getSkillsToAchieve().stream().anyMatch(skill -> skillRepository.existsByTitle(skill.getTitle()))) {
+        if (existingGoal.getStatus().equals(GoalStatus.ACTIVE)) {
+            if (existingGoal.getSkillsToAchieve().stream().anyMatch(skill ->
+                    skillService.skillExistsByTitle(skill.getTitle()))) {
 
-                pulledGoal.setParent(goal.getParent());
-                pulledGoal.setDescription(goal.getDescription());
-                pulledGoal.setDeadline(goal.getDeadline());
-                pulledGoal.setInvitations(goal.getInvitations());
-                pulledGoal.setStatus(goal.getStatus());
+                existingGoal.setDescription(goal.getDescription());
+                existingGoal.setDeadline(goal.getDeadline());
+                existingGoal.setStatus(goal.getStatus());
 
-                goal.setUpdatedAt(LocalDateTime.now());
+                existingGoal.setUpdatedAt(LocalDateTime.now());
 
-                goalRepository.save(pulledGoal);
+                goalRepository.save(existingGoal);
 
-          /*  } else {
+            } else {
                 throw new IllegalArgumentException("The goal contains non-existent skills");
-            }*/
-        } else { // new method
-            List<Skill> oldSkillsToAchieve = skillRepository.findSkillsByGoalId(goalId);
-
-            List<User> users = userRepository.findAll();
-            for (User user : users) {
-                for (Skill skill : oldSkillsToAchieve) {
-                    skillRepository.assignSkillToUser(skill.getId(), user.getId());
-                }
             }
+        } else {
+            List<Skill> oldSkillsToAchieve = skillService.findSkillsByGoalId(goalId);
 
-            pulledGoal.getSkillsToAchieve().forEach(skill -> skillRepository.delete(skill));
-
-            pulledGoal.setSkillsToAchieve(goal.getSkillsToAchieve());
-            goalRepository.save(pulledGoal);
+            List<User> users = userService.findAllUsers();
+            users.stream()
+                    .flatMap(user -> oldSkillsToAchieve.stream()
+                            .map(skill -> new AbstractMap.SimpleEntry<>(skill, user)))
+                    .forEach(entry ->
+                            skillService.assignSkillToGoal(entry.getKey().getId(), entry.getValue().getId()));
         }
     }
+
+    public void updateSkillsToGoal(Long goalId, List<Skill> skills) {
+
+        List<Skill> oldSkills = goalRepository.findSkillsByGoalId(goalId);
+
+        if (oldSkills.isEmpty()) {
+            throw new IllegalArgumentException("No skills found for the goal");
+        }
+
+        oldSkills.forEach(skillService::deleteSkill);
+
+        skills.forEach(skill -> skillService.assignSkillToGoal(skill.getId(), goalId));
+    }
+
 
     @Transactional
     public void deleteGoal(Long goalId) {
@@ -109,43 +119,48 @@ public class GoalService {
 
     @Transactional
     public List<Goal> findSubtasksByGoalId(long parentId, GoalFilterDto filters) {
-        Stream<Goal> subtasks = goalRepository.findByParent(parentId);
+        List<Goal> subtasks = goalRepository.findByParent(parentId).toList();
 
-        log.info("Subtasks by goal with parent id {} before filtering", parentId);
-        return filterSubtasksByGoal(subtasks, filters);
+        if (subtasks.isEmpty()) {
+            throw new IllegalArgumentException("No subtasks found for the parent goal");
+        }
+
+        log.info("Goal subtasks with parent id {} before filtering", parentId);
+        return filterSubtasksByGoal(subtasks.stream(), filters);
     }
 
     public List<Goal> filterSubtasksByGoal(Stream<Goal> subtasks, GoalFilterDto filters) {
-        log.info("Applying filters to subtasks by goal");
+        log.info("Applying filters to subtasks");
 
         return goalFilters.stream()
-                .filter(filter -> filter.isApplicable(filters))
-                .reduce(subtasks, (currentStream, filter) -> {
-                            log.info("Applying filter to subtasks by goal: {}", filter.getClass().getSimpleName());
-                            return filter.apply(currentStream, filters);
-                        },
-                        (s1, s2) -> s1)
+                .filter(filter -> filter
+                        .isApplicable(filters))
+                .reduce(subtasks, (currentStream, filter) -> filter
+                        .apply(currentStream, filters), (s1, s2) -> s1)
                 .toList();
+
     }
 
     @Transactional
     public List<Goal> getGoalsByUserId(long userId, GoalFilterDto filters) {
-        Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
+        List<Goal> goals = goalRepository.findGoalsByUserId(userId).toList();
+
+        if (goals.isEmpty()) {
+            throw new IllegalArgumentException("No goals found for the user");
+        }
 
         log.info("Goals before filtering");
-        return filterGoals(goals, filters);
+        return filterGoals(goals.stream(), filters);
     }
 
     public List<Goal> filterGoals(Stream<Goal> goals, GoalFilterDto filters) {
         log.info("Applying filters to goals");
 
         return goalFilters.stream()
-                .filter(filter -> filter.isApplicable(filters))
-                .reduce(goals, (currentStream, filter) -> {
-                            log.info("Applying filter: {}", filter.getClass().getSimpleName());
-                            return filter.apply(currentStream, filters);
-                        },
-                        (s1, s2) -> s1)
+                .filter(filter -> filter
+                        .isApplicable(filters))
+                .reduce(goals, (currentStream, filter) -> filter
+                        .apply(currentStream, filters), (s1, s2) -> s1)
                 .toList();
     }
 }

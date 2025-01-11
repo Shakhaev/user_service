@@ -1,11 +1,13 @@
 package school.faang.user_service.dto.goal;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import school.faang.user_service.entity.goal.GoalStatus;
 
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoalFilterDto {
