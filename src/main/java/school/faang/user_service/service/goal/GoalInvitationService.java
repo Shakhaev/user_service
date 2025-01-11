@@ -11,22 +11,18 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.goal.invitation.InvitationCheckException;
-import school.faang.user_service.exception.goal.invitation.InvitationEntityNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.goal.GoalNotFoundException;
+import school.faang.user_service.exception.goal.invitation.GoalInvitationNotFoundException;
+import school.faang.user_service.exception.goal.invitation.SameInviterAndInvitedUsersException;
+import school.faang.user_service.exception.goal.invitation.UserAlreadyHasGoalException;
+import school.faang.user_service.exception.goal.invitation.UserGoalsLimitExceededException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.invitation.InvitationFilter;
 
 import java.util.List;
-
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.GOAL_INVITATION_NOT_FOUND;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.GOAL_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.INVITED_USER_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.INVITER_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USERS_SAME_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USER_ALREADY_HAS_GOAL;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USER_GOALS_LIMIT_EXCEEDED;
 
 @Slf4j
 @Service
@@ -87,25 +83,24 @@ public class GoalInvitationService {
     private void checkUsersForMatching(long inviterId, long invitedUserId) {
         log.info("Check users for matching, inviterId: {}, invitedUserId: {}", inviterId, invitedUserId);
         if (inviterId == invitedUserId) {
-            throw new InvitationCheckException(USERS_SAME_MESSAGE_FORMAT, inviterId, invitedUserId);
+            throw new SameInviterAndInvitedUsersException(inviterId, invitedUserId);
         }
     }
 
     private void invitationSetEntities(GoalInvitation invitationEntity, long inviterId, long invitedUserId, long goalId) {
         log.info("Set entities to new invitation");
 
-        User inviter = findUserById(inviterId, INVITER_NOT_FOUND_MESSAGE_FORMAT);
+        User inviter = findUserById(inviterId);
         invitationEntity.setInviter(inviter);
-        User invitedUser = findUserById(invitedUserId, INVITED_USER_NOT_FOUND_MESSAGE_FORMAT);
+        User invitedUser = findUserById(invitedUserId);
         invitationEntity.setInvited(invitedUser);
 
-        Goal goal = goalRepository.findById(goalId).orElseThrow(() ->
-                new InvitationEntityNotFoundException(GOAL_NOT_FOUND_MESSAGE_FORMAT, goalId));
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalNotFoundException(goalId));
         invitationEntity.setGoal(goal);
     }
 
-    private User findUserById(long id, String notFoundMessage) {
-        return userRepository.findById(id).orElseThrow(() -> new InvitationEntityNotFoundException(notFoundMessage, id));
+    private User findUserById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     private void checkUserGoals(User invitedUser, Goal goal, GoalInvitation invitation) {
@@ -113,11 +108,11 @@ public class GoalInvitationService {
         List<Goal> activeGoals = getActiveGoals(invitedUser);
         if (activeGoals.contains(goal)) {
             invitation.setStatus(RequestStatus.REJECTED);
-            throw new InvitationCheckException(USER_ALREADY_HAS_GOAL, invitedUser.getId(), goal.getId());
+            throw new UserAlreadyHasGoalException(invitedUser.getId(), goal.getId());
         }
         if (activeGoals.size() >= userGoalsLimit) {
             invitation.setStatus(RequestStatus.REJECTED);
-            throw new InvitationCheckException(USER_GOALS_LIMIT_EXCEEDED, invitedUser.getId(), userGoalsLimit);
+            throw new UserGoalsLimitExceededException(invitedUser.getId(), userGoalsLimit);
         }
     }
 
@@ -132,6 +127,6 @@ public class GoalInvitationService {
     private GoalInvitation findGoalInvitationById(long id) {
         log.info("Find invitation with id: {}", id);
         return goalInvitationRepository.findById(id).orElseThrow(() ->
-                new InvitationEntityNotFoundException(GOAL_INVITATION_NOT_FOUND, id));
+                new GoalInvitationNotFoundException(id));
     }
 }

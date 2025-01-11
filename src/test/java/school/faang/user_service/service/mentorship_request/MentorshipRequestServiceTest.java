@@ -12,6 +12,7 @@ import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.mentorship_request.MentorshipRequestNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -28,7 +29,6 @@ import static org.mockito.Mockito.when;
 import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
 import static school.faang.user_service.entity.RequestStatus.PENDING;
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestServiceTest {
@@ -165,7 +165,7 @@ class MentorshipRequestServiceTest {
         whenMentorshipRequestRepositoryFindById(Optional.empty(), id);
 
         RuntimeException exception = assertThrows(RuntimeException.class, executable);
-        String expected = String.format(REQUEST_NOT_FOUND, id);
+        String expected = new MentorshipRequestNotFoundException(id).getMessage();
         assertEquals(expected, exception.getMessage());
     }
 

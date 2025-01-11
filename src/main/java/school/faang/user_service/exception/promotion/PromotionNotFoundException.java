@@ -1,9 +1,15 @@
 package school.faang.user_service.exception.promotion;
 
-import java.util.NoSuchElementException;
+import school.faang.user_service.exception.global.ApiException;
 
-public class PromotionNotFoundException extends NoSuchElementException {
-    public PromotionNotFoundException(String message, Object... args) {
-        super(String.format(message, args));
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+public class PromotionNotFoundException extends ApiException {
+    private static final String MESSAGE = "Promotion tariff of %s views not found, please select between: %s";
+
+    public PromotionNotFoundException(Integer numberOfViews, List<Integer> viewsOption) {
+        super(MESSAGE, NOT_FOUND, numberOfViews, viewsOption);
     }
 }

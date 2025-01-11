@@ -8,7 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.exception.global.BadRequestException;
+import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
@@ -25,18 +26,21 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipServiceTest {
-    @Mock
-    UserRepository userRepository;
-    @Mock
-    MentorshipRepository mentorshipRepository;
-    @InjectMocks
-    MentorshipService mentorshipService;
-    private User user;
-    private static final Long userId = 10L;
-    private static final Long menteeId = 1L;
-    private static final Long mentorId = 3L;
-    private static final Long notExistingId = 20L;
+    private static final Long USER_ID = 10L;
+    private static final Long MENTEE_ID = 1L;
+    private static final Long MENTOR_ID = 3L;
+    private static final Long NOT_EXISTING_ID = 20L;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private MentorshipRepository mentorshipRepository;
+
+    @InjectMocks
+    private MentorshipService mentorshipService;
+
+    private User user;
     private User mentor;
     private User otherMentor;
 
@@ -94,12 +98,12 @@ class MentorshipServiceTest {
 
     @Test
     void testGetMentees() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
-        var result = mentorshipService.getMentees(userId);
+        var result = mentorshipService.getMentees(USER_ID);
 
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).findById(USER_ID);
 
         var mentees = user.getMentees();
         assertTrue(result.containsAll(mentees));
@@ -108,28 +112,25 @@ class MentorshipServiceTest {
 
     @Test
     void testGetMenteesThrowsUserNotFoundException() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.empty());
 
         var result = assertThrows(
                 UserNotFoundException.class,
-                () -> mentorshipService.getMentees(userId)
+                () -> mentorshipService.getMentees(USER_ID)
         );
 
-        assertEquals(
-                "User with id = [10] not found",
-                result.getMessage()
-        );
+        assertEquals(new UserNotFoundException(10L).getMessage(), result.getMessage());
     }
 
     @Test
     void testGetMentors() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
-        var result = mentorshipService.getMentors(userId);
+        var result = mentorshipService.getMentors(USER_ID);
 
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).findById(USER_ID);
 
         var mentors = user.getMentors();
         assertTrue(mentors.containsAll(result));
@@ -138,104 +139,95 @@ class MentorshipServiceTest {
 
     @Test
     void testGetMentorsThrowsUserNotFoundException() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.empty());
 
         var result = assertThrows(
                 UserNotFoundException.class,
-                () -> mentorshipService.getMentors(userId)
+                () -> mentorshipService.getMentors(USER_ID)
         );
 
-        assertEquals(
-                "User with id = [10] not found",
-                result.getMessage()
-        );
+        assertEquals(new UserNotFoundException(10L).getMessage(), result.getMessage());
     }
 
     @Test
     void deleteMentee() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
-        mentorshipService.deleteMentee(menteeId, userId);
+        mentorshipService.deleteMentee(MENTEE_ID, USER_ID);
 
-        verify(userRepository, times(1)).findById(userId);
-        verify(mentorshipRepository, times(1)).delete(menteeId, userId);
+        verify(userRepository, times(1)).findById(USER_ID);
+        verify(mentorshipRepository, times(1)).delete(MENTEE_ID, USER_ID);
     }
 
     @Test
     void testDeleteMenteeThrowsUserNotFoundExceptionIfUserNotFound() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.empty());
 
         var result = assertThrows(
                 UserNotFoundException.class,
-                () -> mentorshipService.deleteMentee(menteeId, userId)
+                () -> mentorshipService.deleteMentee(MENTEE_ID, USER_ID)
         );
 
-        assertEquals(
-                String.format("User with id = [%d] not found", userId),
-                result.getMessage()
-        );
+        assertEquals(new UserNotFoundException(USER_ID).getMessage(), result.getMessage());
     }
 
     @Test
     void testDeleteMenteeThrowsUserNotFoundExceptionIfMenteeNotFoundInListOfMentees() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
         var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.deleteMentee(notExistingId, userId)
+                BadRequestException.class,
+                () -> mentorshipService.deleteMentee(NOT_EXISTING_ID, USER_ID)
         );
 
         assertEquals(
                 String.format("User with id = [%d] is not a mentee of user with id = [%d].",
-                        notExistingId, userId),
+                        NOT_EXISTING_ID, USER_ID),
                 result.getMessage()
         );
     }
 
     @Test
     void deleteMentor() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
-        mentorshipService.deleteMentor(userId, mentorId);
+        mentorshipService.deleteMentor(USER_ID, MENTOR_ID);
 
-        verify(userRepository, times(1)).findById(userId);
-        verify(mentorshipRepository, times(1)).delete(userId, mentorId);
+        verify(userRepository, times(1)).findById(USER_ID);
+        verify(mentorshipRepository, times(1)).delete(USER_ID, MENTOR_ID);
     }
 
     @Test
     void testDeleteMentorThrowsUserNotFoundExceptionIfUserNotFound() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.empty());
 
         var result = assertThrows(
                 UserNotFoundException.class,
-                () -> mentorshipService.deleteMentor(userId, mentorId)
+                () -> mentorshipService.deleteMentor(USER_ID, MENTOR_ID)
         );
 
-        assertEquals(
-                String.format("User with id = [%d] not found", userId),
-                result.getMessage()
-        );
+        assertEquals(new UserNotFoundException(USER_ID).getMessage(), result.getMessage());
     }
 
     @Test
     void testDeleteMentorThrowsUserNotFoundExceptionIfMentorNotFoundInListOfMentors() {
-        when(userRepository.findById(userId))
+        when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.ofNullable(user));
 
         var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.deleteMentor(userId, notExistingId)
+                BadRequestException.class,
+                () -> mentorshipService.deleteMentor(USER_ID, NOT_EXISTING_ID)
         );
 
         assertEquals(
                 String.format("User with id = [%d] is not a mentor of user with id = [%d].",
-                        notExistingId, userId),
+                        NOT_EXISTING_ID, USER_ID),
                 result.getMessage()
         );
     }

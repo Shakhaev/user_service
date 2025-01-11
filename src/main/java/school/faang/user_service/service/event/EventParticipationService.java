@@ -1,14 +1,14 @@
 package school.faang.user_service.service.event;
 
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.EventRegistrationException;
+import school.faang.user_service.exception.user.UserAlreadyRegisteredException;
+import school.faang.user_service.exception.user.UserWasNotRegisteredException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class EventParticipationService {
     @Transactional
     public void registerParticipant(long eventId, long userId) {
         if (isRegistered(eventId, userId)) {
-            throw new EventRegistrationException("user is already registered");
+            throw new UserAlreadyRegisteredException(userId);
         }
         eventRepository.register(eventId, userId);
     }
@@ -26,7 +26,7 @@ public class EventParticipationService {
     @Transactional
     public void unregisterParticipant(long eventId, long userId) {
         if (!isRegistered(eventId, userId)) {
-            throw new EventRegistrationException("user wasn't registered");
+            throw new UserWasNotRegisteredException(userId);
         }
         eventRepository.unregister(eventId, userId);
     }

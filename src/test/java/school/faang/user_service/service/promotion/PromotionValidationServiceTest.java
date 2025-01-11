@@ -2,23 +2,17 @@ package school.faang.user_service.service.promotion;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.payment.PaymentStatus;
-import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.promotion.UserPromotion;
-import school.faang.user_service.exception.payment.UnSuccessPaymentException;
-import school.faang.user_service.exception.promotion.PromotionValidationException;
+import school.faang.user_service.exception.event.exceptions.UserNotOwnerOfEventException;
+import school.faang.user_service.exception.promotion.EventAlreadyHasPromotionException;
+import school.faang.user_service.exception.promotion.UserAlreadyHasPromotionException;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.EVENT_ALREADY_HAS_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.USER_ALREADY_HAS_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.USER_NOT_OWNER_OF_EVENT;
-import static school.faang.user_service.util.premium.PremiumFabric.getPaymentResponse;
 import static school.faang.user_service.util.promotion.PromotionFabric.ACTIVE_NUMBER_OF_VIEWS;
 import static school.faang.user_service.util.promotion.PromotionFabric.buildActiveUserPromotion;
 import static school.faang.user_service.util.promotion.PromotionFabric.buildEventWithActivePromotion;
@@ -32,8 +26,6 @@ class PromotionValidationServiceTest {
     private static final long SECOND_USER_ID = 2;
     private static final long EVENT_ID = 1;
     private static final long PROMOTION_ID = 1;
-    private static final PromotionTariff TARIFF = PromotionTariff.STANDARD;
-    private static final String MESSAGE = "test message";
 
     private final PromotionValidationService promotionValidationService = new PromotionValidationService();
 
@@ -42,8 +34,8 @@ class PromotionValidationServiceTest {
     void testCheckUserForPromotionAlreadyHavePromotion() {
         User user = buildUserWithActivePromotion(USER_ID);
         assertThatThrownBy(() -> promotionValidationService.checkUserForPromotion(user))
-                .isInstanceOf(PromotionValidationException.class)
-                .hasMessageContaining(USER_ALREADY_HAS_PROMOTION, user.getId(), ACTIVE_NUMBER_OF_VIEWS);
+                .isInstanceOf(UserAlreadyHasPromotionException.class)
+                .hasMessageContaining(new UserAlreadyHasPromotionException(user.getId(), ACTIVE_NUMBER_OF_VIEWS).getMessage());
     }
 
     @Test
@@ -88,8 +80,8 @@ class PromotionValidationServiceTest {
 
         assertThatThrownBy(() ->
                 promotionValidationService.checkEventForUserAndPromotion(SECOND_USER_ID, EVENT_ID, event))
-                .isInstanceOf(PromotionValidationException.class)
-                .hasMessageContaining(USER_NOT_OWNER_OF_EVENT, SECOND_USER_ID, EVENT_ID);
+                .isInstanceOf(UserNotOwnerOfEventException.class)
+                .hasMessageContaining(new UserNotOwnerOfEventException(SECOND_USER_ID, EVENT_ID).getMessage());
     }
 
     @Test
@@ -100,8 +92,8 @@ class PromotionValidationServiceTest {
         event.setOwner(user);
 
         assertThatThrownBy(() -> promotionValidationService.checkEventForUserAndPromotion(USER_ID, EVENT_ID, event))
-                .isInstanceOf(PromotionValidationException.class)
-                .hasMessageContaining(EVENT_ALREADY_HAS_PROMOTION, EVENT_ID, ACTIVE_NUMBER_OF_VIEWS);
+                .isInstanceOf(EventAlreadyHasPromotionException.class)
+                .hasMessageContaining(new EventAlreadyHasPromotionException(EVENT_ID, ACTIVE_NUMBER_OF_VIEWS).getMessage());
     }
 
     @Test
@@ -112,16 +104,5 @@ class PromotionValidationServiceTest {
         event.setOwner(user);
         event.setPromotions(List.of());
         promotionValidationService.checkEventForUserAndPromotion(USER_ID, EVENT_ID, event);
-    }
-
-    @Test
-    @DisplayName("Given unsuccessful payment response when check then throw exception")
-    void testCheckPromotionPaymentResponseUnsuccessfulPayment() {
-        PaymentResponseDto paymentResponse = getPaymentResponse(PaymentStatus.FAILED, MESSAGE);
-
-        assertThatThrownBy(() ->
-                promotionValidationService.checkPromotionPaymentResponse(paymentResponse, USER_ID, TARIFF, MESSAGE))
-                .isInstanceOf(UnSuccessPaymentException.class)
-                .hasMessageContaining(MESSAGE, TARIFF.getNumberOfViews(), USER_ID, MESSAGE);
     }
 }

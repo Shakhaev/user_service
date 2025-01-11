@@ -12,9 +12,9 @@ import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.exception.UserAlreadyExistsException;
-import school.faang.user_service.exception.user.UserDeactivatedException;
+import school.faang.user_service.exception.user.UserAlreadyExistsException;
 import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.user.UserDeactivatedException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
@@ -33,13 +33,13 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
     private final PremiumRepository premiumRepository;
-    private final GoalService goalService;
-    private final EventRepository eventRepository;
     private final MentorshipService mentorshipService;
-    private final AvatarService avatarService;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
+    private final AvatarService avatarService;
+    private final GoalService goalService;
 
     @Transactional
     public User registerUser(User user) {
@@ -56,7 +56,7 @@ public class UserService {
         User user = findById(userId);
 
         if (!user.isActive()) {
-            throw new UserDeactivatedException();
+            throw new UserDeactivatedException(userId);
         }
 
         removeUserGoals(user);
@@ -70,7 +70,7 @@ public class UserService {
     @PublishEvent(returnedType = User.class)
     @Transactional(readOnly = true)
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     @Transactional
@@ -113,11 +113,11 @@ public class UserService {
 
     private void validateUsernameAndEmail(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("User with this email already exists");
+            throw new UserAlreadyExistsException("email: " + user.getEmail());
         }
 
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new UserAlreadyExistsException("User with this username already exists");
+            throw new UserAlreadyExistsException("username " + user.getUsername());
         }
     }
 
@@ -149,7 +149,8 @@ public class UserService {
     @PublishEvent(returnedType = User.class)
     @Transactional(readOnly = true)
     public User getUser(long userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException(userId));
     }
 
     @Transactional(readOnly = true)

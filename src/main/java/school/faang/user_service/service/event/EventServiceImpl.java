@@ -1,6 +1,5 @@
 package school.faang.user_service.service.event;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,6 +9,8 @@ import school.faang.user_service.dto.event.EventFilters;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.event.exceptions.EventNotFoundException;
 import school.faang.user_service.exception.event.exceptions.InsufficientSkillsException;
 import school.faang.user_service.redis.event.EventStartEvent;
 import school.faang.user_service.redis.publisher.EventStartEventPublisher;
@@ -49,7 +50,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> {
                     log.error("Событие с ID {} не найдено", eventId);
-                    return new EntityNotFoundException("Событие с ID " + eventId + " не найдено.");
+                    return new EventNotFoundException(eventId);
                 });
     }
 
@@ -123,7 +124,7 @@ public class EventServiceImpl implements EventService {
             log.info("Событие с ID {} успешно удалено", eventId);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка удаления. Событие с ID {} не найдено", eventId);
-            throw new EntityNotFoundException("Событие с ID " + eventId + " не найдено.");
+            throw new EventNotFoundException(eventId);
         }
     }
 
@@ -147,8 +148,7 @@ public class EventServiceImpl implements EventService {
         List<Skill> userSkills = Optional.ofNullable(user.getSkills()).orElse(new ArrayList<>());
         if (!userSkills.containsAll(relatedSkills)) {
             log.error("У пользователя с ID {} недостаточно навыков для события", user.getId());
-            throw new InsufficientSkillsException(
-                    "Пользователь не обладает необходимыми навыками для проведения этого события.");
+            throw new InsufficientSkillsException(user.getId());
         }
     }
 
@@ -156,7 +156,7 @@ public class EventServiceImpl implements EventService {
         log.info("Загрузка пользователя с ID: {}", id);
         return userRepository.findById(id).orElseThrow(() -> {
             log.error("Пользователь с ID {} не найден", id);
-            return new EntityNotFoundException("Пользователь с ID " + id + " не найден.");
+            return new UserNotFoundException(id);
         });
     }
 

@@ -2,27 +2,32 @@ package school.faang.user_service.service.mentorship_request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.exception.BadRequestException;
-import school.faang.user_service.exception.mentorship_request.LittleTimeAfterLastRequestException;
-import school.faang.user_service.exception.mentorship_request.RequestToHimselfException;
-import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.mentorship_request.EmptyMentorshipRequestDescriptionException;
+import school.faang.user_service.exception.mentorship_request.MentorshipRequestWasAcceptedBeforeException;
+import school.faang.user_service.exception.mentorship_request.NotEnoughTimeAfterLastRequestException;
+import school.faang.user_service.exception.mentorship_request.UserRequestToHimselfException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
 import java.time.LocalDateTime;
 
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.EMPTY_DESCRIPTION;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.ONCE_EVERY_THREE_MONTHS;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_IS_ACCEPTED_BEFORE;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_TO_HIMSELF;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.USER_NOT_FOUND;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class MentorshipRequestParametersChecker {
+    @Value("${app.mentorship.request_for_mentoring_limit.times}")
+    private int requestLimitTimes;
+
+    @Value("${app.mentorship.request_for_mentoring_limit.period}")
+    private int requestLimitPeriod;
+
+    @Value("${app.mentorship.request_for_mentoring_limit.period_type}")
+    private String requestLimitPeriodType;
+
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserRepository userRepository;
 
@@ -31,7 +36,7 @@ public class MentorshipRequestParametersChecker {
         if (isExist) {
             log.error("Mentorship request from user with id {} to user with id {} was accepted before",
                     requesterId, receiverId);
-            throw new BadRequestException(REQUEST_IS_ACCEPTED_BEFORE, requesterId, receiverId);
+            throw new MentorshipRequestWasAcceptedBeforeException(requesterId, receiverId);
         }
     }
 
@@ -46,21 +51,21 @@ public class MentorshipRequestParametersChecker {
     private void validateDescription(String description) {
         if (description == null || description.isBlank()) {
             log.error("Description is null or empty");
-            throw new BadRequestException(EMPTY_DESCRIPTION);
+            throw new EmptyMentorshipRequestDescriptionException();
         }
     }
 
     private void checkSameUserIds(long requesterId, long receiverId) {
         if (requesterId == receiverId) {
-            log.error(REQUEST_TO_HIMSELF);
-            throw new RequestToHimselfException();
+            log.error("User with id: {} cannot send a request to himself", requesterId);
+            throw new UserRequestToHimselfException(requesterId);
         }
     }
 
     private void checkExistUserId(long id) {
         if (!userRepository.existsById(id)) {
             log.error("User with id {} not found", id);
-            throw new UserNotFoundException(USER_NOT_FOUND, id);
+            throw new UserNotFoundException(id);
         }
     }
 
@@ -68,10 +73,13 @@ public class MentorshipRequestParametersChecker {
         MentorshipRequest latestMentorshipRequest = mentorshipRequestRepository
                 .findLatestRequest(requesterId, receiverId)
                 .orElse(null);
-        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
-        if (latestMentorshipRequest != null && latestMentorshipRequest.getCreatedAt().isAfter(threeMonthsAgo)) {
-            log.error(ONCE_EVERY_THREE_MONTHS);
-            throw new LittleTimeAfterLastRequestException();
+        LocalDateTime monthsAgo = LocalDateTime.now().minusMonths(requestLimitPeriod);
+
+        if (latestMentorshipRequest != null && latestMentorshipRequest.getCreatedAt().isAfter(monthsAgo)) {
+            log.error("A request for mentoring can be made only {} time every {} {}", requestLimitTimes,
+                    requestLimitPeriod, requestLimitPeriodType);
+            throw new NotEnoughTimeAfterLastRequestException("mentoring", requestLimitTimes,
+                    requestLimitPeriod + " " + requestLimitPeriodType);
         }
     }
 }

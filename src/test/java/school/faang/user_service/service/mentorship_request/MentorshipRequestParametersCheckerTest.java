@@ -1,11 +1,18 @@
 package school.faang.user_service.service.mentorship_request;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.mentorship_request.EmptyMentorshipRequestDescriptionException;
+import school.faang.user_service.exception.mentorship_request.MentorshipRequestWasAcceptedBeforeException;
+import school.faang.user_service.exception.mentorship_request.NotEnoughTimeAfterLastRequestException;
+import school.faang.user_service.exception.mentorship_request.UserRequestToHimselfException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -16,14 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.EMPTY_DESCRIPTION;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.ONCE_EVERY_THREE_MONTHS;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_IS_ACCEPTED_BEFORE;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_TO_HIMSELF;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.USER_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestParametersCheckerTest {
+    private static final int REQUEST_LIMIT_TIMES = 1;
+    private static final int REQUEST_LIMIT_PERIOD = 3;
+    private static final String REQUEST_LIMIT_PERIOD_TYPE = "month";
+
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
@@ -32,6 +38,13 @@ class MentorshipRequestParametersCheckerTest {
     @InjectMocks
     private MentorshipRequestParametersChecker checker;
 
+    @BeforeEach
+    public void setUp() {
+        ReflectionTestUtils.setField(checker, "requestLimitTimes", REQUEST_LIMIT_TIMES);
+        ReflectionTestUtils.setField(checker, "requestLimitPeriod", REQUEST_LIMIT_PERIOD);
+        ReflectionTestUtils.setField(checker, "requestLimitPeriodType", REQUEST_LIMIT_PERIOD_TYPE);
+    }
+
     @Test
     void testUserSendRequestToHimself() {
         long requesterId = 1L;
@@ -39,7 +52,7 @@ class MentorshipRequestParametersCheckerTest {
         String description = "description";
 
         RuntimeException exception = assertException(requesterId, receiverId, description);
-        assertEquals(REQUEST_TO_HIMSELF, exception.getMessage());
+        assertEquals(new UserRequestToHimselfException(requesterId).getMessage(), exception.getMessage());
     }
 
     @Test
@@ -49,7 +62,7 @@ class MentorshipRequestParametersCheckerTest {
         String description = "  ";
 
         RuntimeException exception = assertException(requesterId, receiverId, description);
-        assertEquals(EMPTY_DESCRIPTION, exception.getMessage());
+        assertEquals(new EmptyMentorshipRequestDescriptionException().getMessage(), exception.getMessage());
     }
 
     @Test
@@ -61,7 +74,7 @@ class MentorshipRequestParametersCheckerTest {
         whenExistById(receiverId, true);
 
         RuntimeException exception = assertException(requesterId, receiverId, description);
-        String expected = String.format(USER_NOT_FOUND, requesterId);
+        String expected = new UserNotFoundException(requesterId).getMessage();
         assertEquals(expected, exception.getMessage());
     }
 
@@ -74,7 +87,7 @@ class MentorshipRequestParametersCheckerTest {
         whenExistById(receiverId, false);
 
         RuntimeException exception = assertException(requesterId, receiverId, description);
-        String expected = String.format(USER_NOT_FOUND, receiverId);
+        String expected = new UserNotFoundException(receiverId).getMessage();
         assertEquals(expected, exception.getMessage());
     }
 
@@ -91,7 +104,8 @@ class MentorshipRequestParametersCheckerTest {
         whenFindLatestRequest(mentorshipRequest, requesterId, receiverId);
 
         RuntimeException exception = assertException(requesterId, receiverId, description);
-        assertEquals(ONCE_EVERY_THREE_MONTHS, exception.getMessage());
+        assertEquals(new NotEnoughTimeAfterLastRequestException("mentoring", REQUEST_LIMIT_TIMES,
+                REQUEST_LIMIT_PERIOD + " " + REQUEST_LIMIT_PERIOD_TYPE).getMessage(), exception.getMessage());
     }
 
     @Test
@@ -103,7 +117,7 @@ class MentorshipRequestParametersCheckerTest {
                 .thenReturn(true);
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> checker.checkExistAcceptedRequest(requesterId, receiverId));
-        String expected = String.format(REQUEST_IS_ACCEPTED_BEFORE, requesterId, receiverId);
+        String expected = new MentorshipRequestWasAcceptedBeforeException(requesterId, receiverId).getMessage();
         assertEquals(expected, exception.getMessage());
     }
 

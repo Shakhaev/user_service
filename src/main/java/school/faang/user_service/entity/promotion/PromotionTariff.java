@@ -13,11 +13,10 @@ import static school.faang.user_service.entity.promotion.PromotionTariffValues.A
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.COST_PREMIUM;
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.COST_STANDARD;
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.COST_ULTIMATE;
-import static school.faang.user_service.entity.promotion.PromotionTariffValues.PROMOTION_CURRENCY;
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.NUMBER_OF_VIEWS_STANDARD;
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.NUMBER_OR_VIEWS_PREMIUM;
 import static school.faang.user_service.entity.promotion.PromotionTariffValues.NUMBER_OR_VIEWS_ULTIMATE;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.PROMOTION_NOT_FOUND;
+import static school.faang.user_service.entity.promotion.PromotionTariffValues.PROMOTION_CURRENCY;
 
 @Getter
 public enum PromotionTariff {
@@ -44,7 +43,7 @@ public enum PromotionTariff {
             case NUMBER_OF_VIEWS_STANDARD -> STANDARD;
             case NUMBER_OR_VIEWS_PREMIUM -> PREMIUM;
             case NUMBER_OR_VIEWS_ULTIMATE -> ULTIMATE;
-            default -> throw new PromotionNotFoundException(PROMOTION_NOT_FOUND, numberOfViews, viewsOption());
+            default -> throw new PromotionNotFoundException(numberOfViews, viewsOption());
         };
     }
 

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.annotation.AppExceptionHandler;
 import school.faang.user_service.dto.user.UserAmountDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserExtendedFilterDto;
 import school.faang.user_service.dto.user.UserResponseShortDto;
 import school.faang.user_service.entity.User;
@@ -49,8 +48,7 @@ public class SubscriptionController {
 
     @GetMapping("/{followeeId}/followerIds")
     public List<Long> getFollowerIds(@PathVariable long followeeId) {
-        List<Long> followers = subscriptionService.getFollowerIds(followeeId);
-        return followers;
+        return subscriptionService.getFollowerIds(followeeId);
     }
 
     @GetMapping("/{followeeId}/followers/count")

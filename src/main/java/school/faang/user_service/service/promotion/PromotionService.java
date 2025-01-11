@@ -7,10 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.EventPromotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.promotion.UserPromotion;
-import school.faang.user_service.exception.promotion.PromotionNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.event.exceptions.EventNotFoundException;
+import school.faang.user_service.exception.payment.UnsuccessfulEventPromotionPaymentException;
+import school.faang.user_service.exception.payment.UnsuccessfulUserPromotionPaymentException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.promotion.EventPromotionRepository;
@@ -19,11 +23,6 @@ import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.service.promotion.util.PromotionBuilder;
 
 import java.util.List;
-
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.USER_NOT_FOUND_WHEN_BUYING_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.EVENT_NOT_FOUND_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.UNSUCCESSFUL_EVENT_PROMOTION_PAYMENT;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.UNSUCCESSFUL_USER_PROMOTION_PAYMENT;
 
 @Slf4j
 @Service
@@ -41,13 +40,13 @@ public class PromotionService {
     @Transactional
     public UserPromotion buyPromotion(long userId, PromotionTariff tariff) {
         log.info("User with id: {} buy promotion tariff: {}", userId, tariff.toString());
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new PromotionNotFoundException(USER_NOT_FOUND_WHEN_BUYING_PROMOTION, userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         promotionValidationService.checkUserForPromotion(user);
 
         PaymentResponseDto paymentResponse = paymentService.sendPayment(tariff);
-        promotionValidationService
-                .checkPromotionPaymentResponse(paymentResponse, userId, tariff, UNSUCCESSFUL_USER_PROMOTION_PAYMENT);
+        if (!paymentResponse.status().equals(PaymentStatus.SUCCESS)) {
+            throw new UnsuccessfulUserPromotionPaymentException(tariff.getNumberOfViews(), userId, paymentResponse.message());
+        }
 
         UserPromotion promotion = promotionBuilder.buildUserPromotion(user, tariff);
         return userPromotionRepository.save(promotion);
@@ -56,13 +55,13 @@ public class PromotionService {
     @Transactional
     public EventPromotion buyEventPromotion(long userId, long eventId, PromotionTariff tariff) {
         log.info("User with id: {} buy promotion tariff: {} for event id: {}", userId, tariff.toString(), eventId);
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new PromotionNotFoundException(EVENT_NOT_FOUND_PROMOTION, eventId));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         promotionValidationService.checkEventForUserAndPromotion(userId, eventId, event);
 
         PaymentResponseDto paymentResponse = paymentService.sendPayment(tariff);
-        promotionValidationService
-                .checkPromotionPaymentResponse(paymentResponse, eventId, tariff, UNSUCCESSFUL_EVENT_PROMOTION_PAYMENT);
+        if (!paymentResponse.status().equals(PaymentStatus.SUCCESS)) {
+            throw new UnsuccessfulEventPromotionPaymentException(tariff.getNumberOfViews(), eventId, paymentResponse.message());
+        }
 
         EventPromotion eventPromotion = promotionBuilder.buildEventPromotion(event, tariff);
         return eventPromotionRepository.save(eventPromotion);

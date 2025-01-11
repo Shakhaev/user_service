@@ -8,10 +8,8 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.PREMIUM_PERIOD_NOT_FOUND;
 
 class PremiumPeriodTest {
-
     @Test
     @DisplayName("Check all values from days")
     void testFromDaysCheckAllValues() {
@@ -29,7 +27,7 @@ class PremiumPeriodTest {
     private void assertPeriodException(PremiumPeriod period) {
         assertThatThrownBy(() -> PremiumPeriod.fromDays(period.getDays() + 1))
                 .isInstanceOf(PremiumNotFoundException.class)
-                .hasMessageContaining(PREMIUM_PERIOD_NOT_FOUND, period.getDays() + 1,
-                        PremiumPeriod.daysOptions());
+                .hasMessageContaining(new PremiumNotFoundException(period.getDays() + 1,
+                        PremiumPeriod.daysOptions()).getMessage());
     }
 }

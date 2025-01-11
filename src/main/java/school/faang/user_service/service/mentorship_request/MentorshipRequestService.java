@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.annotation.event.SendMentorshipRequestReceived;
 import school.faang.user_service.annotation.event.SendMentorshipRequestAcceptedEvent;
+import school.faang.user_service.annotation.event.SendMentorshipRequestReceived;
 import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.BadRequestException;
+import school.faang.user_service.exception.mentorship_request.MentorshipRequestNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
-import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_NOT_FOUND;
 
 @Slf4j
 @Component
@@ -76,7 +75,7 @@ public class MentorshipRequestService {
         return mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Request with id {} not found", id);
-                    return new BadRequestException(REQUEST_NOT_FOUND, id);
+                    return new MentorshipRequestNotFoundException(id);
                 });
     }
 }

@@ -1,7 +1,11 @@
 package school.faang.user_service.exception.user;
 
-public class UserContextException extends IllegalArgumentException {
-    public UserContextException(String message, Object... args) {
-        super(String.format(message, args));
+import school.faang.user_service.exception.global.ApiException;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+public class UserContextException extends ApiException {
+    public UserContextException(String message) {
+        super(message, BAD_REQUEST);
     }
 }

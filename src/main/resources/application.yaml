@@ -93,6 +93,11 @@ app:
       trigger_interval_sec: 10
     premium-bought-event-publish:
       trigger_interval_sec: 10
+  mentorship:
+    request_for_mentoring_limit:
+      times: 1
+      period: 3
+      period_type: month
 
 minio:
   endpoint: http://localhost:9000
