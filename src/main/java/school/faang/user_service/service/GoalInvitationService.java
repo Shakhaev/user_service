@@ -14,6 +14,7 @@ import java.util.Objects;
 public class GoalInvitationService {
     private final GoalInvitationRepository goalInvitationRepository;
     private final UserRepository userRepository;
+    private static final int MAX_ACTIVE_GOALS = 3;
 
     public GoalInvitation createInvitation(@NonNull GoalInvitation invitation) {
         if (Objects.equals(invitation.getInviter(), invitation.getInvited()))
