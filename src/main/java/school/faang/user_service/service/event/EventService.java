@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -11,16 +12,11 @@ import school.faang.user_service.repository.event.EventRepository;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     // private final UserService userService;
-
-    public EventService(EventRepository eventRepository, EventMapper eventMapper) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        //this.userService = userService
-    }
 
     public EventDto create(EventDto eventDto) {
         if (!userHasRequiredSkills(eventDto.getOwnerId(), eventDto.getRelatedSkills())) {
