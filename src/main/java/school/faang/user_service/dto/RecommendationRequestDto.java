@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
 import java.time.LocalDateTime;
@@ -43,4 +44,6 @@ public class RecommendationRequestDto {
 
     @PastOrPresent(message = "Дата обновления не может быть из будущего.")
     private LocalDateTime updatedAt;
+
+    private Recommendation recommendation;
 }

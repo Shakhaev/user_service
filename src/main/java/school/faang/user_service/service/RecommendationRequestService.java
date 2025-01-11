@@ -84,8 +84,8 @@ public class RecommendationRequestService {
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getRejectionReason());
-        recommendationRequestRepository.save(request);
 
+        request = recommendationRequestRepository.save(request);
         return recommendationRequestMapper.toDto(request);
     }
 }
