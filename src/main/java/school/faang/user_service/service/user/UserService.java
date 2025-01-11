@@ -11,22 +11,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.country.CountryService;
+import school.faang.user_service.service.notification.NotificationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +51,7 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -114,12 +117,14 @@ public class UserService {
     public UserDto getUserDtoById(long userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("user not found!"));
+        notificationService.publish(Arrays.asList(user));
         return userMapper.toDto(user);
     }
 
     public List<UserDto> getUserDtosByIds(List<Long> userIds) {
         List<User> users = userRepository.findAllByIds(userIds)
                 .orElseThrow(() -> new DataValidationException("users not found!"));
+        notificationService.publish(users);
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
