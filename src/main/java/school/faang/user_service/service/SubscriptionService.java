@@ -1,81 +1,82 @@
 package school.faang.user_service.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserFilter;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
-
-    public SubscriptionService(SubscriptionRepository subscriptionRepository) {
-        this.subscriptionRepository = subscriptionRepository;
-    }
+    private final List<UserFilter> userFilters;
 
     public void followUser(long followerId, long followeeId) {
-        if (followerId == followeeId) {
-            throw new DataValidationException(
-                    "FollowerId %d and FolloweeId %d cannot be the same".formatted(followerId, followeeId)
-            );
-        }
+        checkSameUsers(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            log.warn("This subscription (%d - %d) already exists".formatted(followerId, followeeId));
             throw new DataValidationException(
                     "This subscription (%d - %d) already exists".formatted(followerId, followeeId)
             );
         }
+        log.info("Following subscription (%d - %d)".formatted(followerId, followeeId));
         subscriptionRepository.followUser(followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
+        checkSameUsers(followerId, followeeId);
+        log.info("Unfollowing subscription (%d - %d)".formatted(followerId, followeeId));
+        subscriptionRepository.unfollowUser(followerId, followeeId);
+    }
+
+    public List<User> getFollowers(long followerId, UserFilterDto filters) {
+        Stream<User> allFollowers = subscriptionRepository.findByFollowerId(followerId);
+        log.info("Followers by id {} and filters {}", followerId, filters);
+
+        return userFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .reduce(allFollowers,
+                        (stream, filter) -> filter.apply(stream, filters),
+                        (s1, s2) -> s1)
+                .toList();
+    }
+
+    public int getFollowersCount(long followeeId) {
+        log.info("Get followers count for followeeId {}", followeeId);
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+    }
+
+    public List<User> getFollowing(long followeeId, UserFilterDto filters) {
+        Stream<User> followingStream = subscriptionRepository.findByFolloweeId(followeeId);
+        log.info("Following by id {} and filters {}", followeeId, filters);
+
+        return userFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .reduce(followingStream,
+                        (stream, filter) -> filter.apply(stream, filters),
+                        (s1, s2) -> s1)
+                .toList();
+    }
+
+    public int getFollowingCount(long followerId) {
+        log.info("Get following count for followerId {}", followerId);
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+    }
+
+    private void checkSameUsers(long followerId, long followeeId) {
         if (followerId == followeeId) {
+            log.warn("FollowerId %d and FolloweeId %d cannot be the same");
             throw new DataValidationException(
                     "FollowerId %d and FolloweeId %d cannot be the same".formatted(followerId, followeeId)
             );
         }
-        subscriptionRepository.unfollowUser(followerId, followeeId);
-    }
-
-    public List<User> getFollowers(long followerId, UserFilter filter) {
-        Stream<User> getAllFollowers = subscriptionRepository.findByFollowerId(followerId);
-        return filterUsers(getAllFollowers, filter);
-    }
-
-    public int getFollowersCount(long followeeId) {
-        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
-    }
-
-    public List<User> getFollowing(long followeeId, UserFilter filter) {
-        Stream<User> followingStream = subscriptionRepository.findByFolloweeId(followeeId);
-        return filterUsers(followingStream, filter);
-    }
-
-    public int getFollowingCount(long followerId) {
-        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
-    }
-
-    private List<User> filterUsers(Stream<User> users, UserFilter filter) {
-        return users.filter(user -> Pattern.matches(filter.getNamePattern(), user.getUsername()))
-                .filter(user -> Pattern.matches(filter.getAboutPattern(), user.getAboutMe()))
-                .filter(user -> Pattern.matches(filter.getEmailPattern(), user.getEmail()))
-                .filter(user -> user.getContacts().stream()
-                        .anyMatch(contact -> Pattern.matches(filter.getContactPattern(), contact.getContact())))
-                .filter(user -> Pattern.matches(filter.getCountryPattern(), user.getCountry().getTitle()))
-                .filter(user -> Pattern.matches(filter.getCityPattern(), user.getCity()))
-                .filter(user -> Pattern.matches(filter.getPhonePattern(), user.getPhone()))
-                .filter(user -> user.getSkills().stream()
-                        .anyMatch(skill -> Pattern.matches(filter.getSkillPattern(), skill.getTitle())))
-                .filter(user -> user.getExperience() >= filter.getExperienceMin())
-                .filter(user -> user.getExperience() <= filter.getExperienceMax())
-                .sorted(Comparator.comparing(User::getId))
-                .limit((long) filter.getPageSize() * filter.getPage())
-                .toList();
     }
 }
