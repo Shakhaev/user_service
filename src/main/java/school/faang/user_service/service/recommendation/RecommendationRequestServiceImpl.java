@@ -9,9 +9,9 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.service.SkillRequestService;
-import school.faang.user_service.service.SkillService;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.skill.SkillRequestServiceImpl;
+import school.faang.user_service.service.skill.SkillServiceImpl;
+import school.faang.user_service.service.user.UserServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,9 +24,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private int minMonth;
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
-    private final UserService userService;
-    private final SkillService skillService;
-    private final SkillRequestService skillRequestService;
+    private final UserServiceImpl userService;
+    private final SkillServiceImpl skillService;
+    private final SkillRequestServiceImpl skillRequestService;
 
     @Override
     public RecommendationRequest create(RecommendationRequestDto dto) throws IllegalArgumentException {

@@ -1,10 +1,12 @@
 package school.faang.user_service.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 public class RequestFilterDto {
     private final String message;
     private final String status;
@@ -13,5 +15,4 @@ public class RequestFilterDto {
     private final Long receiverId;
     private final String createdAt;
     private final String updatedAt;
-
 }

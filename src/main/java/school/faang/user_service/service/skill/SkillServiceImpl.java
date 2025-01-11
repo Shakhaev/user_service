@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.skill;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class SkillService {
+public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
 
     public boolean checkSkillsExist(List<Long> skills) {

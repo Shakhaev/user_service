@@ -1,6 +1,7 @@
 package school.faang.user_service.data;
 
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -12,11 +13,11 @@ import java.util.List;
 public enum RecommendationRequestData {
     DATA1(1L, UserData.USER1, UserData.USER1, "message", RequestStatus.ACCEPTED, "", null,
             List.of(SkillData.SKILL_DEV),
-            LocalDateTime.of(2024, 2, 2, 2, 2),
+            LocalDateTime.now(),
             LocalDateTime.of(2024, 2, 2, 2, 2)),
     DATA_NULL_MESSAGE(1L, UserData.USER1, UserData.USER1, null, RequestStatus.ACCEPTED, "", null,
             List.of(SkillData.SKILL_DEV),
-            LocalDateTime.of(2024, 2, 2, 2, 2),
+            LocalDateTime.now(),
             LocalDateTime.of(2024, 2, 2, 2, 2))
     ;
 
@@ -55,21 +56,6 @@ public enum RecommendationRequestData {
         this.updatedAt = updatedAt;
     }
 
-    public RecommendationRequestDto toDto(Long requesterId, Long receiverId, List<Long> skillIds) {
-        return RecommendationRequestDto
-                .builder()
-                .id(this.id)
-                .skills(skillIds)
-                .requesterId(requesterId)
-                .receiverId(receiverId)
-                .status(this.status.name())
-                .message(this.message)
-                .createdAt(this.createdAt.format(DATE_TIME_FORMAT))
-                .updatedAt(this.updatedAt.format(DATE_TIME_FORMAT))
-                .rejectionReason(this.rejectionReason)
-                .build();
-    }
-
     public RecommendationRequestDto toDto() {
         return RecommendationRequestDto
                 .builder()
@@ -103,6 +89,18 @@ public enum RecommendationRequestData {
                 .build();
     }
 
+    public RequestFilterDto toFilterDto() {
+        return RequestFilterDto.builder()
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .message(message)
+                .status(status.name())
+                .skillIds(skillsRequested.stream().map(SkillData::getId).toList())
+                .createdAt(createdAt.format(DATE_TIME_FORMAT))
+                .updatedAt(updatedAt.format(DATE_TIME_FORMAT))
+                .build();
+    }
+
     public long getId() {
         return id;
     }
@@ -111,35 +109,11 @@ public enum RecommendationRequestData {
         return requester;
     }
 
-    public UserData getReceiver() {
-        return receiver;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public RequestStatus getStatus() {
-        return status;
-    }
-
-    public String getRejectionReason() {
-        return rejectionReason;
-    }
-
-    public RecommendationData getRecommendation() {
-        return recommendation;
-    }
-
     public List<SkillData> getSkillsRequested() {
         return skillsRequested;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

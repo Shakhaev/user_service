@@ -1,6 +1,5 @@
 package school.faang.user_service.data;
 
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 
 public enum UserData {
@@ -32,38 +31,7 @@ public enum UserData {
                 .build();
     }
 
-    public User getUser(Country country) {
-        return User.builder()
-                .id(id)
-                .username("username")
-                .email("email")
-                .password("password")
-                .active(true)
-                .country(country)
-                .build();
-    }
-
     public Long getId() {
         return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getActive() {
-        return active;
-    }
-
-    public CountryData getCountry() {
-        return country;
     }
 }

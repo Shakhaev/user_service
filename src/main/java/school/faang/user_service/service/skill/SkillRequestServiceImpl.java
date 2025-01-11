@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.skill;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,9 +10,9 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class SkillRequestService {
+public class SkillRequestServiceImpl implements SkillRequestService {
     private final SkillRequestRepository skillRequestRepository;
-    private final SkillService skillService;
+    private final SkillServiceImpl skillService;
 
     public List<SkillRequest> createAllSkillRequest(List<Long> skillIds, RecommendationRequest recommendationRequest) {
         List<SkillRequest> skillRequests = skillIds.stream().map(skillId -> SkillRequest.builder()
