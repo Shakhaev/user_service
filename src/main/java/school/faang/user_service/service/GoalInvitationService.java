@@ -12,20 +12,25 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Service
 public class GoalInvitationService {
-    private final GoalInvitationRepository goalInvitationRepository;
-    private final UserRepository userRepository;
     private static final int MAX_ACTIVE_GOALS = 3;
 
-    public GoalInvitation createInvitation(@NonNull GoalInvitation invitation) {
-        if (Objects.equals(invitation.getInviter(), invitation.getInvited()))
-            throw new RuntimeException();
+    private final GoalInvitationRepository goalInvitationRepository;
+    private final UserRepository userRepository;
 
-        if (!userRepository.existsById(invitation.getInvited().getId())) {
-            throw new IllegalArgumentException("Invited user does not exist.");
+    public GoalInvitation createInvitation(GoalInvitation invitation) {
+        Long inviterId = invitation.getInviter().getId();
+        Long invitedId = invitation.getInvited().getId();
+
+        if (Objects.equals(invitedId, inviterId)) {
+            throw new IllegalArgumentException("The user doesn't create invitation by-self");
         }
 
-        if (!userRepository.existsById(invitation.getInviter().getId())) {
-            throw new IllegalArgumentException("Inviting user does not exist.");
+        if (!userRepository.existsById(inviterId)) {
+            throw new IllegalArgumentException("Inviter does not exist.");
+        }
+
+        if (!userRepository.existsById(invitedId)) {
+            throw new IllegalArgumentException("Invited does not exist.");
         }
 
         return goalInvitationRepository.save(invitation);
