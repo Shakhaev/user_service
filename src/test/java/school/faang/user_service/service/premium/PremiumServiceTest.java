@@ -11,7 +11,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
-import school.faang.user_service.exception.premium.PremiumNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.payment.PaymentService;
@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.USER_NOT_FOUND_WHEN_BUYING_PREMIUM;
 import static school.faang.user_service.util.premium.PremiumFabric.buildPremiums;
 import static school.faang.user_service.util.premium.PremiumFabric.getPaymentResponse;
 import static school.faang.user_service.util.premium.PremiumFabric.getUser;
@@ -58,8 +57,8 @@ class PremiumServiceTest {
     void testBuyPremiumDeleteUserNotFound() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> premiumService.buyPremium(USER_ID, PERIOD))
-                .isInstanceOf(PremiumNotFoundException.class)
-                .hasMessageContaining(USER_NOT_FOUND_WHEN_BUYING_PREMIUM, USER_ID);
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining(new UserNotFoundException(USER_ID).getMessage());
     }
 
     @Test

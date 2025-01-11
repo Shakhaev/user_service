@@ -62,7 +62,7 @@ public class RecommendationRequestService {
     public RecommendationRequest findRequestById(Long id) {
         return this.recommendationRequestRepository
                 .findById(id)
-                .orElseThrow(RecommendationRequestNotFoundException::new);
+                .orElseThrow(() -> new RecommendationRequestNotFoundException(id));
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class RecommendationRequestService {
         RecommendationRequest recommendationRequest = this.findRequestById(rejection.getId());
 
         if (recommendationRequest.getStatus() != RequestStatus.PENDING) {
-            throw new RecommendationRequestRejectException();
+            throw new RecommendationRequestRejectException(RequestStatus.PENDING);
         }
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);

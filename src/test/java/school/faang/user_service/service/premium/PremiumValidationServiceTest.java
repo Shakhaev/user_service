@@ -10,14 +10,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
-import school.faang.user_service.exception.payment.UnSuccessPaymentException;
-import school.faang.user_service.exception.premium.PremiumValidationFailureException;
+import school.faang.user_service.exception.payment.UnsuccessfulUserPremiumBuyException;
+import school.faang.user_service.exception.premium.UserAlreadyHasPremiumException;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.UNSUCCESSFUL_PREMIUM_PAYMENT;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.USER_ALREADY_HAS_PREMIUM;
 import static school.faang.user_service.util.premium.PremiumFabric.getPaymentResponse;
 import static school.faang.user_service.util.premium.PremiumFabric.getPremium;
 import static school.faang.user_service.util.premium.PremiumFabric.getUser;
@@ -41,8 +39,8 @@ class PremiumValidationServiceTest {
         User user = getUser(USER_ID, premium);
 
         assertThatThrownBy(() -> premiumValidationService.validateUserForSubPeriod(USER_ID, user))
-                .isInstanceOf(PremiumValidationFailureException.class)
-                .hasMessageContaining(USER_ALREADY_HAS_PREMIUM, USER_ID, END_DATE);
+                .isInstanceOf(UserAlreadyHasPremiumException.class)
+                .hasMessageContaining(new UserAlreadyHasPremiumException(USER_ID, END_DATE).getMessage());
     }
 
     @Test
@@ -52,7 +50,8 @@ class PremiumValidationServiceTest {
 
         assertThatThrownBy(() ->
                 premiumValidationService.checkPaymentResponse(paymentResponse, USER_ID, PremiumPeriod.MONTH))
-                .isInstanceOf(UnSuccessPaymentException.class)
-                .hasMessageContaining(UNSUCCESSFUL_PREMIUM_PAYMENT, USER_ID, PERIOD.getDays(), paymentResponse.message());
+                .isInstanceOf(UnsuccessfulUserPremiumBuyException.class)
+                .hasMessageContaining(new UnsuccessfulUserPremiumBuyException(PERIOD.getDays(), USER_ID,
+                        paymentResponse.message()).getMessage());
     }
 }

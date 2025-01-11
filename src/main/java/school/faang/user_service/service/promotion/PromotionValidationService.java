@@ -2,22 +2,16 @@ package school.faang.user_service.service.promotion;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.EventPromotion;
-import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.promotion.UserPromotion;
-import school.faang.user_service.exception.payment.UnSuccessPaymentException;
-import school.faang.user_service.exception.promotion.PromotionValidationException;
+import school.faang.user_service.exception.event.exceptions.UserNotOwnerOfEventException;
+import school.faang.user_service.exception.promotion.EventAlreadyHasPromotionException;
+import school.faang.user_service.exception.promotion.UserAlreadyHasPromotionException;
 
 import java.util.List;
 import java.util.Optional;
-
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.EVENT_ALREADY_HAS_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.USER_ALREADY_HAS_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.USER_NOT_OWNER_OF_EVENT;
 
 @Slf4j
 @Service
@@ -25,7 +19,7 @@ public class PromotionValidationService {
 
     public void checkUserForPromotion(User user) {
         getActiveUserPromotion(user).ifPresent(promotion -> {
-            throw new PromotionValidationException(USER_ALREADY_HAS_PROMOTION, user.getId(), promotion.getNumberOfViews());
+            throw new UserAlreadyHasPromotionException(user.getId(), promotion.getNumberOfViews());
         });
     }
 
@@ -46,10 +40,10 @@ public class PromotionValidationService {
 
     public void checkEventForUserAndPromotion(long userId, long eventId, Event event) {
         if (userId != event.getOwner().getId()) {
-            throw new PromotionValidationException(USER_NOT_OWNER_OF_EVENT, userId, eventId);
+            throw new UserNotOwnerOfEventException(userId, eventId);
         }
         getActiveEventPromotion(event).ifPresent(promotion -> {
-            throw new PromotionValidationException(EVENT_ALREADY_HAS_PROMOTION, eventId, promotion.getNumberOfViews());
+            throw new EventAlreadyHasPromotionException(eventId, promotion.getNumberOfViews());
         });
     }
 
@@ -66,13 +60,5 @@ public class PromotionValidationService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
-    }
-
-    public void checkPromotionPaymentResponse(PaymentResponseDto paymentResponse, long id, PromotionTariff tariff,
-                                              String errorMessage) {
-        log.info("Check promotion payment response: {}", paymentResponse);
-        if (!paymentResponse.status().equals(PaymentStatus.SUCCESS)) {
-            throw new UnSuccessPaymentException(errorMessage, tariff.getNumberOfViews(), id, paymentResponse.message());
-        }
     }
 }

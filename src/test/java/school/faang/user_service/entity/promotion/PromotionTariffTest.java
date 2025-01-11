@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.PROMOTION_NOT_FOUND;
 
 
 class PromotionTariffTest {
@@ -31,7 +30,7 @@ class PromotionTariffTest {
     private void assertTariffException(PromotionTariff tariff) {
         assertThatThrownBy(() -> PromotionTariff.fromViews(tariff.getNumberOfViews() + 1))
                 .isInstanceOf(PromotionNotFoundException.class)
-                .hasMessageContaining(PROMOTION_NOT_FOUND, tariff.getNumberOfViews() + 1,
-                        PromotionTariff.viewsOption());
+                .hasMessageContaining(new PromotionNotFoundException(tariff.getNumberOfViews() + 1,
+                        PromotionTariff.viewsOption()).getMessage());
     }
 }

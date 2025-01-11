@@ -1,12 +1,13 @@
 package school.faang.user_service.exception.user;
 
-import org.springframework.http.HttpStatus;
-import school.faang.user_service.exception.ApiException;
+import school.faang.user_service.exception.global.ApiException;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 public class UserNotFoundException extends ApiException {
-    private static final String MESSAGE = "User Not Found";
+    private static final String MESSAGE = "User with id %s not found";
 
-    public UserNotFoundException() {
-        super(MESSAGE, HttpStatus.NOT_FOUND);
+    public UserNotFoundException(Long userId) {
+        super(MESSAGE, NOT_FOUND, userId);
     }
 }

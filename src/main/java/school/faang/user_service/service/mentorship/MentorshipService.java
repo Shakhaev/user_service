@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.exception.global.BadRequestException;
+import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
@@ -58,22 +59,14 @@ public class MentorshipService {
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(
-                        () -> new UserNotFoundException("User with id = [" + userId + "] not found")
-                );
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private User checkMentorOrMentee(Collection<User> users, Long parentId, Long filteredId, String mentorship) {
         return users.stream()
                 .filter(u -> u.getId().equals(filteredId))
                 .findFirst()
-                .orElseThrow(
-                        () -> new UserNotFoundException(
-                                String.format(
-                                        "User with id = [%d] is not a %s of user with id = [%d].",
-                                        filteredId, mentorship, parentId
-                                )
-                        )
-                );
+                .orElseThrow(() -> new BadRequestException("User with id = [%d] is not a %s of user with id = [%d].",
+                        filteredId, mentorship, parentId));
     }
 }

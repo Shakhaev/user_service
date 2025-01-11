@@ -9,15 +9,13 @@ import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
-import school.faang.user_service.exception.premium.PremiumNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.payment.PaymentService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.USER_NOT_FOUND_WHEN_BUYING_PREMIUM;
 
 @Slf4j
 @Service
@@ -33,7 +31,7 @@ public class PremiumService {
     public Premium buyPremium(long userId, PremiumPeriod period) {
         log.info("User with id: {} buy a premium {} days subscription", userId, period.getDays());
         User user = userRepository.findById(userId).orElseThrow(() ->
-                new PremiumNotFoundException(USER_NOT_FOUND_WHEN_BUYING_PREMIUM, userId));
+                new UserNotFoundException(userId));
         premiumValidationService.validateUserForSubPeriod(userId, user);
         PaymentResponseDto paymentResponse = paymentService.sendPayment(period);
         premiumValidationService.checkPaymentResponse(paymentResponse, userId, period);

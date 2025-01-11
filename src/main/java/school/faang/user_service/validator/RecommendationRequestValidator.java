@@ -1,18 +1,15 @@
 package school.faang.user_service.validator;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recomendation.CreateRecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.ValidationException;
+import school.faang.user_service.exception.validation.ValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

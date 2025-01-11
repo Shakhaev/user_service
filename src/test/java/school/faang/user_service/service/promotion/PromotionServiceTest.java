@@ -14,7 +14,8 @@ import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.EventPromotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.promotion.UserPromotion;
-import school.faang.user_service.exception.promotion.PromotionNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.event.exceptions.EventNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.promotion.EventPromotionRepository;
@@ -31,8 +32,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.USER_NOT_FOUND_WHEN_BUYING_PROMOTION;
-import static school.faang.user_service.service.promotion.util.PromotionErrorMessages.EVENT_NOT_FOUND_PROMOTION;
 import static school.faang.user_service.util.premium.PremiumFabric.getPaymentResponse;
 import static school.faang.user_service.util.promotion.PromotionFabric.buildActiveEventPromotions;
 import static school.faang.user_service.util.promotion.PromotionFabric.buildActiveUserPromotions;
@@ -88,8 +87,8 @@ class PromotionServiceTest {
         when(userRepository.findById(NOT_EXIST_USER_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> promotionService.buyPromotion(NOT_EXIST_USER_ID, TARIFF))
-                .isInstanceOf(PromotionNotFoundException.class)
-                .hasMessageContaining(USER_NOT_FOUND_WHEN_BUYING_PROMOTION, NOT_EXIST_USER_ID);
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining(new UserNotFoundException(NOT_EXIST_USER_ID).getMessage());
     }
 
     @Test
@@ -110,8 +109,8 @@ class PromotionServiceTest {
         when(eventRepository.findById(NOT_EXIST_EVENT_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> promotionService.buyEventPromotion(USER_ID, NOT_EXIST_EVENT_ID, TARIFF))
-                .isInstanceOf(PromotionNotFoundException.class)
-                .hasMessageContaining(EVENT_NOT_FOUND_PROMOTION, NOT_EXIST_EVENT_ID);
+                .isInstanceOf(EventNotFoundException.class)
+                .hasMessageContaining(new EventNotFoundException(NOT_EXIST_EVENT_ID).getMessage());
     }
 
     @Test

@@ -15,8 +15,12 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.goal.invitation.InvitationCheckException;
-import school.faang.user_service.exception.goal.invitation.InvitationEntityNotFoundException;
+import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.goal.GoalNotFoundException;
+import school.faang.user_service.exception.goal.invitation.GoalInvitationNotFoundException;
+import school.faang.user_service.exception.goal.invitation.SameInviterAndInvitedUsersException;
+import school.faang.user_service.exception.goal.invitation.UserAlreadyHasGoalException;
+import school.faang.user_service.exception.goal.invitation.UserGoalsLimitExceededException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -37,13 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.GOAL_INVITATION_NOT_FOUND;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.GOAL_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.INVITED_USER_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.INVITER_NOT_FOUND_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USERS_SAME_MESSAGE_FORMAT;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USER_ALREADY_HAS_GOAL;
-import static school.faang.user_service.service.goal.util.GoalInvitationErrorMessages.USER_GOALS_LIMIT_EXCEEDED;
 import static school.faang.user_service.util.goal.invitation.InvitationFabric.getGoal;
 import static school.faang.user_service.util.goal.invitation.InvitationFabric.getGoals;
 import static school.faang.user_service.util.goal.invitation.InvitationFabric.getInvitation;
@@ -87,8 +84,8 @@ class GoalInvitationServiceTest {
     void testCreateInvitationSameUsers() {
         assertThatThrownBy(() -> goalInvitationService
                 .createInvitation(mock(GoalInvitation.class), FIRST_USER_ID, FIRST_USER_ID, GOAL_ID))
-                .isInstanceOf(InvitationCheckException.class)
-                .hasMessageContaining(USERS_SAME_MESSAGE_FORMAT, FIRST_USER_ID, FIRST_USER_ID);
+                .isInstanceOf(SameInviterAndInvitedUsersException.class)
+                .hasMessageContaining(new SameInviterAndInvitedUsersException(FIRST_USER_ID, FIRST_USER_ID).getMessage());
     }
 
     @Test
@@ -98,8 +95,8 @@ class GoalInvitationServiceTest {
 
         assertThatThrownBy(() -> goalInvitationService
                 .createInvitation(mock(GoalInvitation.class), NON_EXIST_USER_ID, SECOND_USER_ID, GOAL_ID))
-                .isInstanceOf(InvitationEntityNotFoundException.class)
-                .hasMessageContaining(INVITER_NOT_FOUND_MESSAGE_FORMAT, NON_EXIST_USER_ID);
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining(new UserNotFoundException(NON_EXIST_USER_ID).getMessage());
     }
 
     @Test
@@ -110,8 +107,8 @@ class GoalInvitationServiceTest {
 
         assertThatThrownBy(() -> goalInvitationService
                 .createInvitation(mock(GoalInvitation.class), FIRST_USER_ID, NON_EXIST_USER_ID, GOAL_ID))
-                .isInstanceOf(InvitationEntityNotFoundException.class)
-                .hasMessageContaining(INVITED_USER_NOT_FOUND_MESSAGE_FORMAT, NON_EXIST_USER_ID);
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining(new UserNotFoundException(NON_EXIST_USER_ID).getMessage());
     }
 
     @Test
@@ -123,8 +120,8 @@ class GoalInvitationServiceTest {
 
         assertThatThrownBy(() -> goalInvitationService
                 .createInvitation(mock(GoalInvitation.class), FIRST_USER_ID, SECOND_USER_ID, NON_EXIST_GOAL_ID))
-                .isInstanceOf(InvitationEntityNotFoundException.class)
-                .hasMessageContaining(GOAL_NOT_FOUND_MESSAGE_FORMAT, NON_EXIST_GOAL_ID);
+                .isInstanceOf(GoalNotFoundException.class)
+                .hasMessageContaining(new GoalNotFoundException(NON_EXIST_GOAL_ID).getMessage());
     }
 
     @Test
@@ -144,8 +141,8 @@ class GoalInvitationServiceTest {
         when(goalInvitationRepository.findById(NON_EXIST_GOAL_INVITATION_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> goalInvitationService.acceptGoalInvitation(NON_EXIST_GOAL_INVITATION_ID))
-                .isInstanceOf(InvitationEntityNotFoundException.class)
-                .hasMessageContaining(GOAL_INVITATION_NOT_FOUND, NON_EXIST_GOAL_INVITATION_ID);
+                .isInstanceOf(GoalInvitationNotFoundException.class)
+                .hasMessageContaining(new GoalInvitationNotFoundException(NON_EXIST_GOAL_INVITATION_ID).getMessage());
     }
 
     @Test
@@ -155,8 +152,8 @@ class GoalInvitationServiceTest {
         when(goalInvitationRepository.findById(GOAL_INVITATION_ID)).thenReturn(Optional.of(invitation));
 
         assertThatThrownBy(() -> goalInvitationService.acceptGoalInvitation(GOAL_INVITATION_ID))
-                .isInstanceOf(InvitationCheckException.class)
-                .hasMessageContaining(USER_ALREADY_HAS_GOAL, SECOND_USER_ID, GOAL_ID);
+                .isInstanceOf(UserAlreadyHasGoalException.class)
+                .hasMessageContaining(new UserAlreadyHasGoalException(SECOND_USER_ID, GOAL_ID).getMessage());
         assertThat(invitation.getStatus()).isEqualTo(RequestStatus.REJECTED);
     }
 
@@ -174,8 +171,8 @@ class GoalInvitationServiceTest {
         when(goalInvitationRepository.findById(GOAL_INVITATION_ID)).thenReturn(Optional.of(invitation));
 
         assertThatThrownBy(() -> goalInvitationService.acceptGoalInvitation(GOAL_INVITATION_ID))
-                .isInstanceOf(InvitationCheckException.class)
-                .hasMessageContaining(USER_GOALS_LIMIT_EXCEEDED, invitation.getInvited().getId(), USER_GOALS_LIMIT);
+                .isInstanceOf(UserGoalsLimitExceededException.class)
+                .hasMessageContaining(new UserGoalsLimitExceededException(invitation.getInvited().getId(), USER_GOALS_LIMIT).getMessage());
         assertThat(invitation.getStatus()).isEqualTo(RequestStatus.REJECTED);
     }
 
@@ -211,8 +208,8 @@ class GoalInvitationServiceTest {
         when(goalInvitationRepository.findById(GOAL_INVITATION_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> goalInvitationService.acceptGoalInvitation(GOAL_INVITATION_ID))
-                .isInstanceOf(InvitationEntityNotFoundException.class)
-                .hasMessageContaining(GOAL_INVITATION_NOT_FOUND, GOAL_INVITATION_ID);
+                .isInstanceOf(GoalInvitationNotFoundException.class)
+                .hasMessageContaining(new GoalInvitationNotFoundException(GOAL_INVITATION_ID).getMessage());
     }
 
     @Test

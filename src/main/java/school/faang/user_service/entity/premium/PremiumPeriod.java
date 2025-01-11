@@ -15,7 +15,6 @@ import static school.faang.user_service.entity.premium.PremiumPeriodValues.DAYS_
 import static school.faang.user_service.entity.premium.PremiumPeriodValues.DAYS_THREE_MOTH;
 import static school.faang.user_service.entity.premium.PremiumPeriodValues.DAYS_YEAR;
 import static school.faang.user_service.entity.premium.PremiumPeriodValues.PREMIUM_CURRENCY;
-import static school.faang.user_service.service.premium.util.PremiumErrorMessages.PREMIUM_PERIOD_NOT_FOUND;
 
 @Getter
 @AllArgsConstructor
@@ -33,7 +32,7 @@ public enum PremiumPeriod {
             case DAYS_MONTH -> MONTH;
             case DAYS_THREE_MOTH -> THREE_MONTH;
             case DAYS_YEAR -> YEAR;
-            default -> throw new PremiumNotFoundException(PREMIUM_PERIOD_NOT_FOUND, days, PremiumPeriod.daysOptions());
+            default -> throw new PremiumNotFoundException(days, PremiumPeriod.daysOptions());
         };
     }
 

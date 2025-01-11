@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.exception.MinioUploadException;
+import school.faang.user_service.exception.minio.MinioUploadException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public class MinioService {
             );
         } catch (Exception e) {
             log.error("Error uploading file to MinIO: {}", e.getMessage());
-            throw new MinioUploadException("Error uploading file to MinIO", e);
+            throw new MinioUploadException(fileName, contentType);
         }
     }
 }

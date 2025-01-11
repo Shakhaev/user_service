@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import school.faang.user_service.entity.AvatarStyle;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.exception.AvatarFetchException;
+import school.faang.user_service.exception.minio.AvatarFetchException;
 import school.faang.user_service.service.minio.MinioService;
 
 import java.util.UUID;
@@ -61,6 +61,6 @@ public class AvatarService {
             return response.getBody();
         }
         log.error("Failed to fetch avatar from DiceBear API for style {}", style.getStyleName());
-        throw new AvatarFetchException("Failed to fetch avatar from DiceBear API for style " + style.getStyleName());
+        throw new AvatarFetchException(style.getStyleName());
     }
 }
