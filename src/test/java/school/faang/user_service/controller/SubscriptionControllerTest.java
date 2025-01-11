@@ -11,14 +11,14 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.service.impl.SubscriptionServiceImpl;
 
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionControllerTest {
 
     @Mock
-    private SubscriptionService subscriptionService;
+    private SubscriptionServiceImpl subscriptionService;
     @InjectMocks
     private SubscriptionController subscriptionController;
 

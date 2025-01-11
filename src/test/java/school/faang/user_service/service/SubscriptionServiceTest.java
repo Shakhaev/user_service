@@ -20,6 +20,7 @@ import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SubscriptionUserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.impl.SubscriptionServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +34,14 @@ public class SubscriptionServiceTest {
     @Spy
     SubscriptionUserMapperImpl subscriptionUserMapper;
     @InjectMocks
-    SubscriptionService subscriptionService;
+    SubscriptionServiceImpl subscriptionService;
     long followerId;
     long followeeId;
     List<User> followers = new ArrayList<>();
     List<User> followees = new ArrayList<>();
-    SubscriptionUserFilterDto filter;
-    List<SubscriptionUserDto> filteredUsersDtos;
-    List<SubscriptionUserDto> expectedUserDtos;
+    private SubscriptionUserFilterDto filter;
+    private List<SubscriptionUserDto> filteredUsersDtos;
+    private List<SubscriptionUserDto> expectedUserDtos;
 
     @BeforeEach
     public void init() {
@@ -59,7 +60,7 @@ public class SubscriptionServiceTest {
     }
 
     @Test
-    @DisplayName("Follow To Himself")
+    @DisplayName("Follow By Himself")
     void testFollowUserByHimself() {
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followerId))
                 .thenThrow(new DataValidationException(USER_ALREADY_HAS_THIS_FOLLOWER));
