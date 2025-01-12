@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal;
+package school.faang.user_service.service.skills;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,6 @@ import java.util.List;
 public class SkillService {
 
     private final SkillRepository skillRepository;
-
 
     public void assignSkillsToUser(Long skillId, Long userId) {
         skillRepository.assignSkillToUser(skillId, userId);

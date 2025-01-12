@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
-import school.faang.user_service.exceptions.BadRequestException;
+import school.faang.user_service.exception.BadRequestException;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;

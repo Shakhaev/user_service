@@ -1,9 +1,9 @@
-package school.faang.user_service.service.goal;
+package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.ResourceNotFoundException;
+import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
 @Service

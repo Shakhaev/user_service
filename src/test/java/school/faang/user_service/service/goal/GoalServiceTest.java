@@ -13,13 +13,15 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exceptions.BadRequestException;
-import school.faang.user_service.exceptions.ResourceNotFoundException;
+import school.faang.user_service.exception.BadRequestException;
+import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.filter.goal.GoalStatusFilter;
 import school.faang.user_service.filter.goal.GoalTitleFilter;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.skills.SkillService;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,9 +45,9 @@ public class GoalServiceTest {
     @Mock
     private UserService userService;
     @Spy
-    private GoalTitleFilter goalTitleFilter;
+    private GoalTitleFilter goalTitleFilter = new GoalTitleFilter();
     @Spy
-    private GoalStatusFilter goalStatusFilter;
+    private GoalStatusFilter goalStatusFilter = new GoalStatusFilter();
     private List<GoalFilter> goalFilters;
     private GoalDTO goalDTO;
 
