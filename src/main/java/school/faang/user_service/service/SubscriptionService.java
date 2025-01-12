@@ -21,12 +21,7 @@ public class SubscriptionService {
 
     public void followUser(long followerId, long followeeId) {
         checkSameUsers(followerId, followeeId);
-        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("This subscription (%d - %d) already exists".formatted(followerId, followeeId));
-            throw new DataValidationException(
-                    "This subscription (%d - %d) already exists".formatted(followerId, followeeId)
-            );
-        }
+        checkExistFollower(followerId, followeeId);
         log.info("Following subscription (%d - %d)".formatted(followerId, followeeId));
         subscriptionRepository.followUser(followerId, followeeId);
     }
@@ -76,6 +71,14 @@ public class SubscriptionService {
             log.warn("FollowerId %d and FolloweeId %d cannot be the same");
             throw new DataValidationException(
                     "FollowerId %d and FolloweeId %d cannot be the same".formatted(followerId, followeeId)
+            );
+        }
+    }
+
+    private void checkExistFollower(long followerId, long followeeId) {
+        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new DataValidationException(
+                    "This subscription (%d - %d) already exists".formatted(followerId, followeeId)
             );
         }
     }
