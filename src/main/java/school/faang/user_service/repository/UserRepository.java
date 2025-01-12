@@ -50,6 +50,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    @Query("SELECT id FROM User WHERE id IN :ids AND active = true")
+    @Query("""
+            SELECT id 
+            FROM User 
+            WHERE id IN :ids AND active = true
+            """)
     List<Long> findActiveUserIds(@Param("ids") List<Long> ids);
+
+    @Query(nativeQuery = true, value = """
+            SELECT u.*
+            FROM users u
+            JOIN user_premium up
+            ON u.id = up.user_id
+            WHERE up.end_date > now()
+            OFFSET :offset
+            LIMIT :limit
+            """)
+    List<User> findAllWithActivePremiumInRange(@Param("offset") long offset, @Param("limit") long limit);
 }

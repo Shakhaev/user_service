@@ -1,46 +1,32 @@
 package school.faang.user_service.service.user;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.AvatarStyle;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.exception.user.UserDeactivatedException;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.avatar.AvatarService;
+import school.faang.user_service.service.event.EventDomainService;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.mentorship.MentorshipService;
-import school.faang.user_service.service.user.filter.UserEmailFilter;
-import school.faang.user_service.service.user.filter.UserFilter;
-import school.faang.user_service.service.user.filter.UserUsernameFilter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,34 +35,24 @@ import static org.mockito.Mockito.when;
 class
 UserServiceTest extends AbstractUserServiceTest {
     @Mock
-    private UserRepository userRepository;
+    private UserValidationService userValidationService;
     @Mock
-    private GoalService goalService;
-    @Mock
-    private EventRepository eventRepository;
+    private EventDomainService eventDomainService;
     @Mock
     private MentorshipService mentorshipService;
     @Mock
+    private UserDomainService userDomainService;
+    @Mock
     private AvatarService avatarService;
     @Mock
-    private PremiumRepository premiumRepository;
+    private GoalService goalService;
     @InjectMocks
     private UserService userService;
 
     private User user;
-    private static List<UserFilter> userFilters;
-
-    @BeforeAll
-    static void setupAll() {
-        var userUsernameFilter = new UserUsernameFilter();
-        var userEmailFilter = new UserEmailFilter();
-        userFilters = Arrays.asList(userUsernameFilter, userEmailFilter);
-    }
 
     @BeforeEach
     public void setUp() {
-        ReflectionTestUtils.setField(userService, "userFilters", userFilters);
-
         user = new User();
         user.setId(1L);
         user.setActive(true);
@@ -109,18 +85,18 @@ UserServiceTest extends AbstractUserServiceTest {
     @Test
     public void deactivateUserSuccess() {
         Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userDomainService.findById(userId)).thenReturn(user);
         List<Goal> userGoals = new ArrayList<>(user.getGoals());
         List<Event> userEvents = new ArrayList<>(user.getOwnedEvents());
 
         userService.deactivateUser(userId);
 
-        verify(userRepository).findById(userId);
+        verify(userDomainService).findById(userId);
         verify(goalService).deleteGoalAndUnlinkChildren(userGoals.get(0));
-        verify(eventRepository).save(userEvents.get(0));
-        verify(eventRepository).delete(userEvents.get(0));
+        verify(eventDomainService).save(userEvents.get(0));
+        verify(eventDomainService).delete(userEvents.get(0));
         verify(mentorshipService).deleteMentorFromMentees(userId, user.getMentees());
-        verify(userRepository).save(user);
+        verify(userDomainService).save(user);
 
         assertEquals(user.getGoals().size(), 0);
     }
@@ -130,7 +106,7 @@ UserServiceTest extends AbstractUserServiceTest {
         Long userId = 1L;
         user.setActive(false);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userDomainService.findById(userId)).thenReturn(user);
 
         assertThrows(UserDeactivatedException.class, () -> userService.deactivateUser(userId));
     }
@@ -145,7 +121,7 @@ UserServiceTest extends AbstractUserServiceTest {
         userProfilePic.setSmallFileId("avatar_small.png");
 
         when(avatarService.generateAndSaveAvatar(AvatarStyle.BOTTTTS)).thenReturn(userProfilePic);
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userDomainService.save(any(User.class))).thenReturn(user);
 
         User result = userService.registerUser(user);
 
@@ -154,110 +130,31 @@ UserServiceTest extends AbstractUserServiceTest {
         assertNotNull(result.getUserProfilePic());
         assertEquals("avatar.png", result.getUserProfilePic().getFileId());
 
-        verify(userRepository, times(1)).save(user);
+        verify(userValidationService).validateUsernameAndEmail(user);
+        verify(userDomainService, times(1)).save(user);
         verify(avatarService, times(1)).generateAndSaveAvatar(AvatarStyle.BOTTTTS);
     }
 
     @Test
     void testGetPremiumUsers() {
-        UserFilterDto userFilterDto = UserFilterDto.builder()
-                .username(USERNAME)
-                .email(EMAIL)
-                .build();
+        long offset = 0;
+        long limit = 2;
+        List<User> users = List.of(user);
 
-        Premium premiumToFind = Premium.builder()
-                .user(createUser(USERNAME, EMAIL))
-                .build();
-        Premium premiumToNotFind = Premium.builder()
-                .user(createUser("", ""))
-                .build();
-        List<Premium> premiums = List.of(premiumToFind, premiumToNotFind);
+        when(userDomainService.findAllWithActivePremiumInRange(offset, limit)).thenReturn(users);
 
-        when(premiumRepository.findAll()).thenReturn(premiums);
-
-        List<User> result = userService.getPremiumUsers(userFilterDto);
-
-        assertEquals(1, result.size());
-        assertEquals(USERNAME, result.get(0).getUsername());
-        assertEquals(EMAIL, result.get(0).getEmail());
-    }
-
-    @Test
-    void testGetUser() {
-        long foundId = 1L;
-        long notFoundId = 100L;
-        User user = createUser(USERNAME, EMAIL);
-
-        when(userRepository.findById(foundId)).thenReturn(Optional.ofNullable(user));
-        when(userRepository.findById(notFoundId)).thenReturn(Optional.empty());
-
-        User resultFound = userService.getUser(foundId);
-        assertEquals(USERNAME, resultFound.getUsername());
-        assertEquals(EMAIL, resultFound.getEmail());
-
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(notFoundId));
-    }
-
-    @Test
-    void testGetUsers() {
-        List<Long> idsFound = Arrays.asList(1L, 2L);
-        List<Long> idsNotFound = Arrays.asList(100L, 200L);
-        List<User> users = List.of(createUser(USERNAME, EMAIL), createUser(USERNAME, EMAIL));
-
-        when(userRepository.findAllById(idsFound)).thenReturn(users);
-        when(userRepository.findAllById(idsNotFound)).thenReturn(Collections.emptyList());
-
-        List<User> resultFound = userService.getUsers(idsFound);
-        List<User> resultNotFound = userService.getUsers(idsNotFound);
-
-        assertEquals(2, resultFound.size());
-        assertEquals(USERNAME, resultFound.get(0).getUsername());
-        assertEquals(EMAIL, resultFound.get(0).getEmail());
-
-        assertEquals(0, resultNotFound.size());
-    }
-
-    @Test
-    void testGetOnlyActiveUsersFromList_success_notEmptyIds() {
-        List<Long> ids = List.of(1L, 2L, 3L);
-        List<Long> expectedActiveUserIds = Arrays.asList(1L, 2L);
-
-        when(userRepository.findActiveUserIds(ids)).thenReturn(expectedActiveUserIds);
-
-        List<Long> activeUserIds = userService.getOnlyActiveUsersFromList(ids);
-
-        assertNotNull(activeUserIds);
-        assertEquals(expectedActiveUserIds, activeUserIds);
-        verify(userRepository).findActiveUserIds(ids);
-    }
-
-    @Test
-    public void testGetOnlyActiveUsersFromList_failed_EmptyIds() {
-        List<Long> ids = Collections.emptyList();
-
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> userService.getOnlyActiveUsersFromList(ids));
-
-        assertEquals("User ID list cannot be null or empty", thrown.getMessage());
-        verify(userRepository, never()).findActiveUserIds(any());
-    }
-
-    @Test
-    @DisplayName("Find by id successful")
-    void testFindById() {
-        User user = createUser(USERNAME, EMAIL);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        userService.findById(1L);
+        assertThat(userService.getPremiumUsers(offset, limit).get(0))
+                .isInstanceOf(User.class);
     }
 
     @Test
     void testBannedUser() {
         long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userDomainService.findById(userId)).thenReturn(user);
 
         userService.bannedUser(userId);
 
-        assertTrue(user.isBanned());
-        verify(userRepository).save(user);
+        Assertions.assertTrue(user.isBanned());
+        verify(userDomainService).save(user);
     }
 }

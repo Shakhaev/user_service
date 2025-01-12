@@ -9,29 +9,25 @@ import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
-import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.payment.PaymentService;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PremiumService {
-    private final PremiumRepository premiumRepository;
-    private final PaymentService paymentService;
     private final PremiumValidationService premiumValidationService;
-    private final UserRepository userRepository;
+    private final PremiumDomainService premiumDomainService;
+    private final UserDomainService userDomainService;
+    private final PaymentService paymentService;
 
     @PublishEvent(returnedType = Premium.class)
     @Transactional
     public Premium buyPremium(long userId, PremiumPeriod period) {
         log.info("User with id: {} buy a premium {} days subscription", userId, period.getDays());
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new UserNotFoundException(userId));
+        User user = userDomainService.findById(userId);
         premiumValidationService.validateUserForSubPeriod(userId, user);
         PaymentResponseDto paymentResponse = paymentService.sendPayment(period);
         premiumValidationService.checkPaymentResponse(paymentResponse, userId, period);
@@ -41,17 +37,6 @@ public class PremiumService {
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusDays(period.getDays()))
                 .build();
-        return premiumRepository.save(premium);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Premium> findAllByEndDateBefore(LocalDateTime endDate) {
-        return premiumRepository.findAllByEndDateBefore(endDate);
-    }
-
-    @Transactional
-    public void deleteAllPremiumsById(List<Premium> premiums) {
-        log.info("Delete all premiums");
-        premiumRepository.deleteAllInBatch(premiums);
+        return premiumDomainService.save(premium);
     }
 }

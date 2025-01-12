@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.service.premium.PremiumService;
+import school.faang.user_service.service.premium.PremiumDomainService;
 
 import java.util.List;
 
@@ -13,11 +13,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AsyncPremiumService {
-    private final PremiumService premiumService;
+    private final PremiumDomainService premiumDomainService;
 
     @Async("premiumServicePool")
     public void deleteAllPremiumsByIdAsync(List<Premium> premiums) {
         log.info("Delete all premiums async");
-        premiumService.deleteAllPremiumsById(premiums);
+        premiumDomainService.deleteAllPremiumsById(premiums);
     }
 }
