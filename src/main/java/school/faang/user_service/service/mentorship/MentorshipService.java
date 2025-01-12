@@ -36,7 +36,7 @@ public class MentorshipService {
     public void deleteMentee(long mentorId, long menteeId) {
         User mentor = getUserByIdFromRepo(mentorId);
         mentor.setMentees(
-                mentor.getMentees().stream().filter(mentee -> mentee.getId() == menteeId).toList()
+                mentor.getMentees().stream().filter(mentee -> mentee.getId() != menteeId).toList()
         );
         repository.save(mentor);
     }
@@ -44,7 +44,7 @@ public class MentorshipService {
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = getUserByIdFromRepo(menteeId);
         mentee.setMentors(
-                mentee.getMentors().stream().filter(mentor -> mentor.getId() == mentorId).toList()
+                mentee.getMentors().stream().filter(mentor -> mentor.getId() != mentorId).toList()
         );
         repository.save(mentee);
     }
