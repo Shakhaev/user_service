@@ -24,9 +24,10 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "skills", source = "skills")
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
 
-    default List<Skill> toSkills(List<SkillRequest> skillRequests) {
+    default List<String> toSkills(List<SkillRequest> skillRequests) {
         return skillRequests.stream()
                 .map(SkillRequest::getSkill)
+                .map(Skill::getTitle)
                 .toList();
     }
 }
