@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -135,7 +136,7 @@ class EventServiceImplTest {
     public void testDeleteEventWhenNotExist() {
         when(eventRepository.findById(eq(1L))).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> eventServiceImpl.deleteEvent(1L));
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.deleteEvent(1L));
     }
 
     @Test
@@ -158,7 +159,7 @@ class EventServiceImplTest {
     public void testUpdateWhenEventNotExist() {
         when(eventRepository.findById(eq(1L))).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> eventServiceImpl.updateEvent(getEventDto()));
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.updateEvent(getEventDto()));
     }
 
     @Test
@@ -167,7 +168,7 @@ class EventServiceImplTest {
         when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUserWithNoSkills()));
         when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of());
 
-        assertThrows(IllegalArgumentException.class, () -> eventServiceImpl.updateEvent(getEventDto()));
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.updateEvent(getEventDto()));
     }
 
     @Test

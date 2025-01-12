@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.repository.SkillRepository;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class EventMapper {
     @Autowired
-    SkillService skillService;
+    SkillRepository skillRepository;
 
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "eventStatus", source = "status")
@@ -33,7 +33,8 @@ public abstract class EventMapper {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
-        return ids.stream().map(id -> skillService.findSkillById(id)).toList();
+        return ids.stream().map(id -> skillRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Skill with id = " + id + " doesn't exists"))).toList();
     }
 
     public List<Long> mapSkillIds(List<Skill> skills) {
