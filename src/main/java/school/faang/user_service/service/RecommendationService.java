@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
