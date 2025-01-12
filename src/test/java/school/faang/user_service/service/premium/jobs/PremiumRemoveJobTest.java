@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobExecutionContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.service.premium.PremiumService;
+import school.faang.user_service.service.premium.PremiumDomainService;
 import school.faang.user_service.service.premium.async.AsyncPremiumService;
 
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ class PremiumRemoveJobTest {
     private static final int NUMBER_OF_PREMIUMS = 15;
 
     @Mock
-    private PremiumService premiumService;
+    private PremiumDomainService premiumDomainService;
 
     @Mock
     private AsyncPremiumService asyncPremiumService;
@@ -47,7 +47,7 @@ class PremiumRemoveJobTest {
     @DisplayName("Premium remove job successful execute")
     void testExecute() {
         List<Premium> premiums = buildPremiums(NUMBER_OF_PREMIUMS);
-        when(premiumService.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(premiums);
+        when(premiumDomainService.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(premiums);
         premiumRemoveJob.execute(mock(JobExecutionContext.class));
 
         verify(asyncPremiumService, times(NUMBER_OF_PREMIUMS / BATCH_SIZE))

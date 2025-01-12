@@ -14,6 +14,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 import java.util.function.Predicate;

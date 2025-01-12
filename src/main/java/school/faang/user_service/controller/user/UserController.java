@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserResponseDto;
-import school.faang.user_service.dto.user.UserResponseShortDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.service.user.UserDomainService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
@@ -29,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
+    private final UserDomainService userDomainService;
     private final UserService userService;
     private final UserMapper userMapper;
 
@@ -49,26 +50,26 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/search")
-    public List<UserResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
-        List<User> foundUsers = userService.getPremiumUsers(userFilterDto);
+    @PostMapping("/search/premium")
+    public List<UserResponseDto> getPremiumUsers(@RequestParam long offset, @RequestParam long limit) {
+        List<User> foundUsers = userService.getPremiumUsers(offset, limit);
         return userMapper.toDtos(foundUsers);
     }
 
     @GetMapping("/{userId}")
     public UserResponseDto getUser(@PathVariable long userId) {
-        User user = userService.getUser(userId);
+        User user = userDomainService.findById(userId);
         return userMapper.toDto(user);
     }
 
     @PostMapping()
     List<UserResponseDto> getUsersByIds(@RequestBody List<Long> ids) {
-        List<User> users = userService.getUsers(ids);
+        List<User> users = userDomainService.findAllByIds(ids);
         return userMapper.toDtos(users);
     }
 
     @PostMapping("/active")
     public List<Long> getOnlyActiveUsersFromList(@RequestBody List<Long> ids) {
-        return userService.getOnlyActiveUsersFromList(ids);
+        return userDomainService.getOnlyActiveUserIdsFromList(ids);
     }
 }
