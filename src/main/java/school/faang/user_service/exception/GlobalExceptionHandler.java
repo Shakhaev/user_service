@@ -8,19 +8,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidMessageException.class)
-    public ResponseEntity<String> handleInvalidMessage(InvalidMessageException ex) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<String> handleRequestAlreadyProcessed(BusinessException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RequestAlreadyProcessedException.class)
-    public ResponseEntity<String> handleRequestAlreadyProcessed(RequestAlreadyProcessedException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RequestSaveException.class)
-    public ResponseEntity<String> handleRequestSaveException(RequestSaveException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,8 +10,8 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.RequestAlreadyProcessedException;
-import school.faang.user_service.exception.RequestSaveException;
+
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -44,12 +45,7 @@ public class RecommendationRequestService {
         RecommendationRequest entity = recommendationRequestMapper.toEntity(requestDto);
         entity.setRequester(requester);
         entity.setReceiver(receiver);
-        try {
-            entity = recommendationRequestRepository.save(entity);
-        } catch (Exception e) {
-            throw new RequestSaveException("Ошибка при сохранении запроса рекомендации", e);
-        }
-
+        entity = recommendationRequestRepository.save(entity);
         RecommendationRequest finalEntity = entity;
         requestDto.getSkills().forEach(skill -> skillRequestRepository.create(finalEntity.getId(), skill.getId()));
 
@@ -68,7 +64,7 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto getRequest(long id) {
         RecommendationRequest entity = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Запрос с " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Запрос с " + id + " не найден"));
 
         return recommendationRequestMapper.toDto(entity);
     }
@@ -79,7 +75,7 @@ public class RecommendationRequestService {
                 .orElseThrow(() -> new NoSuchElementException("Запрос не найден"));
 
         if (request.getStatus() == RequestStatus.REJECTED || request.getStatus() == RequestStatus.ACCEPTED) {
-            throw new RequestAlreadyProcessedException("Запрос был уже обработан");
+            throw new BusinessException("Запрос был уже обработан");
         }
 
         request.setStatus(RequestStatus.REJECTED);

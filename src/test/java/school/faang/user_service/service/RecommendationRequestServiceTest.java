@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,8 +13,7 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.RequestAlreadyProcessedException;
-import school.faang.user_service.exception.RequestSaveException;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -106,9 +106,15 @@ class RecommendationRequestServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
         when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestMapper.toEntity(requestDto)).thenReturn(requestEntity);
-        when(recommendationRequestRepository.save(requestEntity)).thenThrow(new DataAccessException("DB error") {});
+        when(recommendationRequestRepository.save(requestEntity))
+                .thenThrow(new DataAccessException("DB error") {});
 
-        assertThrows(RequestSaveException.class, () -> service.create(requestDto));
+        assertThrows(DataAccessException.class, () -> service.create(requestDto));
+        verify(userRepository).findById(1L);
+        verify(userRepository).findById(2L);
+        verify(recommendationRequestMapper).toEntity(requestDto);
+        verify(recommendationRequestRepository).save(requestEntity);
+        verifyNoInteractions(skillRequestRepository);
     }
 
     @Test
@@ -132,7 +138,7 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> service.getRequest(requestId));
+        assertThrows(EntityNotFoundException.class, () -> service.getRequest(requestId));
     }
 
     @Test
@@ -170,7 +176,7 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-        assertThrows(RequestAlreadyProcessedException.class, () -> service.rejectRequest(requestId, rejectionDto));
+        assertThrows(BusinessException.class, () -> service.rejectRequest(requestId, rejectionDto));
     }
 
     @Test
