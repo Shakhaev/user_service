@@ -3,7 +3,6 @@ package school.faang.user_service.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.FollowerEvent;
 import school.faang.user_service.dto.UserFilterDto;
@@ -32,7 +31,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final FollowerEventPublisher followerEventPublisher;
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         log.info("SubscriptionServiceImpl -> followUser: followerId:{}  followeeId:{}", followerId, followeeId);
 
