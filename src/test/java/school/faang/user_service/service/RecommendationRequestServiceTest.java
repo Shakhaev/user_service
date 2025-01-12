@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -268,6 +269,90 @@ public class RecommendationRequestServiceTest {
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
         verify(recommendationRequestMapper, never()).toDto(any());
+    }
+
+    @Test
+    @DisplayName("getRequestsWithFilters_Successfully")
+    void getRequestsWithFilters_Successfully() {
+        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
+                .status(RequestStatus.PENDING)
+                .build();
+
+        RecommendationRequest request1 = RecommendationRequest.builder()
+                .id(1L)
+                .status(RequestStatus.ACCEPTED)
+                .build();
+        RecommendationRequest request2 = RecommendationRequest.builder()
+                .id(2L)
+                .status(RequestStatus.PENDING)
+                .build();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+
+        List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
+
+        assertEquals(1, requests.size());
+        assertEquals(2L, requests.get(0).getId());
+        assertEquals(RequestStatus.PENDING, requests.get(0).getStatus());
+    }
+
+    @Test
+    @DisplayName("getRequestsWithFiltersByUser_Successfully")
+    void getRequestsWithFiltersByUser_Successfully() {
+        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .build();
+
+        RecommendationRequest request1 = RecommendationRequest.builder()
+                .id(1L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.ACCEPTED)
+                .build();
+        RecommendationRequest request2 = RecommendationRequest.builder()
+                .id(2L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.PENDING)
+                .build();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+
+        List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
+
+        assertEquals(2, requests.size());
+        assertEquals(1L, requests.get(0).getId());
+        assertEquals(2L, requests.get(1).getId());
+    }
+
+    @Test
+    @DisplayName("getRequestsWithFiltersByStatusAndUser_Successfully")
+    void getRequestsWithFiltersByStatusAndUser_Successfully() {
+        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
+                .status(RequestStatus.REJECTED)
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .build();
+
+        RecommendationRequest request1 = RecommendationRequest.builder()
+                .id(1L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.ACCEPTED)
+                .build();
+        RecommendationRequest request2 = RecommendationRequest.builder()
+                .id(2L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.PENDING)
+                .build();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+
+        List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
+
+        assertEquals(0, requests.size());
     }
 
     private User createUser(long id, String title) {
