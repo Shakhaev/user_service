@@ -57,4 +57,9 @@ public class UserDomainService {
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+
+    @Transactional(readOnly = true)
+    public List<User> findAllSortedByPromotedUsersPerPage(Long offset, Long limit) {
+        return userRepository.findAllSortedByPromotedUsersPerPage(offset, limit);
+    }
 }

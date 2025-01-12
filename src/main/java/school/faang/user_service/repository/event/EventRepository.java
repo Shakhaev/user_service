@@ -29,7 +29,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(nativeQuery = true, value = """
             SELECT e.*
             FROM event e
-            LEFT JOIN event_promotion ep ON e.id = ep.event_id AND ep.number_of_views > 0
+            LEFT JOIN event_promotion ep
+            ON e.id = ep.event_id AND ep.number_of_views > 0
             ORDER BY
                 ep.coefficient DESC NULLS LAST,
                 ep.creation_date ASC,
@@ -37,7 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             OFFSET :offset
             LIMIT :limit
             """)
-    List<Event> findAllSortedByPromotedEventsPerPage(@Param("offset") int offset, @Param("limit") int limit);
+    List<Event> findAllSortedByPromotedEventsPerPage(@Param("offset") long offset, @Param("limit") long limit);
 
     List<Event> findAllByStatusAndStartDateBetween(EventStatus eventStatus, LocalDateTime now, LocalDateTime toTime);
 }

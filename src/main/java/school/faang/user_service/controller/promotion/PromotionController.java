@@ -20,7 +20,8 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.mapper.promotion.EventPromotionMapper;
 import school.faang.user_service.mapper.promotion.UserPromotionMapper;
 import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.service.promotion.PromotionService;
+import school.faang.user_service.service.promotion.event.EventPromotionService;
+import school.faang.user_service.service.promotion.user.UserPromotionService;
 import school.faang.user_service.service.user.UserContextService;
 
 import java.util.List;
@@ -29,18 +30,19 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/promotions")
 public class PromotionController {
-    private final PromotionService promotionService;
-    private final UserContextService userContextService;
-    private final UserPromotionMapper userPromotionMapper;
+    private final EventPromotionService eventPromotionService;
+    private final UserPromotionService userPromotionService;
     private final EventPromotionMapper eventPromotionMapper;
-    private final UserMapper userMapper;
+    private final UserPromotionMapper userPromotionMapper;
+    private final UserContextService userContextService;
     private final EventMapper eventMapper;
+    private final UserMapper userMapper;
 
     @PostMapping("/buy")
     public UserPromotionResponseDto buyPromotion(@RequestBody BuyPromotionDto buyPromotionDto) {
         PromotionTariff tariff = PromotionTariff.fromViews(buyPromotionDto.numberOfViews());
         long userId = userContextService.getContextUserId();
-        UserPromotion userPromotion = promotionService.buyPromotion(userId, tariff);
+        UserPromotion userPromotion = userPromotionService.buyPromotion(userId, tariff);
         return userPromotionMapper.toUserPromotionResponseDto(userPromotion);
     }
 
@@ -49,23 +51,23 @@ public class PromotionController {
                                                        @RequestBody BuyPromotionDto buyPromotionDto) {
         PromotionTariff tariff = PromotionTariff.fromViews(buyPromotionDto.numberOfViews());
         long userId = userContextService.getContextUserId();
-        EventPromotion eventPromotion = promotionService.buyEventPromotion(userId, eventId, tariff);
+        EventPromotion eventPromotion = eventPromotionService.buyEventPromotion(userId, eventId, tariff);
         return eventPromotionMapper.toEventPromotionResponseDto(eventPromotion);
     }
 
     @GetMapping("/per-page")
-    public List<UserResponseDto> getPromotedUsersBeforeAllPerPage(@RequestParam(name = "offset") int offset,
-                                                                  @RequestParam(name = "limit") int limit) {
-        return promotionService.getPromotedUsersBeforeAllPerPage(offset, limit)
+    public List<UserResponseDto> getPromotedUsersBeforeAllPerPage(@RequestParam(name = "offset") Long offset,
+                                                                  @RequestParam(name = "limit") Long limit) {
+        return userPromotionService.getPromotedUsersBeforeAllPerPage(offset, limit)
                 .stream()
                 .map(userMapper::toUserResponseDto)
                 .toList();
     }
 
     @GetMapping("/events/per-page")
-    public List<PromotedEventResponseDto> getPromotedEventsBeforeAllPerPage(@RequestParam(name = "offset") int offset,
-                                                                            @RequestParam(name = "limit") int limit) {
-        return promotionService.getPromotedEventsBeforeAllPerPage(offset, limit)
+    public List<PromotedEventResponseDto> getPromotedEventsBeforeAllPerPage(@RequestParam(name = "offset") Long offset,
+                                                                            @RequestParam(name = "limit") Long limit) {
+        return eventPromotionService.getPromotedEventsBeforeAllPerPage(offset, limit)
                 .stream()
                 .map(eventMapper::toPromotedEventResponseDto)
                 .toList();
