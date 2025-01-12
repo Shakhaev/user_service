@@ -13,12 +13,12 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RecommendationRequestMapper {
 
-    @Mapping(target = "skills", source = "skills", qualifiedByName = "mapSkillsToIds")
+    @Mapping(target = "skillsIds", source = "skills", qualifiedByName = "mapSkillsToIds")
     @Mapping(target = "requesterId", source = "requester.id")
     @Mapping(target = "receiverId", source = "receiver.id")
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
 
-    @Mapping(target = "skills", source = "skills", qualifiedByName = "mapIdsToSkills")
+    @Mapping(target = "skills", source = "skillsIds", qualifiedByName = "mapIdsToSkills")
     @Mapping(target = "requester.id", source = "requesterId")
     @Mapping(target = "receiver.id", source = "receiverId")
     RecommendationRequest toEntity(RecommendationRequestDto recommendationRequestDto);

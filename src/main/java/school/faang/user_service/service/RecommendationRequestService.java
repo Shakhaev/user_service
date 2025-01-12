@@ -19,11 +19,14 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class RecommendationRequestService {
+
+    private static final int SIX_MONTH_RECOMMENDATION_LIMIT = 6;
 
     private final RecommendationRequestRepository requestRepository;
 
@@ -35,27 +38,25 @@ public class RecommendationRequestService {
 
     private final SkillRequestRepository skillRequestRepository;
 
+    private final List<RequestFilter> requestFilters;
+
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
-        log.info("Creating recommendation request: {}", dto);
-        validateRequest(dto);
+        log.info("Создание запроса на рекомендацию: {}", dto);
+
+        List<Skill> skills = validateRequest(dto);
 
         RecommendationRequest request = recommendationRequestMapper.toEntity(dto);
         request = requestRepository.save(request);
-        saveSkillRequests(request, dto.getSkills());
-        log.info("Request recommendation created successfully with ID: {}", request.getId());
+
+        saveSkillRequests(request, skills);
+        log.info("Запрос рекомендации успешно создан с использованием ID: {}", request.getId());
 
         return recommendationRequestMapper.toDto(request);
     }
 
-    private void saveSkillRequests(RecommendationRequest request, List<Long> skillIds) {
-        if (skillIds == null) {
-            return;
-        }
-        for (Long skillId : skillIds) {
-            Skill skill = skillRepository.findById(skillId).orElseThrow(() -> {
-                log.error("Skill with ID {} not found", skillId);
-                return new IllegalArgumentException("Skill with ID " + skillId + " not found");
-            });
+    private void saveSkillRequests(RecommendationRequest request, List<Skill> skills) {
+
+        for (Skill skill : skills) {
             SkillRequest skillRequest = new SkillRequest();
             skillRequest.setRequest(request);
             skillRequest.setSkill(skill);
@@ -63,59 +64,65 @@ public class RecommendationRequestService {
         }
     }
 
-    private void validateRequest(RecommendationRequestDto dto) {
+    private List<Skill> validateRequest(RecommendationRequestDto dto) {
+
+        if (dto == null) {
+            throw new IllegalArgumentException("Recommendation request cannot be null.");
+        }
+
         if (dto.getMessage() == null || dto.getMessage().isBlank()) {
-            log.warn("Validation failed: Message is empty or null. DTO: {}", dto);
+            log.warn("Ошибка проверки: сообщение пустое или null. DTO: {}", dto);
             throw new IllegalArgumentException("Message cannot be empty");
         }
 
         if (!userRepository.existsById(dto.getRequesterId()) || !userRepository.existsById(dto.getReceiverId())) {
-            log.error("Validation failed: One or two users do not exist. RequesterId: {}, ReceiverId: {}",
+            log.error("Ошибка проверки: Один или два юзера не существуют. RequesterId: {}, ReceiverId: {}",
                     dto.getRequesterId(), dto.getReceiverId());
             throw new IllegalArgumentException("Users must exist");
         }
 
         if (requestRepository.findLatestPendingRequest(dto.getRequesterId(), dto.getReceiverId())
-                .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(6)))
+                .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(SIX_MONTH_RECOMMENDATION_LIMIT)))
                 .isPresent()) {
-            log.warn("Request already exists within the past 6 months DTO: {}", dto);
+            log.warn("Запрос уже существует в течение последних 6 месяцев DTO: {}", dto);
             throw new IllegalArgumentException("Request already exists within the past 6 months");
         }
 
-        if (dto.getSkills() != null) {
-            for (Long skillId : dto.getSkills()) {
-                if (!skillRepository.existsById(skillId)) {
-                    log.warn("Skill with ID: {} does not exist", skillId);
-                    throw new IllegalArgumentException("Skill with ID " + skillId + " does not exist");
-                }
-            }
+        List<Long> skillIds = dto.getSkillsIds();
+        if (skillIds == null) {
+            log.warn("Ошибка проверки: В запросе не указаны навыки. DTO: {}", dto);
+            return List.of();
         }
+
+        List<Skill> skills = skillRepository.findAllById(skillIds);
+
+        if (skills.size() != skillIds.size()) {
+            log.warn("Некоторые навыки не существуют. Предоставленные ID навыков: {}", skillIds);
+            throw new IllegalArgumentException("One or more skills do not exist");
+        }
+        return skills;
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
-        log.info("Rejecting recommendation request ID: {}", id);
+        log.info("Отклонение запроса на рекомендацию ID: {}", id);
         RecommendationRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found"));
 
         if (request.getStatus() != RequestStatus.PENDING) {
-            log.error("Recommendation request with ID {} not found", id);
+            log.error("Запрос на рекомендацию с ID {} не найден", id);
             throw new IllegalStateException("Cannot reject a non-pending request");
         }
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getReason());
         request = requestRepository.save(request);
-        log.info("Recommendation request ID: {} rejected successfully", id);
+        log.info("Запрос на рекомендацию с ID: {} откланен успешно", id);
         return recommendationRequestMapper.toDto(request);
     }
 
     public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
-        if (recommendationRequest == null) {
-            throw new IllegalArgumentException("Recommendation request cannot be null.");
-        }
 
         validateRequest(recommendationRequest);
-
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest.setCreatedAt(LocalDateTime.now());
         recommendationRequest.setUpdatedAt(LocalDateTime.now());
@@ -124,7 +131,7 @@ public class RecommendationRequestService {
     }
 
     public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
-        log.info("Getting recommendation requests with filter: {}", filter);
+        log.info("Получение запросов на рекомендации с помощью фильтра: {}", filter);
         List<RecommendationRequest> requests = requestRepository.findAll();
 
         List<RecommendationRequestDto> result = requests.stream()
@@ -132,22 +139,27 @@ public class RecommendationRequestService {
                 .map(recommendationRequestMapper::toDto)
                 .toList();
 
-        log.info("Recommendation requests matching filter: {}", filter);
+        log.info("Фильтр для сопоставления запросов на рекомендации: {}", filter);
         return result;
     }
 
     public RecommendationRequestDto getRecommendationRequests(long id) {
         RecommendationRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Recommendation request with ID {} not found", id);
+                    log.error("запрос на рекомендацию с ID {} не найден", id);
                     return new EntityNotFoundException("RecommendationRequest not found");
                 });
         return recommendationRequestMapper.toDto(request);
     }
 
-    private boolean filterMatches(RecommendationRequest request, RequestFilterDto filter) {
-        return (filter.getStatus() == null || request.getStatus() == filter.getStatus()) &&
-                (filter.getRequesterId() == null || request.getRequester().getId().equals(filter.getRequesterId())) &&
-                (filter.getReceiverId() == null || request.getReceiver().getId().equals(filter.getReceiverId()));
+    private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
+        Stream<RecommendationRequest> filteredStream = Stream.of(request);
+
+        for (RequestFilter filter : requestFilters) {
+            if (filter.isApplicable(filters)) {
+                filteredStream = filter.apply(filteredStream, filters);
+            }
+        }
+        return filteredStream.findAny().isPresent();
     }
 }
