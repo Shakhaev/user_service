@@ -4,9 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.CreateGoalDto;
-import school.faang.user_service.dto.GoalDto;
-import school.faang.user_service.dto.GoalFilterDto;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
@@ -26,13 +26,13 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Service
 public class GoalService {
+    private final static int USER_GOAL_MAX_COUNT = 3;
+
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
     private final GoalMapper goalMapper;
     private final List<GoalFilter> filters;
-
-    private final static int USER_GOAL_MAX_COUNT = 3;
-    private final UserRepository userRepository;
 
     @Transactional
     public GoalDto createGoal(long userId, CreateGoalDto goalDto) {
@@ -49,28 +49,6 @@ public class GoalService {
         goal = goalRepository.save(goal);
 
         return goalMapper.toDto(goal);
-    }
-
-    private List<Skill> getSkillsFromDto(CreateGoalDto goalDto) {
-        if (goalDto.skillsToAchieveIds() != null) {
-            return goalDto.skillsToAchieveIds().stream()
-                    .map(id -> skillRepository.findById(id).orElseThrow(
-                            () -> new SkillNotFoundException("Скилл с ID: " + id + " не существует")))
-                    .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-    }
-
-    private List<Skill> getSkillsFromDto(GoalDto goalDto) {
-        if (goalDto.skillsToAchieveIds() != null) {
-            return goalDto.skillsToAchieveIds().stream()
-                    .map(id -> skillRepository.findById(id).orElseThrow(
-                            () -> new SkillNotFoundException("Скилл с ID: " + id + " не существует")))
-                    .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
     }
 
     @Transactional
@@ -103,6 +81,15 @@ public class GoalService {
         goalRepository.delete(goal);
     }
 
+    public List<GoalDto> getGoals(long userId, GoalFilterDto filterDto) {
+        userValid(userId);
+
+        Stream<Goal> goalStream = goalRepository.findGoalsByUserId(userId);
+        return filterGoals(goalStream, filterDto)
+                .map(g -> goalMapper.toDto(g))
+                .toList();
+    }
+
     public List<GoalDto> getSubtasksGoal(long goalId) {
         getGoalById(goalId);
 
@@ -120,15 +107,6 @@ public class GoalService {
                 .orElseThrow(() -> new EntityNotFoundException("Данной цели не существует"));
     }
 
-    public List<GoalDto> getGoals(long userId, GoalFilterDto filterDto) {
-        userValid(userId);
-
-        Stream<Goal> goalStream = goalRepository.findGoalsByUserId(userId);
-        return filterGoals(goalStream, filterDto)
-                .map(g -> goalMapper.toDto(g))
-                .toList();
-    }
-
     private void userValid(long userId) {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("Пользователь не существует");
@@ -143,5 +121,33 @@ public class GoalService {
         }
 
         return goals;
+    }
+
+    private Skill getSkillById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID не может быть null");
+        }
+        return skillRepository.findById(id).orElseThrow(
+                () -> new SkillNotFoundException("Скилл с ID: " + id + " не существует"));
+    }
+
+    private List<Skill> getSkillsFromDto(CreateGoalDto goalDto) {
+        if (goalDto.skillsToAchieveIds() != null) {
+            return goalDto.skillsToAchieveIds().stream()
+                    .map(id -> getSkillById(id))
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<Skill> getSkillsFromDto(GoalDto goalDto) {
+        if (goalDto.skillsToAchieveIds() != null) {
+            return goalDto.skillsToAchieveIds().stream()
+                    .map(id -> getSkillById(id))
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 }

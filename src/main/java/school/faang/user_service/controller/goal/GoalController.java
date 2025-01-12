@@ -1,6 +1,7 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.goal;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,21 +12,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.CreateGoalDto;
-import school.faang.user_service.dto.GoalDto;
-import school.faang.user_service.dto.GoalFilterDto;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/goal")
+@RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
-
-    public GoalController(GoalService goalService) {
-        this.goalService = goalService;
-    }
 
     @PostMapping("/create/{userId}")
     public GoalDto createGoal(@Valid @RequestBody CreateGoalDto goal,
