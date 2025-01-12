@@ -1,20 +1,21 @@
 package school.faang.user_service.service.event;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
+    private final UserMapper userMapper;
 
-    @Autowired
-    public EventParticipationService(EventParticipationRepository eventParticipationRepository) {
-        this.eventParticipationRepository = eventParticipationRepository;
-    }
+
 
     public void registerParticipant(long eventId, long userId) {
         boolean isAlreadyRegister = eventParticipationRepository
@@ -25,7 +26,6 @@ public class EventParticipationService {
             throw new IllegalArgumentException("The user is already a participant in the event! ");
         }
         eventParticipationRepository.register(eventId, userId);
-
     }
 
     public void unregisterParticipant(long userId, long eventId) {
@@ -40,8 +40,10 @@ public class EventParticipationService {
                 .unregister(eventId, userId);
     }
 
-    public List<User> getParticipant(long eventId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
+    public List<UserDto> getParticipant(long eventId) {
+        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
+        List<UserDto> dto = userMapper.usersToUserDtos(users);
+        return dto;
     }
 
     public int getParticipantsCount(long eventId) {
