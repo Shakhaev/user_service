@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestSaveDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -31,17 +32,17 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Transactional
     @Override
-    public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
-        long requesterId = recommendationRequestDto.requesterId();
-        long receiverId = recommendationRequestDto.receiverId();
+    public RecommendationRequestDto create(RecommendationRequestSaveDto recommendationRequestSaveDto) {
+        long requesterId = recommendationRequestSaveDto.requesterId();
+        long receiverId = recommendationRequestSaveDto.receiverId();
         User requester = userService.findById(requesterId);
         User receiver = userService.findById(receiverId);
         isSixMonthLeft(requesterId, receiverId);
-        List<Skill> skills = recommendationRequestDto.skills().stream()
+        List<Skill> skills = recommendationRequestSaveDto.skills().stream()
                 .map(skillService::findById)
                 .toList();
 
-        RecommendationRequest mappedRecommendationRequest = recommendationRequestMapper.toRecommendationRequest(recommendationRequestDto);
+        RecommendationRequest mappedRecommendationRequest = recommendationRequestMapper.toEntity(recommendationRequestSaveDto);
         mappedRecommendationRequest.setRequester(requester);
         mappedRecommendationRequest.setReceiver(receiver);
 
@@ -51,9 +52,10 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .toList();
         if(recommendationRequest.getSkills() == null) {
             recommendationRequest.setSkills(skillRequests);
+        } else {
+            skillRequests.forEach(recommendationRequest::addSkillRequest);
         }
-        skillRequests.forEach(recommendationRequest::addSkillRequest);
-        return recommendationRequestDto;
+        return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
     private void isSixMonthLeft(long requesterId, long receiverId) {

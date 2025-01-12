@@ -1,14 +1,14 @@
 package school.faang.user_service.dto.recommendation;
 
-import jakarta.validation.constraints.NotEmpty;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.Skill;
 
 import java.util.List;
 
-public record RecommendationRequestDto(@NotEmpty
+public record RecommendationRequestDto(long id,
                                        String message,
                                        RequestStatus status,
-                                       List<Long> skills,
+                                       List<Skill> skills,
                                        long requesterId,
                                        long receiverId) {
 }
