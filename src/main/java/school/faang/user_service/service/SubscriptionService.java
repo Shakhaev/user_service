@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
@@ -29,6 +31,7 @@ public class SubscriptionService {
             throw new BusinessException("Пользователь уже подписан на данного пользователя");
         }
         subscriptionRepository.followUser(followerId, followeeId);
+        log.info("Пользователь с id {} подписался на пользователя с id {}", followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
@@ -37,6 +40,7 @@ public class SubscriptionService {
             throw new BusinessException("Пользователь не подписан на данного пользователя");
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
+        log.info("Пользователь с id {} отписался от пользователя с id {}", followerId, followeeId);
     }
 
     public List<SubscriptionUserDto> getFollowers(long followeeId, UserFilterDto dto) {
