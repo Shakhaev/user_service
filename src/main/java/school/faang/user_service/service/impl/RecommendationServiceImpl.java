@@ -35,18 +35,13 @@ public class RecommendationServiceImpl implements RecommendationService {
         checkForLastRecommendationPeriod(recommendation);
 
         Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(),
-                recommendation.getReceiverId(), recommendation.getContent());
+                recommendation.getReceiverId(),
+                recommendation.getContent());
+
         recommendation.setId(recommendationId);
         saveSkillOffers(recommendation);
 
         return recommendation;
-    }
-
-    private void saveSkillOffers(RecommendationDto recommendation) {
-        Optional.ofNullable(recommendation.getSkillOffers()).orElse(Collections.emptyList()).forEach(skillOffer -> {
-            createSkillOffer(recommendation, skillOffer);
-            saveSkillWithGuarantee(recommendation, skillOffer);
-        });
     }
 
     @Override
@@ -77,6 +72,13 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .stream()
                 .map(recommendationMapper::toDto)
                 .toList();
+    }
+
+    private void saveSkillOffers(RecommendationDto recommendation) {
+        Optional.ofNullable(recommendation.getSkillOffers()).orElse(Collections.emptyList()).forEach(skillOffer -> {
+            createSkillOffer(recommendation, skillOffer);
+            saveSkillWithGuarantee(recommendation, skillOffer);
+        });
     }
 
     private void saveSkillWithGuarantee(RecommendationDto updated, SkillOfferDto skillOfferDto) {

@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/recommendation")
+@RequestMapping("/recommendation")
 public class RecommendationController {
     private final RecommendationService recommendationService;
     private final SubscriptionService subscriptionService;
