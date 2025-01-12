@@ -1,9 +1,11 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +23,10 @@ import school.faang.user_service.service.goal.GoalService;
 import java.util.List;
 
 @Slf4j
+@Validated
 @RequiredArgsConstructor
-@RestController
 @RequestMapping("/goal")
+@RestController
 public class GoalController {
     private final GoalService goalService;
     private final GoalMapper goalMapper;
@@ -31,15 +34,7 @@ public class GoalController {
     @PostMapping("/create/{user_id}")
     public ResponseEntity<Void> createGoal(
             @PathVariable("user_id") final Long userId,
-            @RequestBody RequestGoalDto goalDto) {
-
-        if (goalDto == null) {
-            throw new IllegalArgumentException("RequestGoalDto is null");
-        }
-
-        if (goalDto.getTitle().isBlank()) {
-            throw new IllegalArgumentException("The Goal hasn't a title");
-        }
+            @RequestBody @Valid RequestGoalDto goalDto) {
 
         Goal goal = goalMapper.toEntity(goalDto);
         goalService.createGoal(userId, goal);
@@ -50,15 +45,7 @@ public class GoalController {
     @PutMapping("/update/{goal_id}")
     public ResponseEntity<Void> updateGoal(
             @PathVariable("goal_id") final Long goalId,
-            @RequestBody RequestGoalDto goalDto) {
-
-        if (goalDto == null) {
-            throw new IllegalArgumentException("RequestGoalDto is null");
-        }
-
-        if (goalDto.getTitle().isBlank()) {
-            throw new IllegalArgumentException("The Goal hasn't a title");
-        }
+            @RequestBody @Valid RequestGoalDto goalDto) {
 
         Goal goal = goalMapper.toEntity(goalDto);
         goalService.updateGoal(goalId, goal);
@@ -79,14 +66,10 @@ public class GoalController {
         }
     }
 
-    @PostMapping("/find/{parent_id}/filters")
+    @PostMapping("/find_subtasks/{parent_id}/filters")
     public ResponseEntity<List<ResponseGoalDto>> findSubtasksByGoalId(
             @PathVariable("parent_id") final Long parentId,
-            @RequestBody GoalFilterDto filters) {
-
-        if (filters == null) {
-            throw new IllegalArgumentException("GoalFilterDto is null");
-        }
+            @RequestBody @Valid GoalFilterDto filters) {
 
         final List<Goal> filteredSubtasksByGoal = goalService.findSubtasksByGoalId(parentId, filters);
         List<ResponseGoalDto> filteredSubtasksByGoalDto = goalMapper.toDto(filteredSubtasksByGoal);
@@ -94,14 +77,10 @@ public class GoalController {
         return new ResponseEntity<>(filteredSubtasksByGoalDto, HttpStatus.OK);
     }
 
-    @PostMapping("/get/{user_id}/filters")
+    @PostMapping("/get_goals/{user_id}/filters")
     public ResponseEntity<List<ResponseGoalDto>> getGoalsByUser(
             @PathVariable("user_id") final Long userId,
-            @RequestBody GoalFilterDto filters) {
-
-        if (filters == null) {
-            throw new IllegalArgumentException("GoalFilterDto is null");
-        }
+            @RequestBody @Valid GoalFilterDto filters) {
 
         final List<Goal> filteredGoals = goalService.getGoalsByUserId(userId, filters);
         List<ResponseGoalDto> filteredGoalsDto = goalMapper.toDto(filteredGoals);
