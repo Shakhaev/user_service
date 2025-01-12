@@ -56,7 +56,7 @@ public class UserController {
         userService.uploadUsers(csvFile);
     }
 
-    @PostMapping("/deactivate/{userId}")
+    @PostMapping("/{userId}/deactivate")
     public void deactivate(@NotNull @PathVariable long userId) {
         userService.deactivateUser(userId);
     }
