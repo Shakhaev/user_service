@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class SubscriptionUserNameFilter implements SubscriptionFilter {
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getNamePattern() != null;
+        return filter.getNamePattern() != null && !filter.getNamePattern().isEmpty();
     }
 
     @Override

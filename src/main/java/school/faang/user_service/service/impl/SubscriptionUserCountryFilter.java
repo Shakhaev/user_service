@@ -10,7 +10,7 @@ public class SubscriptionUserCountryFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getCountryPattern() != null;
+        return filter.getCountryPattern() != null && !filter.getCountryPattern().isEmpty();
     }
 
     @Override

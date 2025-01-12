@@ -10,7 +10,7 @@ public class SubscriptionUserEmailFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getEmailPattern() != null;
+        return filter.getEmailPattern() != null && !filter.getEmailPattern().isEmpty();
     }
 
     @Override

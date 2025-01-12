@@ -10,7 +10,7 @@ public class SubscriptionUserCityFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getCityPattern() != null;
+        return filter.getCityPattern() != null && !filter.getCityPattern().isEmpty();
     }
 
     @Override

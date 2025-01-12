@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class SubscriptionUserAboutFilter implements SubscriptionFilter {
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getAboutPattern() != null;
+        return filter.getAboutPattern() != null && !filter.getAboutPattern().isEmpty();
     }
 
     @Override

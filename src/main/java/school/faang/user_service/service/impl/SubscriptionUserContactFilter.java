@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public class SubscriptionUserContactFilter implements SubscriptionFilter {
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getContactPattern() != null;
+        return filter.getContactPattern() != null && !filter.getContactPattern().isEmpty();
     }
 
     @Override

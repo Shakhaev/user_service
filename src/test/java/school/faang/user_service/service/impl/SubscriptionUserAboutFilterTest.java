@@ -11,13 +11,13 @@ import school.faang.user_service.service.UserSupplier;
 import java.util.List;
 import java.util.stream.Stream;
 
-class SubscriptionUserNameFilterTest {
-
+class SubscriptionUserAboutFilterTest {
     private SubscriptionUserFilterDto subscriptionUserFilterDto;
-    private final SubscriptionUserNameFilter filter = new SubscriptionUserNameFilter();
+    private final SubscriptionUserAboutFilter filter = new SubscriptionUserAboutFilter();
     private boolean isApplicableActual;
     private boolean isApplicableExpected;
     private List<User> allUsers;
+    List<User> expectedUsers;
 
     @BeforeEach
     void setUp() {
@@ -25,22 +25,22 @@ class SubscriptionUserNameFilterTest {
     }
 
     @Test
-    @DisplayName("Test true applicability user filter by Name")
+    @DisplayName("Test positive applicability user filter by About")
     void isApplicableTest() {
         isApplicableExpected = true;
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
-                .namePattern("Misha")
+                .aboutPattern("Misha")
                 .build();
         isApplicableActual = filter.isApplicable(subscriptionUserFilterDto);
         Assertions.assertEquals(isApplicableExpected, isApplicableActual);
     }
 
     @Test
-    @DisplayName("Test false applicability user filter by Name")
+    @DisplayName("Test negative applicability user filter by About")
     void isNotApplicableTest() {
         isApplicableExpected = false;
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
-                .namePattern("")
+                .aboutPattern("")
                 .build();
         isApplicableActual = filter.isApplicable(subscriptionUserFilterDto);
         Assertions.assertEquals(isApplicableExpected, isApplicableActual);
@@ -52,24 +52,30 @@ class SubscriptionUserNameFilterTest {
     }
 
     @Test
-    @DisplayName("Test result of user filter by Name")
+    @DisplayName("Test result of user filter by About")
     void applyTrueSearch() {
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
-                .namePattern("misha")
+                .aboutPattern("I'm Masha")
                 .build();
         Stream<User> userStream = filter.apply(allUsers.stream(), subscriptionUserFilterDto);
         List<User> actualUsers = userStream.toList();
-        Assertions.assertEquals(actualUsers.get(0).getUsername(), "misha");
+
+        expectedUsers = allUsers.stream()
+                .filter(u -> u.getId() == 2L)
+                .toList();
+
+        Assertions.assertEquals(actualUsers, expectedUsers);
     }
 
     @Test
-    @DisplayName("Test empty result of user filter by Name")
+    @DisplayName("Test empty result of user filter by About")
     void applyFalseSearch() {
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
-                .namePattern("sdfsdfsdfsdf")
+                .aboutPattern("sdfsdfsdfsdf")
                 .build();
         Stream<User> userStream = filter.apply(allUsers.stream(), subscriptionUserFilterDto);
         List<User> actualUsers = userStream.toList();
         Assertions.assertEquals(actualUsers.size(), 0);
     }
+
 }
