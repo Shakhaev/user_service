@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,12 +12,14 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exeption.MaxActiveGoalsExceededException;
+import school.faang.user_service.exeption.NoSkillsFoundException;
+import school.faang.user_service.exeption.NonExistentSkillException;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.filters.goal.GoalFilter;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,16 +40,12 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalServiceTest {
-
     @Mock
     private GoalRepository goalRepository;
-
     @Mock
     private UserService userService;
-
     @Mock
     private SkillService skillService;
-
     @Mock
     private List<GoalFilter> goalFilters;
 
@@ -54,77 +53,71 @@ public class GoalServiceTest {
     private GoalService goalService;
 
     private User user;
-    private Goal goal;
-    private Goal existingGoal;
-    private Goal updatedGoal;
+    private Goal goal1;
+    private Goal goal2;
+    private Goal goal3;
     private Skill skill;
-    private List<Skill> oldSkills;
-    private List<Skill> newSkills;
-    private List<Goal> subtasks;
     private List<Goal> goals;
+    private List<Skill> skills;
+    private List<Skill> skillsNew;
+    private List<Goal> subtasks;
     private GoalFilterDto filters;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setId(1L);
-        user.setGoals(new ArrayList<>());
+        skill = Skill.builder()
+                .id(1L)
+                .title("Skill")
+                .build();
 
-        skill = new Skill();
-        skill.setTitle("Skill");
+        skills = new ArrayList<>();
+        skills.add(skill);
+        skillsNew = new ArrayList<>();
+        skillsNew.add(skill);
 
-        goal = new Goal();
-        goal.setTitle("Title");
-        goal.setSkillsToAchieve(List.of(skill));
-        goal.setUsers(new ArrayList<>());
+        goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal one")
+                .description("Description one")
+                .status(GoalStatus.ACTIVE)
+                .skillsToAchieve(skills)
+                .build();
 
-        existingGoal = new Goal();
-        existingGoal.setId(1L);
-        existingGoal.setStatus(GoalStatus.ACTIVE);
-        existingGoal.setSkillsToAchieve(new ArrayList<>());
+        goal2 = Goal.builder()
+                .id(2L)
+                .parent(goal1)
+                .title("Goal two")
+                .description("Description two")
+                .build();
 
-        updatedGoal = new Goal();
-        updatedGoal.setDescription("Updated description");
-        updatedGoal.setDeadline(LocalDateTime.now().plusDays(10));
-        updatedGoal.setStatus(GoalStatus.COMPLETED);
-        updatedGoal.setUpdatedAt(LocalDateTime.now());
-
-        oldSkills = new ArrayList<>();
-        oldSkills.add(new Skill());
-
-        newSkills = new ArrayList<>();
-        newSkills.add(new Skill());
-
-        subtasks = new ArrayList<>();
-        Goal subtask1 = new Goal();
-        subtask1.setId(1L);
-        subtask1.setTitle("GoalSubtask_one");
-        Goal subtask2 = new Goal();
-        subtask2.setId(2L);
-        subtask2.setTitle("GoalSubtask_two");
-        subtasks.add(subtask1);
-        subtasks.add(subtask2);
+        goal3 = Goal.builder()
+                .title("Goal one")
+                .description("Description updated")
+                .skillsToAchieve(skills)
+                .build();
 
         goals = new ArrayList<>();
-        Goal goal1 = new Goal();
-        goal1.setId(1L);
-        goal1.setTitle("Goal_one");
-        Goal goal2 = new Goal();
-        goal2.setId(2L);
-        goal2.setTitle("Goal_two");
         goals.add(goal1);
         goals.add(goal2);
 
+        user = User.builder()
+                .id(1L)
+                .goals(goals)
+                .build();
+
+        subtasks = new ArrayList<>();
+        subtasks.add(goal2);
+
         filters = new GoalFilterDto();
-        filters.setTitle("one");
+        filters.setTitle("two");
     }
 
     @Test
     public void testCreateGoal_UserNotFound() {
         when(userService.findUserById(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.createGoal(1L, goal));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                goalService.createGoal(1L, goal1));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -134,8 +127,8 @@ public class GoalServiceTest {
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(4);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.createGoal(1L, goal));
+        MaxActiveGoalsExceededException exception = assertThrows(MaxActiveGoalsExceededException.class, () ->
+                goalService.createGoal(1L, goal1));
 
         assertEquals("The user's number of active goals exceeds the maximum number", exception.getMessage());
     }
@@ -146,8 +139,8 @@ public class GoalServiceTest {
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.createGoal(1L, goal));
+        NonExistentSkillException exception = assertThrows(NonExistentSkillException.class, () ->
+                goalService.createGoal(1L, goal1));
 
         assertEquals("The goal contains non-existent skills", exception.getMessage());
     }
@@ -158,13 +151,170 @@ public class GoalServiceTest {
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
 
-        goalService.createGoal(1L, goal);
+        goalService.createGoal(1L, goal1);
 
-        verify(goalRepository, times(1)).save(goal);
-        assertEquals(GoalStatus.ACTIVE, goal.getStatus());
-        assertNotNull(goal.getCreatedAt());
-        assertTrue(goal.getUsers().contains(user));
-        assertTrue(user.getGoals().contains(goal));
+        verify(goalRepository, times(1)).save(goal1);
+        assertEquals(GoalStatus.ACTIVE, goal1.getStatus());
+        assertNotNull(goal1.getCreatedAt());
+        assertTrue(goal1.getUsers().contains(user));
+        assertTrue(user.getGoals().contains(goal1));
+    }
+
+    @Test
+    public void testUpdateGoal_GoalNotFound() {
+        when(goalRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                goalService.updateGoal(1L, goal1));
+
+        assertEquals("Goal not found", exception.getMessage());
+    }
+
+    @Test
+    public void testUpdateGoal_ActiveGoalWithExistingSkills() {
+        goal1.getSkillsToAchieve().add(skill);
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal1));
+        when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
+
+        goalService.updateGoal(1L, goal3);
+
+        verify(goalRepository, times(1)).save(goal1);
+        assertEquals("Description updated", goal1.getDescription());
+    }
+
+    @Test
+    public void testUpdateSkillsToGoal_Success() {
+        long goalId = 1L;
+        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(skills);
+
+        goalService.updateSkillsToGoal(goalId, skillsNew);
+
+        verify(skillService, times(skills.size())).deleteSkill(any(Skill.class));
+        verify(skillService, times(skillsNew.size())).assignSkillToGoal(anyLong(), eq(goalId));
+    }
+
+    @Test
+    public void testUpdateSkillsToGoal_NoSkillsFound() {
+        long goalId = 1L;
+        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(new ArrayList<>());
+
+        NoSkillsFoundException exception = assertThrows(NoSkillsFoundException.class, () ->
+                goalService.updateSkillsToGoal(goalId, skills));
+
+        assertEquals("No skills found for the goal", exception.getMessage());
+    }
+
+    @Test
+    public void testUpdateSkillsToGoal_EmptyNewSkillsList() {
+        long goalId = 1L;
+        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(skills);
+
+        goalService.updateSkillsToGoal(goalId, new ArrayList<>());
+
+        verify(skillService, times(skills.size())).deleteSkill(any(Skill.class));
+        verify(skillService, never()).assignSkillToGoal(anyLong(), eq(goalId));
+    }
+
+    @Test
+    public void testDeleteGoal_GoalNotFound() {
+        when(goalRepository.findById(4L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                goalService.deleteGoal(4L));
+
+        assertEquals("Goal not found", exception.getMessage());
+    }
+
+    @Test
+    public void testDeleteGoal_Success() {
+        when(goalRepository.findById(2L)).thenReturn(Optional.of(goal2));
+
+        goalService.deleteGoal(2L);
+
+        verify(goalRepository, times(1)).delete(goal2);
+    }
+
+    @Test
+    public void testFindSubtasksByGoalId() {
+        long parentId = 1L;
+        GoalFilterDto filters = new GoalFilterDto();
+
+        List<Goal> mockSubtasks = List.of(new Goal());
+        when(goalRepository.findByParent(parentId)).thenReturn(mockSubtasks.stream());
+
+        List<Goal> result = goalService.findSubtasksByGoalId(parentId, filters);
+
+        assertEquals(mockSubtasks, result);
+        verify(goalRepository, times(1)).findByParent(parentId);
+    }
+
+    @Test
+    public void testFilterSubtasksByGoal() {
+        List<Goal> subtasks = List.of(new Goal());
+        GoalFilterDto filters = new GoalFilterDto();
+
+        GoalFilter mockFilter = mock(GoalFilter.class);
+        when(mockFilter.isApplicable(filters)).thenReturn(true);
+        when(mockFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
+            Stream<Goal> stream = invocation.getArgument(0);
+            return stream.filter(goal -> true);
+        });
+
+        when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
+
+        List<Goal> result = goalService.filterSubtasksByGoal(subtasks, filters);
+
+        assertEquals(subtasks, result);
+        verify(mockFilter, times(1)).isApplicable(filters);
+        verify(mockFilter, times(1)).apply(any(Stream.class), eq(filters));
+    }
+
+    @Test
+    public void testGetGoalsByUserId() {
+        long userId = 1L;
+        GoalFilterDto filters = new GoalFilterDto();
+
+        List<Goal> mockGoals = List.of(new Goal());
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(mockGoals.stream());
+
+        List<Goal> result = goalService.getGoalsByUserId(userId, filters);
+
+        assertEquals(mockGoals, result);
+        verify(goalRepository, times(1)).findGoalsByUserId(userId);
+    }
+
+    @Test
+    public void testFilterGoals() {
+        List<Goal> goals = List.of(new Goal());
+        GoalFilterDto filters = new GoalFilterDto();
+
+        GoalFilter mockFilter = mock(GoalFilter.class);
+        when(mockFilter.isApplicable(filters)).thenReturn(true);
+        when(mockFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
+            Stream<Goal> stream = invocation.getArgument(0);
+            return stream.filter(goal -> true);
+        });
+
+        when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
+
+        List<Goal> result = goalService.filterGoals(goals, filters);
+
+        assertEquals(goals, result);
+        verify(mockFilter, times(1)).isApplicable(filters);
+        verify(mockFilter, times(1)).apply(any(Stream.class), eq(filters));
+    }
+
+    @Test
+    public void testUpdateSkillsToGoal() {
+        long goalId = 1L;
+
+        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(skills);
+
+        goalService.updateSkillsToGoal(goalId, skillsNew);
+
+        verify(goalRepository, times(1)).findSkillsByGoalId(goalId);
+        skills.forEach(skill -> verify(skillService, times(1)).deleteSkill(skill));
+        skillsNew.forEach(skill -> verify(skillService, times(1)).assignSkillToGoal(skill.getId(), goalId));
     }
 
     @Test
@@ -175,216 +325,5 @@ public class GoalServiceTest {
         goalService.assignSkillToGoal(skillId, goalId);
 
         verify(skillService, times(1)).assignSkillToGoal(skillId, goalId);
-    }
-
-    @Test
-    public void testUpdateGoal_GoalNotFound() {
-        when(goalRepository.findById(1L)).thenReturn(Optional.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.updateGoal(1L, updatedGoal));
-
-        assertEquals("Goal not found", exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateGoal_ActiveGoalWithExistingSkills() {
-        existingGoal.getSkillsToAchieve().add(skill);
-        when(goalRepository.findById(1L)).thenReturn(Optional.of(existingGoal));
-        when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
-
-        goalService.updateGoal(1L, updatedGoal);
-
-        verify(goalRepository, times(1)).save(existingGoal);
-        assertEquals("Updated description", existingGoal.getDescription());
-        assertEquals(updatedGoal.getDeadline(), existingGoal.getDeadline());
-        assertEquals(GoalStatus.COMPLETED, existingGoal.getStatus());
-        assertNotNull(updatedGoal.getUpdatedAt());
-    }
-
-    @Test
-    public void testUpdateGoal_ActiveGoalWithNonExistentSkills() {
-        existingGoal.getSkillsToAchieve().add(skill);
-        when(goalRepository.findById(1L)).thenReturn(Optional.of(existingGoal));
-        when(skillService.skillExistsByTitle("Skill")).thenReturn(false);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.updateGoal(1L, updatedGoal));
-
-        assertEquals("The goal contains non-existent skills", exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateGoal_InactiveGoal() {
-        existingGoal.setStatus(GoalStatus.COMPLETED);
-        when(goalRepository.findById(1L)).thenReturn(Optional.of(existingGoal));
-        when(skillService.findSkillsByGoalId(1L)).thenReturn(List.of(skill));
-        when(userService.findAllUsers()).thenReturn(List.of(user));
-
-        goalService.updateGoal(1L, updatedGoal);
-
-        verify(skillService, times(1)).assignSkillToGoal(skill.getId(), user.getId());
-    }
-
-    @Test
-    public void testUpdateSkillsToGoal_Success() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(oldSkills);
-
-        goalService.updateSkillsToGoal(goalId, newSkills);
-
-        verify(skillService, times(oldSkills.size())).deleteSkill(any(Skill.class));
-        verify(skillService, times(newSkills.size())).assignSkillToGoal(anyLong(), eq(goalId));
-    }
-
-    @Test
-    public void testUpdateSkillsToGoal_NoSkillsFound() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(new ArrayList<>());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.updateSkillsToGoal(goalId, newSkills));
-
-        assertEquals("No skills found for the goal", exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateSkillsToGoal_EmptyNewSkillsList() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(oldSkills);
-
-        goalService.updateSkillsToGoal(goalId, new ArrayList<>());
-
-        verify(skillService, times(oldSkills.size())).deleteSkill(any(Skill.class));
-        verify(skillService, never()).assignSkillToGoal(anyLong(), eq(goalId));
-    }
-
-    @Test
-    public void testDeleteGoal_GoalNotFound() {
-        when(goalRepository.findById(1L)).thenReturn(Optional.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.deleteGoal(1L));
-
-        assertEquals("Goal not found", exception.getMessage());
-    }
-
-    @Test
-    public void testDeleteGoal_Success() {
-        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
-
-        goalService.deleteGoal(1L);
-
-        verify(goalRepository, times(1)).delete(goal);
-    }
-
-    @Test
-    public void testFindSubtasksByGoalId_Success() {
-        long parentId = 1L;
-        when(goalRepository.findByParent(parentId)).thenReturn(subtasks.stream());
-
-        GoalFilter titleFilter = mock(GoalFilter.class);
-        when(titleFilter.isApplicable(filters)).thenReturn(true);
-        when(titleFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
-            Stream<Goal> stream = invocation.getArgument(0);
-            return stream.filter(goal -> goal.getTitle().contains(filters.getTitle()));
-        });
-
-        when(goalFilters.stream()).thenReturn(Stream.of(titleFilter));
-
-        List<Goal> result = goalService.findSubtasksByGoalId(parentId, filters);
-
-        assertEquals(1, result.size());
-        assertEquals("GoalSubtask_one", result.get(0).getTitle());
-    }
-
-    @Test
-    public void testFindSubtasksByGoalId_NoSubtasksFound() {
-        long parentId = 1L;
-        when(goalRepository.findByParent(parentId)).thenReturn(Stream.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.findSubtasksByGoalId(parentId, filters));
-
-        assertEquals("No subtasks found for the parent goal", exception.getMessage());
-        verify(goalRepository, times(1)).findByParent(parentId);
-    }
-
-    @Test
-    public void testFilterSubtasksByGoal() {
-        Stream<Goal> subtasksStream = subtasks.stream();
-        when(goalFilters.stream()).thenReturn(Stream.of(
-                new GoalFilter() {
-                    @Override
-                    public boolean isApplicable(GoalFilterDto filters) {
-                        return true;
-                    }
-
-                    @Override
-                    public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filters) {
-                        return goals.filter(goal -> goal.getId() == 1L);
-                    }
-                }
-        ));
-
-        List<Goal> result = goalService.filterSubtasksByGoal(subtasksStream, filters);
-
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
-    }
-
-    @Test
-    public void testGetGoalsByUserId_Success() {
-        long userId = 1L;
-        when(goalRepository.findGoalsByUserId(userId)).thenReturn(goals.stream());
-
-        GoalFilter titleFilter = mock(GoalFilter.class);
-        when(titleFilter.isApplicable(filters)).thenReturn(true);
-        when(titleFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
-            Stream<Goal> stream = invocation.getArgument(0);
-            return stream.filter(goal -> goal.getTitle().contains(filters.getTitle()));
-        });
-
-        when(goalFilters.stream()).thenReturn(Stream.of(titleFilter));
-
-        List<Goal> result = goalService.getGoalsByUserId(userId, filters);
-
-        assertEquals(1, result.size());
-        assertEquals("Goal_one", result.get(0).getTitle());
-    }
-
-    @Test
-    public void testGetGoalsByUserId_NoGoalsFound() {
-        long userId = 1L;
-        when(goalRepository.findGoalsByUserId(userId)).thenReturn(Stream.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                goalService.getGoalsByUserId(userId, filters));
-
-        assertEquals("No goals found for the user", exception.getMessage());
-        verify(goalRepository, times(1)).findGoalsByUserId(userId);
-    }
-
-    @Test
-    public void testFilterGoals() {
-        Stream<Goal> goalsStream = goals.stream();
-        when(goalFilters.stream()).thenReturn(Stream.of(
-                new GoalFilter() {
-                    @Override
-                    public boolean isApplicable(GoalFilterDto filters) {
-                        return true;
-                    }
-
-                    @Override
-                    public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filters) {
-                        return goals.filter(goal -> goal.getId() == 1L);
-                    }
-                }
-        ));
-
-        List<Goal> result = goalService.filterGoals(goalsStream, filters);
-
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
     }
 }

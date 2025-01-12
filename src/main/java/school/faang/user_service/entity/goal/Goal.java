@@ -1,6 +1,5 @@
 package school.faang.user_service.entity.goal;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -42,9 +41,8 @@ public class Goal {
     @Column(name = "id")
     private Long id;
 
- //   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parent_goal_id")
+    @JoinColumn(name = "parent_goal_id")
     private Goal parent;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
