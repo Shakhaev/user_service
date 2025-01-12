@@ -1,6 +1,7 @@
 package school.faang.user_service.service.eventsTest;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,26 +33,31 @@ public class EventControllerTest {
 
     @Test
     public void testCreateEventWithBlankTitle() {
-        EventDto eventDto = new EventDto();
-        eventDto.setTitle(" ");
-        assertThrows(DataValidationException.class,()->eventController.create(eventDto));
+        EventDto eventDto = EventDto.builder()
+                .title("  ")
+                .build();
+        assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
     }
 
     @Test
     public void testCreateEventWithBlankOwnerId() {
-        EventDto eventDto = new EventDto();
-        eventDto.setTitle(" ");
-        eventDto.setOwnerId(null);;
-        assertThrows(DataValidationException.class,()->eventController.create(eventDto));
+        EventDto eventDto = EventDto.builder()
+                .title("  ")
+                .ownerId(null)
+                .build();
+        ;
+        assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
     }
 
     @Test
     public void testCreateEventWithBlankStartDate() {
-        EventDto eventDto = new EventDto();
-        eventDto.setTitle(" ");
-        eventDto.setOwnerId(null);;
+        EventDto eventDto = EventDto.builder()
+                .title(" ")
+                .ownerId(null)
+                .startDate(null)
+                .build();
         eventDto.setStartDate(null);
-        assertThrows(DataValidationException.class,()->eventController.create(eventDto));
+        assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
     }
 
 }

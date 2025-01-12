@@ -9,7 +9,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.Filter;
+import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 
 @Component
@@ -27,6 +30,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final List<EventFilter> eventFilters;
 
     public EventDto create(EventDto event) throws DataValidationException {
 
@@ -41,7 +45,7 @@ public class EventService {
         User user = getOwner(event);
         List<Long> ownerListIdSkills = getOwnerListIdSkills(event);
         if (ownerListIdSkills.isEmpty()) {
-            throw new DataValidationException("User hasn't skills");
+            throw new DataValidationException("Пользователь не имеет скилов");
         }
         Event newEventCandidate = eventMapper.toEntityEvent(event);
 
@@ -66,8 +70,19 @@ public class EventService {
         return eventRepository.findAllByUserId(ownerId);
     }
 
-    public List<Event> getEventsByFilter(EventFilterDto eventFilterDto, EventDto filter) {
-        return null;
+    public List<Event> getEventsByFilter(EventDto eventDto,EventFilterDto eventFilter, Long userId) {
+        List<Event> newEventCandidate;
+        Stream<Event> ownedEvents= getOwnedEvents(userId).stream();
+        newEventCandidate = ownedEvents.filter(event -> {
+            return eventFilters.stream()
+                    .filter(filter ->filter.isApplicable(eventMapper.toDto(event)))
+                    .filter(filter-> filter.apply(ownedEvents,eventDto).isParallel())
+                    .isParallel();
+        }
+        ).toList();
+
+
+        return newEventCandidate;
     }
 
     private User getOwner(EventDto event) throws DataValidationException {

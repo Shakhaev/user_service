@@ -46,8 +46,8 @@ public class EventController {
         return eventService.getOwnedEvents(event.getOwnerId());
     }
 
-    public List<Event> getEventsByFilter(EventFilterDto filter){
-        eventService.getEventsByFilter(filter);
+    public List<Event> getEventsByFilter(EventDto eventDto,EventFilterDto filter,long userId){
+        return eventService.getEventsByFilter(eventDto,filter,userId);
     }
 
     private void validation(EventDto event) throws DataValidationException {

@@ -6,11 +6,11 @@ import school.faang.user_service.entity.event.Event;
 public class LocationFilter implements EventFilter{
     @Override
     public boolean isApplicable(EventDto filters) {
-        return false;
+        return filters != null;
     }
 
     @Override
     public boolean filterEntity(Event event, EventDto filters) {
-        return false;
+        return event.getLocation().contains(filters.getLocation());
     }
 }
