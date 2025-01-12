@@ -6,8 +6,8 @@ import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.Person;
-import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.country.Country;
+import school.faang.user_service.entity.user.User;
 
 import java.util.List;
 

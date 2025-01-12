@@ -16,7 +16,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 
 import java.util.Arrays;

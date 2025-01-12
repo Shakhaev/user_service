@@ -11,8 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ErrorResponse;
+import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.exception.error.ErrorResponse;
 
 import java.util.Map;
 import java.util.Objects;

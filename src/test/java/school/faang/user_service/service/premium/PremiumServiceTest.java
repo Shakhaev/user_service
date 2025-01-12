@@ -17,10 +17,11 @@ import school.faang.user_service.dto.payment.PaymentResponse;
 import school.faang.user_service.dto.payment.PaymentStatus;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserPremiumPeriod;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.exception.PaymentFailedException;
+import school.faang.user_service.exception.payment.PaymentFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapperImpl;
+import school.faang.user_service.publisher.premium.PremiumBoughtEventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -39,6 +40,9 @@ public class PremiumServiceTest {
 
     @InjectMocks
     private PremiumService premiumService;
+
+    @Mock
+    private PremiumBoughtEventPublisher premiumBoughtPublisher;
 
     @Mock
     private PremiumRepository premiumRepository;

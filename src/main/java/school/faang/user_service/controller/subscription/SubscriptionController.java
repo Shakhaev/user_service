@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;

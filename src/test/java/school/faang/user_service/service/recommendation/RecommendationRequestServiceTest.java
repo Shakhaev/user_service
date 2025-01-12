@@ -11,23 +11,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
-import school.faang.user_service.dto.filter.RequestFilterDto;
-import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.exception.entity.EntityNotFoundExceptionWithId;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedAfterFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedBeforeFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationStatusFilter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapperImpl;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestedEventMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationRequestedEventPublisher;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.validator.recommendation.RecommendationRequestServiceValidator;
 
 import java.util.ArrayList;
@@ -54,9 +56,13 @@ class RecommendationRequestServiceTest {
     @Mock
     private RecommendationRequestServiceValidator validator;
     @Mock
-    private SkillRequestRepository skillRequestRepository;
+    private SkillRepository skillRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private RecommendationRequestedEventMapper requestedEventMapper;
+    @Mock
+    private RecommendationRequestedEventPublisher requestedEventPublisher;
     @Spy
     private RecommendationRequestMapperImpl mapper;
     @Captor
@@ -93,21 +99,23 @@ class RecommendationRequestServiceTest {
         ArgumentMatcher<Long> requesterAndReceiverIds = id -> Objects.equals(id, recommendationRequestDto.getRequesterId())
                 || Objects.equals(id, recommendationRequestDto.getReceiverId());
 
-        when(skillRequestRepository.create(eq(recommendationRequestDto.getId()), longThat(allSkillIds)))
-                .thenReturn(new SkillRequest());
         when(userRepository.findById(longThat(requesterAndReceiverIds)))
                 .thenReturn(Optional.of(new User()));
+        when(skillRepository.findById(longThat(allSkillIds))).thenReturn(Optional.of(new Skill()));
+        when(recommendationRequestRepository.save(any())).thenReturn(new RecommendationRequest().setId(1L));
 
         recommendationRequestService.create(recommendationRequestDto);
 
         verify(mapper).toEntity(recommendationRequestDto);
-        verify(skillRequestRepository, times(skillIds.size()))
-                .create(eq(recommendationRequestDto.getId()), longThat(allSkillIds));
+        verify(skillRepository, times(skillIds.size()))
+                .findById(longThat(allSkillIds));
         verify(userRepository, times(2)).findById(longThat(requesterAndReceiverIds));
 
         verify(recommendationRequestRepository).save(captor.capture());
         RecommendationRequest recommendationRequest = captor.getValue();
         assertEquals(recommendationRequestDto.getId(), recommendationRequest.getId());
+
+        verify(requestedEventPublisher).publish(any());
     }
 
     @Test
@@ -115,7 +123,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.getRequest(id));
+        assertThrows(EntityNotFoundExceptionWithId.class, () -> recommendationRequestService.getRequest(id));
         verify(recommendationRequestRepository).findById(id);
     }
 
@@ -141,7 +149,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
+        assertThrows(EntityNotFoundExceptionWithId.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
         verify(recommendationRequestRepository).findById(id);
     }
 

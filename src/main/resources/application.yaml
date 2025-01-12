@@ -21,15 +21,15 @@ spring:
       port: 6379
       host: localhost
       channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
-        recommendation_topic: recommendation_topic
-        recommendation-channel:
-          name: recommendation_channel
-        mentorship-requested-channel:
-          name: mentorship_requested_channel
+        mentorship_accepted: mentorship_accept_channel
+        mentorship-channel: mentorship_channel
+        follower-event-channel: follower_event
+        recommendation-received-channel: recommendation_received_channel
+        recommendation-channel: recommendation_channel
+        mentorship-requested-channel: mentorship_requested_channel
+        ban_user_channel: ban_user
+        premium-bought-channel: premium_bought_channel
+        recommendation-requested-channel: recommendation_requested_channel
 
 server:
   port: 8080
@@ -64,3 +64,9 @@ premium:
     cron: 0 0 0 * * 0
     zone: Europe/Moscow
     thread-pool: 1
+
+scheduler:
+  clear-events:
+    cron: 0 0 * * * 0
+    thread-pool: 2
+    batch-size: 50

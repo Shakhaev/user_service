@@ -13,13 +13,16 @@ import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestedEvent;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
-import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.entity.mentorshiprequest.MentorshipRequest;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
+import school.faang.user_service.publisher.mentorship.MentorshipStartEventPublisher;
 import school.faang.user_service.publisher.mentorshiprequest.MentorshipRequestedEventPublisher;
+import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.publisher.mentorship.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
@@ -50,11 +53,17 @@ public class MentorshipRequestServiceImplTest {
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
+    private MentorshipRepository mentorshipRepository;
+    @Mock
     private MentorshipRequestValidator mentorshipRequestValidator;
     @Mock
     private MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
+    @Mock
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
     @Spy
     private MentorshipRequestMapperImpl mentorshipRequestMapper;
+    @Mock
+    private MentorshipStartEventPublisher mentorshipStartEventPublisher;
 
     private MentorshipRequestServiceImpl mentorshipRequestServiceImpl;
 
@@ -62,10 +71,13 @@ public class MentorshipRequestServiceImplTest {
     public void setUp() {
         mentorshipRequestServiceImpl = new MentorshipRequestServiceImpl(
                 mentorshipRequestRepository,
+                mentorshipRepository,
                 mentorshipRequestMapper,
                 mentorshipRequestValidator,
                 mentorshipRequestFilters,
-                mentorshipRequestedEventPublisher
+                mentorshipRequestedEventPublisher,
+                mentorshipStartEventPublisher,
+                mentorshipAcceptedEventPublisher
         );
     }
 
@@ -141,9 +153,11 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     public void testAcceptRequestWithValidId() {
+        User mentor = createUser(RECEIVER_ID);
         MentorshipRequest requestEntity = createRequestEntity(REQUEST_ID,
                 createUser(REQUESTER_ID), createUser(RECEIVER_ID));
         when(mentorshipRequestValidator.getRequestByIdOrThrowException(REQUEST_ID)).thenReturn(requestEntity);
+        when(mentorshipRepository.saveAndFlush(mentor)).thenReturn(mentor);
 
         MentorshipRequestDto resultDto = mentorshipRequestServiceImpl.acceptRequest(REQUEST_ID);
 

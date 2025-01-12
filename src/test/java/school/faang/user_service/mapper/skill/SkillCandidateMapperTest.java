@@ -5,7 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 
 import school.faang.user_service.dto.skill.SkillCandidateDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 
 import java.util.ArrayList;
 import java.util.Comparator;

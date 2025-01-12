@@ -17,7 +17,7 @@ public class RecommendationEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.data.redis.channels.recommendation_topic}")
+    @Value("${spring.data.redis.channels.recommendation-channel}")
     private String channel;
 
     public void publish(RecommendationEvent event)  {
