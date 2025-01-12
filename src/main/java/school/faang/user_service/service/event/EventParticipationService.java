@@ -24,7 +24,7 @@ public class EventParticipationService {
         if (isAlreadyRegister) {
             throw new IllegalArgumentException("The user is already a participant in the event! ");
         }
-        registerParticipant(eventId, userId);
+        eventParticipationRepository.register(eventId, userId);
 
     }
 
