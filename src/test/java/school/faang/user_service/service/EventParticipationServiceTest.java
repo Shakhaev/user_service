@@ -1,4 +1,4 @@
-package school.faang.user_service.service.controller;
+package school.faang.user_service.service;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -9,13 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.exception.UserAlreadyRegisteredException;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.EventParticipationService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -80,7 +79,7 @@ public class EventParticipationServiceTest {
         when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
                 .thenReturn(List.of(user));
 
-        UserAlreadyRegisteredException exception = Assert.assertThrows(UserAlreadyRegisteredException.class, () -> {
+        BusinessException exception = Assert.assertThrows(BusinessException.class, () -> {
             eventParticipationService.registerParticipant(USER_ID, EVENT_ID);
         });
 

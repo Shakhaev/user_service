@@ -1,8 +1,8 @@
-package school.faang.user_service.controller.event;
+package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.EventParticipationService;
 
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.List;
 public class EventParticipationController {
 
     private final EventParticipationService participationService;
-
 
     public void registerParticipant(long userId, long eventId) {
         participationService.registerParticipant(userId, eventId);
