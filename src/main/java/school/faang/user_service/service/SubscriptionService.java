@@ -16,4 +16,12 @@ public class SubscriptionService {
 
         subscriptionRepository.followUser(followerId, followeeId);
     }
+
+    public void unfollowUser(long followerId, long followeeId) {
+        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new IllegalArgumentException("You are not subscribed to this user");
+        }
+
+        subscriptionRepository.unfollowUser(followerId, followeeId);
+    }
 }

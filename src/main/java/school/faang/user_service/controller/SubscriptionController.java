@@ -14,4 +14,12 @@ public class SubscriptionController {
 
         subscriptionService.followUser(followerId, followeeId);
     }
+
+    public void unfollowUser(long followerId, long followeeId) {
+        if (followerId == followeeId) {
+            throw new IllegalArgumentException("You can't unsubscribe from yourself");
+        }
+
+        subscriptionService.unfollowUser(followerId, followeeId);
+    }
 }
