@@ -41,7 +41,7 @@ class SubscriptionServiceTest {
     private static final int RETURN_VALUE = 5;
 
     @Test
-    void testGetFollowers() {
+    void getFollowers_ShouldReturnListOfFollowersWhenFollowersExist() {
         long followerId = 1L;
         UserFilterDto filterDto = new UserFilterDto("test", null, null,
                 null, null, null,
@@ -61,7 +61,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testGetFollowersNoUsers() {
+    void getFollowers_ShouldReturnEmptyListWhenNoFollowersExist() {
         long followerId = 1L;
         UserFilterDto filterDto = new UserFilterDto("test", null, null,
                 null, null, null,
@@ -77,7 +77,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testGetFollowees() {
+    void getFollowees_ShouldReturnListOfFolloweesWhenFolloweesExist() {
         long followeeId = 1L;
         UserFilterDto filterDto = new UserFilterDto("test", null, null,
                 null, null, null,
@@ -97,7 +97,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testGetFolloweesNoUsers() {
+    void getFollowees_ShouldReturnEmptyListWhenNoFolloweesExist() {
         long followeeId = 1L;
         UserFilterDto filterDto = new UserFilterDto("test", null,
                 null, null, null, null,
@@ -113,7 +113,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testGetFollowersCount() {
+    void getFollowersCount_ShouldReturnCorrectCountWhenFollowersExist() {
         long followeeId = 1L;
         when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(RETURN_VALUE);
 
@@ -124,7 +124,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testFollowUserSuccessfully() {
+    void followUser_ShouldAddFolloweeToFollowerWhenUsersExist() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
         User follower = new User();
         User followee = new User();
@@ -142,7 +142,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testFollowUserFailsForSameUser() {
+    void followUser_ShouldThrowDataValidationExceptionWhenUserTriesToFollowSelf() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 1L);
 
         Exception exception = assertThrows(DataValidationException.class, () -> subscriptionService.followUser(dto));
@@ -150,7 +150,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testUnfollowUserSuccessfully() {
+    void unfollowUser_ShouldRemoveFolloweeFromFollowerWhenRelationshipExists() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
         User follower = new User();
         User followee = new User();
@@ -168,7 +168,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testUnfollowUserFailsWhenNotFollowing() {
+    void unfollowUser_ShouldThrowDataValidationExceptionWhenNotFollowingUser() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
         User follower = new User();
         User followee = new User();
@@ -183,7 +183,7 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void testFollowUserThrowsExceptionWhenUserNotFound() {
+    void followUser_ShouldThrowUserWasNotFoundExceptionWhenUserDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
