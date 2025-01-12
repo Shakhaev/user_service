@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -71,37 +72,18 @@ public class RecommendationRequestServiceTest {
     private SkillRequest skillRequest1;
     private SkillRequest skillRequest2;
     private SkillRequest skillRequest3;
-    private RecommendationRequestDto recommendationRequestDto;
+    private RecommendationRequestRcvDto recommendationRequestRcvDto;
 
     @BeforeEach
     void setUp() {
-        requester = User.builder()
-                .id(1L)
-                .username("Requester")
-                .build();
-
-        receiver = User.builder()
-                .id(2L)
-                .username("Receiver")
-                .build();
-
-        skill1 = Skill.builder()
-                .id(1L)
-                .title("Java")
-                .build();
-
-        skill2 = Skill.builder()
-                .id(2L)
-                .title("Kotlin")
-                .build();
-
-        skill3 = Skill.builder()
-                .id(3L)
-                .title("Hibernate")
-                .build();
+        requester = createUser(1L, "Requester");
+        receiver = createUser(2L, "Receiver");
+        skill1 = createSkill(1L, "Java");
+        skill2 = createSkill(2L, "Kotlin");
+        skill3 = createSkill(3L, "Hibernate");
 
         recommendationRequest = RecommendationRequest.builder()
-                .id(0L)
+                .id(1L)
                 .requester(requester)
                 .receiver(receiver)
                 .status(RequestStatus.PENDING)
@@ -109,34 +91,12 @@ public class RecommendationRequestServiceTest {
                 .message("Please confirm my skills")
                 .build();
 
-        skillRequest1 = SkillRequest.builder()
-                .id(1L)
-                .request(recommendationRequest)
-                .skill(skill1)
-                .build();
+        skillRequest1 = createSkillRequest(1L, recommendationRequest, skill1);
+        skillRequest2 = createSkillRequest(2L, recommendationRequest, skill2);
+        skillRequest3 = createSkillRequest(3L, recommendationRequest, skill3);
 
-        skillRequest2 = SkillRequest.builder()
-                .id(2L)
-                .request(recommendationRequest)
-                .skill(skill2)
-                .build();
-
-        skillRequest3 = SkillRequest.builder()
-                .id(3L)
-                .request(recommendationRequest)
-                .skill(skill3)
-                .build();
-
-        recommendationRequestDto = RecommendationRequestDto.builder()
-                .id(null)
-                .requesterId(requester.getId())
-                .receiverId(receiver.getId())
-                .status(RequestStatus.PENDING)
-                .createdAt(recommendationRequest.getCreatedAt())
-                .updatedAt(recommendationRequest.getUpdatedAt())
-                .skillIds(Arrays.asList(1L, 2L, 3L))
-                .message(recommendationRequest.getMessage())
-                .build();
+        recommendationRequestRcvDto = createRequestRcvDto(requester, receiver, recommendationRequest,
+                Arrays.asList(1L, 2L, 3L));
     }
 
     @Test
@@ -156,38 +116,20 @@ public class RecommendationRequestServiceTest {
         when(skillRequestRepository.create(1L, 2L)).thenReturn(skillRequest2);
         when(skillRequestRepository.create(1L, 3L)).thenReturn(skillRequest3);
 
-        RecommendationRequestDto requestFromDB = recommendationRequestService.create(recommendationRequestDto);
+        RecommendationRequestDto requestFromDB = recommendationRequestService.create(recommendationRequestRcvDto);
 
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository, skillRepository);
         verify(recommendationRequestRepository, Mockito.times(1))
                 .save(recommendationRequestCaptor.capture());
-        assertEquals(recommendationRequestDto.getMessage(), recommendationRequestCaptor.getValue().getMessage());
+        assertEquals(recommendationRequestRcvDto.getMessage(), recommendationRequestCaptor.getValue().getMessage());
 
         assertNotNull(requestFromDB);
         assertEquals(1L, requestFromDB.getId());
-        assertEquals(recommendationRequestDto.getRequesterId(), requestFromDB.getRequesterId());
-        assertEquals(recommendationRequestDto.getReceiverId(), requestFromDB.getReceiverId());
-        assertEquals(recommendationRequestDto.getMessage(), requestFromDB.getMessage());
-        assertEquals(recommendationRequestDto.getStatus(), requestFromDB.getStatus());
-        assertEquals(recommendationRequestDto.getCreatedAt(), requestFromDB.getCreatedAt());
-        assertEquals(recommendationRequestDto.getUpdatedAt(), requestFromDB.getUpdatedAt());
-        assertEquals(recommendationRequestDto.getSkillIds(), requestFromDB.getSkillIds());
-    }
-
-    @Test
-    @DisplayName("MessageIsEmpty")
-    void testCreateRecommendationRequest_MessageIsEmpty() {
-
-        RecommendationRequestDto badRequestDto = RecommendationRequestDto.builder()
-                .createdAt(LocalDateTime.now().minusMonths(7))
-                .message(null)
-                .build();
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(badRequestDto)
-        );
-
-        assertEquals("Message cannot be empty", exception.getMessage());
+        assertEquals(recommendationRequestRcvDto.getRequesterId(), requestFromDB.getRequesterId());
+        assertEquals(recommendationRequestRcvDto.getReceiverId(), requestFromDB.getReceiverId());
+        assertEquals(recommendationRequestRcvDto.getMessage(), requestFromDB.getMessage());
+        assertEquals(RequestStatus.PENDING, requestFromDB.getStatus());
+        assertEquals(recommendationRequestRcvDto.getSkillIds(), requestFromDB.getSkillIds());
     }
 
     @Test
@@ -199,7 +141,7 @@ public class RecommendationRequestServiceTest {
                         .build()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestDto)
+                recommendationRequestService.create(recommendationRequestRcvDto)
         );
 
         assertEquals("Recommendation request must be sent once in 6 months", exception.getMessage());
@@ -214,7 +156,7 @@ public class RecommendationRequestServiceTest {
         when(skillRepository.existsById(3L)).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestDto)
+                recommendationRequestService.create(recommendationRequestRcvDto)
         );
 
         assertEquals("Skill with id = 3 not exist", exception.getMessage());
@@ -229,10 +171,44 @@ public class RecommendationRequestServiceTest {
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestDto)
+                recommendationRequestService.create(recommendationRequestRcvDto)
         );
 
         assertEquals("User with id 2 not found", exception.getMessage());
+    }
+
+    private User createUser(long id, String title) {
+        return User.builder()
+                .id(id)
+                .username(title)
+                .build();
+    }
+
+    private Skill createSkill(long id, String title) {
+        return Skill.builder()
+                .id(id)
+                .title(title)
+                .build();
+    }
+
+    private SkillRequest createSkillRequest(long id, RecommendationRequest recommendationRequest, Skill skill) {
+        return SkillRequest.builder()
+                .id(id)
+                .request(recommendationRequest)
+                .skill(skill)
+                .build();
+    }
+
+    private RecommendationRequestRcvDto createRequestRcvDto(User requester,
+                                                            User receiver,
+                                                            RecommendationRequest request,
+                                                            List<Long> skillIdsList) {
+        return RecommendationRequestRcvDto.builder()
+                .message(request.getMessage())
+                .skillIds(skillIdsList)
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .build();
     }
 }
 

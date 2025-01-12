@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -29,7 +30,7 @@ public class RecommendationRequestService {
     private final SkillRepository skillRepository;
     private final SkillRequestRepository skillRequestRepository;
 
-    public RecommendationRequestDto create(RecommendationRequestDto requestDto) {
+    public RecommendationRequestDto create(RecommendationRequestRcvDto requestDto) {
         validateRecommendationRequest(requestDto);
         RecommendationRequest request = convertRequestDtoToEntity(requestDto);
         RecommendationRequest requestSaved = recommendationRequestRepository.save(request);
@@ -76,17 +77,18 @@ public class RecommendationRequestService {
         }
     }
 
-    private RecommendationRequest convertRequestDtoToEntity(RecommendationRequestDto requestDto) {
+    private RecommendationRequest convertRequestDtoToEntity(RecommendationRequestRcvDto requestDto) {
         RecommendationRequest request = mapper.toEntity(requestDto);
         User requester = getUserById(requestDto.getRequesterId());
         User receiver = getUserById(requestDto.getReceiverId());
         request.setRequester(requester);
         request.setReceiver(receiver);
         request.setStatus(RequestStatus.PENDING);
+        request.setCreatedAt(LocalDateTime.now());
         return request;
     }
 
-    private void validateRecommendationRequest(RecommendationRequestDto request) {
+    private void validateRecommendationRequest(RecommendationRequestRcvDto request) {
         Optional<RecommendationRequest> lastRequest = recommendationRequestRepository.findLatestPendingRequest(
                 request.getRequesterId(), request.getReceiverId());
 
@@ -97,15 +99,6 @@ public class RecommendationRequestService {
                         + REQUEST_PERIOD_OF_THE_SAME_USER + " months");
             }
         }
-        /*request.getSkillIds().forEach(skillId -> {
-            if (!skillRepository.existsById(skillId)) {
-                throw new IllegalArgumentException("Skill with id = " + skillId + " not exist");
-            }
-        });
-
-        request.getSkillIds().stream()
-                .map(skillRepository::existsById).close();
-        */
         for (long id : request.getSkillIds()) {
             if (!skillRepository.existsById(id)) {
                 throw new IllegalArgumentException("Skill with id = " + id + " not exist");

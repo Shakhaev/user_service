@@ -3,6 +3,7 @@ package school.faang.user_service.controller.recommendation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.RecommendationRequestService;
@@ -14,7 +15,7 @@ import java.util.List;
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto requestDto) {
+    public RecommendationRequestDto requestRecommendation(RecommendationRequestRcvDto requestDto) {
         if (requestDto == null) {
             throw new IllegalArgumentException("requestDto cannot be null");
         }
