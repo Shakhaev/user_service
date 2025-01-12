@@ -1,16 +1,17 @@
-package school.faang.user_service.service;
+package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.repository.SkillRepository;
 
 import java.util.Objects;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class ValidationService {
-    private final SkillService skillService;
+public class SkillValidator {
+    private final SkillRepository skillRepository;
 
     public void validateSkill(SkillDto skillDto) {
         Objects.requireNonNull(skillDto);
@@ -22,7 +23,7 @@ public class ValidationService {
             throw new DataValidationException("Название скила не может быть пустым");
         }
 
-        if (skillService.existsByTitle(title)) {
+        if (skillRepository.existsByTitle(title)) {
             throw new DataValidationException("Скилл с таким названием уже существует");
         }
     }
