@@ -15,7 +15,7 @@ public class SubscriptionUserNameFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> user.getUsername().matches(filter.getNamePattern()));
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> user.getUsername().contains(filter.getNamePattern()));
     }
 }

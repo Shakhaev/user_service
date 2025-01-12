@@ -8,13 +8,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SubscriptionUserMapper {
-    User toEntity(SubscriptionUserDto subscriptionUserDto);
+    User toUserEntity(SubscriptionUserDto subscriptionUserDto);
 
-    SubscriptionUserDto toDto(User user);
+    SubscriptionUserDto toSubscriptionUserDto(User user);
 
-    List<SubscriptionUserDto> toDto(List<User> list);
+    List<SubscriptionUserDto> toSubscriptionUserDto(List<User> list);
 
-    List<User> toEntity(List<SubscriptionUserDto> list);
+    List<User> toUserEntity(List<SubscriptionUserDto> list);
 }
 
 

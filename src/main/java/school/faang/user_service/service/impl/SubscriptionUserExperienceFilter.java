@@ -15,8 +15,8 @@ public class SubscriptionUserExperienceFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> (user.getExperience() >= filter.getExperienceMin()
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> (user.getExperience() >= filter.getExperienceMin()
                 && user.getExperience() < filter.getExperienceMax()));
     }
 }

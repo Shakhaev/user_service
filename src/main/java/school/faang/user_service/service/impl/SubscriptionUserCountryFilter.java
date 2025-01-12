@@ -14,7 +14,7 @@ public class SubscriptionUserCountryFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> user.getCountry().getTitle().matches(filter.getCountryPattern()));
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> user.getCountry().getTitle().matches(filter.getCountryPattern()));
     }
 }

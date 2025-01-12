@@ -14,7 +14,7 @@ public class SubscriptionUserCityFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> user.getCity().matches(filter.getCityPattern()));
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> user.getCity().contains(filter.getCityPattern()));
     }
 }

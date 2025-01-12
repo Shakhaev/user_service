@@ -6,15 +6,14 @@ import school.faang.user_service.service.SubscriptionFilter;
 
 import java.util.stream.Stream;
 
-public class SubscriptionUserContactFilter implements SubscriptionFilter {
+public class SubscriptionUserDefaultFilter implements SubscriptionFilter {
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getContactPattern() != null;
+        return true;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        return users.filter(user -> user.getContacts().stream()
-                .anyMatch(c -> c.getContact().matches(filter.getContactPattern())));
+        return users.filter(user -> user.getId()>0);
     }
 }

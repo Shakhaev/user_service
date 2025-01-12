@@ -22,13 +22,16 @@ class SubscriptionControllerTest {
     @InjectMocks
     private SubscriptionController subscriptionController;
 
-    long followerId;
-    long followeeId;
+    SubscriptionUserFilterDto subscriptionUserEmptyFilterDto;
+    private long followerId;
+    private long followeeId;
 
     @BeforeEach
     public void init() {
         followerId = 1L;
         followeeId = 2L;
+
+        subscriptionUserEmptyFilterDto = SubscriptionUserFilterDto.builder().build();
     }
 
     @Test
@@ -64,10 +67,9 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Get All Followers")
     void testGetAllFollowers() {
-        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
-        subscriptionController.getFollowers(followerId, subscriptionUserFilterDto);
+        subscriptionController.getFollowers(followerId, subscriptionUserEmptyFilterDto);
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowers(followerId, subscriptionUserFilterDto);
+                .getFollowers(followerId, subscriptionUserEmptyFilterDto);
     }
 
     @Test
@@ -81,10 +83,9 @@ class SubscriptionControllerTest {
     @Test
     @DisplayName("Get All Followees")
     void testGetAllFollowees() {
-        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
-        subscriptionController.getFollowing(followeeId, subscriptionUserFilterDto);
+        subscriptionController.getFollowing(followeeId, subscriptionUserEmptyFilterDto);
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowing(followeeId, subscriptionUserFilterDto);
+                .getFollowing(followeeId, subscriptionUserEmptyFilterDto);
     }
 
     @Test

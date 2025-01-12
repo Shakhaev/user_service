@@ -4,5 +4,5 @@ import lombok.Value;
 
 @Value
 public class RecordsQuantityDto {
-    Integer quantity;
+    private Integer quantity;
 }

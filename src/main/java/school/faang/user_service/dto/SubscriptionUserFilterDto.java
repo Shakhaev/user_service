@@ -1,10 +1,10 @@
 package school.faang.user_service.dto;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class SubscriptionUserFilterDto {
     private String namePattern;
     private String aboutPattern;

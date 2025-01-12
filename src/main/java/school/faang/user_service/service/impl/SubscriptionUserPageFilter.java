@@ -16,7 +16,7 @@ public class SubscriptionUserPageFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
         int page = filter.getPage();
         int pageSize = filter.getPageSize();
 
@@ -27,6 +27,6 @@ public class SubscriptionUserPageFilter implements SubscriptionFilter {
         if (pageSize == 0) {
             pageSize = DEFAULT_PAGE_SIZE;
         }
-        users.skip((long) (page - 1) * pageSize).limit(pageSize);
+        return users.skip((long) (page - 1) * pageSize).limit(pageSize);
     }
 }

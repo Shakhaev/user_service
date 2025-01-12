@@ -13,7 +13,7 @@ public class SubscriptionUserPhoneFilter implements SubscriptionFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> user.getPhone().matches(filter.getPhonePattern()));
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> user.getPhone().contains(filter.getPhonePattern()));
     }
 }

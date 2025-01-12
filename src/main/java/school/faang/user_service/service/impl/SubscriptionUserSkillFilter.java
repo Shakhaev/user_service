@@ -10,12 +10,13 @@ public class SubscriptionUserSkillFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getSkillPattern()!= null;
+        String skillPattern = filter.getSkillPattern();
+        return (skillPattern != null && !skillPattern.isEmpty());
     }
 
     @Override
-    public void apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        users.filter(user -> user.getSkills().stream()
+    public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
+        return users.filter(user -> user.getSkills().stream()
                 .anyMatch(s -> s.getTitle().matches(filter.getSkillPattern())));
     }
 }
