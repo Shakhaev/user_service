@@ -13,24 +13,25 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.EventFilter;
+import school.faang.user_service.filter.event.EventFilterOwnerName;
+import school.faang.user_service.filter.event.EventStartDateFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +39,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
+    private final EventFilterOwnerName eventFilterOwnerName = new EventFilterOwnerName();
+    private final EventStartDateFilter eventStartDateFilter = new EventStartDateFilter();
+
     @Mock
     private UserService userService;
     @Mock
@@ -46,15 +50,15 @@ class EventServiceTest {
     private EventRepository eventRepository;
     @Spy
     private EventMapper eventMapper;
-    @Mock
-    private List<EventFilter> eventFilters;
     @InjectMocks
     private EventService eventService;
-
     private Event event;
+    private List<Event> toFilter;
     private User owner;
+    private User secondOwner;
     private List<Skill> skills;
     private List<Long> skillIds;
+    private NoSuchElementException notFoundException;
 
     @BeforeEach
     void setUp() {
@@ -64,13 +68,54 @@ class EventServiceTest {
         skillIds = eventMapper.mapSkillsToSkillIds(skills);
         owner = User.builder()
                 .id(1L)
+                .username("firstUser")
                 .skills(skills)
+                .build();
+        secondOwner = User.builder()
+                .id(2L)
+                .skills(skills)
+                .username("secondOwner")
                 .build();
         event = Event.builder()
                 .id(1L)
                 .owner(owner)
                 .relatedSkills(skills)
                 .build();
+        Event secondEvent = Event.builder()
+                .id(2L)
+                .owner(secondOwner)
+                .relatedSkills(skills)
+                .startDate(LocalDateTime.of(2025, 1, 12, 14, 0))
+                .build();
+        toFilter = new ArrayList<>(Arrays.asList(event, secondEvent));
+        notFoundException = new NoSuchElementException("Event id 1 not found");
+    }
+
+    @Test
+    void testGetEventsByFilterOwnerName() {
+        String ownerName = secondOwner.getUsername();
+        EventFiltersDto filters = EventFiltersDto.builder().ownerName(ownerName).build();
+
+        List<Event> filteredEvents = setupAndFilterEvents(filters, eventFilterOwnerName);
+
+        assertNotNull(filteredEvents);
+        assertEquals(1, filteredEvents.size());
+        assertEquals(ownerName, filteredEvents.get(0).getOwner().getUsername());
+    }
+
+    @Test
+    void testGetEventsByStartDateFilter() {
+        Event secondEvent = toFilter.get(1);
+        LocalDateTime filterDate = LocalDateTime.of(2025, 1, 12, 12, 0);
+        EventFiltersDto filters = EventFiltersDto.builder()
+                .startDate(filterDate)
+                .build();
+
+        List<Event> filteredEvents = setupAndFilterEvents(filters, eventStartDateFilter);
+
+        assertNotNull(filteredEvents);
+        assertEquals(1, filteredEvents.size());
+        assertEquals(secondEvent.getStartDate(), filteredEvents.get(0).getStartDate());
     }
 
     @Test
@@ -109,35 +154,24 @@ class EventServiceTest {
     @Test
     void testGetEvent() {
         Long eventId = event.getId();
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventRepository.findByIdOrThrow(eventId)).thenReturn(event);
 
         Event foundEvent = eventService.getEvent(eventId);
 
         assertNotNull(foundEvent);
         assertEquals(owner.getId(), foundEvent.getId());
-        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, times(1)).findByIdOrThrow(eventId);
     }
 
     @Test
     void testGetEventNotFound() {
         Long eventId = event.getId();
-        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(eventRepository.findByIdOrThrow(eventId)).thenThrow(notFoundException);
 
         assertThrows(NoSuchElementException.class, () -> eventService.getEvent(eventId));
-        verify(eventRepository, times(1)).findById(eventId);
+        verify(eventRepository, times(1)).findByIdOrThrow(eventId);
     }
 
-    @Test
-    void testGetEventsByFilter() {
-        EventFiltersDto filters = EventFiltersDto.builder().title("Test").build();
-        when(eventRepository.findAll()).thenReturn(Collections.singletonList(event));
-        when(eventFilters.stream()).thenReturn(Stream.of(mock(EventFilter.class)));
-
-        List<Event> filteredEvents = eventService.getEventsByFilter(filters);
-
-        assertNotNull(filteredEvents);
-        assertEquals(1, filteredEvents.size());
-    }
 
     @Test
     void testDeleteEvent() {
@@ -156,27 +190,29 @@ class EventServiceTest {
                 .id(eventId)
                 .owner(owner)
                 .build();
-        List<Skill> relatedSkills = Collections.singletonList(Skill.builder().title("Java").build());
+        String updatedSkillsTitle = "Java";
+        List<Skill> relatedSkills = Collections.singletonList(Skill.builder().title(updatedSkillsTitle).build());
         List<Long> eventToUpdateSkillIds = eventMapper.mapSkillsToSkillIds(relatedSkills);
         eventToUpdate.setRelatedSkills(relatedSkills);
 
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventRepository.findByIdOrThrow(eventId)).thenReturn(event);
         when(userService.getUser(any())).thenReturn(owner);
         when(skillService.getSkills(any())).thenReturn(skills);
 
         eventService.updateEvent(eventToUpdate, eventToUpdate.getId(), eventToUpdateSkillIds);
 
+        assertEquals(eventToUpdate.getRelatedSkills().get(0).getTitle(), updatedSkillsTitle);
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
     @Test
     void testUpdateEventNotFound() {
         Long eventId = event.getId();
-        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        when(eventRepository.findByIdOrThrow(eventId)).thenThrow(notFoundException);
         when(userService.getUser(any())).thenReturn(owner);
         when(skillService.getSkills(any())).thenReturn(skills);
 
-        DataValidationException exception = assertThrows(DataValidationException.class,
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
                 () -> eventService.updateEvent(event, eventId, skillIds));
 
         assertEquals(String.format("Event id %d not found", eventId), exception.getMessage());
@@ -201,5 +237,13 @@ class EventServiceTest {
         eventService.getParticipatedEvents(ownerId);
 
         verify(eventRepository, times(1)).findParticipatedEventsByUserId(ownerId);
+    }
+
+    private List<Event> setupAndFilterEvents(EventFiltersDto filters, EventFilter filter) {
+        when(eventRepository.findAll()).thenReturn(toFilter);
+        List<EventFilter> mockEventFilters = List.of(filter);
+        eventService = new EventService(userService, skillService, eventRepository, mockEventFilters);
+
+        return eventService.getEventsByFilter(filters);
     }
 }

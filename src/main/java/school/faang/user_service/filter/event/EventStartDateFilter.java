@@ -6,10 +6,11 @@ import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
-@Component
 @Slf4j
+@Component
 public class EventStartDateFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFiltersDto eventFiltersDto) {
@@ -18,7 +19,15 @@ public class EventStartDateFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFiltersDto eventFiltersDto) {
-        log.info("Filtering by start date: {}", eventFiltersDto.startDate());
-        return events.filter(event -> !event.getStartDate().isBefore(eventFiltersDto.startDate()));
+        LocalDateTime filterStartDate = eventFiltersDto.startDate();
+        log.info("Filtering by start date: {}", filterStartDate);
+
+        return events.filter(event -> {
+            LocalDateTime eventStartDate = event.getStartDate();
+            if (eventStartDate == null) {
+                return false;
+            }
+            return eventStartDate.isAfter(filterStartDate) || eventStartDate.isEqual(filterStartDate);
+        });
     }
 }

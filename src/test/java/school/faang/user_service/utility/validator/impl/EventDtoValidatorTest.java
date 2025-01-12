@@ -1,32 +1,45 @@
-package school.faang.user_service.utility.validator.event;
+package school.faang.user_service.utility.validator.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.utility.validator.ValidatorUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
-class EventValidatorUtilsImplTest {
-
-    @Mock
-    private ValidatorUtils utils;
-    private final EventValidatorUtils validator = new EventValidatorUtilsImpl(utils);
+class EventDtoValidatorTest {
+    private final EventDtoValidator validator = new EventDtoValidator();
     private String errorMessage;
 
     @BeforeEach
     void init() {
         errorMessage = "Data is invalid";
+    }
+
+    @Test
+    void testValidate() {
+        EventDto dto = EventDto.builder()
+                .id(1L)
+                .title("title")
+                .description("description")
+                .startDate(LocalDateTime.now().plusHours(1L))
+                .endDate(LocalDateTime.now().plusHours(2L))
+                .location("location")
+                .maxAttendees(1)
+                .ownerId(1L)
+                .relatedSkillIds(List.of(1L))
+                .type(EventType.GIVEAWAY)
+                .status(EventStatus.IN_PROGRESS)
+                .build();
+
+        assertDoesNotThrow(() -> validator.validate(dto));
     }
 
     @Test

@@ -1,24 +1,22 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.utility.validator.DataValidator;
+import school.faang.user_service.utility.validator.AbstractDataValidator;
 
 import java.util.List;
 
-@RestController
 @RequiredArgsConstructor
-@Slf4j
+@RestController
 public class EventController {
     private final EventService eventService;
-    private final DataValidator<EventDto> eventDtoValidator;
-    private final DataValidator<EventFiltersDto> eventFilterValidator;
+    private final AbstractDataValidator<EventDto> eventDtoValidator;
+    private final AbstractDataValidator<EventFiltersDto> eventFilterValidator;
     private final EventMapper eventMapper;
 
     public EventDto create(EventDto eventDto) {

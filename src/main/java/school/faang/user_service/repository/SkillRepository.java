@@ -7,7 +7,6 @@ import school.faang.user_service.entity.Skill;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
@@ -17,7 +16,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     int countExisting(List<Long> ids);
 
     @Query("SELECT s FROM Skill s WHERE s.id IN :ids")
-    Set<Skill> findAllByIds(List<Long> ids);
+    List<Skill> findAllByIds(List<Long> ids);
 
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s

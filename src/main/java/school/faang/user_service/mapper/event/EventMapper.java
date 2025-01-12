@@ -2,7 +2,6 @@ package school.faang.user_service.mapper.event;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventDto;
@@ -24,8 +23,6 @@ public interface EventMapper {
     EventDto toDto(Event event);
 
     List<EventDto> toDtoList(List<Event> events);
-
-    void updateEntityFromDto(Event inputEvent, @MappingTarget Event existingEvent);
 
     @Named("mapSkillsToSkillIds")
     default List<Long> mapSkillsToSkillIds(List<Skill> skills) {

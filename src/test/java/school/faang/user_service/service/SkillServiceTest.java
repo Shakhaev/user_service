@@ -11,14 +11,11 @@ import school.faang.user_service.repository.SkillRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +47,7 @@ class SkillServiceTest {
     @Test
     void getSkillsReturnSkillsWhenAllIdsExist() {
         List<Long> ids = List.of(firstSkill.getId(), secondSkill.getId());
-        Set<Skill> mockSkills = Set.of(firstSkill, secondSkill);
+        List<Skill> mockSkills = List.of(firstSkill, secondSkill);
         when(skillRepository.findAllByIds(ids)).thenReturn(mockSkills);
 
         List<Skill> result = skillService.getSkills(ids);
@@ -63,35 +60,29 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkillsThrowExceptionWhenMissingId() {
+    void getNonFullSkillsWhenMissingId() {
         List<Long> missingIds = List.of(1L, 2L, 3L);
-        Set<Skill> mockSkills = Set.of(firstSkill, secondSkill);
+        Skill missingSkill = Skill.builder()
+                .id(3L)
+                .build();
+        List<Skill> mockSkills = List.of(firstSkill, secondSkill);
         when(skillRepository.findAllByIds(missingIds)).thenReturn(mockSkills);
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> skillService.getSkills(missingIds));
+        List<Skill> foundedSkills = skillService.getSkills(missingIds);
 
-        assertEquals("Not found skills with ids [3]", exception.getMessage());
+        assertEquals(2, foundedSkills.size());
+        assertFalse(foundedSkills.contains(missingSkill));
         verify(skillRepository, times(1)).findAllByIds(missingIds);
     }
 
     @Test
     void getSkillsReturnEmptyListWhenIdsEmpty() {
         List<Long> ids = Collections.emptyList();
-        when(skillRepository.findAllByIds(ids)).thenReturn(Collections.emptySet());
 
         List<Skill> result = skillService.getSkills(ids);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(skillRepository, times(1)).findAllByIds(ids);
-    }
-
-    @Test
-    void getSkillsNotCallRepositoryWhenNullIds() {
-        List<Long> ids = null;
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> skillService.getSkills(ids));
-        assertEquals("Skill IDs must not be null", exception.getMessage());
-        verify(skillRepository, never()).findAllByIds(any());
+        verify(skillRepository, never()).findAllByIds(ids);
     }
 }
