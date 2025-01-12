@@ -1,26 +1,26 @@
 package school.faang.user_service.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RecommendationRequestDto {
-    private final Long id;
-    private final String message;
-    private final String status;
-    private final List<Long> skills;
-    private final Long requesterId;
-    private final Long receiverId;
-    private final String createdAt;
-    private final String updatedAt;
-    private final String rejectionReason;
-
-    public Set<Long> getRequesterIdAndReceiverIds() {
-        return new HashSet<>(List.of(requesterId, receiverId));
-    }
+    private Long id;
+    private String message;
+    private String status;
+    private List<Long> skills;
+    private Long requesterId;
+    private Long receiverId;
+    private String createdAt;
+    private String updatedAt;
+    private String rejectionReason;
 }
