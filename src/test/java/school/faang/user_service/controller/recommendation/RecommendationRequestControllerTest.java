@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.recommendation;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +7,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.BaseTest;
 import school.faang.user_service.data.RecommendationRequestData;
 import school.faang.user_service.data.SkillData;
@@ -23,6 +23,7 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -55,9 +56,9 @@ public class RecommendationRequestControllerTest extends BaseTest {
         mockData(data);
 
         RecommendationRequestDto response = recommendationRequestController.requestRecommendation(data.toDto());
-        Assertions.assertNotNull(response);
+        assertNotNull(response);
 
-        Assertions.assertEquals(data.getMessage(), response.getMessage());
+        assertEquals(data.getMessage(), response.getMessage());
     }
 
     @Test
@@ -71,8 +72,8 @@ public class RecommendationRequestControllerTest extends BaseTest {
             mockData(data);
             mockFindLatestPendingRequest(Optional.of(data.toRecommendationRequest()));
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("Less than min months have passed since the previous request", e.getMessage());
+        } catch (ResponseStatusException e) {
+            assertEquals("400 BAD_REQUEST \"Less than min months have passed since the previous request\"", e.getMessage());
         }
     }
 
@@ -83,8 +84,8 @@ public class RecommendationRequestControllerTest extends BaseTest {
         when(userRepository.findAllById(any())).thenReturn(List.of());
         try {
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("Requester or receiver not found", e.getMessage());
+        } catch (ResponseStatusException e) {
+            assertEquals("404 NOT_FOUND \"Users not found\"", e.getMessage());
         }
     }
 
@@ -94,8 +95,8 @@ public class RecommendationRequestControllerTest extends BaseTest {
 
         try {
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("message must not be null", e.getMessage());
+        } catch (ResponseStatusException e) {
+            assertEquals("400 BAD_REQUEST \"Message must not be null\"", e.getMessage());
         }
     }
 
@@ -103,9 +104,9 @@ public class RecommendationRequestControllerTest extends BaseTest {
     void getRecommendationRequests() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(data.toRecommendationRequest()));
-        List<RecommendationRequest> response = recommendationRequestController.getRecommendationRequests(data.toFilterDto());
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(1, response.size());
+        List<RecommendationRequestDto> response = recommendationRequestController.getRecommendationRequests(data.toFilterDto());
+        assertNotNull(response);
+        assertEquals(1, response.size());
     }
 
     @Test
@@ -113,9 +114,9 @@ public class RecommendationRequestControllerTest extends BaseTest {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
 
         when(recommendationRequestRepository.findById(any())).thenReturn(Optional.of(data.toRecommendationRequest()));
-        RecommendationRequest request = recommendationRequestController.getRecommendationRequest(data.getId());
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals(data.getId(), request.getId());
+        RecommendationRequestDto request = recommendationRequestController.getRecommendationRequest(data.getId());
+        assertNotNull(request);
+        assertEquals(data.getId(), request.getId());
     }
 
     private void mockData(RecommendationRequestData data) {

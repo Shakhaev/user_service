@@ -1,27 +1,28 @@
 package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
+import school.faang.user_service.properties.UserServiceProperties;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.skill.SkillRequestServiceImpl;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 import school.faang.user_service.service.user.UserServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
-    @Value("${recommendation-request.min-month}")
-    private int minMonth;
+    private final UserServiceProperties userServiceProperties;
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserServiceImpl userService;
@@ -29,8 +30,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestServiceImpl skillRequestService;
 
     @Override
-    public RecommendationRequest create(RecommendationRequestDto dto) throws IllegalArgumentException {
-        Set<Long> userIds = dto.getRequesterIdAndReceiverIds();
+    public RecommendationRequest create(RecommendationRequestDto dto) throws IllegalArgumentException, NoSuchElementException {
+        Set<Long> userIds = getRequesterIdAndReceiverIds(dto);
 
         checkUsersExist(userIds);
         checkPeriod(dto, userIds);
@@ -57,19 +58,19 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     @Override
-    public RecommendationRequest getRequestById(Long id) {
-        return recommendationRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Request not found"));
+    public RecommendationRequest getRequestById(Long id) throws NoSuchElementException {
+        return recommendationRequestRepository.findById(id).orElseThrow(() -> new NoSuchElementException("RecommendationRequest not found"));
     }
 
     private void checkUsersExist(Set<Long> userIds) {
         if (userService.findByIds(userIds).size() != userIds.size()) {
-            throw new IllegalArgumentException("Requester or receiver not found");
+            throw new NoSuchElementException("Users not found");
         }
     }
 
     private void checkSkillsExist(RecommendationRequestDto dto) {
         if (!skillService.checkSkillsExist(dto.getSkills())) {
-            throw new IllegalArgumentException("Skills not found");
+            throw new NoSuchElementException("Skills not found");
         }
     }
 
@@ -77,10 +78,15 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         if (userIds.size() == 1) {
             recommendationRequestRepository.findLatestPendingRequest(dto.getRequesterId(), dto.getReceiverId())
                     .ifPresent(recommendationRequest -> {
-                        if (recommendationRequest.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(minMonth))) {
+                        if (recommendationRequest.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(userServiceProperties
+                                .getRecommendationRequest().getMinMonth()))) {
                             throw new IllegalArgumentException("Less than min months have passed since the previous request");
                         }
                     });
         }
+    }
+
+    private Set<Long> getRequesterIdAndReceiverIds(RecommendationRequestDto dto) {
+        return new HashSet<>(List.of(dto.getRequesterId(), dto.getReceiverId()));
     }
 }
