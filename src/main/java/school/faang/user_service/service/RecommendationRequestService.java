@@ -144,12 +144,16 @@ public class RecommendationRequestService {
     }
 
     public RecommendationRequestDto getRecommendationRequests(long id) {
-        RecommendationRequest request = requestRepository.findById(id)
+        RecommendationRequest request = findRequestById(id);
+        return recommendationRequestMapper.toDto(request);
+    }
+
+    private RecommendationRequest findRequestById(Long id) {
+        return requestRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("запрос на рекомендацию с ID {} не найден", id);
                     return new EntityNotFoundException("RecommendationRequest not found");
                 });
-        return recommendationRequestMapper.toDto(request);
     }
 
     private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
