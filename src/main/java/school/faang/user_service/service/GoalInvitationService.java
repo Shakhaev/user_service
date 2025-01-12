@@ -45,10 +45,8 @@ public class GoalInvitationService {
         }
 
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(goalInvitationDto);
-        User invitingUser = userRepository.findById(inviterId)
-                .orElseThrow(() -> new UserWasNotFoundException("User was not found. ID : " + inviterId));
-        User invitedUser = userRepository.findById(invitedId)
-                .orElseThrow(() -> new UserWasNotFoundException("User was not found. ID : " + invitedId));
+        User invitingUser = findUserById(inviterId);
+        User invitedUser = findUserById(invitedId);
         Goal inviterGoal = findGoalById(goalId);
 
         goalInvitation.setGoal(inviterGoal);
@@ -68,8 +66,7 @@ public class GoalInvitationService {
 
     @Transactional
     public GoalInvitation acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new GoalInvitationWasNotFoundException("Goal invite was not found, ID : " +  id));
+        GoalInvitation goalInvitation = findGoalInvitationById(id);
         Goal recievedGoal = goalInvitation.getGoal();
         User acceptingUser = goalInvitation.getInvited();
 
@@ -96,8 +93,7 @@ public class GoalInvitationService {
 
     @Transactional
     public GoalInvitation rejectGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new GoalInvitationWasNotFoundException("Goal invite was not found, ID : " +  id));
+        GoalInvitation goalInvitation = findGoalInvitationById(id);
         Goal recievedGoal = goalInvitation.getGoal();
 
         goalInvitation.setStatus(RequestStatus.REJECTED);
@@ -126,6 +122,11 @@ public class GoalInvitationService {
         return invitations.toList();
     }
 
+    private GoalInvitation findGoalInvitationById(long id) {
+        return goalInvitationRepository.findById(id)
+                .orElseThrow(() -> new GoalInvitationWasNotFoundException("Goal invite was not found, ID : " +  id));
+    }
+
     private Goal findGoalById(long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new IllegalArgumentException("There is no goal with id : " + goalId));
@@ -133,5 +134,10 @@ public class GoalInvitationService {
 
     private boolean isUserInDatabase(long userId) {
         return userRepository.findById(userId).isPresent();
+    }
+
+    private User findUserById(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserWasNotFoundException("User was not found. ID : " + id));
     }
 }
