@@ -13,6 +13,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestRcvDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -73,6 +75,7 @@ public class RecommendationRequestServiceTest {
     private SkillRequest skillRequest2;
     private SkillRequest skillRequest3;
     private RecommendationRequestRcvDto recommendationRequestRcvDto;
+    private RejectionDto rejectionDto;
 
     @BeforeEach
     void setUp() {
@@ -97,6 +100,10 @@ public class RecommendationRequestServiceTest {
 
         recommendationRequestRcvDto = createRequestRcvDto(requester, receiver, recommendationRequest,
                 Arrays.asList(1L, 2L, 3L));
+
+        rejectionDto = RejectionDto.builder()
+                .reason("Can't confirm.")
+                .build();
     }
 
     @Test
@@ -175,6 +182,92 @@ public class RecommendationRequestServiceTest {
         );
 
         assertEquals("User with id 2 not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getRequest_Success")
+    void getRequest_Success() {
+        Long id = recommendationRequest.getId();
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
+
+        RecommendationRequestDto requestDto = recommendationRequestService.getRequest(id);
+
+        assertNotNull(requestDto);
+        assertEquals(recommendationRequest.getId(), requestDto.getId());
+        assertEquals(recommendationRequest.getRequester().getId(), requestDto.getRequesterId());
+        assertEquals(recommendationRequest.getReceiver().getId(), requestDto.getReceiverId());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
+    }
+
+    @Test
+    @DisplayName("getRequest_NotFound")
+    void getRequest_NotFound() {
+        Long id = 5L;
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.getRequest(id));
+
+        assertEquals("Recommendation request with id 5 not found", exception.getMessage());
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestMapper, never()).toDto(any());
+    }
+
+    @Test
+    @DisplayName("rejectRequest_Success")
+    void rejectRequest_Success() {
+        Long id = 1L;
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
+                .thenAnswer(invocation -> {
+                    RecommendationRequest savedRequest = invocation.getArgument(0);
+                    savedRequest.setStatus(RequestStatus.REJECTED);
+                    return savedRequest;
+                });
+
+        RecommendationRequestDto requestDto = recommendationRequestService.rejectRequest(id, rejectionDto);
+
+        assertNotNull(requestDto);
+        assertEquals(id, requestDto.getId());
+        assertEquals(RequestStatus.REJECTED, requestDto.getStatus());
+        assertEquals(rejectionDto.getReason(), requestDto.getRejectionReason());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
+    }
+
+    @Test
+    @DisplayName("rejectRequest_AlreadyRejected")
+    void rejectRequest_AlreadyRejected() {
+        Long id = 1L;
+        recommendationRequest.setStatus(RequestStatus.REJECTED);
+        recommendationRequest.setRejectionReason(rejectionDto.getReason());
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+
+        assertEquals("The recommendation request id 1 is already rejected", exception.getMessage());
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
+    }
+
+    @Test
+    @DisplayName("rejectRequest_NotFound")
+    void rejectRequest_NotFound() {
+        Long id = 5L;
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+
+        assertEquals("Recommendation request id 5 not found", exception.getMessage());
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
     }
 
     private User createUser(long id, String title) {

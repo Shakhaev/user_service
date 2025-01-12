@@ -54,7 +54,8 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto getRequest(long id) {
         return mapper.toDto(recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found")));
+                .orElseThrow(() -> new IllegalArgumentException("Recommendation request with id "
+                        + id + " not found")));
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
