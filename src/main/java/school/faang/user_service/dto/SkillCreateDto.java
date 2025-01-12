@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
+@Data
 public class SkillCreateDto {
 
-    @NotBlank(message = "Назавание не может быть пустым или NULL .")
+    @NotBlank(message = "Title cannot be null or empty !")
     private String title;
 }

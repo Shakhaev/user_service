@@ -3,17 +3,12 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.SkillCandidateDto;
-import school.faang.user_service.dto.SkillCreateDto;
-import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillCandidateMapper;
-import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -30,99 +25,100 @@ public class SkillService {
     private static final int MIN_SKILL_OFFERS = 3;
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
-    private final SkillCandidateMapper skillCandidateMapper;
-    private final SkillMapper skillMapper;
     private final UserRepository userRepository;
 
-
-    public SkillDto create(SkillCreateDto skillCreateDto) {
-        validateSkill(skillCreateDto);
-        if (skillRepository.existsByTitle(skillCreateDto.getTitle())) {
-            throw new DataValidationException(" Skill с таким названием уже существует .");
-        }
-        Skill skill = skillMapper.toEntity(skillCreateDto);
-        skill = skillRepository.save(skill);
-        return skillMapper.toSkillDto(skill);
+    public static int getMIN_SKILL_OFFERS() {
+        return  MIN_SKILL_OFFERS ;
     }
 
-    public List<SkillDto> getUserSkills(long userId) {
+    public Skill create(Skill skill) {
+        validateSkill(skill);
+
+        return skillRepository.save(skill);
+    }
+
+    public List<Skill> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
-        validateSkillList(skills);
-        return skills.stream()
-                .map(skillMapper::toSkillDto)
-                .toList();
+
+        return skills;
     }
 
-    public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        return skillRepository.findSkillsOfferedToUser(userId)
-                .stream()
-                .map(skill -> {
-                    SkillCandidateDto dto =
-                            skillCandidateMapper.toSkillCandidateDto(skill);
-                    List<SkillOffer> skillOffers =
-                            skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId);
-                    dto.setOffersAmount(skillOffers.size());
-                    return dto;
-                })
-                .toList();
+    public List<Skill> getOfferedSkills(long userId) {
+        List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
+
+        return skills;
     }
 
-    public SkillDto acquireSkillFromOffers(long skillId, long userId) {
+    public Skill acquireSkillFromOffers(long skillId, long userId) {
         Skill skill = getSkillById(skillId);
         User user = getUserById(userId);
+
         Optional<Skill> existingSkill = skillRepository.findUserSkill(skillId, userId);
-        if (existingSkill.isPresent()) {
-            throw new BusinessException(String.format("Присвоение умения отклонено т.к умение %s "
-                    + "уже существует у пользователя %s", skill.getTitle(), user.getUsername()));
-        }
+        existingSkillIsPresent(existingSkill, skillId, userId);
+
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
-        if (skillOffers.size() < MIN_SKILL_OFFERS) {
-            throw new BusinessException(
-                    String.format("Недостаточно предложений для присвоения умения %s." +
-                                    " Необходимо %s вместо %s",
-                            skill.getTitle(), MIN_SKILL_OFFERS, skillOffers.size())
-            );
-        }
-        log.info("Умение {} присвоено пользователю {}, так как получено {} из {} предложений",
-                skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
+        validateSkillOffers(skillOffers, skillId, userId);
+
         skillRepository.assignSkillToUser(skillId, userId);
+        log.info("The skill {} was assigned to the user {} because it was received {} from {} offers",
+                skill.getTitle(), user.getUsername(), skillOffers.size(), MIN_SKILL_OFFERS);
 
-        List<UserSkillGuarantee> userSkillGuarantees = skillOffers.stream()
-                .map(skillOffer -> {
-                    User guarantorUser = skillOffer.getRecommendation().getAuthor();
-                    return new UserSkillGuarantee(null, user, skill, guarantorUser);
-                })
-                .toList();
+        userSkillGuaranteesSet(skillOffers, skillId, userId);
 
-        skill.setGuarantees(userSkillGuarantees);
-        log.info("Обновлен список гарантов умения {} пользователя {}", skill.getTitle()
-                , user.getUsername());
         skillRepository.save(skill);
-
-        return skillMapper.toSkillDto(skill);
+        log.info("Updated the list of skill guarantors {} of the user {}", skill.getTitle(), user.getUsername());
+        return skill;
     }
 
     private Skill getSkillById(long skillId) {
         return skillRepository.findById(skillId)
                 .orElseThrow(() -> new NoSuchElementException(String
-                        .format("Умение с ID %d не найдено", skillId)));
+                        .format("Skill with ID %d not found", skillId)));
     }
 
     private User getUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException(String
-                        .format("Пользователь с ID %d не найден", userId)));
+                        .format("User with ID %d not found", userId)));
     }
 
-    private void validateSkillList(List<?> skills) {
-        if (skills.isEmpty()) {
-            throw new NoSuchElementException("Умения не найдены .");
+    private void validateSkill(Skill skill) {
+        if (skill.getTitle() == null || skill.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Title cannot be null or empty !");
+        }
+        if (skillRepository.existsByTitle(skill.getTitle())) {
+            throw new DataValidationException(" Skill with title already exists!");
         }
     }
 
-    private void validateSkill(SkillCreateDto skill) {
-        if (skill.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Название не может быть null или пустым !");
+    private void validateSkillOffers(List<SkillOffer> skillOffers, long skillId, long userId) {
+        if (skillOffers.size() < MIN_SKILL_OFFERS) {
+
+            throw new BusinessException(
+                    String.format(" %s skill not assigned, %s is needed instead of %s",
+                            getSkillById(skillId).getTitle(), MIN_SKILL_OFFERS, skillOffers.size())
+            );
         }
+    }
+
+    private void existingSkillIsPresent(Optional<Skill> existingSkill, long skillId, long userId) {
+        if (existingSkill.isPresent()) {
+
+            throw new BusinessException(String.format("The assignment of the skill was rejected because the skill %s " +
+                    " already exists in the user %s", getSkillById(skillId).getTitle(), getUserById(userId).getUsername()));
+        }
+    }
+
+    private List<UserSkillGuarantee> userSkillGuaranteesSet(List<SkillOffer> skillOffers, long skillId, long userId) {
+
+        List<UserSkillGuarantee> userSkillGuarantees = skillOffers
+                .stream()
+                .map(skillOffer -> {
+                    User guarantorUser = skillOffer.getRecommendation().getAuthor();
+                    return new UserSkillGuarantee(null, getUserById(userId), getSkillById(skillId), guarantorUser);
+                })
+                .toList();
+        getSkillById(skillId).setGuarantees(userSkillGuarantees);
+        return userSkillGuarantees;
     }
 }
