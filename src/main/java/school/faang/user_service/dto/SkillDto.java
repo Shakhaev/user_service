@@ -10,7 +10,7 @@ public class SkillDto {
 
     private Long id;
 
-    @NotBlank(message = "Назавание не может быть пустым или NULL .")
+    @NotBlank(message = "Title cannot be null or empty !")
     private String title;
     private List<Long> userId;
 }

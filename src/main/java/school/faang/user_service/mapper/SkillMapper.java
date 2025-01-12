@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.SkillCreateDto;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -18,7 +17,7 @@ public interface SkillMapper {
     SkillDto toSkillDto(Skill skill);
 
     @Mapping(target = "users", ignore = true)
-    Skill toEntity(SkillCreateDto skillCreateDto);
+    Skill toEntity(SkillDto skillDto);
 
     @Named("map")
     default List<Long> map(List<User> users) {
@@ -26,4 +25,5 @@ public interface SkillMapper {
         return users.stream()
                 .map(User::getId).toList();
     }
+
 }
