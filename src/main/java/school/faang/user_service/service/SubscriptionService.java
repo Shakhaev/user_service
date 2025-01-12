@@ -50,11 +50,7 @@ public class SubscriptionService {
 
     private List<UserDto> filterPeople(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
         if (filters == null || filters.isEmpty()) {
-            return followersOfUser
-                    .skip((long) userFilterDto.page() * userFilterDto.pageSize())
-                    .limit(userFilterDto.pageSize())
-                    .map(userFollowingMapper::toDto)
-                    .toList();
+            return filterOnlyLimitsSkips(followersOfUser, userFilterDto);
         }
 
         Stream<User> userStream = followersOfUser.parallel();
@@ -63,11 +59,7 @@ public class SubscriptionService {
                 userStream = filter.accept(userStream, userFilterDto);
             }
         }
-        return userStream
-                .skip((long) userFilterDto.page() * userFilterDto.pageSize())
-                .limit(userFilterDto.pageSize())
-                .map(userFollowingMapper::toDto)
-                .toList();
+        return filterOnlyLimitsSkips(followersOfUser, userFilterDto);
     }
 
     public void followUser(FollowingFeatureDto followingFeatureDTO) {
@@ -143,5 +135,13 @@ public class SubscriptionService {
             logger.error("The followerId & followeeId is equals : {} -> {}", followerId, followeeId);
             throw new DataValidationException("Trying to follow to yourself!");
         }
+    }
+
+    private List<UserDto> filterOnlyLimitsSkips(Stream<User> followers, UserFilterDto userFilterDto) {
+        return followers
+                .skip((long) userFilterDto.page() * userFilterDto.pageSize())
+                .limit(userFilterDto.pageSize())
+                .map(userFollowingMapper::toDto)
+                .toList();
     }
 }
