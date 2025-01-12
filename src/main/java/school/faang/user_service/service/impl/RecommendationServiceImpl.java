@@ -37,7 +37,6 @@ public class RecommendationServiceImpl implements RecommendationService {
         Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(),
                 recommendation.getReceiverId(),
                 recommendation.getContent());
-
         recommendation.setId(recommendationId);
         saveSkillOffers(recommendation);
 
