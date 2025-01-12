@@ -1,7 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -21,8 +21,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationRequestServiceTest {
@@ -39,132 +46,103 @@ class RecommendationRequestServiceTest {
     @Captor
     private ArgumentCaptor<RecommendationRequest> recommendationRequestCaptor;
 
-    // Test for create()
-    @Test
-    void shouldCreateRecommendationRequestSuccessfully() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder()
+    private RecommendationRequest recommendationRequest;
+    private RecommendationRequest existingRequest;
+
+    @BeforeEach
+    void setUp() {
+        User requester = User.builder().id(1L).build();
+        User receiver = User.builder().id(2L).build();
+
+        Skill skill = Skill.builder().id(1L).title("Java").build();
+        SkillRequest skillRequest = SkillRequest.builder().skill(skill).build();
+
+        recommendationRequest = RecommendationRequest.builder()
                 .message("Recommendation message")
-                .requester(User.builder()
-                        .id(1L)
-                        .username("Requester")
-                        .email("requester@example.com")
-                        .build())
-                .receiver(User.builder()
-                        .id(2L)
-                        .username("Receiver")
-                        .email("receiver@example.com")
-                        .build())
-                .skills(List.of(SkillRequest.builder()
-                        .skill(Skill.builder()
-                                .id(1L)
-                                .title("Java")
-                                .build())
-                        .build()))
+                .requester(requester)
+                .receiver(receiver)
+                .skills(List.of(skillRequest))
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
-        when(recommendationRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        RecommendationRequest result = recommendationRequestService.create(request);
-
-        // Assert
-        assertNotNull(result);
-        verify(recommendationRequestRepository).save(recommendationRequestCaptor.capture());
-        assertEquals("Recommendation message", recommendationRequestCaptor.getValue().getMessage());
-        verify(skillRequestRepository).create(anyLong(), eq(1L));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenMessageIsEmpty() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder()
-                .message(" ")
-                .build();
-
-        // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> recommendationRequestService.create(request));
-
-        assertEquals("Message cannot be empty", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenRequestSentWithinSixMonths() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder()
-                .message("Recommendation message")
-                .requester(User.builder()
-                        .id(1L)
-                        .username("Requester")
-                        .email("requester@example.com")
-                        .build())
-                .receiver(User.builder()
-                        .id(2L)
-                        .username("Receiver")
-                        .email("receiver@example.com")
-                        .build())
-                .build();
-
-        RecommendationRequest latestRequest = RecommendationRequest.builder()
+        existingRequest = RecommendationRequest.builder()
+                .message("Existing recommendation")
+                .requester(requester)
+                .receiver(receiver)
                 .createdAt(LocalDateTime.now().minusMonths(3))
                 .build();
-
-        when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
-                .thenReturn(Optional.of(latestRequest));
-
-        // Act & Assert
-        Exception exception = assertThrows(IllegalStateException.class,
-                () -> recommendationRequestService.create(request));
-
-        assertEquals("Cannot request recommendation more than once in 6 months", exception.getMessage());
     }
 
     @Test
-    void shouldGetRequestsWithFilters() {
-        // Arrange
+    void create_shouldSaveRecommendationRequest() {
+        when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
+        when(recommendationRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        RecommendationRequest result = recommendationRequestService.create(recommendationRequest);
+
+        assertNotNull(result);
+        verify(recommendationRequestRepository).save(recommendationRequestCaptor.capture());
+        RecommendationRequest capturedRequest = recommendationRequestCaptor.getValue();
+        assertEquals("Recommendation message", capturedRequest.getMessage());
+        verify(skillRequestRepository).saveAll(anyList());
+    }
+
+    @Test
+    void create_shouldThrowExceptionWhenMessageIsEmpty() {
+        recommendationRequest.setMessage(" ");
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.create(recommendationRequest));
+
+        assertEquals("Message cannot be empty", exception.getMessage());
+        verify(recommendationRequestRepository, never()).save(any());
+    }
+
+    @Test
+    void create_shouldThrowExceptionWhenRequestSentWithinSixMonths() {
+        when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong()))
+                .thenReturn(Optional.of(existingRequest));
+
+        Exception exception = assertThrows(IllegalStateException.class,
+                () -> recommendationRequestService.create(recommendationRequest));
+
+        assertEquals("Cannot request recommendation more than once in 6 months", exception.getMessage());
+        verify(recommendationRequestRepository, never()).save(any());
+    }
+
+    @Test
+    void getRequests_shouldFilterRequestsBasedOnStatus() {
         RequestFilterDto filter = new RequestFilterDto();
         filter.setStatus(RequestStatus.PENDING);
 
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .status(RequestStatus.PENDING)
-                .build();
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .status(RequestStatus.ACCEPTED)
-                .build();
+        RecommendationRequest pendingRequest = RecommendationRequest.builder()
+                .status(RequestStatus.PENDING).build();
+        RecommendationRequest acceptedRequest = RecommendationRequest.builder()
+                .status(RequestStatus.ACCEPTED).build();
 
-        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(pendingRequest, acceptedRequest));
 
-        // Act
         List<RecommendationRequest> result = recommendationRequestService.getRequests(filter);
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals(RequestStatus.PENDING, result.get(0).getStatus());
     }
 
     @Test
-    void shouldGetRequestSuccessfully() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder().build();
-        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+    void getRequest_shouldReturnRecommendationRequest() {
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(recommendationRequest));
 
-        // Act
         RecommendationRequest result = recommendationRequestService.getRequest(1L);
 
-        // Assert
         assertNotNull(result);
+        assertEquals(recommendationRequest, result);
         verify(recommendationRequestRepository).findById(1L);
     }
 
     @Test
-    void shouldThrowExceptionWhenRequestNotFound() {
-        // Arrange
+    void getRequest_shouldThrowExceptionWhenNotFound() {
         when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> recommendationRequestService.getRequest(1L));
 
@@ -172,37 +150,30 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void shouldRejectRequestSuccessfully() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder()
-                .status(RequestStatus.PENDING)
-                .build();
+    void rejectRequest_shouldRejectPendingRequest() {
+        recommendationRequest.setStatus(RequestStatus.PENDING);
 
-        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(recommendationRequest));
         when(recommendationRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act
         RecommendationRequest result = recommendationRequestService.rejectRequest(1L, "Not relevant");
 
-        // Assert
         assertEquals(RequestStatus.REJECTED, result.getStatus());
         assertEquals("Not relevant", result.getRejectionReason());
-        verify(recommendationRequestRepository).save(request);
+        verify(recommendationRequestRepository).save(recommendationRequestCaptor.capture());
+        assertEquals(RequestStatus.REJECTED, recommendationRequestCaptor.getValue().getStatus());
     }
 
     @Test
-    void shouldThrowExceptionWhenRejectingNonPendingRequest() {
-        // Arrange
-        RecommendationRequest request = RecommendationRequest.builder()
-                .status(RequestStatus.ACCEPTED)
-                .build();
+    void rejectRequest_shouldThrowExceptionForNonPendingRequest() {
+        recommendationRequest.setStatus(RequestStatus.ACCEPTED);
 
-        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(recommendationRequest));
 
-        // Act & Assert
         Exception exception = assertThrows(IllegalStateException.class,
                 () -> recommendationRequestService.rejectRequest(1L, "Not relevant"));
 
         assertEquals("Cannot reject a non-pending request", exception.getMessage());
+        verify(recommendationRequestRepository, never()).save(any());
     }
 }
