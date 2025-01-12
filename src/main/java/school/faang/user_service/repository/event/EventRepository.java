@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -20,4 +21,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE ue.user_id = :userId
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
+
+    default Event findByIdOrThrow(Long id) {
+        return findById(id).orElseThrow(() -> new NoSuchElementException(
+                String.format("Event id %d not found", id)));
+    }
 }

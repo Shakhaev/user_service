@@ -6,10 +6,11 @@ import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
-@Component
 @Slf4j
+@Component
 public class EventTitleFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFiltersDto eventFiltersDto) {
@@ -18,12 +19,12 @@ public class EventTitleFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFiltersDto eventFiltersDto) {
-        String filterTitle = eventFiltersDto.title()
-                .trim()
-                .toLowerCase();
-        log.info("Filtering by title: {}", filterTitle);
-        return events.filter(event -> event.getTitle()
+        log.info("Filtering by title: {}", eventFiltersDto.title());
+        return events.filter(event -> Optional.ofNullable(event.getTitle())
+                .orElse("")
                 .toLowerCase()
-                .contains(filterTitle));
+                .contains(eventFiltersDto.title()
+                        .trim()
+                        .toLowerCase()));
     }
 }
