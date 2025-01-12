@@ -249,27 +249,6 @@ public class GoalServiceTest {
     }
 
     @Test
-    public void testFilterSubtasksByGoal() {
-        List<Goal> subtasks = List.of(new Goal());
-        GoalFilterDto filters = new GoalFilterDto();
-
-        GoalFilter mockFilter = mock(GoalFilter.class);
-        when(mockFilter.isApplicable(filters)).thenReturn(true);
-        when(mockFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
-            Stream<Goal> stream = invocation.getArgument(0);
-            return stream.filter(goal -> true);
-        });
-
-        when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
-
-        List<Goal> result = goalService.filterSubtasksByGoal(subtasks, filters);
-
-        assertEquals(subtasks, result);
-        verify(mockFilter, times(1)).isApplicable(filters);
-        verify(mockFilter, times(1)).apply(any(Stream.class), eq(filters));
-    }
-
-    @Test
     public void testGetGoalsByUserId() {
         long userId = 1L;
         GoalFilterDto filters = new GoalFilterDto();

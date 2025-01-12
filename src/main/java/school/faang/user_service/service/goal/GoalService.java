@@ -3,6 +3,7 @@ package school.faang.user_service.service.goal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -34,7 +35,8 @@ public class GoalService {
     private final UserService userService;
     private final List<GoalFilter> goalFilters;
 
-    private final static int MAX_ACTIVE_GOALS = 3;
+    @Value("${app.max-active-goals}")
+    private int MAX_ACTIVE_GOALS;
 
     @Transactional
     public void createGoal(Long userId, Goal goal) {
@@ -96,18 +98,7 @@ public class GoalService {
                 .collect(Collectors.toList());
 
         log.info("Goal subtasks with parent id {} before filtering", parentId);
-        return filterSubtasksByGoal(subtasks, filters);
-    }
-
-    public List<Goal> filterSubtasksByGoal(List<Goal> subtasks, GoalFilterDto filters) {
-        Stream<Goal> streamSubtasks = subtasks.stream();
-
-        return goalFilters.stream()
-                .filter(filter -> filter
-                        .isApplicable(filters))
-                .reduce(streamSubtasks, (currentStream, filter) -> filter
-                        .apply(currentStream, filters), (s1, s2) -> s1)
-                .collect(Collectors.toList());
+        return filterGoals(subtasks, filters);
     }
 
     @Transactional(readOnly = true)
@@ -121,12 +112,12 @@ public class GoalService {
     }
 
     public List<Goal> filterGoals(List<Goal> goals, GoalFilterDto filters) {
-        Stream<Goal> streamGoals = goals.stream();
+        Stream<Goal> streamSubtasks = goals.stream();
 
         return goalFilters.stream()
                 .filter(filter -> filter
                         .isApplicable(filters))
-                .reduce(streamGoals, (currentStream, filter) -> filter
+                .reduce(streamSubtasks, (currentStream, filter) -> filter
                         .apply(currentStream, filters), (s1, s2) -> s1)
                 .collect(Collectors.toList());
     }
@@ -165,8 +156,8 @@ public class GoalService {
     }
 
     private void existSkills(Goal goal) {
-        if (!goal.getSkillsToAchieve().stream()
-                .allMatch(skill -> skillService.skillExistsByTitle(skill.getTitle()))) {
+        if (goal.getSkillsToAchieve().stream()
+                .noneMatch(skill -> skillService.skillExistsByTitle(skill.getTitle()))) {
             throw new NonExistentSkillException("The goal contains non-existent skills");
         }
     }
