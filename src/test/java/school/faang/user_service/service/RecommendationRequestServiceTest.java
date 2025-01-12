@@ -61,7 +61,7 @@ public class RecommendationRequestServiceTest {
     private SkillRepository skillRepository;
 
     @InjectMocks
-    private RecommendationRequestService recommendationRequestService;
+    private RecommendationRequestServiceImpl recommendationRequestService;
 
     @Captor
     private ArgumentCaptor<RecommendationRequest> recommendationRequestCaptor;
@@ -138,6 +138,17 @@ public class RecommendationRequestServiceTest {
         assertEquals(recommendationRequestRcvDto.getMessage(), requestFromDB.getMessage());
         assertEquals(RequestStatus.PENDING, requestFromDB.getStatus());
         assertEquals(recommendationRequestRcvDto.getSkillIds(), requestFromDB.getSkillIds());
+    }
+
+    @Test
+    @DisplayName("UserRequestHimself")
+    void testCreateRecommendationRequest_UserRequestHimself() {
+        RecommendationRequestRcvDto requestDto = createRequestRcvDto(requester, requester, recommendationRequest,
+                Arrays.asList(1L, 2L, 3L));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.create(requestDto));
+
+        assertEquals("The user cannot send a request to himself", exception.getMessage());
     }
 
     @Test

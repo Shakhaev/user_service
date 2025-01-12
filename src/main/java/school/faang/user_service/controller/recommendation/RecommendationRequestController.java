@@ -6,14 +6,14 @@ import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
-import school.faang.user_service.service.RecommendationRequestService;
+import school.faang.user_service.service.RecommendationRequestServiceImpl;
 
 import java.util.List;
 
 @Controller
 @AllArgsConstructor
 public class RecommendationRequestController {
-    private final RecommendationRequestService recommendationRequestService;
+    private final RecommendationRequestServiceImpl recommendationRequestService;
 
     public RecommendationRequestDto requestRecommendation(RecommendationRequestRcvDto requestDto) {
         if (requestDto == null) {

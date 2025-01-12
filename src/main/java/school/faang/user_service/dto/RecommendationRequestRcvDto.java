@@ -4,15 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.RequestStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class RecommendationRequestRcvDto {
         private String message;
         private List<Long> skillIds;
