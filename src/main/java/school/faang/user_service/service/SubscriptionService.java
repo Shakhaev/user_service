@@ -49,6 +49,14 @@ public class SubscriptionService {
     }
 
     private List<UserDto> filterPeople(Stream<User> followersOfUser, UserFilterDto userFilterDto) {
+        if (filters == null || filters.isEmpty()) {
+            return followersOfUser
+                    .skip((long) userFilterDto.page() * userFilterDto.pageSize())
+                    .limit(userFilterDto.pageSize())
+                    .map(userFollowingMapper::toDto)
+                    .toList();
+        }
+
         Stream<User> userStream = followersOfUser.parallel();
         for (UserFilter filter : filters) {
             if (filter.isAcceptable(userFilterDto)) {
