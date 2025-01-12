@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.mapper.GoalInvitationMapper;
+import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.service.GoalInvitationService;
 
 @RequiredArgsConstructor
@@ -18,4 +18,11 @@ public class GoalInvitationController {
         GoalInvitation result = goalInvitationService.createInvitation(entity);
         return goalInvitationMapper.toDto(result);
     }
+
+    public GoalInvitationDto acceptGoalInvitation(Long id) {
+        GoalInvitation result = goalInvitationService.acceptGoalInvitation(id);
+        return goalInvitationMapper.toDto(result);
+    }
+
+
 }
