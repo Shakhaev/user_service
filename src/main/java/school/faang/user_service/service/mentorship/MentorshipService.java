@@ -3,7 +3,9 @@ package school.faang.user_service.service.mentorship;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -14,20 +16,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MentorshipService {
     private final UserRepository repository;
+    private final UserMapper mapper;
 
-    public List<User> getMentees(long id) {
+    public List<UserDto> getMentees(long id) {
         User mentor = getUserByIdFromRepo(id);
         if (mentor.getMentees() != null) {
-            return mentor.getMentees();
+            return mentor.getMentees().stream().map(mapper::toDto).toList();
         } else {
             return new ArrayList<>();
         }
     }
 
-    public List<User> getMentors(long id) {
+    public List<UserDto> getMentors(long id) {
         User mentee = getUserByIdFromRepo(id);
         if (mentee.getMentors() != null) {
-            return mentee.getMentors();
+            return mentee.getMentors().stream().map(mapper::toDto).toList();
         } else {
             return new ArrayList<>();
         }

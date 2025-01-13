@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -21,11 +22,12 @@ import static org.mockito.Mockito.when;
 public class MentorshipServiceTest {
     @Mock
     private UserRepository repository;
-
+    @Mock
+    private UserMapper mapper;
     @InjectMocks
     private MentorshipService mentorshipService;
 
-    User user;
+    private User user;
 
     @BeforeEach
     public void init() {
