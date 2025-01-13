@@ -2,7 +2,6 @@ package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorship.MenteeReadDto;
 import school.faang.user_service.dto.mentorship.MentorReadDto;
@@ -10,7 +9,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.mentorship.MenteeReadMapper;
 import school.faang.user_service.mapper.mentorship.MentorReadMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.List;
@@ -21,44 +19,39 @@ import java.util.List;
 @Slf4j
 public class MentorshipService {
     private final MentorshipRepository mentorshipRepository;
-    private final UserRepository userRepository;
     private final MenteeReadMapper menteeReadMapper;
     private final MentorReadMapper mentorReadMapper;
 
     public List<MenteeReadDto> getMentees(long userId) {
         User mentor = getUser(userId);
 
-        List<MenteeReadDto> mentees = mentor.getMentees().stream()
+        return mentor.getMentees().stream()
                 .map(menteeReadMapper::toDto)
                 .toList();
-
-        return mentees;
     }
 
     public List<MentorReadDto> getMentors(long userId) {
         User mentee = getUser(userId);
 
-        List<MentorReadDto> mentors = mentee.getMentors().stream()
+        return mentee.getMentors().stream()
                 .map(mentorReadMapper::toDto)
                 .toList();
-
-        return mentors;
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = getUser(mentorId);
 
-        mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
+        boolean isDeleted = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
 
-        userRepository.save(mentor);
+        saveIfUserDeleted(mentor, isDeleted);
     }
 
     public void deleteMentor(long mentorId, long menteeId) {
         User mentee = getUser(menteeId);
 
-        mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
+        boolean isDeleted = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
 
-        userRepository.save(mentee);
+        saveIfUserDeleted(mentee, isDeleted);
     }
 
     private User getUser(long userId) {
@@ -67,5 +60,11 @@ public class MentorshipService {
             log.warn(message);
             return new EntityNotFoundException(message);
         });
+    }
+
+    private void saveIfUserDeleted(User user, boolean isDeleted) {
+        if (isDeleted) {
+            mentorshipRepository.save(user);
+        }
     }
 }

@@ -32,11 +32,11 @@ public class MentorshipController {
     }
 
     @DeleteMapping("/delete-mentee")
-    public void deleteMentee(@RequestParam long menteeId, @RequestParam long mentorId) {
+    public void deleteMentee(@RequestParam("menteeId") long menteeId, @RequestParam("mentorId") long mentorId) {
         mentorshipService.deleteMentee(menteeId, mentorId);
     }
     @DeleteMapping("/delete-mentor")
-    public void deleteMentor(@RequestParam long mentorId, @RequestParam long menteeId) {
+    public void deleteMentor(@RequestParam("mentorId") long mentorId, @RequestParam("menteeId") long menteeId) {
         mentorshipService.deleteMentor(mentorId, menteeId);
     }
 }
