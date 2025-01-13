@@ -14,20 +14,22 @@ import java.util.NoSuchElementException;
 @Component
 @RequiredArgsConstructor
 public class InvitationDtoValidator {
+    public static final String INVITER = "Inviter";
+    public static final String INVITED = "Invited";
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
 
     public void validate(final GoalInvitationDto goalInviteDto) {
         validateUserDoesNotInviteHimself(goalInviteDto);
-        validateUserExists(goalInviteDto.getInviterId(), "Inviter");
-        validateUserExists(goalInviteDto.getInvitedUserId(), "Invited");
-        validateGoalExists(goalInviteDto.getGoalId());
+        validateUserExists(goalInviteDto.inviterId(), INVITER);
+        validateUserExists(goalInviteDto.invitedUserId(), INVITED);
+        validateGoalExists(goalInviteDto.goalId());
     }
 
     private void validateUserDoesNotInviteHimself(GoalInvitationDto goalInviteDto) {
-        log.info("Check that the user: {}, does not invite himself: {}", goalInviteDto.getInvitedUserId(),
-                goalInviteDto.getInviterId());
-        if (goalInviteDto.getInvitedUserId().equals(goalInviteDto.getInviterId())) {
+        log.info("Check that the user: {}, does not invite himself: {}", goalInviteDto.invitedUserId(),
+                goalInviteDto.inviterId());
+        if (goalInviteDto.invitedUserId().equals(goalInviteDto.inviterId())) {
             throw new DataValidationException("The user cannot invite himself!");
         }
     }

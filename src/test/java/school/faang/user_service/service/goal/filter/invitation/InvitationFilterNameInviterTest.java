@@ -26,19 +26,19 @@ class InvitationFilterNameInviterTest {
 
     @BeforeEach
     void setUp() {
-        filters = new InvitationFilterDto();
         goalInvitation = new GoalInvitation();
         user = new User();
     }
 
     @Test
     void testIsAcceptableTrue() {
-        filters.setInviterNamePattern(INVITED_NAME_PATTERN);
+        filters = new InvitationFilterDto(INVITED_NAME_PATTERN,null, null,null,null);
         assertTrue(invitationFilterNameInviter.isAcceptable(filters));
     }
 
     @Test
     void testIsAcceptableFalse() {
+        filters = new InvitationFilterDto(null,null, null,null,null);
         assertFalse(invitationFilterNameInviter.isAcceptable(filters));
     }
 
@@ -62,7 +62,7 @@ class InvitationFilterNameInviterTest {
 
     @Test
     void testApplyFilterInvitedIsNull() {
-        filters.setInviterNamePattern(INVITED_NAME_PATTERN);
+        filters = new InvitationFilterDto(INVITED_NAME_PATTERN,null, null,null,null);
         goalInvitation.setInvited(null);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
@@ -71,7 +71,7 @@ class InvitationFilterNameInviterTest {
     }
 
     private void fillParamsForApplayingFilter(String name, @NonNull User user) {
-        filters.setInviterNamePattern(INVITED_NAME_PATTERN);
+        filters = new InvitationFilterDto(INVITED_NAME_PATTERN,null, null,null,null);
         user.setUsername(name);
         goalInvitation.setInviter(user);
     }

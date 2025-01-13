@@ -32,10 +32,7 @@ public class InvitationDtoValidatorTest {
 
     @BeforeEach
     void setUp() {
-        validGoalInvitationDto = new GoalInvitationDto();
-        validGoalInvitationDto.setInviterId(1L);
-        validGoalInvitationDto.setInvitedUserId(2L);
-        validGoalInvitationDto.setGoalId(1L);
+        validGoalInvitationDto = new GoalInvitationDto(null,1L,2L,1L, null);
     }
 
     @Test
@@ -49,13 +46,12 @@ public class InvitationDtoValidatorTest {
 
     @Test
     void testValidate_UserInvitesSelf_ThrowsException() {
-        validGoalInvitationDto.setInvitedUserId(1L);
+        validGoalInvitationDto = new GoalInvitationDto(null,1L,1L,1L, null);
 
         assertThrows(DataValidationException.class, () ->
                 invitationDtoValidator.validate(validGoalInvitationDto)
         );
     }
-
 
     @Test
     void testValidate_GoalDoesNotExist_ThrowsException() {

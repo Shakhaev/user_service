@@ -10,12 +10,12 @@ import java.util.stream.Stream;
 public class InvitationFilterIdInviter implements InvitationFilter {
     @Override
     public boolean isAcceptable(InvitationFilterDto filters) {
-        return filters.getInviterId() != null;
+        return filters.inviterId() != null;
     }
 
     @Override
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> goalInvitation, InvitationFilterDto filters) {
         return goalInvitation.filter(invitation -> invitation.getInviter() != null &&
-                invitation.getInviter().getId().equals(filters.getInviterId()));
+                invitation.getInviter().getId().equals(filters.inviterId()));
     }
 }

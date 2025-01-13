@@ -6,8 +6,6 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import java.util.stream.Stream;
 
 public interface InvitationFilter {
-
     boolean isAcceptable(InvitationFilterDto filters);
-
     Stream<GoalInvitation> apply(Stream<GoalInvitation> goalInvitation, InvitationFilterDto filters);
 }

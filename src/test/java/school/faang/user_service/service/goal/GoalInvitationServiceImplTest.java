@@ -22,18 +22,21 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GoalInvitationServiceTest {
+public class GoalInvitationServiceImplTest {
 
     @InjectMocks
-    private GoalInvitationService goalInvitationService;
+    private GoalInvitationServiceImpl goalInvitationServiceImpl;
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
     @Mock
@@ -54,25 +57,23 @@ public class GoalInvitationServiceTest {
 
         Goal goal = new Goal();
         goalInvitationReject.setGoal(goal);
-
-        goalInvitationDtoReject = new GoalInvitationDto();
-        goalInvitationDtoReject.setId(1L);
-        goalInvitationDtoReject.setStatus(RequestStatus.REJECTED);
+        goalInvitationDtoReject =
+                new GoalInvitationDto(null, null, null, null, RequestStatus.REJECTED);
     }
 
 
     @Test
     public void testCreateInvitation() {
-        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto(null, null, null, null, null);
         GoalInvitation goalInvitation = new GoalInvitation();
         GoalInvitation savedInvitation = new GoalInvitation();
-        GoalInvitationDto savedDto = new GoalInvitationDto();
+        GoalInvitationDto savedDto = new GoalInvitationDto(null, null, null, null, null);
 
         when(goalInvitationMapper.toEntity(goalInvitationDto)).thenReturn(goalInvitation);
         when(goalInvitationRepository.save(goalInvitation)).thenReturn(savedInvitation);
         when(goalInvitationMapper.toDto(savedInvitation)).thenReturn(savedDto);
 
-        GoalInvitationDto result = goalInvitationService.createInvitation(goalInvitationDto);
+        GoalInvitationDto result = goalInvitationServiceImpl.createInvitation(goalInvitationDto);
 
         assertEquals(savedDto, result);
 
@@ -82,6 +83,24 @@ public class GoalInvitationServiceTest {
         verify(goalInvitationMapper, times(1)).toDto(savedInvitation);
     }
 
+    @Test
+    void testCreateInvitationValidationFails() {
+        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null, null);
+
+        doThrow(new IllegalArgumentException("Validation failed"))
+                .when(invitationDtoValidator).validate(inputDto);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> goalInvitationServiceImpl.createInvitation(inputDto)
+        );
+
+        assertEquals("Validation failed", exception.getMessage());
+        verify(invitationDtoValidator).validate(inputDto);
+        verifyNoInteractions(goalInvitationRepository);
+        verifyNoInteractions(goalInvitationMapper);
+    }
+
 
     @Test
     public void testRejectGoalInvitationSuccess() {
@@ -89,15 +108,33 @@ public class GoalInvitationServiceTest {
         when(goalInvitationRepository.save(goalInvitationReject)).thenReturn(goalInvitationReject);
         when(goalInvitationMapper.toDto(goalInvitationReject)).thenReturn(goalInvitationDtoReject);
 
-        GoalInvitationDto result = goalInvitationService.rejectGoalInvitation(1L);
+        GoalInvitationDto result = goalInvitationServiceImpl.rejectGoalInvitation(1L);
 
         assertNotNull(result);
-        assertEquals(RequestStatus.REJECTED, result.getStatus());
+        assertEquals(RequestStatus.REJECTED, result.status());
+    }
+
+    @Test
+    void testRejectGoalInvitationValidationFails() {
+        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null, null);
+
+        doThrow(new IllegalArgumentException("Validation failed"))
+                .when(invitationDtoValidator).validate(inputDto);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> goalInvitationServiceImpl.createInvitation(inputDto)
+        );
+
+        assertEquals("Validation failed", exception.getMessage());
+        verify(invitationDtoValidator).validate(inputDto);
+        verifyNoInteractions(goalInvitationRepository);
+        verifyNoInteractions(goalInvitationMapper);
     }
 
     @Test
     public void testGetInvitationsByFilter() {
-        InvitationFilterDto filters = new InvitationFilterDto();
+        InvitationFilterDto filters = new InvitationFilterDto(null, null, null, null, null);
         GoalInvitation goalInvitation1 = new GoalInvitation();
         GoalInvitation goalInvitation2 = new GoalInvitation();
         List<GoalInvitation> goalInvitations = List.of(goalInvitation1, goalInvitation2);
@@ -113,10 +150,10 @@ public class GoalInvitationServiceTest {
 
         when(filter1.apply(any(), eq(filters))).thenReturn(Stream.of(goalInvitation1));
 
-        GoalInvitationDto dto1 = new GoalInvitationDto();
+        GoalInvitationDto dto1 = new GoalInvitationDto(null, null, null, null, null);
         when(goalInvitationMapper.toDto(goalInvitation1)).thenReturn(dto1);
 
-        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filters);
+        List<GoalInvitationDto> result = goalInvitationServiceImpl.getInvitations(filters);
 
         assertEquals(2, result.size());
         assertEquals(dto1, result.get(0));

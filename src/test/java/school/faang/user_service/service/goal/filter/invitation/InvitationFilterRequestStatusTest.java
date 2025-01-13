@@ -26,33 +26,35 @@ class InvitationFilterRequestStatusTest {
 
     @BeforeEach
     void setUp() {
-        filters =  new InvitationFilterDto();
         goalInvitation = new GoalInvitation();
     }
 
     @Test
     void testIsAcceptableTrue() {
-        filters.setStatus(RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
         assertTrue(invitationFilterRequestStatus.isAcceptable(filters));
     }
+
     @Test
     void testIsAcceptableFalse() {
+        filters = new InvitationFilterDto(null, null, null, null, null);
         assertFalse(invitationFilterRequestStatus.isAcceptable(filters));
     }
 
 
     @Test
     void testApplyFilterWork() {
-        filters.setStatus(RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
         Stream<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
         assertEquals(1, streamApplyFilter.toList().size());
     }
+
     @Test
     void testApplyFilterUnequal() {
-        filters.setStatus(RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.REJECTED);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
@@ -63,8 +65,6 @@ class InvitationFilterRequestStatusTest {
 
     @Test
     void testApplyFilterInvitationIsNull() {
-        filters.setStatus(RequestStatus.ACCEPTED);
-
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
         Stream<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
         assertEquals(0, streamApplyFilter.toList().size());
