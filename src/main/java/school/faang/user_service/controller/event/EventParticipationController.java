@@ -3,9 +3,9 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.event.EventParticipationService;
-
 import java.util.List;
 
 @Controller
@@ -23,9 +23,8 @@ public class EventParticipationController {
     }
 
     public List<UserDto> getParticipant(long eventId) {
-        return eventParticipationService.getParticipant(eventId).stream()
-                .map(userMapper::toDto)
-                .toList();
+        List<User> users = eventParticipationService.getParticipant(eventId);
+        return userMapper.toDtoList(users);
     }
 
     public int getParticipantsCount(long eventId) {
