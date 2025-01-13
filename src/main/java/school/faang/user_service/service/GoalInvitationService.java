@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
@@ -11,6 +12,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Slf4j
@@ -54,14 +56,25 @@ public class GoalInvitationService {
         invitation.setStatus(RequestStatus.ACCEPTED);
         invitedUser.getGoals().add(invitation.getGoal());
         userRepository.save(invitedUser);
-        log.info("{} accept invitation to goal {}", invitedUser.getUsername(), invitation.getGoal().getTitle());
+        log.info("{} accepted invitation to goal {}", invitedUser.getUsername(), invitation.getGoal().getTitle());
         return goalInvitationRepository.save(invitation);
     }
 
-    public void rejectGoalInvitation(long id) {
+    public void rejectGoalInvitation(Long id) {
         GoalInvitation invitation = isGoalInvitationExists(id);
+        invitation.setStatus(RequestStatus.REJECTED);
+        log.info("Invitation to goal {} rejected", invitation.getGoal().getTitle());
 
     }
+
+//    public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
+//        List<GoalInvitation> invitations = goalInvitationRepository.findAll();
+//        if (invitations.isEmpty()) {
+//            throw new GoalInvitationException("No one goal invitation created");
+//        }
+//
+//
+//    }
 
     private boolean isGoalAlreadyContains(List<GoalInvitation> invitedUserGoals, Long id) {
         return invitedUserGoals.stream()
@@ -75,6 +88,6 @@ public class GoalInvitationService {
 
     private GoalInvitation isGoalInvitationExists(Long id) {
         return goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new GoalInvitationException("Goal invitation not found"));
+                .orElseThrow(() -> new NoSuchElementException("Goal invitation not found"));
     }
 }
