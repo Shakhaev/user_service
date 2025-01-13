@@ -26,6 +26,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserService userService;
     private final MentorshipRequestMapper mapper;
     private final List<RequestFilter> requestFilters;
+    private static final int MIN_COUNT_OF_MONTHS_BETWEEN_REQUESTS = 3;
 
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
@@ -37,46 +38,10 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         return mapper.toMentorshipRequestDto(mentorshipRequest);
     }
 
-    private void validateRequest(MentorshipRequestDto mentorshipRequestDto) {
-        checkRequesterAndReceiverAreNotTheSamePerson(mentorshipRequestDto);
-        UserDto requesterUserDto = userService.findById(mentorshipRequestDto.getRequesterUserId());
-        UserDto receiverUserDto = userService.findById(mentorshipRequestDto.getReceiverUserId());
-        MentorshipRequest lastMentorshipRequest = repository.findLatestRequest(
-                requesterUserDto.getUserId(), receiverUserDto.getUserId()).orElse(null);
-        if (!Objects.isNull(lastMentorshipRequest)) {
-            checkRequestIsNotTooOften(lastMentorshipRequest);
-        }
-    }
-
-    private void checkRequestIsNotTooOften(MentorshipRequest lastMentorshipRequest) {
-        if (lastMentorshipRequest.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(3))) {
-            throw new IllegalArgumentException(
-                    String.format("Запрос на менторство не может быть чаще чем раз в 3 месяца. " +
-                            "Последний запрос был %s", lastMentorshipRequest.getCreatedAt()));
-        }
-    }
-
-    private void checkRequesterAndReceiverAreNotTheSamePerson(MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.getRequesterUserId().equals(mentorshipRequestDto.getReceiverUserId())) {
-            throw new IllegalArgumentException("Пользователь не может отправлять запрос сам себе!");
-        }
-    }
-
     @Override
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
         Stream<MentorshipRequest> requestStream = repository.findAll().stream();
         return applyFilters(filters, requestStream);
-    }
-
-    private List<MentorshipRequestDto> applyFilters(RequestFilterDto filters, Stream<MentorshipRequest> requestStream) {
-        for (RequestFilter filter : requestFilters) {
-            if (filter.isApplicable(filters)) {
-                filter.apply(requestStream, filters);
-            }
-        }
-        return requestStream
-                .map(mapper::toMentorshipRequestDto)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -106,5 +71,50 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
                 () -> new IllegalArgumentException(String.format("В базе данных отсутствует запрос с id: %d", requestId)));
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.reason());
+    }
+
+    private void validateRequest(MentorshipRequestDto mentorshipRequestDto) {
+        validateDescription(mentorshipRequestDto);
+        checkRequesterAndReceiverAreNotTheSamePerson(mentorshipRequestDto);
+        UserDto requesterUserDto = userService.findById(mentorshipRequestDto.getRequesterUserId());
+        UserDto receiverUserDto = userService.findById(mentorshipRequestDto.getReceiverUserId());
+        MentorshipRequest lastMentorshipRequest = repository.findLatestRequest(
+                requesterUserDto.getUserId(), receiverUserDto.getUserId()).orElse(null);
+        if (!Objects.isNull(lastMentorshipRequest)) {
+            checkRequestIsNotTooOften(lastMentorshipRequest);
+        }
+    }
+
+    private void validateDescription(MentorshipRequestDto mentorshipRequestDto) {
+        if (mentorshipRequestDto.getDescription().isBlank()) {
+            throw new RuntimeException(String.format("Запрос от пользователя с id: %d не содержит описания." +
+                    "Описание запроса не может быть пустым.", mentorshipRequestDto.getRequesterUserId()));
+        }
+    }
+
+    private void checkRequesterAndReceiverAreNotTheSamePerson(MentorshipRequestDto mentorshipRequestDto) {
+        if (mentorshipRequestDto.getRequesterUserId().equals(mentorshipRequestDto.getReceiverUserId())) {
+            throw new IllegalArgumentException("Пользователь не может отправлять запрос сам себе!");
+        }
+    }
+
+    private List<MentorshipRequestDto> applyFilters(RequestFilterDto filters, Stream<MentorshipRequest> requestStream) {
+        for (RequestFilter filter : requestFilters) {
+            if (filter.isApplicable(filters)) {
+                filter.apply(requestStream, filters);
+            }
+        }
+        return requestStream
+                .map(mapper::toMentorshipRequestDto)
+                .collect(Collectors.toList());
+    }
+
+    private void checkRequestIsNotTooOften(MentorshipRequest lastMentorshipRequest) {
+        if (lastMentorshipRequest.getCreatedAt().isAfter(
+                LocalDateTime.now().minusMonths(MIN_COUNT_OF_MONTHS_BETWEEN_REQUESTS))) {
+            throw new IllegalArgumentException(
+                    String.format("Запрос на менторство не может быть чаще чем раз в 3 месяца. " +
+                            "Последний запрос был %s", lastMentorshipRequest.getCreatedAt()));
+        }
     }
 }
