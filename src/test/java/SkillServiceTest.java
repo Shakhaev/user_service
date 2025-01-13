@@ -78,9 +78,11 @@ public class SkillServiceTest {
 
         when(skillRepository.save(captor.capture()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
         SkillDto result = skillService.createSkill(dto);
 
         verify(skillRepository, times(1)).save(captor.capture());
+
         Skill skill = captor.getValue();
         assertEquals("title", skill.getTitle());
         assertEquals(dto.getTitle(), result.getTitle());
@@ -241,6 +243,7 @@ public class SkillServiceTest {
         when(skillOfferRepository.findAllOffersOfSkill(proposedSkill.getId(), userId))
                 .thenReturn(skillOffers);
         when(skillMapper.toDto(any())).thenReturn(dto);
+        when(skillRepository.findById(proposedSkill.getId())).thenReturn(Optional.of(proposedSkill));
 
         SkillDto result = skillService.acquireSkillFromOffer(proposedSkill.getId(), userId);
 
@@ -248,6 +251,7 @@ public class SkillServiceTest {
                 .assignSkillToUser(proposedSkill.getId(), userId);
         verify(userSkillGuaranteeRepository, times(3))
                 .save(argThat(userSkillGuarantee -> userSkillGuarantee.getGuarantor() != null));
+        verify(skillRepository, times(1)).findById(proposedSkill.getId());
 
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());

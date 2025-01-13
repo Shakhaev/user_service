@@ -16,6 +16,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -52,11 +53,10 @@ public class SkillService {
     public List<SkillCandidateDto> getOfferedSkills(Long userId) {
         return skillRepository.findSkillsOfferedToUser(userId)
                 .stream()
-                .collect(Collectors.groupingBy(skill -> skill, Collectors.counting()))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
-                .map(entry ->
-                        new SkillCandidateDto(skillMapper.toDto(entry.getKey()), entry.getValue()))
+                .map(entry -> new SkillCandidateDto(skillMapper.toDto(entry.getKey()), entry.getValue()))
                 .toList();
     }
 
@@ -71,7 +71,7 @@ public class SkillService {
         }
         skillRepository.assignSkillToUser(skillId, userId);
         assignGuarantorsToSkill(skillOffers);
-        return skillMapper.toDto(findSkillById(skillOffers, skillId));
+        return skillMapper.toDto(findSkillById(skillId));
     }
 
     private void assignGuarantorsToSkill(List<SkillOffer> skillOffers) {
@@ -80,12 +80,7 @@ public class SkillService {
                 .build()));
     }
 
-    private Skill findSkillById(List<SkillOffer> skillOffers, long skillId) {
-        for (SkillOffer offer : skillOffers) {
-            if (offer.getSkill().getId() == skillId) {
-                return offer.getSkill();
-            }
-        }
-        throw new EntityNotFoundException("Skill not found");
+    private Skill findSkillById(long skillId) {
+      return skillRepository.findById(skillId).orElseThrow(() -> new EntityNotFoundException("Skill not found by id " + skillId));
     }
 }
