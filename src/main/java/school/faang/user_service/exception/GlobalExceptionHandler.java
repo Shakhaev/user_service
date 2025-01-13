@@ -44,30 +44,4 @@ public class GlobalExceptionHandler {
         log.error("EntityNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<String> handleAllExceptions(IOException exception) {
-        log.error("IOException exception: {}", exception.getMessage(), exception);
-        return ResponseEntity.badRequest().body(exception.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception exception) {
-        log.error("Unhandled exception: {}", exception.getMessage(), exception);
-        return ResponseEntity.badRequest().body(exception.getMessage());
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException exception) {
-        log.error("ConstraintViolationException: {}", exception.getMessage(), exception);
-        return ResponseEntity.badRequest().body(exception.getMessage());
-    }
-
-    private String extractMessage(String fullMessage) {
-        int lastBracketIndex = fullMessage.lastIndexOf("[");
-        if (lastBracketIndex != -1 && lastBracketIndex + 1 < fullMessage.length()) {
-            return fullMessage.substring(lastBracketIndex + 1, fullMessage.length() - 1);
-        }
-        return "Unknown error";
-    }
 }
