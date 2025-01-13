@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
@@ -35,7 +36,7 @@ class SubscriptionServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Mock
+    @Spy
     private UserFollowingMapper userFollowingMapper;
 
     private static final int RETURN_VALUE = 5;
@@ -48,9 +49,9 @@ class SubscriptionServiceTest {
                 null, null,
                 0, 10, 0, 10);
 
-        User user = mock(User.class);
+        User user = generateUser();
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(user));
-        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(1L, "username", "email@example.com"));
+        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(user.getId(), user.getUsername(), user.getEmail()));
 
         List<UserDto> result = subscriptionService.getFollowers(followerId, filterDto);
 
@@ -84,9 +85,9 @@ class SubscriptionServiceTest {
                 null, null,
                 0, 10, 0, 10);
 
-        User user = mock(User.class);
+        User user = generateUser();
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(user));
-        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(1L, "username", "email@example.com"));
+        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(user.getId(), user.getUsername(), user.getEmail()));
 
         List<UserDto> result = subscriptionService.getFollowees(followeeId, filterDto);
 
@@ -192,5 +193,13 @@ class SubscriptionServiceTest {
         assertEquals("User was not found with id : 1", exception.getMessage());
 
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    private User generateUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setEmail("email@example.com");
+        return user;
     }
 }
