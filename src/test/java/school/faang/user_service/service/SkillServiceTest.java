@@ -2,6 +2,8 @@ package school.faang.user_service.service;
 
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -12,12 +14,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.controller.SkillController;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,27 +30,38 @@ public class SkillServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
-    @Captor
-    private ArgumentCaptor<Skill> captor;
-
-    @Spy
-    private SkillController skillController = Mappers.getMapper(SkillController.class);
-
     @Spy
     private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
+
+    @Captor
+    private ArgumentCaptor<Skill> captor;
 
     @InjectMocks
     private SkillService skillService;
 
+    SkillDto skillDto;
+
+    @BeforeEach
+    public void init() {
+        skillDto = new SkillDto();
+        skillDto.setId(1L);
+        skillDto.setTitle("John");
+    }
+
     @Test
     public void testSkillIsSaved() {
-        SkillDto skillDto = new SkillDto();
-        skillDto.setId(1L);
-        skillDto.setTitle("Java");
         Mockito.when(skillRepository.save(any(Skill.class))).thenReturn(new Skill());
         skillService.create(skillDto);
         verify(skillRepository, times(1)).save(captor.capture());
         Skill skill = captor.getValue();
-        Assert.assertEquals(skillDto.getTitle(), skill.getTitle());
+        assertEquals(skillDto.getTitle(), skill.getTitle());
+    }
+
+    @Test
+    @DisplayName("Testing return DataValidationException")
+    public void testSkillIsNotSaved() {
+        Mockito.when(skillRepository.save(any(Skill.class))).thenThrow(new DataValidationException("DataValidationException!!!"));
+
+        Assert.assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 }
