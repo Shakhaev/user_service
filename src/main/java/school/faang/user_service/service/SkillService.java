@@ -7,8 +7,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.MinSkillOffersException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -18,8 +18,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class SkillService {
 
     private static final int MIN_SKILL_OFFERS = 3;
@@ -28,7 +28,7 @@ public class SkillService {
     private final UserRepository userRepository;
 
     public static int getMIN_SKILL_OFFERS() {
-        return  MIN_SKILL_OFFERS ;
+        return MIN_SKILL_OFFERS;
     }
 
     public Skill create(Skill skill) {
@@ -94,7 +94,7 @@ public class SkillService {
     private void validateSkillOffers(List<SkillOffer> skillOffers, long skillId, long userId) {
         if (skillOffers.size() < MIN_SKILL_OFFERS) {
 
-            throw new BusinessException(
+            throw new MinSkillOffersException(
                     String.format(" %s skill not assigned, %s is needed instead of %s",
                             getSkillById(skillId).getTitle(), MIN_SKILL_OFFERS, skillOffers.size())
             );
@@ -104,7 +104,7 @@ public class SkillService {
     private void existingSkillIsPresent(Optional<Skill> existingSkill, long skillId, long userId) {
         if (existingSkill.isPresent()) {
 
-            throw new BusinessException(String.format("The assignment of the skill was rejected because the skill %s " +
+            throw new MinSkillOffersException(String.format("The assignment of the skill was rejected because the skill %s " +
                     " already exists in the user %s", getSkillById(skillId).getTitle(), getUserById(userId).getUsername()));
         }
     }

@@ -9,7 +9,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SkillCreateDto;
 import school.faang.user_service.dto.SkillDto;
@@ -17,10 +16,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.MinSkillOffersException;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillCandidateMapper;
-import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -48,12 +45,6 @@ public class SkillServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Spy
-    private SkillMapper skillMapper;
-
-    @Spy
-    private SkillCandidateMapper skillCandidateMapper;
 
     @Captor
     private ArgumentCaptor<Skill> skillCaptor;
@@ -143,7 +134,7 @@ public class SkillServiceTest {
         Mockito.when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
 
         Assert.assertThrows(
-                BusinessException.class,
+                MinSkillOffersException.class,
                 () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID)
         );
     }
@@ -156,7 +147,7 @@ public class SkillServiceTest {
         Mockito.when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(List.of(new SkillOffer()));
 
         Assert.assertThrows(
-                BusinessException.class,
+                MinSkillOffersException.class,
                 () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID)
         );
     }
@@ -185,5 +176,4 @@ public class SkillServiceTest {
         Mockito.verify(skillRepository, Mockito.times(1)).assignSkillToUser(SKILL_ID, USER_ID);
         Mockito.verify(skillRepository, Mockito.times(1)).save(skill);
     }
-
 }
