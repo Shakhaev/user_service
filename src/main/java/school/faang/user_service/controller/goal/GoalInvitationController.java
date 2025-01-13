@@ -1,11 +1,16 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.service.GoalInvitationService;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -13,7 +18,7 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
     private final GoalInvitationMapper goalInvitationMapper;
 
-    public GoalInvitationDto createInvitation(GoalInvitationDto dto) {
+    public GoalInvitationDto createInvitation(@Valid GoalInvitationDto dto) {
         GoalInvitation entity = goalInvitationMapper.toEntity(dto);
         GoalInvitation result = goalInvitationService.createInvitation(entity);
         return goalInvitationMapper.toDto(result);
@@ -24,5 +29,11 @@ public class GoalInvitationController {
         return goalInvitationMapper.toDto(result);
     }
 
+    public void rejectGoalInvitation(Long id) {
+        goalInvitationService.rejectGoalInvitation(id);
+    }
 
+//    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
+//
+//    }
 }
