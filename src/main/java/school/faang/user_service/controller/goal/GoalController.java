@@ -43,7 +43,7 @@ public class GoalController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("{goalId}/subtasks/")
+    @GetMapping("/{goalId}/subtasks/")
     public List<GoalDto> getSubtasksGoal(@PathVariable long goalId) {
         return goalService.getSubtasksGoal(goalId);
     }
