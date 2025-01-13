@@ -2,7 +2,7 @@ package school.faang.user_service.controller.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
@@ -14,12 +14,12 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @GetMapping("/mentees")
-    public List<User> getMentees(long id) {
+    public List<UserDto> getMentees(long id) {
         return mentorshipService.getMentees(id);
     }
 
     @GetMapping("/mentors")
-    public List<User> getMentors(long id) {
+    public List<UserDto> getMentors(long id) {
         return mentorshipService.getMentors(id);
     }
 
