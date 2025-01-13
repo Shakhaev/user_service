@@ -16,8 +16,8 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
 
     @PostMapping("/create")
-    public GoalInvitationDto createInvitation(@RequestBody GoalInvitationDto invitation){
-        return goalInvitationService.createInvitation(invitation);
+    public void createInvitation(@RequestBody GoalInvitationDto invitation){
+         goalInvitationService.createInvitation(invitation);
     }
 
     @PutMapping("/accept-invitation/{id}")
