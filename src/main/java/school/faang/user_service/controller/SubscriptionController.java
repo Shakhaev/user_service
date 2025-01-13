@@ -2,14 +2,12 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.SubscriptionUserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -18,9 +16,9 @@ import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/subscriptions")
 @RequiredArgsConstructor
+@RequestMapping("/subscriptions")
+@RestController
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
@@ -31,7 +29,7 @@ public class SubscriptionController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/unfollow/{followerId}/{followeeId}")
+    @PutMapping("/unfollow/{followerId}/{followeeId}")
     public ResponseEntity<Void> unfollowUser(@PathVariable long followerId, @PathVariable long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
         return ResponseEntity.ok().build();
@@ -42,10 +40,8 @@ public class SubscriptionController {
             @PathVariable long followeeId,
             @RequestBody(required = false) UserFilterDto filters) {
 
-        List<SubscriptionUserDto> followers = subscriptionService
-                .getFollowers(followeeId, filters).stream()
-                .map(userMapper::toDto)
-                .toList();
+        List<SubscriptionUserDto> followers = userMapper.toDto(subscriptionService
+                .getFollowers(followeeId, filters));
 
         return ResponseEntity.ok(followers);
     }
@@ -61,10 +57,8 @@ public class SubscriptionController {
             @PathVariable long followerId,
             @RequestBody(required = false) UserFilterDto filters) {
 
-        List<SubscriptionUserDto> followings = subscriptionService
-                .getFollowing(followerId, filters).stream()
-                .map(userMapper::toDto)
-                .toList();
+        List<SubscriptionUserDto> followings = userMapper.toDto(subscriptionService
+                .getFollowing(followerId, filters));
 
         return ResponseEntity.ok(followings);
     }

@@ -89,18 +89,6 @@ public class SubscriptionServiceTest {
                 .unfollowUser(userIds.getFirst(), userIds.getSecond());
     }
 
-    private Pair<Long, Long> preparePairUserIds() {
-        return new Pair<>(1L, 2L);
-    }
-
-    private List<User> prepareExpectedUsers() {
-        User firstUser = new User();
-        firstUser.setId(2L);
-        User secondUser = new User();
-        secondUser.setId(3L);
-        return List.of(firstUser, secondUser);
-    }
-
     @Test
     public void testGetFollowers() {
         long followeeId = 1L;
@@ -165,5 +153,17 @@ public class SubscriptionServiceTest {
                 .findFolloweesAmountByFollowerId(followerId);
 
         assertEquals(expectedFollowingCount, actualFollowingCount);
+    }
+
+    private Pair<Long, Long> preparePairUserIds() {
+        return new Pair<>(1L, 2L);
+    }
+
+    private List<User> prepareExpectedUsers() {
+        User firstUser = new User();
+        firstUser.setId(2L);
+        User secondUser = new User();
+        secondUser.setId(3L);
+        return List.of(firstUser, secondUser);
     }
 }
