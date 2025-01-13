@@ -11,12 +11,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MentorReadMapper {
+    @Mapping(target = "mentors", ignore = true)
     User toEntity(MentorReadDto dto);
 
-    @Mapping(source = "mentors", target = "mentorsId", qualifiedByName = "map")
+    @Mapping(source = "mentors", target = "mentorsId", qualifiedByName = "mapToIds")
     MentorReadDto toDto(User entity);
 
-    @Named("map")
+    @Named("mapToIds")
     default List<Long> map(List<User> users) {
         return users.stream().map(User::getId).toList();
     }

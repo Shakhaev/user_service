@@ -11,12 +11,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MenteeReadMapper {
+    @Mapping(target = "mentees", ignore = true)
     User toEntity(MenteeReadDto dto);
 
-    @Mapping(source = "mentees", target = "menteesId", qualifiedByName = "map")
+    @Mapping(source = "mentees", target = "menteesId", qualifiedByName = "mapToIds")
     MenteeReadDto toDto(User entity);
 
-    @Named("map")
+    @Named("mapToIds")
     default List<Long> map(List<User> users) {
         return users.stream().map(User::getId).toList();
     }
