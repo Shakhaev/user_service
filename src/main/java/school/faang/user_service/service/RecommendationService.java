@@ -13,7 +13,6 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationServiceValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -66,11 +65,5 @@ public class RecommendationService {
                 .findAllByAuthorId(receiverId, Pageable.unpaged());
 
         return recommendations.map(recommendationMapper::toDto).toList();
-    }
-
-    public boolean hasRecommendationWithin(long authorId, long receiverId, LocalDateTime since) {
-        return recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId)
-                .filter(recommendation -> recommendation.getCreatedAt().isAfter(since))
-                .isPresent();
     }
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class RecommendationServiceValidator {
-
+    private final static int MONTHS_BEFORE_NEW_RECOMMENDATION = 6;
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
 
@@ -24,7 +24,7 @@ public class RecommendationServiceValidator {
                         recommendation.authorId(),
                         recommendation.receiverId()
                 )
-                .filter(r -> r.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(6)))
+                .filter(r -> r.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(MONTHS_BEFORE_NEW_RECOMMENDATION)))
                 .isPresent();
 
         if (hasRecentRecommendation) {
