@@ -10,11 +10,15 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public static ResourceNotFoundException userNotFoundException(final long userId) {
+    public static ResourceNotFoundException userNotFoundException(long userId) {
         return new ResourceNotFoundException("User with id %s not found".formatted(userId));
     }
 
     public static ResourceNotFoundException skillNotFoundException() {
         return new ResourceNotFoundException("Skill not found");
+    }
+
+    public static ResourceNotFoundException recommendationNotFoundException(long id) {
+        return new ResourceNotFoundException("Recommendation with id %s not found".formatted(id));
     }
 }
