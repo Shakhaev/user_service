@@ -15,6 +15,9 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (?1)")
     int countExisting(List<Long> ids);
 
+    @Query("SELECT s FROM Skill s WHERE s.id IN :ids")
+    List<Skill> findAllByIds(List<Long> ids);
+
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s
             JOIN user_skill us ON us.skill_id = s.id
