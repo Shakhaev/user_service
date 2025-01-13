@@ -114,29 +114,4 @@ public class Goal {
     @ToString.Exclude
     private Set<Skill> skillsToAchieve = new LinkedHashSet<>();
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-
-        Class<?> oEffectiveClass = o instanceof HibernateProxy proxy
-                ? proxy.getHibernateLazyInitializer().getPersistentClass()
-                : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy
-                ? proxy.getHibernateLazyInitializer().getPersistentClass()
-                : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Goal goal = (Goal) o; // This cast is safe because of the class comparison above
-        return getId() != null && Objects.equals(getId(), goal.getId());
-    }
-
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this)
-                .getHibernateLazyInitializer()
-                .getPersistentClass().hashCode() : getClass().hashCode();
-    }
-
 }

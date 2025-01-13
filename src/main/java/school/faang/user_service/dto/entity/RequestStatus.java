@@ -13,5 +13,4 @@ public enum RequestStatus {
 
     private final int value;
 
-
 }
