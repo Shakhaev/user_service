@@ -3,10 +3,12 @@ package school.faang.user_service.repository.event;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
 
+@Repository
 public interface EventParticipationRepository extends CrudRepository<User, Long> {
 
     @Modifying
@@ -23,6 +25,8 @@ public interface EventParticipationRepository extends CrudRepository<User, Long>
             WHERE ue.event_id = :eventId
             """)
     List<User> findAllParticipantsByEventId(long eventId);
+
+    Boolean existsUserByEventIdAndUserId(long eventId, long userId);
 
     @Query(nativeQuery = true, value = """
             SELECT COUNT(ue.id) FROM user_event ue
