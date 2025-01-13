@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.CreateGoalRequest;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -26,13 +27,13 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping("/create/{userId}")
-    public GoalDto createGoal(@Valid @RequestBody CreateGoalDto goal,
+    public GoalDto createGoal(@Valid @RequestBody CreateGoalRequest goal,
                               @PathVariable long userId) {
         return goalService.createGoal(userId, goal);
     }
 
     @PutMapping()
-    public GoalDto updateGoal(@Valid @RequestBody GoalDto goal) {
+    public GoalDto updateGoal(@Valid @RequestBody UpdateGoalRequest goal) {
         return goalService.updateGoal(goal);
     }
 
@@ -42,7 +43,7 @@ public class GoalController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/subtasks/{goalId}")
+    @GetMapping("{goalId}/subtasks/")
     public List<GoalDto> getSubtasksGoal(@PathVariable long goalId) {
         return goalService.getSubtasksGoal(goalId);
     }

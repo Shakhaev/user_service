@@ -8,6 +8,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -45,4 +46,14 @@ public interface GoalMapper {
     default List<Long> invitationsToInvitationIds(List<GoalInvitation> invitations) {
         return invitations.stream().map(GoalInvitation::getId).collect(Collectors.toList());
     }
+
+    @Mapping(source = "mentorId", target = "mentor.id")
+    @Mapping(source = "parentId", target = "parent.id")
+    Goal toEntity(UpdateGoalRequest updateGoalRequest);
+
+    @InheritInverseConfiguration(name = "toEntity")
+    UpdateGoalRequest toUpdateGoalRequest(Goal goal);
+
+    @Mapping(source = "status", target = "status")
+    void updateEntityFromDto(UpdateGoalRequest goalDto, @MappingTarget Goal goal);
 }

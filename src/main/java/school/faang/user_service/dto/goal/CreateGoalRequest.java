@@ -13,17 +13,16 @@ import java.util.List;
  * DTO for {@link school.faang.user_service.entity.goal.Goal}
  */
 @Builder
-public record GoalDto(@PositiveOrZero Long id,
-                      @PositiveOrZero Long parentId,
-                      @NotBlank String title,
-                      String description,
-                      GoalStatus status,
-                      LocalDateTime deadline,
-                      @PositiveOrZero Long mentorId,
-                      List<Long> invitationIds,
-                      List<Long> userIds,
-                      List<Long> skillsToAchieveIds) {
-    public GoalDto {
+public record CreateGoalRequest(@NotBlank String title,
+                                @PositiveOrZero Long parentId,
+                                String description,
+                                GoalStatus status,
+                                LocalDateTime deadline,
+                                @PositiveOrZero Long mentorId,
+                                List<Long> invitationIds,
+                                List<Long> userIds,
+                                List<Long> skillsToAchieveIds) {
+    public CreateGoalRequest {
         skillsToAchieveIds = skillsToAchieveIds != null ? skillsToAchieveIds : Collections.emptyList();
         userIds = userIds != null ? userIds : Collections.emptyList();
         invitationIds = invitationIds != null ? invitationIds : Collections.emptyList();

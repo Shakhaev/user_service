@@ -1,34 +1,238 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.dto.goal.CreateGoalRequest;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalRequest;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.exception.SkillNotFoundException;
+import school.faang.user_service.exception.UserGoalLimitExceededException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
+
+    private static final int USER_GOAL_MAX_COUNT = 3;
+
     @Mock
     private GoalRepository goalRepository;
-
     @Mock
     private SkillRepository skillRepository;
-
-    @Mock
-    private GoalMapper goalMapper;
-
     @Mock
     private UserRepository userRepository;
-
     @Mock
-    private GoalFilter goalFilter;
+    private GoalMapper goalMapper;
 
     @InjectMocks
     private GoalService goalService;
 
+    @Test
+    void createGoal_Success() {
+        long userId = 10L;
+        CreateGoalRequest createGoalRequest = CreateGoalRequest.builder()
+                .title("Новая цель")
+                .description("Описание")
+                .skillsToAchieveIds(List.of(1L, 2L))
+                .build();
 
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(goalRepository.countActiveGoalsPerUser(userId)).thenReturn(2);
+
+        Skill skill1 = new Skill();
+        skill1.setId(1L);
+        Skill skill2 = new Skill();
+        skill2.setId(2L);
+
+        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill1));
+        when(skillRepository.findById(2L)).thenReturn(Optional.of(skill2));
+
+        Goal goal = new Goal();
+        goal.setId(101L);
+        goal.setTitle("Новая цель");
+        goal.setSkillsToAchieve(List.of(skill1, skill2));
+
+        when(goalRepository.create(eq(createGoalRequest.title()), eq(createGoalRequest.description()), any())).thenReturn(goal);
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
+
+        GoalDto mappedGoalDto = GoalDto.builder()
+                .id(goal.getId())
+                .title(goal.getTitle())
+                .build();
+
+        when(goalMapper.toDto(any(Goal.class))).thenReturn(mappedGoalDto);
+
+        GoalDto result = goalService.createGoal(userId, createGoalRequest);
+
+        assertNotNull(result);
+        assertEquals(101L, result.id());
+        assertEquals("Новая цель", result.title());
+        verify(goalRepository, times(1)).save(any(Goal.class));
+    }
+
+    @Test
+    void createGoal_ShouldThrowUserGoalLimitExceededExceptionWhenGoalLimitExceeded() {
+        long userId = 10L;
+        CreateGoalRequest createGoalRequest = CreateGoalRequest.builder()
+                .title("Новая цель")
+                .description("Описание")
+                .build();
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(goalRepository.countActiveGoalsPerUser(userId)).thenReturn(USER_GOAL_MAX_COUNT);
+
+        assertThrows(UserGoalLimitExceededException.class, () -> goalService.createGoal(userId, createGoalRequest));
+    }
+
+    @Test
+    void createGoal_ShouldThrowEntityNotFoundExceptionWhenUserNotFound() {
+        long userId = 999L;
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.createGoal(userId, CreateGoalRequest.builder().title("Цель").build()));
+    }
+
+    @Test
+    void createGoal_ShouldThrowSkillNotFoundExceptionWhenSkillNotFound() {
+        long userId = 10L;
+        CreateGoalRequest createGoalRequest = CreateGoalRequest.builder()
+                .title("Новая цель")
+                .description("Описание")
+                .skillsToAchieveIds(List.of(999L))
+                .build();
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(goalRepository.countActiveGoalsPerUser(userId)).thenReturn(0);
+        when(skillRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(SkillNotFoundException.class, () -> goalService.createGoal(userId, createGoalRequest));
+    }
+
+
+    @Test
+    void updateGoal_ShouldThrowEntityNotFoundExceptionWhenGoalNotFound() {
+        UpdateGoalRequest updateGoalRequest = UpdateGoalRequest.builder().id(999L).build();
+        when(goalRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.updateGoal(updateGoalRequest));
+    }
+
+    @Test
+    void deleteGoal_Success() {
+        Goal goal = new Goal();
+        goal.setId(1L);
+
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
+
+        goalService.deleteGoal(1L);
+
+        verify(goalRepository, times(1)).delete(goal);
+    }
+
+    @Test
+    void deleteGoal_ShouldThrowEntityNotFoundExceptionWhenGoalNotFound() {
+        when(goalRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.deleteGoal(2L));
+        verify(goalRepository, never()).delete(any(Goal.class));
+    }
+
+    @Test
+    void getGoals_Success() {
+        long userId = 10L;
+        GoalFilterDto filterDto = GoalFilterDto.builder().build();
+        List<Goal> goals = new ArrayList<>();
+        Goal goal1 = new Goal();
+        goal1.setId(1L);
+        goal1.setTitle("Test Goal");
+        goals.add(goal1);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(goals.stream());
+
+        GoalFilter filter = mock(GoalFilter.class);
+        when(filter.isApplicable(filterDto)).thenReturn(true);
+        when(filter.apply(any(), eq(filterDto))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<GoalFilter> mockFilters = List.of(filter);
+        ReflectionTestUtils.setField(goalService, "filters", mockFilters);
+
+        GoalDto goalDto = GoalDto.builder().id(1L).title("Test Goal").build();
+
+        when(goalMapper.toDto(goal1)).thenReturn(goalDto);
+
+        List<GoalDto> result = goalService.getGoals(userId, filterDto);
+        assertEquals(1, result.size());
+        assertEquals("Test Goal", result.get(0).title());
+    }
+
+    @Test
+    void getGoals_ShouldThrowEntityNotFoundExceptionWhenUserNotFound() {
+        long userId = 999L;
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.getGoals(userId, GoalFilterDto.builder().build()));
+    }
+
+    @Test
+    void getSubtasksGoal_Success() {
+        long goalId = 20L;
+        Goal parentGoal = new Goal();
+        parentGoal.setId(goalId);
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(parentGoal));
+
+        Goal subGoal1 = new Goal();
+        subGoal1.setId(21L);
+        Goal subGoal2 = new Goal();
+        subGoal2.setId(22L);
+
+        List<Goal> subGoals = List.of(subGoal1, subGoal2);
+        when(goalRepository.findByParent(goalId)).thenReturn(subGoals.stream());
+
+        GoalDto dto1 = GoalDto.builder().id(21L).build();
+        GoalDto dto2 = GoalDto.builder().id(22L).build();
+
+        when(goalMapper.toDto(subGoal1)).thenReturn(dto1);
+        when(goalMapper.toDto(subGoal2)).thenReturn(dto2);
+
+        List<GoalDto> result = goalService.getSubtasksGoal(goalId);
+        assertEquals(2, result.size());
+        assertEquals(21L, result.get(0).id());
+        assertEquals(22L, result.get(1).id());
+    }
+
+    @Test
+    void getSubtasksGoal_ShouldThrowEntityNotFoundExceptionWhenParentGoalNotFound() {
+        when(goalRepository.findById(30L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> goalService.getSubtasksGoal(30L));
+    }
 }
