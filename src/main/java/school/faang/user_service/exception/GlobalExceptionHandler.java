@@ -2,6 +2,7 @@ package school.faang.user_service.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,10 +18,14 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    public ErrorResponse handleBusinessException(BusinessException e){
-        log.error("Request is not applicable", e);
-        return new ErrorResponse(e.getMessage());
+    public ResponseEntity<String> handleRequestAlreadyProcessed(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGenericException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка: " + ex.getMessage());
     }
 }
