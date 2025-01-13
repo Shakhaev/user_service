@@ -1,10 +1,6 @@
 package school.faang.user_service.controller;
 
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.SubscriptionService;
@@ -19,7 +15,7 @@ public class SubscriptionController {
 
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new DataValidationException("You can't subscribe to yourself");
+            throw new IllegalArgumentException("You can't subscribe to yourself");
         }
 
         subscriptionService.followUser(followerId, followeeId);
@@ -35,5 +31,9 @@ public class SubscriptionController {
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
+    }
+
+    public int getFollowersCount(long followerId) {
+        return subscriptionService.getFollowersCount(followerId);
     }
 }

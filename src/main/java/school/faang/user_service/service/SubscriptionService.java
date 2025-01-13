@@ -43,7 +43,7 @@ public class SubscriptionService {
                 .collect(Collectors.toList());
     }
 
-    private List<User> filterUsers(Stream<User> followers, UserFilterDto filter) {
+    public List<User> filterUsers(Stream<User> followers, UserFilterDto filter) {
         return followers
                 .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
                 .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()))
@@ -61,5 +61,9 @@ public class SubscriptionService {
                 .skip((long) filter.getPage() * filter.getPageSize())
                 .limit(filter.getPageSize())
                 .collect(Collectors.toList());
+    }
+
+    public int getFollowersCount(long followerId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 }

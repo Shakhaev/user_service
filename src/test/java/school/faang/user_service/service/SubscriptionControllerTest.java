@@ -22,8 +22,8 @@ public class SubscriptionControllerTest {
 
     @Test
     void shouldCallServiceToFollowUserWhenIdsAreDifferent() {
-        long followerId = 1L;
-        long followeeId = 2L;
+        long followerId = 11;
+        long followeeId = 21;
 
         subscriptionController.followUser(followerId, followeeId);
 
@@ -32,8 +32,8 @@ public class SubscriptionControllerTest {
 
     @Test
     void shouldThrowExceptionWhenFollowerIdEqualsFolloweeId() {
-        long followerId = 1L;
-        long followeeId = 1L;
+        long followerId = 11;
+        long followeeId = 11;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 subscriptionController.followUser(followerId, followeeId)
