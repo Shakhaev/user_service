@@ -11,6 +11,7 @@ public interface MentorshipRequestMapper {
 
     @Mapping(target = "requester", ignore = true)
     @Mapping(target = "receiver", ignore = true)
+    @Mapping(target = "id", ignore = true)
     MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
 
     @Mapping(source = "requester.id", target = "requesterId")

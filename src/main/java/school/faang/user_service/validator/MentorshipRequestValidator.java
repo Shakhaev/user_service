@@ -40,19 +40,19 @@ public class MentorshipRequestValidator {
         }
     }
 
-    public void validateRequesterAndReceiverExists(MentorshipRequestDto mentorshipRequestDto) {
+    private void validateRequesterAndReceiverExists(MentorshipRequestDto mentorshipRequestDto) {
         userService.isUserExists(mentorshipRequestDto.getRequesterId());
         userService.isUserExists(mentorshipRequestDto.getReceiverId());
         log.info("Отправитель и получатель запроса на менторство существуют");
     }
 
-    public void validateSelfRequest(MentorshipRequestDto mentorshipRequestDto) {
+    private void validateSelfRequest(MentorshipRequestDto mentorshipRequestDto) {
         if (Objects.equals(mentorshipRequestDto.getRequesterId(), mentorshipRequestDto.getReceiverId())) {
             throw new BusinessException("Нельзя отправить запрос на менторство самому себе");
         }
     }
 
-    public void validateMonthLimitForRepeatRequest(MentorshipRequestDto mentorshipRequestDto) {
+    private void validateMonthLimitForRepeatRequest(MentorshipRequestDto mentorshipRequestDto) {
         mentorshipRequestRepository
                 .findLatestRequest(mentorshipRequestDto.getRequesterId(), mentorshipRequestDto.getReceiverId())
                 .filter(request -> !request.getCreatedAt().isBefore(getMonthLimitAgo()))

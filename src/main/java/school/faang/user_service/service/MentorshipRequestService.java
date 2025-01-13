@@ -9,6 +9,7 @@ import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
@@ -16,7 +17,6 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -32,25 +32,29 @@ public class MentorshipRequestService {
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         validator.validate(mentorshipRequestDto);
 
-        mentorshipRequestRepository.create(
-                mentorshipRequestDto.getRequesterId(),
-                mentorshipRequestDto.getReceiverId(),
-                mentorshipRequestDto.getDescription());
+        long requesterId = mentorshipRequestDto.getRequesterId();
+        long receiverId = mentorshipRequestDto.getReceiverId();
+
+        mentorshipRequestRepository.create(requesterId, receiverId, mentorshipRequestDto.getDescription());
+
+        MentorshipRequest entity = getLatestRequest(requesterId, receiverId);
         log.info("Запрос на менторство {} создан", mentorshipRequestDto);
 
-        return mentorshipRequestDto;
+        return requestMapper.toDto(entity);
     }
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto incomeFilter) {
-        Stream<MentorshipRequest> requests = mentorshipRequestRepository.findAll().stream();
+        List<MentorshipRequest> requests = mentorshipRequestRepository.findAll();
 
-        filters.stream().filter(filter -> filter.isApplicable(incomeFilter))
-                .forEach(filter -> filter.apply(requests, incomeFilter));
-
-        return requests.map(requestMapper::toDto).toList();
+        return filters.stream()
+                .filter(filter -> filter.isApplicable(incomeFilter))
+                .reduce(requests.stream(),
+                        (requestStream, filter) -> filter.apply(requestStream, incomeFilter),
+                        (list1, list2) -> list1)
+                .map(requestMapper::toDto).toList();
     }
 
-    public MentorshipRequestDto acceptRequest(Long id) {
+    public MentorshipRequestDto acceptRequest(long id) {
         MentorshipRequest request = getMentorshipRequestById(id);
         validator.validateRequesterHaveReceiverAsMentor(request);
 
@@ -70,7 +74,7 @@ public class MentorshipRequestService {
         return requestMapper.toDto(entity);
     }
 
-    public MentorshipRequestDto rejectRequest(Long id, RejectionDto rejectionDto) {
+    public MentorshipRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
         MentorshipRequest request = getMentorshipRequestById(id);
 
         request.setStatus(RequestStatus.REJECTED);
@@ -82,11 +86,21 @@ public class MentorshipRequestService {
         return requestMapper.toDto(entity);
     }
 
-    public MentorshipRequest getMentorshipRequestById(Long id) {
+    public MentorshipRequest getMentorshipRequestById(long id) {
         return mentorshipRequestRepository.findById(id).orElseThrow(() -> {
             String message = "Запрос на менторство с id =" + id + " не найден";
             log.warn(message);
             return new EntityNotFoundException(message);
         });
+    }
+
+    private MentorshipRequest getLatestRequest(long requesterId, long receiverId) {
+        return mentorshipRequestRepository
+                .findLatestRequest(requesterId, receiverId).orElseThrow(() -> {
+                    String message = "Запрос на менторство с requesterId=" + requesterId + "и receiverId="
+                            + receiverId + " не найден";
+                    log.warn(message);
+                    return new BusinessException(message);
+                });
     }
 }

@@ -45,7 +45,11 @@ class MentorshipRequestValidatorTest {
 
     @Test
     void shouldSuccessValidate() {
-        MentorshipRequestDto dto = new MentorshipRequestDto(REQUESTER_ID, RECEIVER_ID, DESCRIPTION);
+        MentorshipRequestDto dto = MentorshipRequestDto.builder()
+                .requesterId(REQUESTER_ID)
+                .receiverId(RECEIVER_ID)
+                .description(DESCRIPTION)
+                .build();
         when(mentorshipRequestRepository.findLatestRequest(any(Long.class), any(Long.class)))
                 .thenReturn(Optional.empty());
 
@@ -59,7 +63,11 @@ class MentorshipRequestValidatorTest {
 
     @Test
     void shouldThrowBusinessExceptionWhenSenderIsSameAsReceiver() {
-        MentorshipRequestDto dto = new MentorshipRequestDto(REQUESTER_ID, REQUESTER_ID, DESCRIPTION);
+        MentorshipRequestDto dto = MentorshipRequestDto.builder()
+                .requesterId(REQUESTER_ID)
+                .receiverId(REQUESTER_ID)
+                .description(DESCRIPTION)
+                .build();
 
         BusinessException exception = assertThrows(BusinessException.class, () -> validator.validate(dto));
         assertEquals("Нельзя отправить запрос на менторство самому себе", exception.getMessage());
@@ -70,9 +78,14 @@ class MentorshipRequestValidatorTest {
 
     @Test
     void shouldThrowBusinessExceptionWhenRepeatRequestSentTooEarly() {
-        MentorshipRequestDto dto = new MentorshipRequestDto(REQUESTER_ID, RECEIVER_ID, DESCRIPTION);
+        MentorshipRequestDto dto = MentorshipRequestDto.builder()
+                .requesterId(REQUESTER_ID)
+                .receiverId(RECEIVER_ID)
+                .description(DESCRIPTION)
+                .build();
         MentorshipRequest latestRequest = mock(MentorshipRequest.class);
-        when(latestRequest.getCreatedAt()).thenReturn(LocalDateTime.now().minusMonths(RIGHT_MONTHS_REPEAT_REQUEST_LIMIT));
+        when(latestRequest.getCreatedAt())
+                .thenReturn(LocalDateTime.now().minusMonths(RIGHT_MONTHS_REPEAT_REQUEST_LIMIT));
         when(mentorshipRequestRepository.findLatestRequest(any(Long.class), any(Long.class)))
                 .thenReturn(Optional.of(latestRequest));
 
@@ -87,9 +100,14 @@ class MentorshipRequestValidatorTest {
 
     @Test
     void shouldNotThrowExceptionIfRequestWithinLimits() {
-        MentorshipRequestDto dto = new MentorshipRequestDto(REQUESTER_ID, RECEIVER_ID, DESCRIPTION);
+        MentorshipRequestDto dto =MentorshipRequestDto.builder()
+                .requesterId(REQUESTER_ID)
+                .receiverId(RECEIVER_ID)
+                .description(DESCRIPTION)
+                .build();
         MentorshipRequest latestRequest = mock(MentorshipRequest.class);
-        when(latestRequest.getCreatedAt()).thenReturn(LocalDateTime.now().minusMonths(WRONG_MONTHS_REPEAT_REQUEST_LIMIT));
+        when(latestRequest.getCreatedAt())
+                .thenReturn(LocalDateTime.now().minusMonths(WRONG_MONTHS_REPEAT_REQUEST_LIMIT));
         when(mentorshipRequestRepository.findLatestRequest(any(Long.class), any(Long.class)))
                 .thenReturn(Optional.of(latestRequest));
 
@@ -103,42 +121,31 @@ class MentorshipRequestValidatorTest {
 
     @Test
     void shouldNotThrowExceptionWhenReceiverIsNotAMentor() {
-        User requester = new User();
-        requester.setId(REQUESTER_ID);
-        requester.setMentors(new ArrayList<>());
-        User receiver = new User();
-        receiver.setId(RECEIVER_ID);
-        List<User> mentors = new ArrayList<>();
-        User randomUser;
-        for (long i = 3; i < 5; i++) {
-            randomUser = new User();
-            randomUser.setId(i);
-            mentors.add(randomUser);
-        }
-        MentorshipRequest request = new MentorshipRequest();
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.getRequester().getMentors().addAll(mentors);
+        List<User> differentMentors = List.of(User.builder().id(3L).build(), User.builder().id(5L).build());
+        User requester = User.builder().id(REQUESTER_ID).mentors(differentMentors).build();
+        User receiver = User.builder().id(RECEIVER_ID).build();
+        MentorshipRequest request = MentorshipRequest.builder()
+                .requester(requester)
+                .receiver(receiver)
+                .build();
 
         validator.validateRequesterHaveReceiverAsMentor(request);
     }
 
     @Test
     void shouldThrowBusinessExceptionWhenReceiverIsAlreadyAMentor() {
-        User requester = new User();
-        requester.setId(REQUESTER_ID);
-        requester.setMentors(new ArrayList<>());
-        User receiver = new User();
-        receiver.setId(RECEIVER_ID);
-        List<User> mentors = new ArrayList<>();
-        User randomUser = new User();
-        randomUser.setId(RECEIVER_ID);
-        mentors.add(randomUser);
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.getRequester().getMentors().addAll(mentors);
+        User receiver = User.builder()
+                .id(RECEIVER_ID)
+                .mentors(new ArrayList<>())
+                .build();
+        User requester = User.builder()
+                .id(REQUESTER_ID)
+                .mentors(List.of(receiver))
+                .build();
+        MentorshipRequest request = MentorshipRequest.builder()
+                .requester(requester)
+                .receiver(receiver)
+                .build();
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> validator.validateRequesterHaveReceiverAsMentor(request));
