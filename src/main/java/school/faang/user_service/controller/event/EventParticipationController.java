@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.event;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,42 +15,35 @@ import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 
-
-@RestController
-@RequestMapping("/api/events")
 @RequiredArgsConstructor
+@RequestMapping("/api/events")
+@RestController
 public class EventParticipationController {
 
     public final EventParticipationService eventParticipationService;
     public final EventParticipantsMapper eventParticipantsMapper;
 
     @PostMapping("/{eventId}/participants/{userId}")
-    public ResponseEntity<Void> registerParticipant(
-            @PathVariable @Positive(message = "Event ID must be a positive number.") long eventId,
-            @PathVariable @Positive(message = "User ID must be a positive number.") long userId) {
+    public ResponseEntity<Void> registerParticipant(@PathVariable long eventId, @PathVariable long userId) {
         eventParticipationService.registerParticipant(eventId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{eventId}/participants/{userId}")
-    public ResponseEntity<Void> unregisterParticipant(
-            @PathVariable @Positive(message = "Event ID must be a positive number.") long eventId,
-            @PathVariable @Positive(message = "User ID must be a positive number.") long userId) {
+    public ResponseEntity<Void> unregisterParticipant(@PathVariable long eventId, @PathVariable long userId) {
         eventParticipationService.unregisterParticipant(eventId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{eventId}/participants")
-    public ResponseEntity<List<UserDto>> getParticipant(
-            @PathVariable @Positive(message = "Event ID must be a positive number.") long eventId) {
+    public ResponseEntity<List<UserDto>> getParticipant(@PathVariable long eventId) {
         return ResponseEntity.ok(eventParticipationService.getParticipants(eventId).stream()
                 .map(eventParticipantsMapper::toDto)
                 .toList());
     }
 
     @GetMapping("/{eventId}/participants/count")
-    public ResponseEntity<Integer> getParticipantsCount(
-            @PathVariable @Positive(message = "Event ID must be a positive number.") long eventId) {
+    public ResponseEntity<Integer> getParticipantsCount(@PathVariable long eventId) {
         return ResponseEntity.ok(eventParticipationService.getParticipantsCount(eventId));
     }
 }

@@ -7,30 +7,29 @@ import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
 
-@Service
+
 @RequiredArgsConstructor
+@Service
 public class EventParticipationService {
 
     private final EventParticipationRepository eventParticipationRepository;
 
     public void registerParticipant(long eventId, long userId) {
-        if (!eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
-            eventParticipationRepository.register(eventId, userId);
-        } else {
+        if (eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
             throw new IllegalStateException(
                     String.format("User with ID %d is already registered for event with ID %d", userId, eventId)
             );
         }
+        eventParticipationRepository.register(eventId, userId);
     }
 
     public void unregisterParticipant(long eventId, long userId) {
-        if (eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
-            eventParticipationRepository.unregister(eventId, userId);
-        } else {
+        if (!eventParticipationRepository.existsUserByEventIdAndUserId(eventId, userId)) {
             throw new IllegalStateException(
                     String.format("User with ID %d is not registered for event with ID %d", userId, eventId)
             );
         }
+        eventParticipationRepository.unregister(eventId, userId);
     }
 
     public List<User> getParticipants(long eventId) {
