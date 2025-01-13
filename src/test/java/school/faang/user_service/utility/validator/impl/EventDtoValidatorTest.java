@@ -17,10 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class EventDtoValidatorTest {
     private final EventDtoValidator validator = new EventDtoValidator();
     private String errorMessage;
+    private EventDto testObject;
 
     @BeforeEach
     void init() {
         errorMessage = "Data is invalid";
+        testObject = EventDto.builder().build();
     }
 
     @Test
@@ -111,6 +113,60 @@ class EventDtoValidatorTest {
 
         DataValidationException ex = assertThrows(DataValidationException.class, () ->
                 validator.checkEnumValue(type, types, errorMessage));
+        assertEquals(errorMessage, ex.getMessage());
+    }
+
+    @Test
+    void testCheckNotNull() {
+        assertDoesNotThrow(() -> validator.checkNotNull(testObject, errorMessage));
+    }
+
+    @Test
+    void testCheckNotNullIsNull() {
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkNotNull(null, errorMessage));
+
+        assertEquals(errorMessage, ex.getMessage());
+    }
+
+    @Test
+    void testCheckStringNotNullOrEmpty() {
+        String value = "test";
+        assertDoesNotThrow(() -> validator.checkStringNotNullOrEmpty(value, errorMessage));
+    }
+
+    @Test
+    void testCheckStringNotNullOrEmptyIsNull() {
+        String value = null;
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkStringNotNullOrEmpty(value, errorMessage));
+
+        assertEquals(errorMessage, ex.getMessage());
+    }
+
+    @Test
+    void testCheckStringNotNullOrEmptyIsBlank() {
+        String value = "";
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkStringNotNullOrEmpty(value, errorMessage));
+
+        assertEquals(errorMessage, ex.getMessage());
+    }
+
+    @Test
+    void testCollectionNotNullOrEmpty() {
+        List<Object> list = List.of(testObject);
+
+        assertDoesNotThrow(() -> validator.checkCollectionNotNullOrEmpty(list, errorMessage));
+    }
+
+    @Test
+    void testCollectionNotNullOrEmptyIsNull() {
+        List<Object> list = null;
+
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                validator.checkCollectionNotNullOrEmpty(list, errorMessage));
+
         assertEquals(errorMessage, ex.getMessage());
     }
 }
