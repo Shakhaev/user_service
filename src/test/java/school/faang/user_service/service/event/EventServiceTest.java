@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.Skill;
@@ -15,7 +14,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.filter.event.EventFilterOwnerName;
 import school.faang.user_service.filter.event.EventStartDateFilter;
-import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
@@ -48,8 +46,6 @@ class EventServiceTest {
     private SkillService skillService;
     @Mock
     private EventRepository eventRepository;
-    @Spy
-    private EventMapper eventMapper;
     @InjectMocks
     private EventService eventService;
     private Event event;
@@ -65,7 +61,7 @@ class EventServiceTest {
         Skill firstSkill = Skill.builder().title("Java").build();
         Skill secondSkill = Skill.builder().title("Spring").build();
         skills = List.of(firstSkill, secondSkill);
-        skillIds = eventMapper.mapSkillsToSkillIds(skills);
+        skillIds = getSkillIdsList(skills);
         owner = User.builder()
                 .id(1L)
                 .username("firstUser")
@@ -139,7 +135,7 @@ class EventServiceTest {
         Skill testSkill = Skill.builder().title("Python").build();
         List<Skill> modifiedSkillListForEvent = new ArrayList<>(owner.getSkills());
         modifiedSkillListForEvent.add(testSkill);
-        List<Long> modifiedSkillIdsForEvent = eventMapper.mapSkillsToSkillIds(modifiedSkillListForEvent);
+        List<Long> modifiedSkillIdsForEvent = getSkillIdsList(modifiedSkillListForEvent);
 
         when(userService.getUser(any())).thenReturn(owner);
         when(skillService.getSkills(any())).thenReturn(modifiedSkillListForEvent);
@@ -192,7 +188,7 @@ class EventServiceTest {
                 .build();
         String updatedSkillsTitle = "Java";
         List<Skill> relatedSkills = Collections.singletonList(Skill.builder().title(updatedSkillsTitle).build());
-        List<Long> eventToUpdateSkillIds = eventMapper.mapSkillsToSkillIds(relatedSkills);
+        List<Long> eventToUpdateSkillIds = getSkillIdsList(relatedSkills);
         eventToUpdate.setRelatedSkills(relatedSkills);
 
         when(eventRepository.findByIdOrThrow(eventId)).thenReturn(event);
@@ -245,5 +241,11 @@ class EventServiceTest {
         eventService = new EventService(userService, skillService, eventRepository, mockEventFilters);
 
         return eventService.getEventsByFilter(filters);
+    }
+
+    private List<Long> getSkillIdsList(List<Skill> skills) {
+        return skills.stream()
+                .map(Skill::getId)
+                .toList();
     }
 }
