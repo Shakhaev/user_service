@@ -11,37 +11,32 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserCountryFilterTest {
-
-    private UserCountryFilter userCountryFilter;
+class UserCountryFilterTest extends UserFilterTest {
 
     @BeforeEach
     void setUp() {
-        userCountryFilter = new UserCountryFilter();
+        userFilter = new UserCountryFilter();
+        filters = new UserFilterDto();
     }
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenCountryPatternIsNotNull() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCountryPattern("USA");
 
-        boolean result = userCountryFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertTrue(result);
     }
 
     @Test
     void isApplicable_ShouldReturnFalse_WhenCountryPatternIsNull() {
-        UserFilterDto filters = new UserFilterDto();
-
-        boolean result = userCountryFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
     void apply_ShouldFilterUsersWithMatchingCountry() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCountryPattern("USA");
 
         Country usa = new Country();
@@ -50,26 +45,25 @@ class UserCountryFilterTest {
         Country canada = new Country();
         canada.setTitle("Canada");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setCountry(usa);
 
-        User user2 = new User();
+        user2 = new User();
         user2.setCountry(canada);
 
-        User user3 = new User();
+        user3 = new User();
         user3.setCountry(usa);
 
         Stream<User> input = Stream.of(user1, user2, user3);
         Stream<User> expected = Stream.of(user1, user3);
 
-        List<User> result = userCountryFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertEquals(expected.toList(), result);
     }
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCountryPattern("Germany");
 
         Country usa = new Country();
@@ -78,15 +72,15 @@ class UserCountryFilterTest {
         Country canada = new Country();
         canada.setTitle("Canada");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setCountry(usa);
 
-        User user2 = new User();
+        user2 = new User();
         user2.setCountry(canada);
 
         Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = userCountryFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertTrue(result.isEmpty());
     }

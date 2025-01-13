@@ -10,70 +10,64 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserEmailFilterTest {
-
-    private UserEmailFilter userEmailFilter;
+class UserEmailFilterTest extends UserFilterTest {
 
     @BeforeEach
     void setUp() {
-        userEmailFilter = new UserEmailFilter();
+        userFilter = new UserEmailFilter();
+        filters = new UserFilterDto();
     }
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenEmailPatternIsNotNull() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setEmailPattern("user@example.com");
 
-        boolean result = userEmailFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertTrue(result);
     }
 
     @Test
     void isApplicable_ShouldReturnFalse_WhenEmailPatternIsNull() {
-        UserFilterDto filters = new UserFilterDto();
-
-        boolean result = userEmailFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
     void apply_ShouldFilterUsersWithMatchingEmail() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setEmailPattern("user@example.com");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setEmail("user@example.com");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setEmail("another@example.com");
 
-        User user3 = new User();
+        user3 = new User();
         user3.setEmail("user@example.com");
 
         Stream<User> input = Stream.of(user1, user2, user3);
         Stream<User> expected = Stream.of(user1, user3);
 
-        List<User> result = userEmailFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertEquals(expected.toList(), result);
     }
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setEmailPattern("nonexistent@example.com");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setEmail("user@example.com");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setEmail("another@example.com");
 
         Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = userEmailFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertTrue(result.isEmpty());
     }

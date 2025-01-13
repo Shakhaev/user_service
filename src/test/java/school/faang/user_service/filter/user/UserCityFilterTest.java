@@ -10,69 +10,62 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserCityFilterTest {
-
-    private UserCityFilter userCityFilter;
+class UserCityFilterTest extends UserFilterTest {
 
     @BeforeEach
     void setUp() {
-        userCityFilter = new UserCityFilter();
+        userFilter = new UserCityFilter();
+        filters = new UserFilterDto();
     }
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenCityPatternIsNotNull() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCityPattern("New York");
 
-        boolean result = userCityFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertTrue(result);
     }
 
     @Test
     void isApplicable_ShouldReturnFalse_WhenCityPatternIsNull() {
-        UserFilterDto filters = new UserFilterDto();
-
-        boolean result = userCityFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
     void apply_ShouldFilterUsersBasedOnCityPattern() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCityPattern("New York");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setCity("New York");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setCity("Los Angeles");
 
-        User user3 = new User();
+        user3 = new User();
         user3.setCity("New York");
         Stream<User> input = Stream.of(user1, user2, user3);
         Stream<User> expected = Stream.of(user1, user3);
 
-
-        List<User> result = userCityFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertEquals(expected.toList(), result);
     }
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setCityPattern("San Francisco");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setCity("New York");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setCity("Los Angeles");
         Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = userCityFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertTrue(result.isEmpty());
     }

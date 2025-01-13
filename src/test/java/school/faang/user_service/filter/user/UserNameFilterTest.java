@@ -10,70 +10,64 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserNameFilterTest {
-
-    private UserNameFilter userNameFilter;
+class UserNameFilterTest extends UserFilterTest {
 
     @BeforeEach
     void setUp() {
-        userNameFilter = new UserNameFilter();
+        userFilter = new UserNameFilter();
+        filters = new UserFilterDto();
     }
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenNamePatternIsNotNull() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setNamePattern("JohnDoe");
 
-        boolean result = userNameFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertTrue(result);
     }
 
     @Test
     void isApplicable_ShouldReturnFalse_WhenNamePatternIsNull() {
-        UserFilterDto filters = new UserFilterDto();
-
-        boolean result = userNameFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
     void apply_ShouldFilterUsersBasedOnNamePattern() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setNamePattern("JohnDoe");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setUsername("JohnDoe");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setUsername("JaneDoe");
 
-        User user3 = new User();
+        user3 = new User();
         user3.setUsername("JohnDoe");
 
         Stream<User> input = Stream.of(user1, user2, user3);
         Stream<User> expected = Stream.of(user1, user3);
 
-        List<User> result = userNameFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertEquals(expected.toList(), result);
     }
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setNamePattern("NotFound");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setUsername("JohnDoe");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setUsername("JaneDoe");
 
         Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = userNameFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertTrue(result.isEmpty());
     }

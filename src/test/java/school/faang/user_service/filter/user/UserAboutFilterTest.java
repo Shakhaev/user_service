@@ -10,70 +10,64 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserAboutFilterTest {
-
-    private UserAboutFilter userAboutFilter;
+class UserAboutFilterTest extends UserFilterTest {
 
     @BeforeEach
     void setUp() {
-        userAboutFilter = new UserAboutFilter();
+        userFilter = new UserAboutFilter();
+        filters = new UserFilterDto();
     }
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenAboutPatternIsNotNull() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setAboutPattern("Software Developer");
 
-        boolean result = userAboutFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertTrue(result);
     }
 
     @Test
     void isApplicable_ShouldReturnFalse_WhenAboutPatternIsNull() {
-        UserFilterDto filters = new UserFilterDto();
-
-        boolean result = userAboutFilter.isApplicable(filters);
+        boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
     void apply_ShouldFilterUsersWithMatchingAboutPattern() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setAboutPattern("Software Developer");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setAboutMe("Software Developer");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setAboutMe("Data Scientist");
 
-        User user3 = new User();
+        user3 = new User();
         user3.setAboutMe("Software Developer");
 
         Stream<User> input = Stream.of(user1, user2, user3);
         Stream<User> expected = Stream.of(user1, user3);
 
-        List<User> result = userAboutFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertEquals(expected.toList(), result);
     }
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
-        UserFilterDto filters = new UserFilterDto();
         filters.setAboutPattern("Project Manager");
 
-        User user1 = new User();
+        user1 = new User();
         user1.setAboutMe("Software Developer");
 
-        User user2 = new User();
+        user2 = new User();
         user2.setAboutMe("Data Scientist");
 
         Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = userAboutFilter.apply(input, filters).toList();
+        List<User> result = userFilter.apply(input, filters).toList();
 
         assertTrue(result.isEmpty());
     }
