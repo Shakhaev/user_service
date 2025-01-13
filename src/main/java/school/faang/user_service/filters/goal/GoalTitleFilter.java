@@ -1,4 +1,4 @@
-package school.faang.user_service.filter.goal;
+package school.faang.user_service.filters.goal;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalFilterDTO;

@@ -3,6 +3,8 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.adapter.GoalRepositoryAdapter;
+import school.faang.user_service.adapter.UserRepositoryAdapter;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
 import school.faang.user_service.entity.Skill;
@@ -11,11 +13,10 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.BadRequestException;
 import school.faang.user_service.exception.ResourceNotFoundException;
-import school.faang.user_service.filter.goal.GoalFilter;
+import school.faang.user_service.filters.goal.GoalFilter;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skills.SkillService;
-import school.faang.user_service.service.user.UserService;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +33,9 @@ public class GoalService {
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
     private final SkillService skillService;
-    private final UserService userService;
+    private final UserRepositoryAdapter userRepositoryAdapter;
     private final List<GoalFilter> goalFilters;
+    private final GoalRepositoryAdapter goalRepositoryAdapter;
 
     @Transactional
     public GoalDTO createGoal(Long userId, GoalDTO goalDTO) {
@@ -44,15 +46,15 @@ public class GoalService {
         }
         Goal goal = goalMapper.toEntity(goalDTO);
         if (goalDTO.getParentId() != null) {
-            Goal parent = findById(goalDTO.getParentId());
+            Goal parent = goalRepositoryAdapter.getById(goalDTO.getParentId());
             goal.setParent(parent);
         }
         if (goalDTO.getMentorId() != null) {
-            User mentor = userService.findById(userId);
+            User mentor = userRepositoryAdapter.getById(userId);
             goal.setMentor(mentor);
         }
         goal.setStatus(GoalStatus.ACTIVE);
-        User user = userService.findById(userId);
+        User user = userRepositoryAdapter.getById(userId);
         goal.addUser(user);
         List<Skill> skills = skillService.findByIds(goalDTO.getSkillToAchieveIds());
         skills.forEach(goal::addSkill);
@@ -62,7 +64,7 @@ public class GoalService {
     @Transactional
     public GoalDTO updateGoal(Long goalId, GoalDTO goalDTO) {
         validateGoal(goalDTO);
-        Goal goal = findById(goalId);
+        Goal goal = goalRepositoryAdapter.getById(goalId);
 
         if (goal.getStatus() == GoalStatus.COMPLETED) {
             throw new BadRequestException("This goal is already completed");
@@ -90,7 +92,7 @@ public class GoalService {
 
     @Transactional
     public void deleteGoal(Long id) {
-        Goal goal = findById(id);
+        Goal goal = goalRepositoryAdapter.getById(id);
         Stream<Goal> parent = goalRepository.findByParent(goal.getId());
         parent.forEach(e -> e.setParent(null));
         goalRepository.delete(goal);
@@ -118,10 +120,6 @@ public class GoalService {
         return goalMapper.toDtoList(parent);
     }
 
-    public Goal findById(Long id) {
-        return goalRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Goal not found by id: " + id));
-    }
 
     private void updateSkills(Goal goal, List<Long> newSkillIds) {
         List<Long> currentSkillIds = goal.getSkillsToAchieve()
