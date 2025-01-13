@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.filter.userFilter;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
@@ -7,18 +7,18 @@ import school.faang.user_service.entity.User;
 import java.util.stream.Stream;
 
 @Component
-public class UserSkillFilter implements UserFilter {
+public class UserContactFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getSkillPattern() != null;
+        return filters.getContactPattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getSkills().stream()
-                .anyMatch(skill -> skill.getTitle()
+        return users.filter(user -> user.getContacts().stream()
+                .anyMatch(contact -> contact.getContact()
                         .toUpperCase()
-                        .matches("(.*)%s(.*)".formatted(filters.getSkillPattern().toUpperCase())))
-        );
+                        .matches("(.*)%s(.*)".formatted(filters.getContactPattern().toUpperCase())))
+                );
     }
 }

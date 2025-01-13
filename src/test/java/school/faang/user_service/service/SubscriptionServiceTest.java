@@ -13,6 +13,18 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactType;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.userFilter.UserAboutFilter;
+import school.faang.user_service.filter.userFilter.UserCityFilter;
+import school.faang.user_service.filter.userFilter.UserContactFilter;
+import school.faang.user_service.filter.userFilter.UserCountryFilter;
+import school.faang.user_service.filter.userFilter.UserEmailFilter;
+import school.faang.user_service.filter.userFilter.UserExperienceMaxFilter;
+import school.faang.user_service.filter.userFilter.UserExperienceMinFilter;
+import school.faang.user_service.filter.userFilter.UserFilter;
+import school.faang.user_service.filter.userFilter.UserNameFilter;
+import school.faang.user_service.filter.userFilter.UserPageFilter;
+import school.faang.user_service.filter.userFilter.UserPhoneFilter;
+import school.faang.user_service.filter.userFilter.UserSkillFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.ArrayList;

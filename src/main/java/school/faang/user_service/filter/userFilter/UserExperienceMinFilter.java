@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.filter.userFilter;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
@@ -7,15 +7,15 @@ import school.faang.user_service.entity.User;
 import java.util.stream.Stream;
 
 @Component
-public class UserAboutFilter implements UserFilter{
+public class UserExperienceMinFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getAboutPattern() != null;
+        return filters.getExperienceMin() > 0;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getAboutMe()
-                .toUpperCase().matches("(.*)%s(.*)".formatted(filters.getAboutPattern().toUpperCase())));
+        return users.filter(user -> user.getExperience() != null
+                && user.getExperience() >= filters.getExperienceMin());
     }
 }
