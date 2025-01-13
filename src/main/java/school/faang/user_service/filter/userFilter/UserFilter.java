@@ -9,6 +9,7 @@ public interface UserFilter {
     boolean isApplicable(UserFilterDto filters);
 
     Stream<User> apply(Stream<User> users, UserFilterDto filters);
+
     default boolean validateParameters(Stream<User> users, UserFilterDto filters) {
         return users != null && filters != null;
     }

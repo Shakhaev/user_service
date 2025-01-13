@@ -15,7 +15,7 @@ public class UserAboutFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        if (!validateParameters(users, filters)) {
+        if (!validateParameters(users, filters) || filters.getAboutPattern() == null) {
             return Stream.empty();
         }
         return users.filter(user -> user.getAboutMe() != null && user.getAboutMe()
