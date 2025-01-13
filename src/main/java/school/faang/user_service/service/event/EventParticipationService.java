@@ -24,4 +24,15 @@ public class EventParticipationService {
         }
     }
 
+    public void unregisterParticipant(long eventId, long userId) throws Exception{
+        try {
+            if(eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
+                    .anyMatch(user -> user.getId() == userId)){
+                eventParticipationRepository.unregister(eventId, userId);
+            }
+        }catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
 }
