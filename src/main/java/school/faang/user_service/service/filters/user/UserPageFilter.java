@@ -1,5 +1,6 @@
 package school.faang.user_service.service.filters.user;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -7,14 +8,15 @@ import school.faang.user_service.entity.User;
 import java.util.stream.Stream;
 
 @Component
-public class UserPageFilter implements UserFilter {
+public class UserPageFilter extends UserFilter {
+
     @Override
-    public boolean isApplicable(UserFilterDto filters) {
-        return filters.getPage() != null && filters.getPageSize() != null;
+    public Object getFilterFieldValue(UserFilterDto filters) {
+        return filters.getPage();
     }
 
     @Override
-    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+    public Stream<User> apply(@NotNull Stream<User> users, UserFilterDto filters) {
         return users.skip((long) filters.getPage() * filters.getPageSize());
     }
 }
