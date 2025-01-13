@@ -10,12 +10,18 @@ import java.util.stream.Stream;
 public class UserCountryFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getCountryPattern() != null;
+        return filters != null && filters.getCountryPattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getCountry().getTitle()
-                .toUpperCase().matches("(.*)%s(.*)".formatted(filters.getCountryPattern().toUpperCase())));
+        if (!validateParameters(users, filters)) {
+            return Stream.empty();
+        }
+
+        return users.filter(user -> user.getCountry() != null && user.getCountry().getTitle() != null
+                && user.getCountry().getTitle()
+                .toUpperCase()
+                .contains(filters.getCountryPattern().toUpperCase()));
     }
 }

@@ -10,12 +10,12 @@ import java.util.stream.Stream;
 public class UserPhoneFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getPhonePattern() != null;
+        return filters != null && filters.getPhonePattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getPhone()
-                .toUpperCase().matches("(.*)%s(.*)".formatted(filters.getPhonePattern().toUpperCase())));
+        return users.filter(user -> user.getPhone() != null && user.getPhone()
+                .toUpperCase().contains(filters.getPhonePattern().toUpperCase()));
     }
 }

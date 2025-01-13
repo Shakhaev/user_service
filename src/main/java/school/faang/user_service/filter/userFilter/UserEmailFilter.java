@@ -10,12 +10,16 @@ import java.util.stream.Stream;
 public class UserEmailFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getEmailPattern() != null;
+        return filters != null && filters.getEmailPattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getEmail()
-                .toUpperCase().matches("(.*)%s(.*)".formatted(filters.getEmailPattern().toUpperCase())));
+        if (!validateParameters(users, filters)) {
+            return Stream.empty();
+        }
+
+        return users.filter(user -> user.getEmail() != null && user.getEmail()
+                .toUpperCase().contains(filters.getEmailPattern().toUpperCase()));
     }
 }

@@ -10,15 +10,19 @@ import java.util.stream.Stream;
 public class UserContactFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getContactPattern() != null;
+        return filters != null && filters.getContactPattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getContacts().stream()
-                .anyMatch(contact -> contact.getContact()
+        if (!validateParameters(users, filters)) {
+            return Stream.empty();
+        }
+
+        return users.filter(user -> user.getContacts() != null && user.getContacts().stream()
+                .anyMatch(contact -> contact.getContact() != null && contact.getContact()
                         .toUpperCase()
-                        .matches("(.*)%s(.*)".formatted(filters.getContactPattern().toUpperCase())))
-                );
+                        .contains(filters.getContactPattern().toUpperCase()))
+        );
     }
 }

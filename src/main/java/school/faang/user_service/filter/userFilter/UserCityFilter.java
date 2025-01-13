@@ -10,12 +10,16 @@ import java.util.stream.Stream;
 public class UserCityFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getCityPattern() != null;
+        return filters != null && filters.getCityPattern() != null;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getCity()
-                .toUpperCase().matches("(.*)%s(.*)".formatted(filters.getCityPattern().toUpperCase())));
+        if (!validateParameters(users, filters)) {
+            return Stream.empty();
+        }
+
+        return users.filter(user -> user.getCity() != null && user.getCity()
+                .toUpperCase().contains(filters.getCityPattern().toUpperCase()));
     }
 }
