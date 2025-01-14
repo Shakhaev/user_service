@@ -1,11 +1,11 @@
 package school.faang.user_service.dto.recommendation;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
+@Data
 public class RecommendationDto {
     private Long id;
     private Long authorId;
