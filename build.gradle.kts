@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    jacoco
 }
 
 group = "faang.school"
@@ -83,6 +84,7 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -92,4 +94,52 @@ tasks.bootJar {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(
+        files(
+            fileTree("build/classes/java/main")
+                .exclude("**/entity/**")
+                .exclude("**/com/json/**")
+                .exclude("**/client/**")
+                .exclude("**/config/**")
+                .exclude("**/dto/**")
+                .exclude("**/mapper/**")
+        )
+    )
+
+    doLast {
+        val reportDir = file("${buildDir}/reports/jacoco/test/html")
+        val reportFile = file("$reportDir/index.html")
+
+        if (reportFile.exists()) {
+            println("Jacoco report generated: file://${reportFile.absolutePath}")
+        } else {
+            println("Jacoco report not found.")
+        }
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8.toBigDecimal()
+            }
+        }
+    }
 }
