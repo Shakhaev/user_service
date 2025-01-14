@@ -2,8 +2,10 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.leaderboard.LeaderboardDto;
 import school.faang.user_service.calculator.leaderboard.LeaderboardCalculator;
+import school.faang.user_service.dto.leaderboard.LeaderboardDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.LeaderboardMapper;
 import school.faang.user_service.repository.UserRepository;
 
@@ -33,7 +35,11 @@ public class LeaderboardService {
     }
 
     private List<LeaderboardDto> getLeaderboardsDto() {
-        return userRepository.findAll().stream()
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            throw new EntityNotFoundException("Пользователи не найдены");
+        }
+        return users.stream()
                 .map(leaderboardMapper::toDto)
                 .toList();
     }
