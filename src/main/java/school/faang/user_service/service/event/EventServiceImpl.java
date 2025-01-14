@@ -9,14 +9,12 @@ import school.faang.user_service.dto.event.EventFilters;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.exception.event.exceptions.EventNotFoundException;
 import school.faang.user_service.exception.event.exceptions.InsufficientSkillsException;
 import school.faang.user_service.redis.event.EventStartEvent;
 import school.faang.user_service.redis.publisher.EventStartEventPublisher;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.filters.EventFilter;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,35 +28,31 @@ import static school.faang.user_service.entity.event.EventStatus.PLANNED;
 @Slf4j
 @Service
 public class EventServiceImpl implements EventService {
-    private final EventRepository eventRepository;
-    private final UserRepository userRepository;
-    private final List<EventFilter> eventFilters;
     private final EventStartEventPublisher eventStartEventPublisher;
+    private final EventDomainService eventDomainService;
+    private final UserDomainService userDomainService;
+    private final List<EventFilter> eventFilters;
 
     @Override
     @Transactional
     public Event create(Event event) {
         log.info("Создание события с title: {}", event.getTitle());
         validateUserSkills(event);
-        return eventRepository.save(event);
+        return eventDomainService.save(event);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Event getEvent(Long eventId) {
         log.info("Поиск события с ID: {}", eventId);
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> {
-                    log.error("Событие с ID {} не найдено", eventId);
-                    return new EventNotFoundException(eventId);
-                });
+        return eventDomainService.findById(eventId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilters eventFilters) {
         log.info("Фильтрация событий по критериям: {}", eventFilters);
-        List<Event> events = eventRepository.findAll();
+        List<Event> events = eventDomainService.findAll();
 
         List<Event> filteredEvents = this.eventFilters.stream()
                 .filter(filter -> filter.isApplicable(eventFilters))
@@ -91,28 +85,28 @@ public class EventServiceImpl implements EventService {
         existingEvent.setType(event.getType());
         existingEvent.setStatus(event.getStatus());
 
-        return eventRepository.save(existingEvent);
+        return eventDomainService.save(existingEvent);
     }
 
     @Transactional(readOnly = true)
     public Integer getSubscribersCount(Event event) {
         Long ownerId = event.getOwner().getId();
         log.info("Получение количества подписчиков у пользователя с ID: {}", ownerId);
-        return userRepository.countFollowersByUserId(ownerId);
+        return userDomainService.countFollowersByUserId(ownerId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Event> getOwnedEvents(Long userId) {
         log.info("Получение событий, созданных пользователем с ID: {}", userId);
-        return eventRepository.findAllByUserId(userId);
+        return eventDomainService.findAllByUserId(userId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Event> getParticipatedEvents(Long userId) {
         log.info("Получение событий, в которых участвовал пользователь с ID: {}", userId);
-        return eventRepository.findParticipatedEventsByUserId(userId);
+        return eventDomainService.findParticipatedEventsByUserId(userId);
     }
 
     @Override
@@ -120,7 +114,7 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId) {
         log.info("Удаление события с ID: {}", eventId);
         try {
-            eventRepository.deleteById(eventId);
+            eventDomainService.deleteById(eventId);
             log.info("Событие с ID {} успешно удалено", eventId);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка удаления. Событие с ID {} не найдено", eventId);
@@ -131,14 +125,14 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void startEventsFromPeriod(LocalDateTime from, LocalDateTime to) {
-        List<Event> events = eventRepository.findAllByStatusAndStartDateBetween(PLANNED, from, to);
+        List<Event> events = eventDomainService.findAllByStatusAndStartDateBetween(PLANNED, from, to);
 
         events.stream()
                 .map(this::mapToEventStartEvent)
                 .forEach(eventStartEventPublisher::publish);
 
         events.forEach(event -> event.setStatus(IN_PROGRESS));
-        eventRepository.saveAll(events);
+        eventDomainService.saveAll(events);
     }
 
     private void validateUserSkills(Event event) {
@@ -153,11 +147,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private User loadUserById(Long id) {
-        log.info("Загрузка пользователя с ID: {}", id);
-        return userRepository.findById(id).orElseThrow(() -> {
-            log.error("Пользователь с ID {} не найден", id);
-            return new UserNotFoundException(id);
-        });
+        return userDomainService.findById(id);
     }
 
     private EventStartEvent mapToEventStartEvent(Event event) {

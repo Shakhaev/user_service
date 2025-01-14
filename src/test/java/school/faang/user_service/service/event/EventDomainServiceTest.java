@@ -75,4 +75,16 @@ class EventDomainServiceTest {
         assertThat(eventDomainService.findAllSortedByPromotedEventsPerPage(offset, limit).get(0))
                 .isInstanceOf(Event.class);
     }
+
+    @Test
+    void testFindAll_successful() {
+        List<Event> events = List.of(event);
+
+        when(eventRepository.findAll()).thenReturn(events);
+
+        assertThat(eventDomainService.findAll().get(0))
+                .isInstanceOf(Event.class);
+
+        verify(eventRepository).findAll();
+    }
 }
