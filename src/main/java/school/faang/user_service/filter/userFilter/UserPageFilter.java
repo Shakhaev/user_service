@@ -15,6 +15,9 @@ public class UserPageFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        if (users == null || filters == null) {
+            return Stream.empty();
+        }
         return users.limit((long) filters.getPageSize() * filters.getPage());
     }
 }
