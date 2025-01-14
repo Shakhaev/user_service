@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
-import school.faang.user_service.service.GoalInvitationServiceImpl;
+import school.faang.user_service.service.GoalInvitationService;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/invitation-goals")
 public class GoalInvitationController {
-    private final GoalInvitationServiceImpl service;
+    private final GoalInvitationService service;
 
     @PostMapping
     public void createInvitation(@RequestBody GoalInvitationDto invitation) {

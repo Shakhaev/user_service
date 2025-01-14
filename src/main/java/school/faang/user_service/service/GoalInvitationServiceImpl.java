@@ -29,11 +29,13 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final GoalRepository goalRepository;
     private final List<InvitationFilter> invitationFilters;
 
+    @Override
     public void createInvitation(GoalInvitationDto goalInvitationDto) {
         checkInvitationUsers(goalInvitationDto);
         goalInvitationRepository.save(mapper.toEntity(goalInvitationDto));
     }
 
+    @Override
     public void acceptGoalInvitation(long goalInvitationId) {
         GoalInvitation goalInvitation = findGoalInvitationById(goalInvitationId);
         long invitedUserId = goalInvitation.getInvited().getId();
@@ -44,6 +46,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         addNewGoal(goalId, invitedUser);
     }
 
+    @Override
     public void rejectGoalInvitation(long goalInvitationId) {
         GoalInvitation goalInvitation = findGoalInvitationById(goalInvitationId);
         long goalId = goalInvitation.getGoal().getId();
@@ -52,6 +55,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         goalInvitationRepository.save(goalInvitation);
     }
 
+    @Override
     public List<GoalInvitationDto> getInvitationsWithFilters(InvitationFilterDto filters) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
         for (InvitationFilter filter : invitationFilters) {
