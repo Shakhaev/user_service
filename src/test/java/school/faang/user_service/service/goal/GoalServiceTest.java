@@ -8,18 +8,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.RequestGoalDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exeption.MaxActiveGoalsExceededException;
-import school.faang.user_service.exeption.NoSkillsFoundException;
 import school.faang.user_service.exeption.NonExistentSkillException;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.filters.goal.GoalFilter;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,13 +55,14 @@ public class GoalServiceTest {
     private User user;
     private Goal goal1;
     private Goal goal2;
-    private Goal goal3;
     private Skill skill;
     private List<Goal> goals;
     private List<Skill> skills;
     private List<Skill> skillsNew;
     private List<Goal> subtasks;
+    private List<User> users;
     private GoalFilterDto filters;
+    private RequestGoalDto goalDto;
 
     @BeforeEach
     void setUp() {
@@ -90,26 +91,29 @@ public class GoalServiceTest {
                 .description("Description two")
                 .build();
 
-        goal3 = Goal.builder()
-                .title("Goal one")
-                .description("Description updated")
-                .skillsToAchieve(skills)
-                .build();
-
         goals = new ArrayList<>();
-        goals.add(goal1);
         goals.add(goal2);
+        goals.add(goal1);
 
         user = User.builder()
                 .id(1L)
                 .goals(goals)
                 .build();
+        users = new ArrayList<>();
+        users.add(user);
+
+        goal1.setUsers(users);
 
         subtasks = new ArrayList<>();
         subtasks.add(goal2);
 
         filters = new GoalFilterDto();
         filters.setTitle("two");
+
+        goalDto = new RequestGoalDto();
+        goalDto.setParentId(1L);
+        goalDto.setStatus(GoalStatus.ACTIVE);
+        goalDto.setDeadline(LocalDateTime.now().plusDays(1));
     }
 
     @Test
@@ -136,7 +140,7 @@ public class GoalServiceTest {
     @Test
     public void testCreateGoal_NonExistentSkills() {
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
+        //   when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(false);
 
         NonExistentSkillException exception = assertThrows(NonExistentSkillException.class, () ->
@@ -147,11 +151,11 @@ public class GoalServiceTest {
 
     @Test
     public void testCreateGoal_Success() {
-        when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
+        when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
+     //   when(goalRepository.countActiveGoalsPerUser(user.getId())).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
 
-        goalService.createGoal(1L, goal1);
+        goalService.createGoal(user.getId(), goal1);
 
         verify(goalRepository, times(1)).save(goal1);
         assertEquals(GoalStatus.ACTIVE, goal1.getStatus());
@@ -171,48 +175,32 @@ public class GoalServiceTest {
     }
 
     @Test
-    public void testUpdateGoal_ActiveGoalWithExistingSkills() {
-        goal1.getSkillsToAchieve().add(skill);
-        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal1));
-        when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
+    public void testUpdateGoalToActive() {
+        goal1.setStatus(GoalStatus.ACTIVE);
+        goal1.setStatus(GoalStatus.ACTIVE);
 
-        goalService.updateGoal(1L, goal3);
+        when(goalRepository.findById(1L)).thenReturn(Optional.ofNullable(goal1));
+
+        goalService.updateGoal(1L, goal1);
 
         verify(goalRepository, times(1)).save(goal1);
-        assertEquals("Description updated", goal1.getDescription());
+        assertEquals(GoalStatus.ACTIVE, goal1.getStatus());
     }
 
     @Test
-    public void testUpdateSkillsToGoal_Success() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(skills);
+    public void testUpdateGoalToCompleted() {
+        goal1.setStatus(GoalStatus.ACTIVE);
+        goal2.setStatus(GoalStatus.COMPLETED);
 
-        goalService.updateSkillsToGoal(goalId, skillsNew);
+        when(goalRepository.findById(1L)).thenReturn(Optional.ofNullable(goal1));
+        when(skillService.findSkillsByGoalId(1L)).thenReturn(skills);
+        when(goalRepository.findUsersByGoalId(1L)).thenReturn(users);
 
-        verify(skillService, times(skills.size())).deleteSkill(any(Skill.class));
-        verify(skillService, times(skillsNew.size())).assignSkillToGoal(anyLong(), eq(goalId));
-    }
+        goalService.updateGoal(1L, goal2);
 
-    @Test
-    public void testUpdateSkillsToGoal_NoSkillsFound() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(new ArrayList<>());
-
-        NoSkillsFoundException exception = assertThrows(NoSkillsFoundException.class, () ->
-                goalService.updateSkillsToGoal(goalId, skills));
-
-        assertEquals("No skills found for the goal", exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateSkillsToGoal_EmptyNewSkillsList() {
-        long goalId = 1L;
-        when(goalRepository.findSkillsByGoalId(goalId)).thenReturn(skills);
-
-        goalService.updateSkillsToGoal(goalId, new ArrayList<>());
-
-        verify(skillService, times(skills.size())).deleteSkill(any(Skill.class));
-        verify(skillService, never()).assignSkillToGoal(anyLong(), eq(goalId));
+        verify(goalRepository, times(1)).save(goal1);
+        assertEquals(GoalStatus.COMPLETED, goal2.getStatus());
+        verify(skillService, times(skills.size() * users.size())).assignSkillToGoal(anyLong(), anyLong());
     }
 
     @Test

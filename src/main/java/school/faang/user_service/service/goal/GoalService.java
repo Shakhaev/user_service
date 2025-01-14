@@ -11,9 +11,11 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exeption.InactiveGoalUpdateException;
 import school.faang.user_service.exeption.MaxActiveGoalsExceededException;
 import school.faang.user_service.exeption.NoSkillsFoundException;
 import school.faang.user_service.exeption.NonExistentSkillException;
+import school.faang.user_service.exeption.UnsupportedGoalStatusException;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.filters.goal.GoalFilter;
 import school.faang.user_service.service.skill.SkillService;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,15 +47,11 @@ public class GoalService {
 
         long numberOfActiveGoals = goalRepository
                 .countActiveGoalsPerUser(userId);
-        if (numberOfActiveGoals >= MAX_ACTIVE_GOALS) {
+        if (numberOfActiveGoals > MAX_ACTIVE_GOALS) {
             throw new MaxActiveGoalsExceededException("The user's number of active goals exceeds the maximum number");
         }
 
         existSkills(goal);
-
-        if (goal.getUsers() == null) {
-            goal.setUsers(new ArrayList<>());
-        }
 
         goal.getUsers().add(user);
         user.getGoals().add(goal);
@@ -65,24 +64,21 @@ public class GoalService {
     @Transactional
     public void updateGoal(Long goalId, Goal goal) {
         Goal existingGoal = getGoal(goalId);
-        goal.setId(goalId);
 
-        existSkills(goal);
+        GoalStatus newStatus = goal.getStatus();
 
-        if (existingGoal.getStatus().equals(GoalStatus.ACTIVE)) {
-            mapGoalToUpdate(goal, existingGoal);
-            goalRepository.save(existingGoal);
-
-        } else {
-            List<Skill> skillsToAchieve = skillService.findSkillsByGoalId(goalId);
-            List<User> users = userService.findAllUsers();
-
-            users.stream()
-                    .flatMap(user -> skillsToAchieve.stream()
-                            .map(skill -> new AbstractMap.SimpleEntry<>(skill, user)))
-                    .forEach(entry ->
-                            skillService.assignSkillToGoal(entry.getKey().getId(), entry.getValue().getId()));
+        switch (newStatus) {
+            case ACTIVE:
+                handleActiveStatus(goal, existingGoal);
+                break;
+            case COMPLETED:
+                handleCompletedStatus(goal, existingGoal, goalId);
+                break;
+            default:
+                throw new UnsupportedGoalStatusException("Unsupported status");
         }
+
+        goalRepository.save(existingGoal);
     }
 
     @Transactional
@@ -111,17 +107,6 @@ public class GoalService {
         return filterGoals(goals, filters);
     }
 
-    public List<Goal> filterGoals(List<Goal> goals, GoalFilterDto filters) {
-        Stream<Goal> streamSubtasks = goals.stream();
-
-        return goalFilters.stream()
-                .filter(filter -> filter
-                        .isApplicable(filters))
-                .reduce(streamSubtasks, (currentStream, filter) -> filter
-                        .apply(currentStream, filters), (s1, s2) -> s1)
-                .collect(Collectors.toList());
-    }
-
     public void updateSkillsToGoal(Long goalId, List<Skill> skills) {
         List<Skill> oldSkills = goalRepository
                 .findSkillsByGoalId(goalId);
@@ -136,7 +121,7 @@ public class GoalService {
         skillService.assignSkillToGoal(skillId, goalId);
     }
 
-    private static void mapGoalToUpdate(Goal goal, Goal existingGoal) {
+    private void mapGoalToUpdate(Goal goal, Goal existingGoal) {
         existingGoal.setParent(goal.getParent());
         existingGoal.setDescription(goal.getDescription());
         existingGoal.setStatus(goal.getStatus());
@@ -153,6 +138,39 @@ public class GoalService {
     private Goal getGoal(Long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
+    }
+
+    private void handleActiveStatus(Goal goal, Goal existingGoal) {
+        if (Objects.equals(existingGoal.getStatus(), GoalStatus.ACTIVE)) {
+            mapGoalToUpdate(goal, existingGoal);
+        } else {
+            throw new InactiveGoalUpdateException("Cannot update a goal that is not active");
+        }
+    }
+
+    private void handleCompletedStatus(Goal goal, Goal existingGoal, Long goalId) {
+        handleActiveStatus(goal, existingGoal);
+        existingGoal.setStatus(GoalStatus.COMPLETED);
+
+        List<Skill> skillsToAchieve = skillService.findSkillsByGoalId(goalId);
+        List<User> users = goalRepository.findUsersByGoalId(goalId);
+
+        users.stream()
+                .flatMap(user -> skillsToAchieve.stream()
+                        .map(skill -> new AbstractMap.SimpleEntry<>(skill, user)))
+                .forEach(entry ->
+                        skillService.assignSkillToGoal(entry.getKey().getId(), entry.getValue().getId()));
+    }
+
+    List<Goal> filterGoals(List<Goal> goals, GoalFilterDto filters) {
+        Stream<Goal> streamSubtasks = goals.stream();
+
+        return goalFilters.stream()
+                .filter(filter -> filter
+                        .isApplicable(filters))
+                .reduce(streamSubtasks, (currentStream, filter) -> filter
+                        .apply(currentStream, filters), (s1, s2) -> s1)
+                .collect(Collectors.toList());
     }
 
     private void existSkills(Goal goal) {
