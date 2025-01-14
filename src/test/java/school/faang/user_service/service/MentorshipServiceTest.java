@@ -4,13 +4,13 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,6 @@ import static org.mockito.Mockito.when;
 public class MentorshipServiceTest {
     @Mock
     private UserRepository repository;
-    @Mock
-    private UserMapper mapper;
     @InjectMocks
     private MentorshipService mentorshipService;
 
@@ -31,9 +29,9 @@ public class MentorshipServiceTest {
 
     @BeforeEach
     public void init() {
-        user = new User();
-        user.setId(1L);
-        user.setUsername("Bob");
+        UserMapper mapper = Mappers.getMapper(UserMapper.class);
+        mentorshipService = new MentorshipService(repository, mapper);
+        user = User.builder().id(1L).username("Bob").build();
     }
 
     @Test
