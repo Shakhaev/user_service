@@ -24,16 +24,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -140,7 +136,6 @@ public class GoalServiceTest {
     @Test
     public void testCreateGoal_NonExistentSkills() {
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        //   when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(false);
 
         NonExistentSkillException exception = assertThrows(NonExistentSkillException.class, () ->
@@ -152,7 +147,6 @@ public class GoalServiceTest {
     @Test
     public void testCreateGoal_Success() {
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
-     //   when(goalRepository.countActiveGoalsPerUser(user.getId())).thenReturn(2);
         when(skillService.skillExistsByTitle("Skill")).thenReturn(true);
 
         goalService.createGoal(user.getId(), goal1);
@@ -248,27 +242,6 @@ public class GoalServiceTest {
 
         assertEquals(mockGoals, result);
         verify(goalRepository, times(1)).findGoalsByUserId(userId);
-    }
-
-    @Test
-    public void testFilterGoals() {
-        List<Goal> goals = List.of(new Goal());
-        GoalFilterDto filters = new GoalFilterDto();
-
-        GoalFilter mockFilter = mock(GoalFilter.class);
-        when(mockFilter.isApplicable(filters)).thenReturn(true);
-        when(mockFilter.apply(any(Stream.class), eq(filters))).thenAnswer(invocation -> {
-            Stream<Goal> stream = invocation.getArgument(0);
-            return stream.filter(goal -> true);
-        });
-
-        when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
-
-        List<Goal> result = goalService.filterGoals(goals, filters);
-
-        assertEquals(goals, result);
-        verify(mockFilter, times(1)).isApplicable(filters);
-        verify(mockFilter, times(1)).apply(any(Stream.class), eq(filters));
     }
 
     @Test

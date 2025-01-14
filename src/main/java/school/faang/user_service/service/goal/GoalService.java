@@ -23,7 +23,6 @@ import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -162,7 +161,7 @@ public class GoalService {
                         skillService.assignSkillToGoal(entry.getKey().getId(), entry.getValue().getId()));
     }
 
-    List<Goal> filterGoals(List<Goal> goals, GoalFilterDto filters) {
+    private List<Goal> filterGoals(List<Goal> goals, GoalFilterDto filters) {
         Stream<Goal> streamSubtasks = goals.stream();
 
         return goalFilters.stream()
