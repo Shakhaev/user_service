@@ -6,33 +6,30 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.UserSupplier;
+import school.faang.user_service.service.TestData;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 class SubscriptionUserPageFilterTest {
     private SubscriptionUserFilterDto subscriptionUserFilterDto;
-    private SubscriptionUserPageFilter filter = new SubscriptionUserPageFilter();
-    private boolean isApplicableActual;
-    private boolean isApplicableExpected;
+    private final SubscriptionUserPageFilter filter = new SubscriptionUserPageFilter();
     private List<User> allUsers;
-    List<User> expectedUsers;
 
     @BeforeEach
     void setUp() {
-        allUsers = UserSupplier.getUsers();
+        allUsers = TestData.getUsers();
     }
 
     @Test
     @DisplayName("Test true applicability user filter by Page/PageSize")
     void isApplicableTest() {
-        isApplicableExpected = true;
+        boolean isApplicableExpected = true;
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
                 .page(1)
                 .pageSize(1)
                 .build();
-        isApplicableActual = filter.isApplicable(subscriptionUserFilterDto);
+        boolean isApplicableActual = filter.isApplicable(subscriptionUserFilterDto);
         Assertions.assertEquals(isApplicableExpected, isApplicableActual);
     }
 
@@ -59,7 +56,7 @@ class SubscriptionUserPageFilterTest {
         Stream<User> userStream = filter.apply(allUsers.stream(), subscriptionUserFilterDto);
         List<User> actualUsers = userStream.toList();
 
-        expectedUsers = allUsers.stream()
+        List<User> expectedUsers = allUsers.stream()
                 .filter(u -> u.getId() == 2L)
                 .toList();
 

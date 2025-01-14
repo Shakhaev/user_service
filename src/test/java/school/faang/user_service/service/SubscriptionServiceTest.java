@@ -13,8 +13,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.impl.SubscriptionServiceImpl;
 
-import static school.faang.user_service.exception.MessageError.USER_ALREADY_HAS_THIS_FOLLOWER;
-
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
     @Mock
@@ -42,7 +40,7 @@ public class SubscriptionServiceTest {
     @DisplayName("Follow By Himself")
     void testFollowUserByHimself() {
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followerId))
-                .thenThrow(new DataValidationException(USER_ALREADY_HAS_THIS_FOLLOWER));
+                .thenThrow(new DataValidationException("!!"));
         Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
     }
 

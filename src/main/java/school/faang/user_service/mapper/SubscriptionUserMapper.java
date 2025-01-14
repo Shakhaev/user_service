@@ -12,9 +12,9 @@ public interface SubscriptionUserMapper {
 
     SubscriptionUserDto toSubscriptionUserDto(User user);
 
-    List<SubscriptionUserDto> toSubscriptionUserDto(List<User> list);
+    List<SubscriptionUserDto> toSubscriptionUserDtos(List<User> users);
 
-    List<User> toUserEntity(List<SubscriptionUserDto> list);
+    List<User> toUserEntities(List<SubscriptionUserDto> SubscriptionUserDtos);
 }
 
 

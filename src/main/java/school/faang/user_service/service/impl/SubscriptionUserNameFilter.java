@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 public class SubscriptionUserNameFilter implements SubscriptionFilter {
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.getNamePattern() != null && !filter.getNamePattern().isEmpty();
+        return filter.namePattern() != null && !filter.namePattern().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
-        return users.filter(user -> user.getUsername().contains(filter.getNamePattern()));
+        return users.filter(user -> user.getUsername().contains(filter.namePattern()));
     }
 }

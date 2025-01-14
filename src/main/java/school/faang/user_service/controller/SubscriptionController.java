@@ -15,8 +15,6 @@ import school.faang.user_service.service.SubscriptionService;
 import java.util.List;
 
 import static java.lang.System.lineSeparator;
-import static school.faang.user_service.exception.MessageError.USER_CANNOT_FOLLOW_TO_HIMSELF;
-import static school.faang.user_service.exception.MessageError.USER_CANNOT_UNFOLLOW_FROM_HIMSELF;
 import static school.faang.user_service.utils.Constants.API_VERSION_1;
 
 @Slf4j
@@ -37,8 +35,8 @@ public class SubscriptionController {
                 followeeId);
 
         if (followerId == followeeId) {
-            log.error("Data validate exception: {}", USER_CANNOT_FOLLOW_TO_HIMSELF);
-            throw new DataValidationException(USER_CANNOT_FOLLOW_TO_HIMSELF);
+            log.error("User id={} cannot be follower of himself!", followerId);
+            throw new DataValidationException("User id=" + followerId + " cannot be follower of himself!");
         }
         subscriptionService.followUser(followerId, followeeId);
     }
@@ -51,27 +49,19 @@ public class SubscriptionController {
                 followerId,
                 followeeId);
         if (followerId == followeeId) {
-            log.error("Data validate exception: {}", USER_CANNOT_UNFOLLOW_FROM_HIMSELF);
-            throw new DataValidationException(USER_CANNOT_UNFOLLOW_FROM_HIMSELF);
+            log.error("User id={} cannot to unfollow of himself!", followerId);
+            throw new DataValidationException("User id=" + followerId + " cannot to unfollow of himself!");
         }
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
     @GetMapping("/followers")
     public List<SubscriptionUserDto> getFollowers(long followeeId, SubscriptionUserFilterDto filter) {
-        log.info("Recieved HTTP request [POST] {} with parameters {} followeeId = {}",
-                API_VERSION_1 + "/subscription/followers",
-                lineSeparator(),
-                followeeId);
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
     @GetMapping("/following")
     public List<SubscriptionUserDto> getFollowing(long followeeId, SubscriptionUserFilterDto filter) {
-        log.info("Recieved HTTP request [POST] {} with parameters {} followeeId = {}",
-                API_VERSION_1 + "/subscription/following",
-                lineSeparator(),
-                followeeId);
         return subscriptionService.getFollowing(followeeId, filter);
     }
 

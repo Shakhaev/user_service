@@ -1,8 +1,8 @@
 package school.faang.user_service.utils;
 
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor
+@UtilityClass
 public class Constants {
     public final static String API_VERSION_1 = "/api/v1";
 }

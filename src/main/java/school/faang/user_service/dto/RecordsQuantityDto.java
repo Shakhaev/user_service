@@ -1,8 +1,6 @@
 package school.faang.user_service.dto;
 
-import lombok.Value;
+import lombok.Builder;
 
-@Value
-public class RecordsQuantityDto {
-    private Integer quantity;
-}
+@Builder
+public record RecordsQuantityDto (Integer quantity) {}

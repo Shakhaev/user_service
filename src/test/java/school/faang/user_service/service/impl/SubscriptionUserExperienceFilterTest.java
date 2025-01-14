@@ -6,24 +6,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.UserSupplier;
+import school.faang.user_service.service.TestData;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SubscriptionUserExperienceFilterTest {
     private SubscriptionUserFilterDto subscriptionUserFilterDto;
-    private SubscriptionUserExperienceFilter filter = new SubscriptionUserExperienceFilter();
+    private final SubscriptionUserExperienceFilter filter = new SubscriptionUserExperienceFilter();
     private boolean isApplicableActual;
     private boolean isApplicableExpected;
     private List<User> users;
-    List<User> expectedUsers;
 
     @BeforeEach
     void setUp() {
-        users = UserSupplier.getUsers();
+        users = TestData.getUsers();
     }
 
     @Test
@@ -64,7 +61,7 @@ class SubscriptionUserExperienceFilterTest {
         Stream<User> userStream = filter.apply(users.stream(), subscriptionUserFilterDto);
         List<User> actualUsers = userStream.toList();
 
-        expectedUsers = users.stream()
+        List<User> expectedUsers = users.stream()
                 .filter(u -> (u.getId() == 2L || u.getId() == 3L))
                 .toList();
 

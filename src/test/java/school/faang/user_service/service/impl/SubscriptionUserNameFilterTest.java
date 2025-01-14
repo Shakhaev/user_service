@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.UserSupplier;
+import school.faang.user_service.service.TestData;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,7 +21,7 @@ class SubscriptionUserNameFilterTest {
 
     @BeforeEach
     void setUp() {
-        allUsers = UserSupplier.getUsers();
+        allUsers = TestData.getUsers();
     }
 
     @Test

@@ -21,8 +21,7 @@ class SubscriptionControllerTest {
     private SubscriptionServiceImpl subscriptionService;
     @InjectMocks
     private SubscriptionController subscriptionController;
-
-    SubscriptionUserFilterDto subscriptionUserEmptyFilterDto;
+    private SubscriptionUserFilterDto subscriptionUserEmptyFilterDto;
     private long followerId;
     private long followeeId;
 
