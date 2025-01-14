@@ -6,7 +6,7 @@ import school.faang.user_service.entity.User;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     User toEntity(UserDto userDto);

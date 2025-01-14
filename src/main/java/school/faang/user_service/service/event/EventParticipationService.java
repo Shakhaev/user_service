@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
@@ -9,6 +10,7 @@ import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
 
+@Service
 @Component
 @RequiredArgsConstructor
 public class EventParticipationService {
@@ -16,28 +18,27 @@ public class EventParticipationService {
     private final UserMapper userMapper;
 
 
-
     public void registerParticipant(long eventId, long userId) {
-        boolean isAlreadyRegister = eventParticipationRepository
-                .findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
-        if (isAlreadyRegister) {
+
+        if (isParticipantRegistered(eventId, userId)) {
             throw new IllegalArgumentException("The user is already a participant in the event! ");
         }
         eventParticipationRepository.register(eventId, userId);
     }
 
-    public void unregisterParticipant(long userId, long eventId) {
-        boolean isAlreadyUnregister = eventParticipationRepository
-                .findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
-        if (!isAlreadyUnregister) {
+    public void unregisterParticipant(long eventId, long userId) {
+
+        if (!isParticipantRegistered(eventId, userId)) {
             throw new IllegalArgumentException("The user was not found in this event! ");
         }
         eventParticipationRepository
                 .unregister(eventId, userId);
+    }
+
+    private boolean isParticipantRegistered(long eventId, long userId) {
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
+                .stream()
+                .anyMatch(user -> user.getId() == userId);
     }
 
     public List<UserDto> getParticipant(long eventId) {
@@ -47,6 +48,7 @@ public class EventParticipationService {
     }
 
     public int getParticipantsCount(long eventId) {
+
         return eventParticipationRepository.countParticipants(eventId);
     }
 }
