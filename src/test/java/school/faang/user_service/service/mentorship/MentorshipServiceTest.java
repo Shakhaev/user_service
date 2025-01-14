@@ -9,13 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.global.BadRequestException;
-import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +30,7 @@ class MentorshipServiceTest {
     private static final Long NOT_EXISTING_ID = 20L;
 
     @Mock
-    private UserRepository userRepository;
+    private UserDomainService userRepository;
 
     @Mock
     private MentorshipRepository mentorshipRepository;
@@ -98,8 +96,7 @@ class MentorshipServiceTest {
 
     @Test
     void testGetMentees() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
         var result = mentorshipService.getMentees(USER_ID);
 
@@ -111,22 +108,8 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testGetMenteesThrowsUserNotFoundException() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.empty());
-
-        var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.getMentees(USER_ID)
-        );
-
-        assertEquals(new UserNotFoundException(10L).getMessage(), result.getMessage());
-    }
-
-    @Test
     void testGetMentors() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
         var result = mentorshipService.getMentors(USER_ID);
 
@@ -138,22 +121,8 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testGetMentorsThrowsUserNotFoundException() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.empty());
-
-        var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.getMentors(USER_ID)
-        );
-
-        assertEquals(new UserNotFoundException(10L).getMessage(), result.getMessage());
-    }
-
-    @Test
     void deleteMentee() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
         mentorshipService.deleteMentee(MENTEE_ID, USER_ID);
 
@@ -162,39 +131,20 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testDeleteMenteeThrowsUserNotFoundExceptionIfUserNotFound() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.empty());
-
-        var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.deleteMentee(MENTEE_ID, USER_ID)
-        );
-
-        assertEquals(new UserNotFoundException(USER_ID).getMessage(), result.getMessage());
-    }
-
-    @Test
     void testDeleteMenteeThrowsUserNotFoundExceptionIfMenteeNotFoundInListOfMentees() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
-        var result = assertThrows(
-                BadRequestException.class,
-                () -> mentorshipService.deleteMentee(NOT_EXISTING_ID, USER_ID)
-        );
+        var result = assertThrows(BadRequestException.class, () ->
+                mentorshipService.deleteMentee(NOT_EXISTING_ID, USER_ID));
 
-        assertEquals(
-                String.format("User with id = [%d] is not a mentee of user with id = [%d].",
-                        NOT_EXISTING_ID, USER_ID),
-                result.getMessage()
+        assertEquals(String.format("User with id = [%d] is not a mentee of user with id = [%d].",
+                NOT_EXISTING_ID, USER_ID), result.getMessage()
         );
     }
 
     @Test
     void deleteMentor() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
         mentorshipService.deleteMentor(USER_ID, MENTOR_ID);
 
@@ -203,33 +153,14 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testDeleteMentorThrowsUserNotFoundExceptionIfUserNotFound() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.empty());
-
-        var result = assertThrows(
-                UserNotFoundException.class,
-                () -> mentorshipService.deleteMentor(USER_ID, MENTOR_ID)
-        );
-
-        assertEquals(new UserNotFoundException(USER_ID).getMessage(), result.getMessage());
-    }
-
-    @Test
     void testDeleteMentorThrowsUserNotFoundExceptionIfMentorNotFoundInListOfMentors() {
-        when(userRepository.findById(USER_ID))
-                .thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(USER_ID)).thenReturn(user);
 
-        var result = assertThrows(
-                BadRequestException.class,
-                () -> mentorshipService.deleteMentor(USER_ID, NOT_EXISTING_ID)
-        );
+        var result = assertThrows(BadRequestException.class, () ->
+                mentorshipService.deleteMentor(USER_ID, NOT_EXISTING_ID));
 
-        assertEquals(
-                String.format("User with id = [%d] is not a mentor of user with id = [%d].",
-                        NOT_EXISTING_ID, USER_ID),
-                result.getMessage()
-        );
+        assertEquals(String.format("User with id = [%d] is not a mentor of user with id = [%d].",
+                NOT_EXISTING_ID, USER_ID), result.getMessage());
     }
 
     @Test

@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.global.BadRequestException;
-import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,29 +16,29 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class MentorshipService {
-    private final UserRepository userRepository;
+    private final UserDomainService userDomainService;
     private final MentorshipRepository mentorshipRepository;
 
     public Collection<User> getMentees(@NonNull Long userId) {
-        var user = findById(userId);
+        var user = userDomainService.findById(userId);
         return user.getMentees();
     }
 
     public Collection<User> getMentors(@NonNull Long userId) {
-        var user = findById(userId);
+        var user = userDomainService.findById(userId);
         return user.getMentors();
     }
 
     @Transactional
     public void deleteMentee(@NotNull Long menteeId, @NotNull Long mentorId) {
-        var mentor = findById(mentorId);
+        var mentor = userDomainService.findById(mentorId);
         var mentee = checkMentorOrMentee(mentor.getMentees(), mentorId, menteeId, "mentee");
         mentorshipRepository.delete(mentee.getId(), mentorId);
     }
 
     @Transactional
     public void deleteMentor(@NonNull Long menteeId, @NonNull Long mentorId) {
-        var mentee = findById(menteeId);
+        var mentee = userDomainService.findById(menteeId);
         var mentor = checkMentorOrMentee(mentee.getMentors(), menteeId, mentorId, "mentor");
         mentorshipRepository.delete(menteeId, mentor.getId());
     }
@@ -55,11 +54,6 @@ public class MentorshipService {
         });
 
         mentorshipRepository.saveAll(mentees);
-    }
-
-    private User findById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private User checkMentorOrMentee(Collection<User> users, Long parentId, Long filteredId, String mentorship) {
