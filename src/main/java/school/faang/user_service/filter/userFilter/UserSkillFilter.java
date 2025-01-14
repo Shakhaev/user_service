@@ -15,6 +15,10 @@ public class UserSkillFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        if (users == null || filters == null || filters.getSkillPattern() == null) {
+            return Stream.empty();
+        }
+
         return users.filter(user -> user.getSkills() != null && user.getSkills().stream()
                 .anyMatch(skill -> skill.getTitle() != null && skill.getTitle()
                         .toUpperCase()
