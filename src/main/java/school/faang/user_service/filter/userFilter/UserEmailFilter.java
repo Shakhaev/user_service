@@ -15,7 +15,7 @@ public class UserEmailFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        if (!validateParameters(users, filters)) {
+        if (!validateParameters(users, filters) || filters.getEmailPattern() == null) {
             return Stream.empty();
         }
 
