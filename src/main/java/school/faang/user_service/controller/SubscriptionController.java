@@ -1,24 +1,23 @@
 package school.faang.user_service.controller;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.validator.SubscriptionValidator;
 
 import java.util.List;
 
-@Component
+@Controller
 public class SubscriptionController {
 
     private SubscriptionService subscriptionService;
+    private SubscriptionValidator subscriptionValidator;
     private UserDto userDto;
 
     public void followUser(long followerId, long followeeId) {
-        if (followerId == followeeId) {
-            throw new DataValidationException("You can't subscribe to yourself");
-        }
-
+        subscriptionValidator.validateFollowerAndFolloweeIds(followerId, followeeId);
         subscriptionService.followUser(followerId, followeeId);
     }
 

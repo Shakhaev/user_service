@@ -44,17 +44,25 @@ public class SubscriptionService {
 
     public List<User> filterUsers(Stream<User> users, UserFilterDto filter) {
         return users
-                .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
-                .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()))
-                .filter(user -> filter.getCountryPattern() == null || user.getCountry().getTitle().contains(filter.getCountryPattern()))
-                .filter(user -> filter.getAboutPattern() == null || user.getAboutMe().contains(filter.getAboutPattern()))
+                .filter(user -> filter.getNamePattern() == null
+                        || user.getUsername().contains(filter.getNamePattern()))
+                .filter(user -> filter.getEmailPattern() == null
+                        || user.getEmail().contains(filter.getEmailPattern()))
+                .filter(user -> filter.getCountryPattern() == null
+                        || user.getCountry().getTitle().contains(filter.getCountryPattern()))
+                .filter(user -> filter.getAboutPattern() == null
+                        || user.getAboutMe().contains(filter.getAboutPattern()))
                 .filter(user -> filter.getContactPattern() == null
                         || user.getContacts().stream()
-                        .anyMatch(contact -> contact.getContact().contains(filter.getContactPattern())))
-                .filter(user -> filter.getCityPattern() == null || user.getCity().contains(filter.getCityPattern()))
-                .filter(user -> filter.getPhonePattern() == null || user.getPhone().contains(filter.getPhonePattern()))
+                        .anyMatch(contact -> contact.getContact()
+                                .contains(filter.getContactPattern())))
+                .filter(user -> filter.getCityPattern() == null
+                        || user.getCity().contains(filter.getCityPattern()))
+                .filter(user -> filter.getPhonePattern() == null
+                        || user.getPhone().contains(filter.getPhonePattern()))
                 .filter(user -> filter.getSkillPattern() == null
-                        || user.getSkills().stream().anyMatch(skill -> skill.getTitle().contains(filter.getSkillPattern())))
+                        || user.getSkills().stream()
+                        .anyMatch(skill -> skill.getTitle().contains(filter.getSkillPattern())))
                 .filter(user -> filter.getExperienceMin() <= user.getExperience())
                 .filter(user -> filter.getExperienceMax() >= user.getExperience())
                 .skip((long) filter.getPage() * filter.getPageSize())
