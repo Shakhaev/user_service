@@ -15,7 +15,7 @@ public class UserCityFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        if (!validateParameters(users, filters)) {
+        if (!validateParameters(users, filters) || filters.getCityPattern() == null) {
             return Stream.empty();
         }
 
