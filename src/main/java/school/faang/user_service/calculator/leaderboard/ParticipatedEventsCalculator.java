@@ -1,7 +1,7 @@
-package school.faang.user_service.leaderboard;
+package school.faang.user_service.calculator.leaderboard;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.user.LeaderboardDto;
+import school.faang.user_service.dto.leaderboard.LeaderboardDto;
 
 @Component
 public class ParticipatedEventsCalculator implements LeaderboardCalculator {

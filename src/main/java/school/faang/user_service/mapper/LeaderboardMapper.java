@@ -3,7 +3,7 @@ package school.faang.user_service.mapper;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import school.faang.user_service.dto.user.LeaderboardDto;
+import school.faang.user_service.dto.leaderboard.LeaderboardDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public interface UserScoreMapper {
+public interface LeaderboardMapper {
 
     @Mapping(target = "userId", source = "id")
     @Mapping(target = "activityScore", expression = "java(0)")

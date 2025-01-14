@@ -8,13 +8,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.user.UserScoreDto;
+import school.faang.user_service.dto.leaderboard.LeaderboardDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.leaderboard.ScoreCalculator;
+import school.faang.user_service.calculator.leaderboard.LeaderboardCalculator;
 import school.faang.user_service.mapper.UserScoreMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-public class ScoreServiceTest {
+public class LeaderboardServiceTest {
 
     @Spy
     private UserScoreMapperImpl userScoreMapper;
@@ -33,10 +33,10 @@ public class ScoreServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private List<ScoreCalculator> scoreCalculators;
+    private List<LeaderboardCalculator> scoreCalculators;
 
     @InjectMocks
-    private ScoreService scoreService;
+    private LeaderboardService scoreService;
 
     private User user1;
     private User user2;
@@ -69,7 +69,7 @@ public class ScoreServiceTest {
     @Test
     public void testGetUsersLeaderboard() {
         Mockito.when(userRepository.findAll()).thenReturn(List.of(user1, user2));
-        List<UserScoreDto> leaderboard = scoreService.getUsersLeaderboard();
+        List<LeaderboardDto> leaderboard = scoreService.getUsersLeaderboard();
 
         assertEquals(2, leaderboard.size());
     }
