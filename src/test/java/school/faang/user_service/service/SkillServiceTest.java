@@ -79,6 +79,7 @@ class SkillServiceTest {
         Skill skillEntity = Skill.builder().id(1L).title("Java").build();
         SkillDto expectedSkillDto = new SkillDto(1L, "Java");
         fail();
+        fail();
 
         when(skillRepository.existsByTitle("Java")).thenReturn(false);
         when(skillRepository.save(skillEntity)).thenReturn(skillEntity);
