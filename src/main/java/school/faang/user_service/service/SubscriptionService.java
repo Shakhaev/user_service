@@ -139,16 +139,9 @@ public class SubscriptionService {
     }
 
     private List<UserDto> filterOnlyLimitsSkips(Stream<User> followers, UserFilterDto userFilterDto) {
-        List<User> filteredUsers = followers
+        return followers
                 .skip((long) userFilterDto.page() * userFilterDto.pageSize())
                 .limit(userFilterDto.pageSize())
-                .toList();
-
-        if (filteredUsers.isEmpty()) {
-            return List.of();
-        }
-
-        return filteredUsers.stream()
                 .map(userFollowingMapper::toDto)
                 .filter(Objects::nonNull)
                 .toList();
