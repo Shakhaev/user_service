@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
@@ -40,8 +41,13 @@ public class MentorshipService {
     }
 
     private void setGoals(User mentee, Goal goal) {
+        if (mentee.getGoals() == null) {
+            throw new DataValidationException("Цель не имеет привязанного списка пользователей");
+        }
         if (!mentee.getGoals().contains(goal)) {
             mentee.getGoals().add(goal);
+        }
+        if (goal.getUsers() != null && !goal.getUsers().contains(mentee)) {
             goal.getUsers().add(mentee);
         }
     }

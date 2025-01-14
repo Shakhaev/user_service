@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.stream.Stream;
@@ -20,11 +21,15 @@ public class GoalService {
         Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
 
         goals.forEach(goal -> {
-            if (goal.getUsers().size() <= 1) {
-                goalRepository.delete(goal);
-            } else if (goal.getStatus() == GoalStatus.ACTIVE) {
+            if (goal.getUsers() == null) {
+                throw new DataValidationException("Цель не имеет привязанного списка пользователей");
+            }
+            if (goal.getStatus() == GoalStatus.ACTIVE) {
                 goal.setStatus(GoalStatus.COMPLETED);
                 goalRepository.save(goal);
+            }
+            if (goal.getUsers().size() <= 1) {
+                goalRepository.delete(goal);
             } else {
                 throw new BusinessException("Цель имеет других участников и не может быть завершена.");
             }
