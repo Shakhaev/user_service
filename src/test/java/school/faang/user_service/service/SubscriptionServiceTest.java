@@ -13,6 +13,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.mapper.UserFollowingMapper;
+import school.faang.user_service.mapper.UserFollowingMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -37,7 +38,7 @@ class SubscriptionServiceTest {
     private SubscriptionRepository subscriptionRepository;
 
     @Spy
-    private UserFollowingMapper userFollowingMapper;
+    private final UserFollowingMapper mapper = new UserFollowingMapperImpl();
 
     private static final int RETURN_VALUE = 5;
 
@@ -50,15 +51,14 @@ class SubscriptionServiceTest {
                 0, 10, 0, 10);
 
         User user = generateUser();
+
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(user));
-        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(user.getId(), user.getUsername(), user.getEmail()));
 
         List<UserDto> result = subscriptionService.getFollowers(followerId, filterDto);
 
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).id());
         verify(subscriptionRepository).findByFollowerId(followerId);
-        verify(userFollowingMapper).toDto(user);
     }
 
     @Test
@@ -87,14 +87,12 @@ class SubscriptionServiceTest {
 
         User user = generateUser();
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(user));
-        when(userFollowingMapper.toDto(user)).thenReturn(new UserDto(user.getId(), user.getUsername(), user.getEmail()));
 
         List<UserDto> result = subscriptionService.getFollowees(followeeId, filterDto);
 
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).id());
         verify(subscriptionRepository).findByFolloweeId(followeeId);
-        verify(userFollowingMapper).toDto(user);
     }
 
     @Test
