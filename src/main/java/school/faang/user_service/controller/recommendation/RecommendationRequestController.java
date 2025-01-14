@@ -21,7 +21,7 @@ public class RecommendationRequestController {
 
     private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping(path = "/request", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RecommendationRequestDto> requestRecommendation(@Valid @RequestBody RecommendationRequestSaveDto recommendationRequest) {
         var recommendationRequestDto = recommendationRequestService.create(recommendationRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(recommendationRequestDto);
