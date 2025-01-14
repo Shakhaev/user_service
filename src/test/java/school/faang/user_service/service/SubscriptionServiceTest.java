@@ -37,7 +37,33 @@ class SubscriptionServiceTest {
 
     SubscriptionRepository subscriptionRepository = Mockito.mock(SubscriptionRepository.class);
     List<UserFilter> userFilters = new ArrayList<>();
+    UserFilter aboutFilter = Mockito.mock(UserAboutFilter.class);
+    UserFilter cityFilter = Mockito.mock(UserCityFilter.class);
+    UserFilter contactFilter = Mockito.mock(UserContactFilter.class);
+    UserFilter countryFilter = Mockito.mock(UserCountryFilter.class);
+    UserFilter emailFilter = Mockito.mock(UserEmailFilter.class);
+    UserFilter experienceMaxFilter = Mockito.mock(UserExperienceMaxFilter.class);
+    UserFilter experienceMinFilter = Mockito.mock(UserExperienceMinFilter.class);
+    UserFilter nameFilter = Mockito.mock(UserNameFilter.class);
+    UserFilter pageFilter = Mockito.mock(UserPageFilter.class);
+    UserFilter skillFilter = Mockito.mock(UserSkillFilter.class);
+    UserFilter phoneFilter = Mockito.mock(UserPhoneFilter.class);
     SubscriptionService subscriptionService = new SubscriptionService(subscriptionRepository, userFilters);
+
+    @BeforeEach
+    void mockUserFilters() {
+        userFilters.add(aboutFilter);
+        userFilters.add(cityFilter);
+        userFilters.add(contactFilter);
+        userFilters.add(countryFilter);
+        userFilters.add(emailFilter);
+        userFilters.add(experienceMaxFilter);
+        userFilters.add(experienceMinFilter);
+        userFilters.add(nameFilter);
+        userFilters.add(phoneFilter);
+        userFilters.add(skillFilter);
+        userFilters.add(pageFilter);
+    }
 
     @Test
     void followUser() {
@@ -72,395 +98,41 @@ class SubscriptionServiceTest {
     @Test
     void getFollowers() {
         Stream<User> mockedUsers = getMockedUsers(100);
-        setUserFilters();
         Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
                 .thenReturn(mockedUsers);
 
-
         UserFilterDto filters = getFilter();
+        Stream<User> getMockedStream = getMockedUsers(20);
+
+        Mockito.when(aboutFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(cityFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(contactFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(countryFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(emailFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(experienceMaxFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(experienceMinFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(nameFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(pageFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(phoneFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(skillFilter.isApplicable(filters)).thenReturn(true);
+
+        Mockito.when(aboutFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(cityFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(contactFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(countryFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(emailFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMaxFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMinFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(nameFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(skillFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(phoneFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(pageFilter.apply(mockedUsers,filters)).thenReturn(getMockedStream);
 
         List<User> users = subscriptionService.getFollowers(3L, filters);
         List<User> expectedUsers = getMockedUsers(20).toList();
+
         Assertions.assertTrue(expectedUsers.containsAll(users));
         Assertions.assertTrue(users.containsAll(expectedUsers));
-    }
-
-    @Test
-    void getFollowersWithoutFilters() {
-        Stream<User> mockedUsers = getMockedUsers(100);
-        setUserFilters();
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-
-        UserFilterDto filters = new UserFilterDto();
-
-        List<User> users = subscriptionService.getFollowers(3L, filters);
-        List<User> expectedUsers = getMockedUsers(100).toList();
-        Assertions.assertTrue(expectedUsers.containsAll(users));
-        Assertions.assertTrue(users.containsAll(expectedUsers));
-    }
-
-    @Test
-    void getFollowersWithNameFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .username("user%d".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setNamePattern("r1");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .username("user1")
-                        .build(),
-                User.builder()
-                        .username("user10")
-                        .build(),
-                User.builder()
-                        .username("user11")
-                        .build(),
-                User.builder()
-                        .username("user12")
-                        .build(),
-                User.builder()
-                        .username("user13")
-                        .build(),
-                User.builder()
-                        .username("user14")
-                        .build(),
-                User.builder()
-                        .username("user15")
-                        .build(),
-                User.builder()
-                        .username("user16")
-                        .build(),
-                User.builder()
-                        .username("user17")
-                        .build(),
-                User.builder()
-                        .username("user18")
-                        .build(),
-                User.builder()
-                        .username("user19")
-                        .build()
-        );
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithAboutFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .aboutMe("About user%d".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setAboutPattern("About user5");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .aboutMe("About user5")
-                        .build()
-        );
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithCityFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 21)
-                .boxed()
-                .map(i -> User.builder()
-                        .city("city%d".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setCityPattern("ty2");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .city("city2")
-                        .build(),
-                User.builder()
-                        .city("city20")
-                        .build()
-        );
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithContactFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .contacts(List.of(
-                                Contact.builder()
-                                        .contact("contact%d".formatted(i))
-                                        .build(),
-                                Contact.builder()
-                                        .contact("phone%d".formatted(i))
-                                        .build()
-                        ))
-                        .build());
-
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setContactPattern("phone8");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder().contacts(List.of(
-                        Contact.builder()
-                                .contact("contact8")
-                                .build(),
-                        Contact.builder()
-                                .contact("phone8")
-                                .build()
-                )).build()
-        );
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithCountryFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 21)
-                .boxed()
-                .map(i -> User.builder()
-                        .country(Country.builder().title("country%d".formatted(i)).build())
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setCountryPattern("try2");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .country(Country.builder()
-                                .title("country2")
-                                .build())
-                        .build(),
-                User.builder()
-                        .country(Country.builder()
-                                .title("country20")
-                                .build())
-                        .build()
-
-        );
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithEmailFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .email("user%d@gmail.com".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setEmailPattern("6@gmail.com");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .email("user6@gmail.com")
-                        .build(),
-                User.builder()
-                        .email("user16@gmail.com")
-                        .build()
-        );
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithExperienceMaxFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .experience(i)
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setExperienceMax(6);
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = IntStream.range(0, 7)
-                .boxed()
-                .map(i -> User.builder()
-                        .experience(i)
-                        .build())
-                .toList();
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithExperienceMinFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .experience(i)
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setExperienceMin(6);
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = IntStream.range(6, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .experience(i)
-                        .build())
-                .toList();
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithPageFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .username("user%d".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setPage(3);
-        filters.setPageSize(4);
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = IntStream.range(0, 12)
-                .boxed()
-                .map(i -> User.builder()
-                        .username("user%d".formatted(i))
-                        .build())
-                .toList();
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithPhoneFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .phone("+79558454%d".formatted(i))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setPhonePattern("543");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .phone("+795584543")
-                        .build()
-        );
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
-    }
-
-    @Test
-    void getFollowersWithSkillFilter() {
-        Stream<User> mockedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .skills(List.of(Skill.builder()
-                                .title("skill%d".formatted(i))
-                                .build()
-                        ))
-                        .build());
-        setUserFilters();
-
-        Mockito.when(subscriptionRepository.findByFollowerId(Mockito.anyLong()))
-                .thenReturn(mockedUsers);
-
-        UserFilterDto filters = new UserFilterDto();
-        filters.setSkillPattern("SKILL");
-
-        List<User> actualUsers = subscriptionService.getFollowers(3L, filters);
-
-        List<User> expectedUsers = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> User.builder()
-                        .skills(List.of(Skill.builder()
-                                .title("skill%d".formatted(i))
-                                .build()
-                        ))
-                        .build())
-                .toList();
-
-        Assertions.assertEquals(expectedUsers, actualUsers);
-        Mockito.verify(subscriptionRepository).findByFollowerId(Mockito.anyLong());
     }
 
     @Test
@@ -486,15 +158,38 @@ class SubscriptionServiceTest {
     @Test
     void getFollowing() {
         Stream<User> mockedUsers = getMockedUsers(100);
-        setUserFilters();
         Mockito.when(subscriptionRepository.findByFolloweeId(Mockito.anyLong()))
                 .thenReturn(mockedUsers);
 
         List<User> expectedUsers = getMockedUsers(20).toList();
+        Stream<User> getMockedStream = getMockedUsers(20);
+        UserFilterDto filters = getFilter();
 
-        UserFilterDto filter = getFilter();
+        Mockito.when(aboutFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(cityFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(contactFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(countryFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(emailFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(experienceMaxFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(experienceMinFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(nameFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(pageFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(phoneFilter.isApplicable(filters)).thenReturn(true);
+        Mockito.when(skillFilter.isApplicable(filters)).thenReturn(true);
 
-        List<User> users = subscriptionService.getFollowing(3L, filter);
+        Mockito.when(aboutFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(cityFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(contactFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(countryFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(emailFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMaxFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMinFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(nameFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(skillFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(phoneFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
+        Mockito.when(pageFilter.apply(mockedUsers,filters)).thenReturn(getMockedStream);
+
+        List<User> users = subscriptionService.getFollowing(3L, filters);
         Assertions.assertEquals(expectedUsers, users);
     }
 
@@ -516,21 +211,6 @@ class SubscriptionServiceTest {
         int actualCount = subscriptionService.getFollowingCount(3L);
         Assertions.assertEquals(expectedCount, actualCount);
         Mockito.verify(subscriptionRepository).findFolloweesAmountByFollowerId(3L);
-    }
-
-    @BeforeEach
-    public void setUserFilters() {
-        userFilters.add(new UserAboutFilter());
-        userFilters.add(new UserCityFilter());
-        userFilters.add(new UserContactFilter());
-        userFilters.add(new UserCountryFilter());
-        userFilters.add(new UserEmailFilter());
-        userFilters.add(new UserExperienceMinFilter());
-        userFilters.add(new UserExperienceMaxFilter());
-        userFilters.add(new UserNameFilter());
-        userFilters.add(new UserPhoneFilter());
-        userFilters.add(new UserSkillFilter());
-        userFilters.add(new UserPageFilter());
     }
 
     private Stream<User> getMockedUsers(int count) {
