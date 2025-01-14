@@ -2,6 +2,7 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.RequestGoalDto;
 import school.faang.user_service.dto.goal.ResponseGoalDto;
@@ -23,28 +24,7 @@ public interface GoalMapper {
 
     @Mapping(target = "parentId", source = "parent.id")
     @Mapping(target = "mentorId", source = "mentor.id")
-    @Mapping(target = "userIds", expression = "java(usersToUserIds(goal.getUsers()))")
-    @Mapping(target = "skillsToAchieveIds", expression = "java(skillsToSkillIds(goal.getSkillsToAchieve()))")
-    @Mapping(target = "invitationIds", expression = "java(invitationsToInvitationIds(goal.getInvitations()))")
     ResponseGoalDto toDto(Goal goal);
 
     List<ResponseGoalDto> toDto(List<Goal> list);
-
-    default List<Long> usersToUserIds(List<User> users) {
-        return users.stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-    }
-
-    default List<Long> invitationsToInvitationIds(List<GoalInvitation> invitations) {
-        return invitations.stream()
-                .map(GoalInvitation::getId)
-                .collect(Collectors.toList());
-    }
-
-    default List<Long> skillsToSkillIds(List<Skill> skills) {
-        return skills.stream()
-                .map(Skill::getId)
-                .collect(Collectors.toList());
-    }
 }
