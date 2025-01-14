@@ -7,19 +7,19 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class InvitedNameFilter implements InvitationFilter {
+public class InviterNameFilter implements InvitationFilter {
 
     @Override
     public boolean isApplicable(InvitationFilterDto filters) {
-        return filters.getInvitedNamePattern() != null && !filters.getInvitedNamePattern().isEmpty();
+        return filters.getInviterNamePattern() != null && !filters.getInviterNamePattern().isEmpty();
     }
 
     @Override
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterDto dto) {
-        return invitations.filter(invitation -> Optional.ofNullable(invitation.getInvited())
+        return invitations.filter(invitation -> Optional.ofNullable(invitation.getInviter())
                 .map(User::getUsername)
                 .orElse("")
-                .contains(Optional.ofNullable(dto.getInvitedNamePattern())
+                .contains(Optional.ofNullable(dto.getInviterNamePattern())
                         .orElse("")));
     }
 }
