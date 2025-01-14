@@ -15,7 +15,7 @@ public class UserCountryFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        if (!validateParameters(users, filters)) {
+        if (!validateParameters(users, filters) || filters.getCountryPattern() == null) {
             return Stream.empty();
         }
 
