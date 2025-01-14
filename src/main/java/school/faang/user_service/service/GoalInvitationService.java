@@ -37,9 +37,10 @@ public class GoalInvitationService {
         if (!isUserExists(whoInviterId) || !isUserExists(invitedId)) {
             throw new GoalInvitationException("User not found");
         }
-        var newInvitation = goalInvitationRepository.save(invitation);
-        log.info("New invitation to goal {} was created", newInvitation.getGoal().getTitle());
-        return newInvitation;
+
+        invitation.setStatus(RequestStatus.PENDING);
+        log.info("New invitation to goal {} was created", invitation.getGoal().getTitle());
+        return goalInvitationRepository.save(invitation);
     }
 
     public GoalInvitation acceptGoalInvitation(Long id) {
