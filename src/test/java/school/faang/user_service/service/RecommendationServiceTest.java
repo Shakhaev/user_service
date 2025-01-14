@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,6 @@ import school.faang.user_service.service.impl.RecommendationServiceImpl;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +43,6 @@ class RecommendationServiceTest {
     private static final int TEST_LIST_SIZE = 1;
     private static final String ERROR_MESSAGE_BLANK_CONTENT = "Recommendation content is blank";
     private static final String ERROR_MESSAGE_SKILLS_NOT_EXIST = "These skills do not exists in system";
-    private static final String ERROR_MESSAGE_RECOMMENDATION_NOT_FOUND = "No recommendation found with id: ";
 
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
@@ -79,7 +78,7 @@ class RecommendationServiceTest {
         RecommendationDto recommendationDto = prepareRecommendationWithSkills(false);
 
         // Act
-        DataValidationException exception = assertThrows(DataValidationException.class,
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> recommendationService.create(recommendationDto));
 
         // Assert
@@ -104,28 +103,10 @@ class RecommendationServiceTest {
         assertEquals(TEST_ID, result.getId());
     }
 
-    @Test
-    void deleteRecommendation_WhenNotFound_ShouldThrowException() {
-        // Arrange
-        when(recommendationRepository.findById(TEST_ID)).thenReturn(Optional.empty());
-
-        // Act
-        DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationService.delete(TEST_ID));
-
-        // Assert
-        assertEquals(ERROR_MESSAGE_RECOMMENDATION_NOT_FOUND + TEST_ID, exception.getMessage());
-    }
 
     @Test
     void deleteRecommendation_WhenExists_ShouldSucceed() {
-        // Arrange
-        Recommendation recommendation = Recommendation.builder()
-                .id(TEST_ID)
-                .build();
-        when(recommendationRepository.findById(TEST_ID)).thenReturn(Optional.of(recommendation));
-
-        // Act
+        // Arrange & Act
         recommendationService.delete(TEST_ID);
 
         // Assert

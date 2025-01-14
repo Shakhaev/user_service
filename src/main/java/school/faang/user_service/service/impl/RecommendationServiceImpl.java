@@ -1,5 +1,6 @@
 package school.faang.user_service.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,10 +58,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         return updated;
     }
 
-    @Override
     public void delete(Long recommendationId) {
-        recommendationRepository.findById(recommendationId)
-                .orElseThrow(() -> new DataValidationException("No recommendation found with id: " + recommendationId));
         recommendationRepository.deleteById(recommendationId);
     }
 
@@ -74,7 +72,9 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     private void saveSkillOffers(RecommendationDto recommendation) {
-        Optional.ofNullable(recommendation.getSkillOffers()).orElse(Collections.emptyList()).forEach(skillOffer -> {
+        Optional.ofNullable(recommendation.getSkillOffers())
+                .orElse(Collections.emptyList())
+                .forEach(skillOffer -> {
             createSkillOffer(recommendation, skillOffer);
             saveSkillWithGuarantee(recommendation, skillOffer);
         });
@@ -106,7 +106,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         if (!recommendation.getSkillOffers()
                 .stream()
                 .allMatch(skillOfferDto -> skillRepository.existsById(skillOfferDto.getSkillId()))) {
-            throw new DataValidationException("These skills do not exists in system");
+            throw new EntityNotFoundException("These skills do not exists in system");
         }
     }
 
@@ -116,7 +116,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                     if (lastRecommendation.getCreatedAt()
                             .plusMonths(LAST_RECOMMENDATION_PERIOD)
                             .isBefore(recommendation.getCreatedAt())) {
-                        throw new DataValidationException("Recommendation can only be given after 6 months.");
+                        throw new EntityNotFoundException("Recommendation can only be given after 6 months.");
                     }
                 });
     }
