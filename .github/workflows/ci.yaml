@@ -3,11 +3,11 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - dev
+      - chimera-dev
       - chimera-master-stream8
   pull_request:
     branches:
-      - dev
+      - chimera-dev
       - chimera-master-stream8
 
 jobs:
