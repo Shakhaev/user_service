@@ -8,6 +8,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.GoalInvitationException;
+import school.faang.user_service.filter.goal.InvitationFilter;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
@@ -23,6 +24,7 @@ public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
     private final UserRepository userRepository;
+    private final List<InvitationFilter> invitationFilters;
 
     public GoalInvitation createInvitation(GoalInvitation invitation) {
         Long whoInviterId = invitation.getInviter().getId();
@@ -67,14 +69,19 @@ public class GoalInvitationService {
 
     }
 
-//    public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
-//        List<GoalInvitation> invitations = goalInvitationRepository.findAll();
-//        if (invitations.isEmpty()) {
-//            throw new GoalInvitationException("No one goal invitation created");
-//        }
-//
-//
-//    }
+    public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
+        List<GoalInvitation> invitations = goalInvitationRepository.findAll();
+        if (invitations.isEmpty()) {
+            throw new NoSuchElementException("No one goal invitation created");
+        }
+        return invitationFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .flatMap(filter -> filter.apply(invitations.stream(), filters))
+                .toList();
+
+
+
+    }
 
     private boolean isGoalAlreadyContains(List<GoalInvitation> invitedUserGoals, Long id) {
         return invitedUserGoals.stream()
