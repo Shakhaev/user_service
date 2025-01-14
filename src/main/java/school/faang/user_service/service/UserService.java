@@ -1,23 +1,25 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.processor.UserDeactivationProcessor;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final UserDeactivationProcessor userDeactivationProcessor;
-
+    private final GoalService goalService;
+    private final EventService eventService;
+    private final MentorshipService mentorshipService;
     @Transactional
     public void deactivateUser(Long userId) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
 
-        userDeactivationProcessor.process(user);
+        mentorshipService.deactivateMentorship(user.getId());
+        goalService.deactivateGoalsByUser(user.getId());
+        eventService.deactivateEventsByUser(user.getId());
     }
 }

@@ -15,8 +15,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<String> deactivateUser(@RequestParam @NotNull Long userId) {
+    public String deactivateUser(@RequestParam @NotNull Long userId) {
         userService.deactivateUser(userId);
-        return ResponseEntity.ok("Пользователь успешно деактивирован");
+        return "Пользователь успешно деактивирован";
     }
 }
