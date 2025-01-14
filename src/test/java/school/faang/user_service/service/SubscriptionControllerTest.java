@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.SubscriptionController;
+import school.faang.user_service.exception.DataValidationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,7 +36,7 @@ public class SubscriptionControllerTest {
         long followerId = 11;
         long followeeId = 11;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        DataValidationException exception = assertThrows(DataValidationException.class, () ->
                 subscriptionController.followUser(followerId, followeeId)
         );
 

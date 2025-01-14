@@ -3,6 +3,7 @@ package school.faang.user_service.controller;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class SubscriptionController {
 
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new IllegalArgumentException("You can't subscribe to yourself");
+            throw new DataValidationException("You can't subscribe to yourself");
         }
 
         subscriptionService.followUser(followerId, followeeId);
@@ -23,7 +24,7 @@ public class SubscriptionController {
 
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new IllegalArgumentException("You can't unsubscribe from yourself");
+            throw new DataValidationException("You can't unsubscribe from yourself");
         }
 
         subscriptionService.unfollowUser(followerId, followeeId);

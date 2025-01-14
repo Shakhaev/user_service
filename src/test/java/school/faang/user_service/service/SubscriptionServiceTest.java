@@ -19,7 +19,11 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -152,7 +156,6 @@ public class SubscriptionServiceTest {
 
         List<UserDto> result = subscriptionService.getFollowers(followeeId, filter);
 
-        // Проверяем результат
         assertEquals(1, result.size());
         assertEquals("Alice", result.get(0).getUsername());
         assertEquals("alice@example.com", result.get(0).getEmail());

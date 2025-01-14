@@ -8,7 +8,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,8 +42,8 @@ public class SubscriptionService {
                 .collect(Collectors.toList());
     }
 
-    public List<User> filterUsers(Stream<User> followers, UserFilterDto filter) {
-        return followers
+    public List<User> filterUsers(Stream<User> users, UserFilterDto filter) {
+        return users
                 .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
                 .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()))
                 .filter(user -> filter.getCountryPattern() == null || user.getCountry().getTitle().contains(filter.getCountryPattern()))
