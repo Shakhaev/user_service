@@ -17,6 +17,7 @@ import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
+import school.faang.user_service.service.recommendation.SkillRequestService;
 import school.faang.user_service.service.recommendation.UserService;
 import school.faang.user_service.service.recommendation.util.RecommendationRequestFilter;
 
@@ -30,7 +31,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final UserService userService;
-    private final SkillRequestServiceImpl skillRequestService;
+    private final SkillRequestService skillRequestService;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final RecommendationRequestFilter recommendationRequestFilter;
 
