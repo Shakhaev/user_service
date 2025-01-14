@@ -1,7 +1,9 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -12,12 +14,14 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.UserWasNotFoundException;
+import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.mapper.UserFollowingMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -37,10 +41,14 @@ class SubscriptionServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Spy
-    private final UserFollowingMapper mapper = new UserFollowingMapperImpl();
-
     private static final int RETURN_VALUE = 5;
+
+    @BeforeEach
+    void setUp() {
+        List<UserFilter> filters = Collections.emptyList();
+        UserFollowingMapper userFollowingMapper = Mappers.getMapper(UserFollowingMapper.class);
+        subscriptionService = new SubscriptionService(userRepository, subscriptionRepository, userFollowingMapper, filters);
+    }
 
     @Test
     void getFollowers_ShouldReturnListOfFollowersWhenFollowersExist() {
