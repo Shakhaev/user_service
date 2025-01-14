@@ -13,8 +13,8 @@ import school.faang.user_service.exception.mentorship_request.EmptyMentorshipReq
 import school.faang.user_service.exception.mentorship_request.MentorshipRequestWasAcceptedBeforeException;
 import school.faang.user_service.exception.mentorship_request.NotEnoughTimeAfterLastRequestException;
 import school.faang.user_service.exception.mentorship_request.UserRequestToHimselfException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -33,7 +33,7 @@ class MentorshipRequestParametersCheckerTest {
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
-    private UserRepository userRepository;
+    private UserDomainService userDomainService;
 
     @InjectMocks
     private MentorshipRequestParametersChecker checker;
@@ -127,7 +127,7 @@ class MentorshipRequestParametersCheckerTest {
     }
 
     private void whenExistById(long id, boolean exist) {
-        lenient().when(userRepository
+        lenient().when(userDomainService
                         .existsById(id))
                 .thenReturn(exist);
     }

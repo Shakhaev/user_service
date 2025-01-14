@@ -10,8 +10,8 @@ import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.mentorship_request.MentorshipRequestNotFoundException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,9 +24,9 @@ import static school.faang.user_service.entity.RequestStatus.REJECTED;
 @RequiredArgsConstructor
 public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
-    private final List<RequestFilter> requestFilters;
     private final MentorshipRequestParametersChecker checker;
-    private final UserRepository userRepository;
+    private final List<RequestFilter> requestFilters;
+    private final UserDomainService userDomainService;
 
     @SendMentorshipRequestReceived
     @Transactional
@@ -56,7 +56,7 @@ public class MentorshipRequestService {
         User receiver = mentorshipRequest.getReceiver();
         checker.checkExistAcceptedRequest(requester.getId(), receiver.getId());
         requester.getMentors().add(receiver);
-        userRepository.save(requester);
+        userDomainService.save(requester);
         mentorshipRequest.setStatus(ACCEPTED);
         log.info("Request with id {} accepted", id);
         return mentorshipRequestRepository.save(mentorshipRequest);

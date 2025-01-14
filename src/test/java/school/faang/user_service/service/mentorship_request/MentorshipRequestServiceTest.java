@@ -13,8 +13,8 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.mentorship_request.MentorshipRequestNotFoundException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ class MentorshipRequestServiceTest {
     @Mock
     private MentorshipRequestParametersChecker checker;
     @Mock
-    private UserRepository userRepository;
+    private UserDomainService userDomainService;
 
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
@@ -137,7 +137,7 @@ class MentorshipRequestServiceTest {
                 .checkExistAcceptedRequest(user1.getId(), user2.getId());
         assertTrue(user1.getMentors().contains(user2));
         assertEquals(mentorshipRequest.getStatus(), ACCEPTED);
-        verify(userRepository, times(1))
+        verify(userDomainService, times(1))
                 .save(user1);
         verifySaveRequest(mentorshipRequest);
     }
