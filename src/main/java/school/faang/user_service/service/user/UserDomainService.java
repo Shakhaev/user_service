@@ -62,4 +62,9 @@ public class UserDomainService {
     public List<User> findAllSortedByPromotedUsersPerPage(Long offset, Long limit) {
         return userRepository.findAllSortedByPromotedUsersPerPage(offset, limit);
     }
+
+    @Transactional(readOnly = true)
+    public Integer countFollowersByUserId(Long ownerId) {
+        return userRepository.countFollowersByUserId(ownerId);
+    }
 }

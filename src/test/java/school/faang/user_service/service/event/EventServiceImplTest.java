@@ -13,16 +13,14 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.redis.event.EventStartEvent;
 import school.faang.user_service.redis.publisher.EventStartEventPublisher;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.filters.EventFilter;
 import school.faang.user_service.service.event.filters.EventLocationFilter;
 import school.faang.user_service.service.event.filters.EventTitleFilter;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,9 +35,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class EventServiceImplTest {
     @Mock
-    private EventRepository eventRepository;
+    private EventDomainService eventDomainService;
     @Mock
-    private UserRepository userRepository;
+    private UserDomainService userDomainService;
     @Mock
     private EventStartEventPublisher eventStartEventPublisher;
     @InjectMocks
@@ -86,13 +84,13 @@ public class EventServiceImplTest {
 
     @Test
     public void create_ShouldCreateEvent() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(eventRepository.save(any(Event.class))).thenReturn(event);
+        when(userDomainService.findById(1L)).thenReturn(user);
+        when(eventDomainService.save(any(Event.class))).thenReturn(event);
 
         Event result = eventServiceImpl.create(event);
 
-        verify(userRepository).findById(1L);
-        verify(eventRepository).save(event);
+        verify(userDomainService).findById(1L);
+        verify(eventDomainService).save(event);
 
         assertEquals(event.getTitle(), result.getTitle());
         assertEquals(event.getOwner(), result.getOwner());
@@ -101,11 +99,11 @@ public class EventServiceImplTest {
 
     @Test
     public void getEvent_ShouldReturnEvent_WhenEventExists() {
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
+        when(eventDomainService.findById(anyLong())).thenReturn(event);
 
         Event result = eventServiceImpl.getEvent(100L);
 
-        verify(eventRepository).findById(100L);
+        verify(eventDomainService).findById(100L);
 
         assertEquals(event.getId(), result.getId());
         assertEquals(event.getTitle(), result.getTitle());
@@ -115,15 +113,15 @@ public class EventServiceImplTest {
 
     @Test
     public void updateEvent_ShouldUpdateEvent() {
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(existingEvent));
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(eventRepository.save(any(Event.class))).thenReturn(existingEvent);
+        when(eventDomainService.findById(anyLong())).thenReturn(existingEvent);
+        when(userDomainService.findById(anyLong())).thenReturn(user);
+        when(eventDomainService.save(any(Event.class))).thenReturn(existingEvent);
 
         Event result = eventServiceImpl.updateEvent(event);
 
-        verify(eventRepository).findById(100L);
-        verify(userRepository).findById(1L);
-        verify(eventRepository).save(existingEvent);
+        verify(eventDomainService).findById(100L);
+        verify(userDomainService).findById(1L);
+        verify(eventDomainService).save(existingEvent);
 
         assertEquals(existingEvent.getTitle(), result.getTitle());
         assertEquals(existingEvent.getOwner(), result.getOwner());
@@ -132,15 +130,15 @@ public class EventServiceImplTest {
 
     @Test
     public void getEventsByFilter_WithRealFilters_ShouldReturnFilteredEvents() {
-        when(eventRepository.findAll()).thenReturn(Arrays.asList(event, existingEvent));
+        when(eventDomainService.findAll()).thenReturn(Arrays.asList(event, existingEvent));
 
         EventLocationFilter locationFilter = new EventLocationFilter();
         EventTitleFilter titleFilter = new EventTitleFilter();
 
         List<EventFilter> realFilters = Arrays.asList(locationFilter, titleFilter);
 
-        eventServiceImpl = new EventServiceImpl(
-                eventRepository, userRepository, realFilters, eventStartEventPublisher);
+        eventServiceImpl = new EventServiceImpl(eventStartEventPublisher, eventDomainService, userDomainService,
+                realFilters);
 
         EventFilters filters = new EventFilters();
         filters.setTitle("Java");
@@ -153,7 +151,7 @@ public class EventServiceImplTest {
 
     @Test
     public void getOwnedEvents_ShouldReturnEventsCreatedByUser() {
-        when(eventRepository.findAllByUserId(anyLong())).thenReturn(Arrays.asList(event, otherEvent));
+        when(eventDomainService.findAllByUserId(anyLong())).thenReturn(Arrays.asList(event, otherEvent));
 
         List<Event> result = eventServiceImpl.getOwnedEvents(user.getId());
 
@@ -161,12 +159,12 @@ public class EventServiceImplTest {
         assertEquals("Webinar Java", result.get(0).getTitle());
         assertEquals("Webinar Spring", result.get(1).getTitle());
 
-        verify(eventRepository).findAllByUserId(user.getId());
+        verify(eventDomainService).findAllByUserId(user.getId());
     }
 
     @Test
     public void getParticipatedEvents_ShouldReturnEventsUserParticipatedIn() {
-        when(eventRepository.findParticipatedEventsByUserId(anyLong())).thenReturn(Arrays.asList(event, otherEvent));
+        when(eventDomainService.findParticipatedEventsByUserId(anyLong())).thenReturn(Arrays.asList(event, otherEvent));
 
         List<Event> result = eventServiceImpl.getParticipatedEvents(user.getId());
 
@@ -174,16 +172,16 @@ public class EventServiceImplTest {
         assertEquals("Webinar Java", result.get(0).getTitle());
         assertEquals("Webinar Spring", result.get(1).getTitle());
 
-        verify(eventRepository).findParticipatedEventsByUserId(user.getId());
+        verify(eventDomainService).findParticipatedEventsByUserId(user.getId());
     }
 
     @Test
     public void deleteEvent_ShouldDeleteEvent() {
-        doNothing().when(eventRepository).deleteById(anyLong());
+        doNothing().when(eventDomainService).deleteById(anyLong());
 
         eventServiceImpl.deleteEvent(1L);
 
-        verify(eventRepository, times(1)).deleteById(1L);
+        verify(eventDomainService, times(1)).deleteById(1L);
     }
 
     @Test
@@ -196,10 +194,10 @@ public class EventServiceImplTest {
         otherEvent.setAttendees(List.of(
                 User.builder().id(1L).build()));
 
-        when(eventRepository.findAllByStatusAndStartDateBetween(any(EventStatus.class), eq(from), eq(to)))
+        when(eventDomainService.findAllByStatusAndStartDateBetween(any(EventStatus.class), eq(from), eq(to)))
                 .thenReturn(Arrays.asList(event, otherEvent));
         doNothing().when(eventStartEventPublisher).publish(any(EventStartEvent.class));
-        when(eventRepository.saveAll(anyList())).thenReturn(Arrays.asList(event, otherEvent));
+        when(eventDomainService.saveAll(anyList())).thenReturn(Arrays.asList(event, otherEvent));
 
         eventServiceImpl.startEventsFromPeriod(from, to);
 
