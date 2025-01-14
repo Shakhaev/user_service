@@ -1,0 +1,14 @@
+package school.faang.user_service.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.service.PremiumService;
+
+@Service
+@RequiredArgsConstructor
+public class PremiumServiceImpl implements PremiumService {
+    @Override
+    public Object buyPremium(Integer days) {
+        return null;
+    }
+}
