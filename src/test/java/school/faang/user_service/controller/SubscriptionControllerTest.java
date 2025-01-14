@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.subscription;
+package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.subscription.FollowRequestDto;
-import school.faang.user_service.service.subscription.SubscriptionService;
+import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 

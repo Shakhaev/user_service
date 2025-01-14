@@ -1,4 +1,4 @@
-package school.faang.user_service.service.subscription;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +35,6 @@ class SubscriptionServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Spy
-    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
-
     private SubscriptionService subscriptionService;
 
     private FollowRequestDto followRequestDto;
@@ -60,6 +57,8 @@ class SubscriptionServiceTest {
         userFilters.add(new UserSkillFilter());
         userFilters.add(new UserExperienceMinFilter());
         userFilters.add(new UserExperienceMaxFilter());
+
+        UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
         subscriptionService = new SubscriptionService(subscriptionRepository, userFilters, userMapper);
     }
@@ -118,11 +117,9 @@ class SubscriptionServiceTest {
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("user1");
-        UserDto userDto1 = userMapper.toDto(user1);
         UserFilterDto filters = new UserFilterDto();
         Stream<User> userStream = Stream.of(user1);
         when(subscriptionRepository.findFollowersByUserId(1L)).thenReturn(userStream);
-        when(userMapper.toDto(user1)).thenReturn(userDto1);
 
         List<UserDto> followers = subscriptionService.getFollowers(1L, filters);
 
@@ -144,11 +141,9 @@ class SubscriptionServiceTest {
         User user2 = new User();
         user2.setId(2L);
         user2.setUsername("user2");
-        UserDto userDto2 = userMapper.toDto(user2);
         UserFilterDto filters = new UserFilterDto();
         Stream<User> userStream = Stream.of(user2);
         when(subscriptionRepository.findFolloweesByUserId(1L)).thenReturn(userStream);
-        when(userMapper.toDto(user2)).thenReturn(userDto2);
 
         List<UserDto> following = subscriptionService.getFollowing(1L, filters);
 

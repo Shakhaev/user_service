@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.subscription;
+package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.subscription.FollowRequestDto;
-import school.faang.user_service.service.subscription.SubscriptionService;
+import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 
