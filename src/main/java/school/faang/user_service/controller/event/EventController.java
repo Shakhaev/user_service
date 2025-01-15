@@ -7,7 +7,8 @@ import school.faang.user_service.dto.event.EventFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.utility.validator.AbstractDataValidator;
+import school.faang.user_service.utility.validator.impl.EventDtoValidator;
+import school.faang.user_service.utility.validator.impl.EventFiltersDtoValidator;
 
 import java.util.List;
 
@@ -15,8 +16,8 @@ import java.util.List;
 @RestController
 public class EventController {
     private final EventService eventService;
-    private final AbstractDataValidator<EventDto> eventDtoValidator;
-    private final AbstractDataValidator<EventFiltersDto> eventFilterValidator;
+    private final EventDtoValidator eventDtoValidator;
+    private final EventFiltersDtoValidator eventFilterValidator;
     private final EventMapper eventMapper;
 
     public EventDto create(EventDto eventDto) {
