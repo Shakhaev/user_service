@@ -1,5 +1,6 @@
 package school.faang.user_service.filter.goal;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
@@ -7,6 +8,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Component
 public class InvitedNameFilter implements InvitationFilter {
 
     @Override
