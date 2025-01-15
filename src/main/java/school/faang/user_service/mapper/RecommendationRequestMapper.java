@@ -14,8 +14,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RecommendationRequestMapper {
 
-    @Mapping(target = "receiver", source = "receiver")
-    @Mapping(target = "requester", source = "requester")
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
