@@ -6,16 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class EventTitleContainingFilterTest {
@@ -23,13 +19,13 @@ class EventTitleContainingFilterTest {
     EventTitleContainingFilter titleFilter;
 
     @Test
-    void shouldNotApplyWhenNoSkillsSet() {
+    void isApplicable_ShouldNotApplyWhenNoSkillsSet() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         Assertions.assertFalse(titleFilter.isApplicable(eventFilterDto));
     }
 
     @Test
-    void shouldCorrectlyFilter() {
+    void apply_ShouldCorrectlyFilter() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         eventFilterDto.setTitle("Title");
 

@@ -20,13 +20,13 @@ class EventStartDateFilterTest {
     EventStartDateFilter dateFilter;
 
     @Test
-    void shouldNotApplyWhenNoSkillsSet() {
+    void isApplicable_ShouldNotApplyWhenNoSkillsSet() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         Assertions.assertFalse(dateFilter.isApplicable(eventFilterDto));
     }
 
     @Test
-    void shouldCorrectlyFilter() {
+    void apply_ShouldCorrectlyFilter() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         LocalDateTime filterDate = LocalDateTime.of(2000, 11, 30, 12, 30, 30);
         eventFilterDto.setStartDate(filterDate);

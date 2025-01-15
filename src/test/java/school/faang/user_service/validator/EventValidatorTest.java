@@ -8,11 +8,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.SkillService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,36 +24,42 @@ class EventValidatorTest {
     @InjectMocks
     private EventValidator eventValidator;
     @Mock
-    private UserService userService;
+    private SkillService skillService;
 
     @Test
-    void shouldThrowOnCreatorWithoutNecessarySkills() {
-        UserDto userDto = new UserDto();
-        userDto.setSkillsIds(List.of());
-        Mockito.when(userService.findUserById(Mockito.anyLong())).thenReturn(userDto);
+    void validateCreatorSkills_ShouldThrowWithoutNecessarySkills() {
+        SkillDto skill = new SkillDto();
+        skill.setId(1L);
+        Mockito.when(skillService.findSkillsByUserId(Mockito.anyLong()))
+                .thenReturn(List.of(skill));
 
         EventCreateDto eventCreateDto = new EventCreateDto();
         eventCreateDto.setOwnerId(1L);
         eventCreateDto.setRelatedSkillsIds(List.of(2L, 3L));
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventValidator.validateEventCreatorSkills(eventCreateDto));
+        Assertions.assertThrows(DataValidationException.class, () -> eventValidator.validateCreatorSkills(eventCreateDto));
     }
 
     @Test
-    void shouldNotThrowWithCorrectCreatorSkills() {
-        UserDto userDto = new UserDto();
-        userDto.setSkillsIds(List.of(1L, 2L, 3L));
-        Mockito.when(userService.findUserById(Mockito.anyLong())).thenReturn(userDto);
+    void validateCreatorSkills_ShouldNotThrowWithCorrectCreatorSkills() {
+        SkillDto skill = new SkillDto();
+        skill.setId(1L);
+        SkillDto skill1 = new SkillDto();
+        skill1.setId(2L);
+        SkillDto skill2 = new SkillDto();
+        skill2.setId(3L);
+        Mockito.when(skillService.findSkillsByUserId(Mockito.anyLong()))
+                .thenReturn(List.of(skill, skill2, skill1));
 
         EventCreateDto EventCreateDto = new EventCreateDto();
         EventCreateDto.setOwnerId(1L);
         EventCreateDto.setRelatedSkillsIds(List.of(1L, 2L));
 
-        Assertions.assertDoesNotThrow(() -> eventValidator.validateEventCreatorSkills(EventCreateDto));
+        Assertions.assertDoesNotThrow(() -> eventValidator.validateCreatorSkills(EventCreateDto));
     }
 
     @Test
-    void shouldThrowWithBlankTitle() {
+    void validateEventInfo_ShouldThrowWithBlankTitle() {
         EventCreateDto event = new EventCreateDto();
         event.setTitle(" \n\t ");
         Assertions.assertThrows(DataValidationException.class,
@@ -61,14 +67,14 @@ class EventValidatorTest {
     }
 
     @Test
-    void shouldThrowWithNullTitle() {
+    void validateEventInfo_ShouldThrowWithNullTitle() {
         EventCreateDto event = new EventCreateDto();
         Assertions.assertThrows(DataValidationException.class,
                 () -> eventValidator.validateEventInfo(eventMapper.fromCreateDtoToEntity(event)));
     }
 
     @Test
-    void shouldThrowWithNullDate() {
+    void validateEventInfo_ShouldThrowWithNullDate() {
         EventCreateDto event = new EventCreateDto();
         event.setTitle("title");
         Assertions.assertThrows(DataValidationException.class,
@@ -76,7 +82,7 @@ class EventValidatorTest {
     }
     
     @Test
-    void shouldNotThrowWithCorrectEvent() {
+    void validateEventInfo_ShouldNotThrowWithCorrectEvent() {
         EventCreateDto event = new EventCreateDto();
         event.setTitle("title");
         event.setStartDate(LocalDateTime.now());

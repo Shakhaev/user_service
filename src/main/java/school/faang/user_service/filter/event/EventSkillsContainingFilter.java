@@ -1,5 +1,6 @@
 package school.faang.user_service.filter.event;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 public class EventSkillsContainingFilter implements EventFilter {
 
     @Override

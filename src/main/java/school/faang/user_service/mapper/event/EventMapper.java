@@ -12,6 +12,7 @@ import school.faang.user_service.entity.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
@@ -26,7 +27,7 @@ public interface EventMapper {
     @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
     Event fromUpdateDtoToEntity(EventUpdateDto eventUpdateDto);
 
-    //@Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
     void update(@MappingTarget Event entity, EventUpdateDto eventUpdateDto);
 
     default List<Long> mapSkillsToIds(List<Skill> relatedSkills) {
@@ -43,6 +44,6 @@ public interface EventMapper {
                     Skill skill = new Skill();
                     skill.setId(id);
                     return skill;
-                }).toList();
+                }).collect(Collectors.toCollection(ArrayList::new));
     }
 }

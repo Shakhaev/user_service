@@ -19,21 +19,21 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/events")
+@RequestMapping("/events")
 public class EventController {
     private final EventService eventService;
 
-    @PostMapping("/create")
-    public EventForClientDto create(@RequestBody EventCreateDto eventDto) {
-        return eventService.create(eventDto);
+    @PostMapping("/create-event")
+    public EventForClientDto createEvent(@RequestBody EventCreateDto eventDto) {
+        return eventService.createEvent(eventDto);
     }
 
-    @GetMapping("/get-by-id")
+    @GetMapping("/get-event-by-id")
     public EventForClientDto getEvent(@RequestParam long id) {
         return eventService.getEvent(id);
     }
 
-    @GetMapping("/get-by-filter")
+    @GetMapping("/get-events-by-filter")
     public List<EventForClientDto> getEventsByFilter(@RequestBody EventFilterDto eventFilterDto) {
         return eventService.getEventsByFilter(eventFilterDto);
     }

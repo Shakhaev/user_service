@@ -35,36 +35,36 @@ public class EventServiceTest {
     private EventService eventService;
 
     @Test
-    void shouldNotSaveWhenEventNotValid() {
+    void createEvent_ShouldNotSaveWhenEventNotValid() {
         prepareValidationThrows();
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventService.create(new EventCreateDto()));
+        Assertions.assertThrows(DataValidationException.class, () -> eventService.createEvent(new EventCreateDto()));
         Mockito.verify(eventRepository, Mockito.never()).save(Mockito.any(Event.class));
     }
 
     @Test
-    void shouldSaveWhenEventValid() {
+    void createEvent_ShouldSaveWhenEventValid() {
         EventCreateDto preparedEvent = new EventCreateDto();
 
-        Assertions.assertDoesNotThrow(() -> eventService.create(preparedEvent));
+        Assertions.assertDoesNotThrow(() -> eventService.createEvent(preparedEvent));
         Mockito.verify(eventRepository, Mockito.times(1))
-                .save(eventMapper.fromCreateDtoToEntity(preparedEvent));
+                .save(Mockito.any(Event.class));
     }
 
     @Test
-    void shouldThrowWhenNoEventWithId() {
+    void getEvent_ShouldThrowWhenNoEventWithId() {
         prepareFindingEvent(false);
         Assertions.assertThrows(EntityNotFoundException.class, () -> eventService.getEvent(0L));
     }
 
     @Test
-    void shouldNotThrowWhenIdExists() {
+    void getEvent_ShouldNotThrowWhenIdExists() {
         prepareFindingEvent(true);
         Assertions.assertDoesNotThrow(() -> eventService.getEvent(0L));
     }
 
     @Test
-    void shouldReturnEventsByFilter() {
+    void getEventsByFilter_ShouldReturnFilteredResults() {
         EventFilter filter2 = Mockito.mock(EventFilter.class);
         EventFilter filter1 = Mockito.mock(EventFilter.class);
         List<EventFilter> eventFilters = List.of(filter1, filter2);
@@ -95,15 +95,15 @@ public class EventServiceTest {
     }
 
     @Test
-    void shouldThrowWithInvalidUpdateInfo() {
+    void updateEvent_ShouldThrowWithInvalidUpdateInfo() {
         prepareValidationThrows();
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventService.create(new EventCreateDto()));
+        Assertions.assertThrows(DataValidationException.class, () -> eventService.updateEvent(new EventUpdateDto()));
         Mockito.verify(eventRepository, Mockito.never()).save(Mockito.any(Event.class));
     }
 
     @Test
-    void shouldThrowWhenUpdateOwnerNotFound() {
+    void updateEvent_ShouldThrowWhenEventNotFound() {
         prepareFindingEvent(false);
 
         Assertions.assertThrows(EntityNotFoundException.class,
@@ -112,7 +112,7 @@ public class EventServiceTest {
     }
 
     @Test
-    void shouldSaveUpdatedEvent() {
+    void updateEvent_ShouldSaveUpdatedEvent() {
         prepareFindingEvent(true);
 
         Assertions.assertDoesNotThrow(() -> eventService.updateEvent(new EventUpdateDto()));

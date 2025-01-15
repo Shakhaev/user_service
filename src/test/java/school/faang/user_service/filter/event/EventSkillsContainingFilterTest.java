@@ -21,13 +21,13 @@ class EventSkillsContainingFilterTest {
     EventSkillsContainingFilter skillsFilter;
 
     @Test
-    void shouldNotApplyWhenNoSkillsSet() {
+    void isApplicable_ShouldNotApplyWhenNoSkillsSet() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         Assertions.assertFalse(skillsFilter.isApplicable(eventFilterDto));
     }
 
     @Test
-    void shouldCorrectlyFilter() {
+    void apply_ShouldCorrectlyFilter() {
         EventFilterDto eventFilterDto = new EventFilterDto();
         eventFilterDto.setRelatedSkillsIds(List.of(1L, 2L));
         Skill s1 = new Skill();
