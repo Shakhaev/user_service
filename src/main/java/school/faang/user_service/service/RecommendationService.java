@@ -5,8 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
@@ -72,7 +70,7 @@ public class RecommendationService {
                 .findAllByReceiverId(receiverId, Pageable.unpaged());
         List<Recommendation> recommendations = allByReceiverId.getContent();
 
-        return recommendationMapper.mapToDtoList(recommendations);
+        return recommendationMapper.toDtoList(recommendations);
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
@@ -80,7 +78,7 @@ public class RecommendationService {
                 .findAllByAuthorId(authorId, Pageable.unpaged());
         List<Recommendation> recommendations = allByAuthorId.getContent();
 
-        return recommendationMapper.mapToDtoList(recommendations);
+        return recommendationMapper.toDtoList(recommendations);
     }
 
     private void validateRecommendationForPeriod(RecommendationDto recommendationDto) {
@@ -102,18 +100,11 @@ public class RecommendationService {
     }
 
     private void validateSkillsInSystem(RecommendationDto recommendationDto) {
-        List<Long> skillIds = getSkillIds(recommendationDto);
-        List<Skill> skillsFromDb = skillRepository.findAllById(skillIds);
-
-        if (skillsFromDb.size() != skillIds.size()) {
-            throw new DataValidationException("Вы предлагаете навыки, которых нет в системе");
-        }
-    }
-
-    private List<Long> getSkillIds(RecommendationDto recommendationDto) {
-        return recommendationDto.getSkillOffers().stream()
-                .map(SkillOfferDto::getSkillId)
-                .toList();
+        recommendationDto.getSkillOffers().forEach(skillOffer -> {
+            if (!skillRepository.existsById(skillOffer.getSkillId())){
+                throw new DataValidationException("Вы предлагаете навыки, которых нет в системе");
+            }
+        });
     }
 
     private Optional<LocalDateTime> getLastRecommendationDate(Long authorId, Long receiverId) {

@@ -16,15 +16,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecommendationDto {
-    @Positive(message = "Id должно быть позитивным числом")
+    @Positive(message = "Id должно быть больше нуля")
     private Long id;
 
     @NotNull
-    @Positive(message = "Id должно быть позитивным числом")
+    @Positive(message = "Id должно быть больше нуля")
     private Long authorId;
 
     @NotNull
-    @Positive(message = "Id должно быть позитивным числом")
+    @Positive(message = "Id должно быть больше нуля")
     private Long receiverId;
 
     @NotBlank(message = "Рекомендация не должна быть пустой!")
