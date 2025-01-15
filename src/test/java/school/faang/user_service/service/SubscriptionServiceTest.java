@@ -116,17 +116,17 @@ class SubscriptionServiceTest {
         Mockito.when(phoneFilter.isApplicable(filters)).thenReturn(true);
         Mockito.when(skillFilter.isApplicable(filters)).thenReturn(true);
 
-        Mockito.when(aboutFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(cityFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(contactFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(countryFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(emailFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(experienceMaxFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(experienceMinFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(nameFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(skillFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(phoneFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(pageFilter.apply(mockedUsers,filters)).thenReturn(getMockedStream);
+        Mockito.when(aboutFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(cityFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(contactFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(countryFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(emailFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMaxFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMinFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(nameFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(skillFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(phoneFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(pageFilter.apply(mockedUsers, filters)).thenReturn(getMockedStream);
 
         List<User> users = subscriptionService.getFollowers(3L, filters);
         List<User> expectedUsers = getMockedUsers(20).toList();
@@ -177,17 +177,17 @@ class SubscriptionServiceTest {
         Mockito.when(phoneFilter.isApplicable(filters)).thenReturn(true);
         Mockito.when(skillFilter.isApplicable(filters)).thenReturn(true);
 
-        Mockito.when(aboutFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(cityFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(contactFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(countryFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(emailFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(experienceMaxFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(experienceMinFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(nameFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(skillFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(phoneFilter.apply(mockedUsers,filters)).thenReturn(mockedUsers);
-        Mockito.when(pageFilter.apply(mockedUsers,filters)).thenReturn(getMockedStream);
+        Mockito.when(aboutFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(cityFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(contactFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(countryFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(emailFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMaxFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(experienceMinFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(nameFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(skillFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(phoneFilter.apply(mockedUsers, filters)).thenReturn(mockedUsers);
+        Mockito.when(pageFilter.apply(mockedUsers, filters)).thenReturn(getMockedStream);
 
         List<User> users = subscriptionService.getFollowing(3L, filters);
         Assertions.assertEquals(expectedUsers, users);
