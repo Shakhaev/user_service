@@ -109,7 +109,7 @@ public class RecommendationRequestService {
         return requestRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("запрос на рекомендацию с ID {} не найден", id);
-                    return new EntityNotFoundException("RecommendationRequest not found");
+                    return new EntityNotFoundException("Recommendation request not found");
                 });
     }
 
