@@ -15,7 +15,7 @@ public class UserContactFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        if (!validateParameters(users, filters)) {
+        if (!validateParameters(users, filters) || filters == null || filters.getContactPattern() == null) {
             return Stream.empty();
         }
 

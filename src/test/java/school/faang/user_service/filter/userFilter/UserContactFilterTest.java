@@ -16,7 +16,7 @@ class UserContactFilterTest {
     @Test
     void isApplicable() {
         UserFilterDto userFilterDto = UserFilterDto.builder()
-                .contactPattern("city1")
+                .contactPattern("contact1")
                 .build();
 
         boolean actual = userFilter.isApplicable(userFilterDto);
