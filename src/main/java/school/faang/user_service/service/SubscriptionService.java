@@ -5,14 +5,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.AppConfig;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.rating.RatingDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
+import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -24,6 +27,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final UserRepository userRepository;
+    private final RatingService ratingService;
+    private final AppConfig appConfig;
     private final SubscriptionRepository subscriptionRepository;
     private final UserFollowingMapper userFollowingMapper;
     private final List<UserFilter> filters;
@@ -85,6 +90,15 @@ public class SubscriptionService {
         userRepository.save(requestUser);
         userRepository.save(requestedUser);
 
+        RatingDTO ratingDTO = new RatingDTO(
+                u -> "User : " + u.getUsername() + " -> followed another user and got rating!",
+                requestedUser,
+                appConfig.getFollowRating(),
+                ActionType.FOLLOWING
+        );
+
+        ratingService.addPoints(ratingDTO);
+
         logger.info("Succeed of following user!");
     }
 
@@ -106,6 +120,15 @@ public class SubscriptionService {
 
         userRepository.save(requestedUser);
         userRepository.save(requestedUser);
+
+        RatingDTO ratingDTO = new RatingDTO(
+                u -> "User : " + u.getUsername() + " -> unfollowed another user and got rating!",
+                requestedUser,
+                appConfig.getFollowRating(),
+                ActionType.UNFOLLOWING
+        );
+
+        ratingService.addPoints(ratingDTO);
 
         logger.info("Succeed of unfollowing user!");
     }

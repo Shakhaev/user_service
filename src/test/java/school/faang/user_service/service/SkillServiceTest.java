@@ -50,6 +50,8 @@ class SkillServiceTest {
     @Mock
     private SkillOfferRepository skillOfferRepository;
     @Mock
+    private RatingService ratingService;
+    @Mock
     private AppConfig appConfig;
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;

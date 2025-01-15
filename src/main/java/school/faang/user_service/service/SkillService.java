@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.AppConfig;
+import school.faang.user_service.dto.rating.RatingDTO;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -14,6 +15,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SkillService {
     private final SkillRepository skillRepository;
+    private final RatingService ratingService;
     private final SkillMapper skillMapper;
     private final UserRepository userRepository;
     private final SkillOfferRepository skillOfferRepository;
@@ -57,7 +60,6 @@ public class SkillService {
                 .toList();
     }
 
-
     @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         User user = userRepository.findById(userId)
@@ -86,6 +88,15 @@ public class SkillService {
 
                 userSkillGuaranteeRepository.save(guarantee);
             });
+
+            RatingDTO ratingDTO = new RatingDTO(
+                    u -> "User : " + u.getUsername() + " -> unfollowed another user and got rating!",
+                    user,
+                    appConfig.getFollowRating(),
+                    ActionType.ACQUIRE_SKILL
+            );
+
+            ratingService.addPoints(ratingDTO);
 
             return skillMapper.toDto(skill);
         }
