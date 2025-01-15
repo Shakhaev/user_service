@@ -5,9 +5,11 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -22,10 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.NoSuchElementException;
 
+@ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
-
-    @InjectMocks
-    private GoalInvitationService goalInvitationService;
 
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
@@ -36,14 +36,27 @@ public class GoalInvitationServiceTest {
     @Mock
     private List<InvitationFilter> invitationFilters;
 
+    @InjectMocks
+    private GoalInvitationService goalInvitationService;
+
+    private GoalInvitation invitation;
+
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+//        MockitoAnnotations.openMocks(this);
+
+        invitation = GoalInvitation.builder()
+                .id(1L)
+                .inviter(User.builder().id(1L).username("InviterUser").build())
+                .invited(User.builder().id(2L).username("InvitedUser").build())
+                .goal(Goal.builder().id(100L).title("Test Goal").build())
+                .status(RequestStatus.PENDING)
+                .build();
     }
 
     @Test
     public void testCreateInvitation_Success() {
-        GoalInvitation invitation = mock(GoalInvitation.class);
+//        GoalInvitation invitation = mock(GoalInvitation.class);
         User inviter = mock(User.class);
         User invited = mock(User.class);
         Goal goal = mock(Goal.class);
@@ -88,6 +101,8 @@ public class GoalInvitationServiceTest {
         List<GoalInvitation> receivedGoals = mock(List.class);
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
+        when(goalInvitationRepository.save(any())).thenAnswer(i -> i.getArguments()[0] );
+
         when(invitation.getInvited()).thenReturn(invitedUser);
         when(invitedUser.getReceivedGoalInvitations()).thenReturn(receivedGoals);
         when(receivedGoals.size()).thenReturn(2);
@@ -97,7 +112,7 @@ public class GoalInvitationServiceTest {
 
         GoalInvitation result = goalInvitationService.acceptGoalInvitation(1L);
 
-//        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
+        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
         verify(goalInvitationRepository).save(invitation);
     }
 
