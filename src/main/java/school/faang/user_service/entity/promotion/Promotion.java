@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.enums.promotion.PromotionPlanType;
 import school.faang.user_service.enums.promotion.PromotionStatus;
 
 @Data
@@ -23,24 +24,24 @@ import school.faang.user_service.enums.promotion.PromotionStatus;
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "user_id")
-    private long userId;
+    private Long userId;
 
     @Column(name = "event_id")
-    private long event_id;
+    private Long eventId;
 
-    @Column(name = "promotion_plan")
-    @OneToMany
-    private PromotionPlan promotionPlan;
+    @Column(name = "promotion_plan_type")
+    private PromotionPlanType promotionPlanType;
 
     @Column(name = "remaining_views")
-    private int remainingViews;
+    private Integer remainingViews;
 
     private PromotionStatus status;
 
+    //todo: promotion payment
     @Column(name = "payment_id")
-    @OneToOne(mappedBy = "promotion")
-    private PromotionPayment promotionPayment;
+    private Long paymentId;
+
 }

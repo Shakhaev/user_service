@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.promotion.PromotionPayment;
-import school.faang.user_service.entity.promotion.PromotionPlan;
+import school.faang.user_service.enums.promotion.PromotionPlanType;
 import school.faang.user_service.enums.promotion.PromotionStatus;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -14,17 +15,18 @@ import school.faang.user_service.enums.promotion.PromotionStatus;
 @NoArgsConstructor
 public class PromotionDto {
 
-    private long id;
+    private Long userId;
 
-    private long userId;
+    private Long eventId;
 
-    private long event_id;
+    private BigDecimal money;
 
-    private PromotionPlan promotionPlan;
+    private PromotionPlanType promotionPlanType;
 
-    private int remainingViews;
+    private Integer remainingViews;
 
     private PromotionStatus status;
 
-    private PromotionPayment promotionPayment;
+    private Long paymentId;
+
 }

@@ -2,7 +2,7 @@ CREATE TABLE promotion (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     user_id bigint,
     event_id bigint,
-    promotion_plan varchar(20) NOT NULL,
+    promotion_plan_type varchar(20) NOT NULL,
     remaining_views integer NOT NULL,
     status varchar(20) NOT NULL,
     payment_id bigint NOT NULL,

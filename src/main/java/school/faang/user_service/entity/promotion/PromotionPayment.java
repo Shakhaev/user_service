@@ -25,13 +25,10 @@ public class PromotionPayment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
     @Column(name = "user_id")
     private long userId;
-
-    @Column(name = "promotion_id")
-    private long promotionId;
 
     @Column
     private BigDecimal amount;
@@ -40,4 +37,7 @@ public class PromotionPayment {
 
     @Column(name = "payment_type")
     private PromotionPaymentType paymentType;
+
+//    @OneToOne
+//    private Promotion promotion;
 }

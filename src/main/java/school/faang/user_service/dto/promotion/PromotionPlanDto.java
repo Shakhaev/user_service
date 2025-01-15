@@ -13,8 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PromotionPlanDto {
 
-    private long id;
-
     private String name;
 
     private BigDecimal price;

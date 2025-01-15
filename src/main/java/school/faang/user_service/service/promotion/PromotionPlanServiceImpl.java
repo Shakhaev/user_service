@@ -3,6 +3,8 @@ package school.faang.user_service.service.promotion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.promotion.PromotionPlanDto;
+import school.faang.user_service.entity.promotion.PromotionPlan;
+import school.faang.user_service.enums.promotion.PromotionPlanType;
 import school.faang.user_service.mapper.promotion.PromotionPlanMapper;
 import school.faang.user_service.repository.promotion.PromotionPlanRepository;
 
@@ -19,5 +21,10 @@ public class PromotionPlanServiceImpl implements PromotionPlanService {
         return repository.findAll().stream()
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public PromotionPlan getPromotionPlanByName(PromotionPlanType promotionPlanType) {
+        return repository.findPromotionPlanByName(promotionPlanType.name());
     }
 }
