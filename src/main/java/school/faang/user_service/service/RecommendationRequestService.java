@@ -67,7 +67,7 @@ public class RecommendationRequestService {
 
         if (request.getStatus() != RequestStatus.PENDING) {
             log.error("Запрос на рекомендацию с ID {} не найден", id);
-            throw new IllegalStateException("Cannot reject a non-pending request");
+            throw new IllegalStateException("Cannot reject a non pending request");
         }
 
         request.setStatus(RequestStatus.REJECTED);
