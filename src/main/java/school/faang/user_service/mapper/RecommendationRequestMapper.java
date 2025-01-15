@@ -2,8 +2,8 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestSaveDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestResponseDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -22,12 +22,12 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "rejectionReason", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
-    RecommendationRequest toEntity(RecommendationRequestSaveDto recommendationRequestSaveDto, User requester, User receiver);
+    RecommendationRequest toEntity(RecommendationRequestCreateDto recommendationRequestCreateDto, User requester, User receiver);
 
     @Mapping(target = "requesterId", source = "requester.id")
     @Mapping(target = "receiverId", source = "receiver.id")
     @Mapping(target = "skills", source = "skills")
-    RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
+    RecommendationRequestResponseDto toDto(RecommendationRequest recommendationRequest);
 
     default List<String> toSkills(List<SkillRequest> skillRequests) {
         return skillRequests.stream()

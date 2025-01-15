@@ -3,8 +3,8 @@ package school.faang.user_service.service.recommendation.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestSaveDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestResponseDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -37,23 +37,23 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Transactional
     @Override
-    public RecommendationRequestDto create(RecommendationRequestSaveDto recommendationRequestSaveDto) {
-        long requesterId = recommendationRequestSaveDto.requesterId();
-        long receiverId = recommendationRequestSaveDto.receiverId();
+    public RecommendationRequestResponseDto create(RecommendationRequestCreateDto recommendationRequestCreateDto) {
+        long requesterId = recommendationRequestCreateDto.requesterId();
+        long receiverId = recommendationRequestCreateDto.receiverId();
         User requester = userService.findById(requesterId);
         User receiver = userService.findById(receiverId);
         isSixMonthLeft(requesterId, receiverId);
         RecommendationRequest mappedRecommendationRequest
-                = recommendationRequestMapper.toEntity(recommendationRequestSaveDto, requester, receiver);
+                = recommendationRequestMapper.toEntity(recommendationRequestCreateDto, requester, receiver);
         RecommendationRequest recommendationRequest = recommendationRequestRepository.save(mappedRecommendationRequest);
         List<SkillRequest> skillRequests
-                = skillRequestService.createSkillRequests(recommendationRequest.getId(), recommendationRequestSaveDto.skills());
+                = skillRequestService.createSkillRequests(recommendationRequest.getId(), recommendationRequestCreateDto.skills());
         recommendationRequest.setSkills(skillRequests);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
     @Override
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
+    public List<RecommendationRequestResponseDto> getRequests(RequestFilterDto filter) {
         List<RecommendationRequest> recommendationRequests = recommendationRequestRepository.findAll();
         Predicate<RecommendationRequest> predicate = recommendationRequestFilter.getPredicates(filter)
                 .stream()
@@ -66,7 +66,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     @Override
-    public RecommendationRequestDto getRequest(long id) {
+    public RecommendationRequestResponseDto getRequest(long id) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.recommendationNotFoundException(id));
         return recommendationRequestMapper.toDto(recommendationRequest);

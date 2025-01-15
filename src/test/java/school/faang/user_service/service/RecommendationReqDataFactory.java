@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestSaveDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestResponseDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -42,8 +42,8 @@ public final class RecommendationReqDataFactory {
                 .build();
     }
 
-    public static RecommendationRequestSaveDto createRecommendationRequestSaveDto() {
-        return new RecommendationRequestSaveDto(
+    public static RecommendationRequestCreateDto createRecommendationRequestSaveDto() {
+        return new RecommendationRequestCreateDto(
                 "Please provide a recommendation.",
                 List.of(1L, 2L),
                 1L,
@@ -51,8 +51,8 @@ public final class RecommendationReqDataFactory {
         );
     }
 
-    public static RecommendationRequestDto createRecommendationRequestDto() {
-        return new RecommendationRequestDto(
+    public static RecommendationRequestResponseDto createRecommendationRequestDto() {
+        return new RecommendationRequestResponseDto(
                 1L,
                 "Please provide a recommendation.",
                 RequestStatus.PENDING,
