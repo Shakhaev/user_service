@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilter;
@@ -23,7 +24,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.utils.event.EventPrepareData.getEvent;
 import static school.faang.user_service.utils.event.EventPrepareData.getEventDto;
+import static school.faang.user_service.utils.event.EventPrepareData.getEventWithUserParticipatedEvents;
 import static school.faang.user_service.utils.event.EventPrepareData.getFilterLocationDto;
 import static school.faang.user_service.utils.event.EventPrepareData.getFilterOwnerDto;
 import static school.faang.user_service.utils.event.EventPrepareData.getNewSkill;
@@ -49,7 +50,7 @@ class EventServiceImplTest {
     @Mock
     private SkillRepository skillRepository;
 
-    @Mock
+    @Spy
     private EventMapperImpl eventMapper;
 
     private final List<EventFilter> eventFilters = new ArrayList<>();
@@ -65,11 +66,9 @@ class EventServiceImplTest {
 
     @Test
     public void testCreateEvent() {
-        when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUser()));
+        when(userRepository.findById(eq(2L))).thenReturn(Optional.ofNullable(getUser()));
         when(skillRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getSkill()));
-        when(eventMapper.toEntity(any())).thenReturn(getEvent());
         when(eventRepository.save(eq(getEvent()))).thenReturn(getEvent());
-        when(eventMapper.toDto(eq(getEvent()))).thenReturn(getEventDto());
 
         EventDto resultEventDto = eventServiceImpl.create(getEventDto());
 
@@ -79,7 +78,7 @@ class EventServiceImplTest {
 
     @Test
     public void testCreateEventWhenUserHaveNotNeedSkills() {
-        when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUser()));
+        when(userRepository.findById(eq(2L))).thenReturn(Optional.ofNullable(getUser()));
         when(skillRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getNewSkill()));
 
         assertThrows(DataValidateException.class, () -> eventServiceImpl.create(getEventDto()));
@@ -87,11 +86,11 @@ class EventServiceImplTest {
 
     @Test
     public void testGetEvent() {
-        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEvent()));
+        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEventWithUserParticipatedEvents()));
 
         EventDto actualEvent = eventServiceImpl.getEvent(1L);
 
-        EventDto expectedEvent = eventMapper.toDto(getEvent());
+        EventDto expectedEvent = eventMapper.toDto(getEventWithUserParticipatedEvents());
         assertEquals(expectedEvent, actualEvent);
     }
 
@@ -104,7 +103,7 @@ class EventServiceImplTest {
 
     @Test
     public void testGetEventsByFilters() {
-        when(eventRepository.findAll()).thenReturn(List.of(getEvent()));
+        when(eventRepository.findAll()).thenReturn(List.of(getEventWithUserParticipatedEvents()));
 
         List<EventDto> resultEventsDto = eventServiceImpl.getEventByFilters(getFilterLocationDto());
 
@@ -114,7 +113,7 @@ class EventServiceImplTest {
 
     @Test
     public void testGetEventsByFiltersWhenNotExist() {
-        when(eventRepository.findAll()).thenReturn(List.of(getEvent()));
+        when(eventRepository.findAll()).thenReturn(List.of(getEventWithUserParticipatedEvents()));
 
         List<EventDto> resultEventsDto = eventServiceImpl.getEventByFilters(getFilterOwnerDto());
 
@@ -124,7 +123,7 @@ class EventServiceImplTest {
 
     @Test
     public void testDeleteEvent() {
-        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEvent()));
+        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEventWithUserParticipatedEvents()));
         doNothing().when(eventRepository).deleteById(eq(1L));
 
         eventServiceImpl.deleteEvent(1L);
@@ -143,11 +142,9 @@ class EventServiceImplTest {
     public void testUpdateEvent() {
         when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEvent()));
         when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUser()));
-        when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of(getEvent()));
+        when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of(getEventWithUserParticipatedEvents()));
         when(skillRepository.findById(1L)).thenReturn(Optional.ofNullable(Skill.builder().id(1L).build()));
-        when(eventMapper.toEntity(getEventDto())).thenReturn(getEvent());
-        when(eventMapper.toDto(getEvent())).thenReturn(getEventDto());
-        when(eventRepository.save(eq(getEvent()))).thenReturn(getEvent());
+        when(eventRepository.save(getEvent())).thenReturn(getEvent());
 
         EventDto eventDto = eventServiceImpl.updateEvent(getEventDto());
 
@@ -164,7 +161,7 @@ class EventServiceImplTest {
 
     @Test
     public void testUpdateWhenUserIsNotAuthorForEvent() {
-        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEvent()));
+        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEventWithUserParticipatedEvents()));
         when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUserWithNoSkills()));
         when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of());
 
@@ -173,7 +170,7 @@ class EventServiceImplTest {
 
     @Test
     public void testGetOwnedEvent() {
-        when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of(getEvent()));
+        when(eventRepository.findAllByUserId(eq(1L))).thenReturn(List.of(getEventWithUserParticipatedEvents()));
         when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUser()));
 
         List<EventDto> ownedEvents = eventServiceImpl.getOwnedEvents(1L);
@@ -184,7 +181,7 @@ class EventServiceImplTest {
 
     @Test
     public void testGetParticipatedEvents() {
-        when(eventRepository.findParticipatedEventsByUserId(eq(1L))).thenReturn(List.of(getEvent()));
+        when(eventRepository.findParticipatedEventsByUserId(eq(1L))).thenReturn(List.of(getEventWithUserParticipatedEvents()));
         when(userRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getUser()));
 
         List<EventDto> ownedEvents = eventServiceImpl.getParticipatedEvents(1L);

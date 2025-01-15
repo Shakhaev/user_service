@@ -32,8 +32,9 @@ public class EventServiceImpl {
     public EventDto create(EventDto event) {
         User ownerUser = getUserById(event.getOwnerId());
         validateUserHaveCurrentSkills(event, ownerUser);
-        Event entity = eventMapper.toEntity(event);
-        Event savedEntity = eventRepository.save(entity);
+        Event newEvent = eventMapper.toEntity(event);
+        newEvent.setRelatedSkills(getSkillsByIds(event));
+        Event savedEntity = eventRepository.save(newEvent);
         return eventMapper.toDto(savedEntity);
 
     }
@@ -63,8 +64,10 @@ public class EventServiceImpl {
         User user = getUserById(id);
         validateUserIsAuthorForEvent(eventDto, user);
         validateUserHaveCurrentSkills(eventDto, user);
-        Event updatedEvent = eventRepository.save(eventMapper.toEntity(eventDto));
-        return eventMapper.toDto(updatedEvent);
+        Event updatedEvent = eventMapper.toEntity(eventDto);
+        updatedEvent.setRelatedSkills(getSkillsByIds(eventDto));
+        Event result = eventRepository.save(updatedEvent);
+        return eventMapper.toDto(result);
     }
 
     public List<EventDto> getOwnedEvents(long userId) {
@@ -129,6 +132,13 @@ public class EventServiceImpl {
             throw new DataValidateException(
                     "User can't conduct such an event skills with ids " + eventDto.getRelatedSkills());
         }
+    }
+
+    private List<Skill> getSkillsByIds(EventDto eventDto) {
+        return eventDto.getRelatedSkills().stream()
+                .map(skillId -> skillRepository.findById(skillId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                String.format("Skill with id = %d doesn't exists", skillId)))).toList();
     }
 
     private void validateUser(long userId) {

@@ -24,7 +24,7 @@ public class EventPrepareData {
                 .build();
     }
 
-    public static Event getEvent() {
+    public static Event getEventWithUserParticipatedEvents() {
         return Event.builder()
                 .id(1L)
                 .location("location")
@@ -38,7 +38,22 @@ public class EventPrepareData {
                         .build())
                 .relatedSkills(Arrays.asList(
                         Skill.builder()
-                                .id(1)
+                                .id(1L)
+                                .build()
+                ))
+                .build();
+    }
+
+    public static Event getEvent() {
+        return Event.builder()
+                .id(1L)
+                .location("location")
+                .owner(User.builder()
+                        .id(2L)
+                        .build())
+                .relatedSkills(Arrays.asList(
+                        Skill.builder()
+                                .id(1L)
                                 .build()
                 ))
                 .build();
@@ -47,7 +62,8 @@ public class EventPrepareData {
     public static EventDto getEventDto() {
         return EventDto.builder()
                 .id(1L)
-                .ownerId(1L)
+                .ownerId(2L)
+                .location("location")
                 .relatedSkills(Arrays.asList(1L))
                 .build();
     }
