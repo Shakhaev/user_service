@@ -11,11 +11,11 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.validation.RequestValidation;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,15 +26,11 @@ import java.util.stream.Stream;
 @Slf4j
 public class RecommendationRequestService {
 
-    private static final int SIX_MONTH_RECOMMENDATION_LIMIT = 6;
-
     private final RecommendationRequestRepository requestRepository;
 
     private final RecommendationRequestMapper recommendationRequestMapper;
 
-    private final UserRepository userRepository;
-
-    private final SkillRepository skillRepository;
+    private final RequestValidation requestValidation;
 
     private final SkillRequestRepository skillRequestRepository;
 
@@ -43,7 +39,7 @@ public class RecommendationRequestService {
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
         log.info("Создание запроса на рекомендацию: {}", dto);
 
-        List<Skill> skills = validateRequest(dto);
+        List<Skill> skills = requestValidation.validateRequest(dto);
 
         RecommendationRequest request = recommendationRequestMapper.toEntity(dto);
         request = requestRepository.save(request);
@@ -62,45 +58,6 @@ public class RecommendationRequestService {
             skillRequest.setSkill(skill);
             skillRequestRepository.save(skillRequest);
         }
-    }
-
-    private List<Skill> validateRequest(RecommendationRequestDto dto) {
-
-        if (dto == null) {
-            throw new IllegalArgumentException("Recommendation request cannot be null.");
-        }
-
-        if (dto.getMessage() == null || dto.getMessage().isBlank()) {
-            log.warn("Ошибка проверки: сообщение пустое или null. DTO: {}", dto);
-            throw new IllegalArgumentException("Message cannot be empty");
-        }
-
-        if (!userRepository.existsById(dto.getRequesterId()) || !userRepository.existsById(dto.getReceiverId())) {
-            log.error("Ошибка проверки: Один или два юзера не существуют. RequesterId: {}, ReceiverId: {}",
-                    dto.getRequesterId(), dto.getReceiverId());
-            throw new IllegalArgumentException("Users must exist");
-        }
-
-        if (requestRepository.findLatestPendingRequest(dto.getRequesterId(), dto.getReceiverId())
-                .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(SIX_MONTH_RECOMMENDATION_LIMIT)))
-                .isPresent()) {
-            log.warn("Запрос уже существует в течение последних 6 месяцев DTO: {}", dto);
-            throw new IllegalArgumentException("Request already exists within the past 6 months");
-        }
-
-        List<Long> skillIds = dto.getSkillsIds();
-        if (skillIds == null) {
-            log.warn("Ошибка проверки: В запросе не указаны навыки. DTO: {}", dto);
-            return List.of();
-        }
-
-        List<Skill> skills = skillRepository.findAllById(skillIds);
-
-        if (skills.size() != skillIds.size()) {
-            log.warn("Некоторые навыки не существуют. Предоставленные ID навыков: {}", skillIds);
-            throw new IllegalArgumentException("One or more skills do not exist");
-        }
-        return skills;
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
@@ -122,7 +79,7 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
 
-        validateRequest(recommendationRequest);
+        requestValidation.validateRequest(recommendationRequest);
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest.setCreatedAt(LocalDateTime.now());
         recommendationRequest.setUpdatedAt(LocalDateTime.now());
@@ -157,13 +114,11 @@ public class RecommendationRequestService {
     }
 
     private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
-        Stream<RecommendationRequest> filteredStream = Stream.of(request);
-
         for (RequestFilter filter : requestFilters) {
-            if (filter.isApplicable(filters)) {
-                filteredStream = filter.apply(filteredStream, filters);
+            if (filter.isApplicable(filters) && filter.apply(Stream.of(request), filters).findAny().isEmpty()) {
+                return false;
             }
         }
-        return filteredStream.findAny().isPresent();
+        return true;
     }
 }
