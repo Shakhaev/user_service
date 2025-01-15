@@ -11,7 +11,6 @@ import school.faang.user_service.repository.UserRepository;
 public class UserRepositoryAdapter {
     private final UserRepository userRepository;
 
-
     public User getById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found by id: " + id));
     }
