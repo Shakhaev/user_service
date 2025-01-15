@@ -9,6 +9,10 @@ public class EventValidator implements ConstraintValidator<CustomValidation, Eve
 
     @Override
     public boolean isValid(EventDto eventDto, ConstraintValidatorContext context) {
+        if (eventDto == null || eventDto.getStartTime() == null || eventDto.getEndTime() == null) {
+            return false;
+        }
+
         if (eventDto.getStartTime().isAfter(eventDto.getEndTime())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Start time bust be before end")
@@ -16,6 +20,7 @@ public class EventValidator implements ConstraintValidator<CustomValidation, Eve
                     .addConstraintViolation();
             return false;
         }
+
         return true;
     }
 }

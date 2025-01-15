@@ -1,49 +1,59 @@
 package school.faang.user_service.service.event;
 
+import jakarta.validation.ConstraintValidatorContext;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.event.EventMapperImpl;
+import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.validation.event.EventValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
     @Mock
     private EventRepository eventRepository;
     @Mock
-    private EventMapper eventMapper;
+    private UserRepository userRepository;
+    @Mock
+    private SkillRepository skillRepository;
+    @Spy
+    private EventMapperImpl eventMapper;
+    @Spy
+    private EventValidator eventValidator;
     @InjectMocks
     private EventService eventService;
 
     @Test
     public void testCreateEvent() {
-        EventDto eventDto = EventDto.builder()
-                .title("Test Event")
-                .ownerId(1L)
-                .build();
-
         Event event = new Event();
         event.setTitle("Test Event");
 
-        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(event);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
-        when(eventMapper.toDto(any(Event.class))).thenReturn(eventDto);
 
-        EventDto createdEvent = eventService.create(eventDto);
+        Event createdEvent = eventService.create(event);
 
         assertNotNull(createdEvent);
         assertEquals("Test Event", createdEvent.getTitle());
@@ -52,12 +62,10 @@ public class EventServiceTest {
 
     @Test
     public void testCreateEventWithoutSkills() {
-        EventDto eventDto = EventDto.builder()
-                .title("Test Event")
-                .ownerId(1L)
-                .build();
+        Event event = new Event();
+        event.setTitle("Test Event");
 
-        assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
+        assertThrows(DataValidationException.class, () -> eventService.create(event));
     }
 
     @Test
@@ -67,15 +75,9 @@ public class EventServiceTest {
         event.setId(eventId);
         event.setTitle("Test Event");
 
-        EventDto eventDto = EventDto.builder()
-                .id(eventId)
-                .title("Test Event")
-                .build();
-
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-        when(eventMapper.toDto(event)).thenReturn(eventDto);
 
-        EventDto foundEvent = eventService.getEvent(eventId);
+        Event foundEvent = eventService.getEvent(eventId);
 
         assertNotNull(foundEvent);
         assertEquals(eventId, foundEvent.getId());
@@ -98,20 +100,13 @@ public class EventServiceTest {
         EventFilterDto eventFilterDto = new EventFilterDto();
         eventFilterDto.setTitle(eventTitle);
 
-        EventDto eventDto = EventDto.builder()
-                .id(eventId)
-                .title(eventTitle)
-                .build();
-
-        EventDto[] eventsDto = { eventDto };
-
         when(eventRepository.findAll()).thenReturn(events);
 
-        EventDto[] foundEvents = eventService.getEventsByFilter(eventFilterDto);
+        List<Event> foundEvents = eventService.getEventsByFilter(eventFilterDto);
 
         assertNotNull(foundEvents);
-        assertEquals(eventsDto.length, foundEvents.length);
-        assertEquals(eventsDto[0].getTitle(), foundEvents[0].getTitle());
+        assertEquals(events.size(), foundEvents.size());
+        assertEquals(events.get(0).getTitle(), foundEvents.get(0).getTitle());
         verify(eventRepository, times(1)).findAll();
     }
 
@@ -128,19 +123,14 @@ public class EventServiceTest {
 
     @Test
     public void testUpdateEvent() {
-        EventDto eventDto2 = EventDto.builder()
-                .title("Test Event2")
-                .ownerId(1L)
-                .build();
-
         Event event = new Event();
-        event.setTitle("Test Event2");
+        event.setId(1L);
+        event.setTitle("Test Event");
 
-        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(event);
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         when(eventRepository.save(any(Event.class))).thenReturn(event);
-        when(eventMapper.toDto(any(Event.class))).thenReturn(eventDto2);
 
-        EventDto updatedEvent = eventService.updateEvent(eventDto2);
+        Event updatedEvent = eventService.updateEvent(event);
 
         assertNotNull(updatedEvent);
         assertEquals("Test Event2", updatedEvent.getTitle());
@@ -161,20 +151,13 @@ public class EventServiceTest {
         List<Event> events = new ArrayList<>();
         events.add(event);
 
-        EventDto eventDto = EventDto.builder()
-                .id(eventId)
-                .title(eventTitle)
-                .build();
-
-        EventDto[] eventsDto = { eventDto };
-
         when(eventRepository.findAllByUserId(userId)).thenReturn(events);
 
-        EventDto[] foundEvents = eventService.getOwnedEvents(userId);
+        List<Event> foundEvents = eventService.getOwnedEvents(userId);
 
         assertNotNull(foundEvents);
-        assertEquals(eventsDto.length, foundEvents.length);
-        assertEquals(eventsDto[0].getTitle(), foundEvents[0].getTitle());
+        assertEquals(events.size(), foundEvents.size());
+        assertEquals(events.get(0).getTitle(), foundEvents.get(0).getTitle());
         verify(eventRepository, times(1)).findAll();
     }
 
@@ -192,20 +175,32 @@ public class EventServiceTest {
         List<Event> events = new ArrayList<>();
         events.add(event);
 
-        EventDto eventDto = EventDto.builder()
-                .id(eventId)
-                .title(eventTitle)
-                .build();
-
-        EventDto[] eventsDto = { eventDto };
-
         when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(events);
 
-        EventDto[] foundEvents = eventService.getParticipatedEvents(userId);
+        List<Event> foundEvents = eventService.getParticipatedEvents(userId);
+
 
         assertNotNull(foundEvents);
-        assertEquals(eventsDto.length, foundEvents.length);
-        assertEquals(eventsDto[0].getTitle(), foundEvents[0].getTitle());
+        assertEquals(events.size(), foundEvents.size());
+        assertEquals(events.get(0).getTitle(), foundEvents.get(0).getTitle());
         verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testIsValid_StartTimeAfterEndTime() {
+        EventDto eventDto = EventDto.builder()
+                .startTime(LocalDateTime.now().plusDays(1))
+                .endTime(LocalDateTime.now())
+                .build();
+
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
+
+        assertFalse(eventValidator.isValid(eventDto, context));
+        verify(context).disableDefaultConstraintViolation();
+        verify(context).buildConstraintViolationWithTemplate("Start time bust be before end");
+        verify(builder).addPropertyNode("startTime");
+        verify(builder).addConstraintViolation();
     }
 }
