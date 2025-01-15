@@ -19,7 +19,7 @@ public class MentorshipService {
     @Transactional
     public void deactivateMentorship(Long userId){
         User mentor = userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException("Пользователь с айди " + userId + " не найден"));
+                new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
 
         removeMentorFromMentees(mentor);
         reassignGoals(mentor);

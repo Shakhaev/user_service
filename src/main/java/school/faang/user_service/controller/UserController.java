@@ -13,7 +13,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
     public void deactivateUser(@RequestParam @NotNull Long userId) {
         userService.deactivateUser(userId);
     }
