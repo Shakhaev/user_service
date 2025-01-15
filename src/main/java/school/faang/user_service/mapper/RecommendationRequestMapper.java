@@ -24,7 +24,6 @@ public interface RecommendationRequestMapper {
 
     @Mapping(target = "requesterId", source = "requester.id")
     @Mapping(target = "receiverId", source = "receiver.id")
-    @Mapping(target = "skills", source = "skills")
     RecommendationRequestResponseDto toDto(RecommendationRequest recommendationRequest);
 
     default List<String> toSkills(List<SkillRequest> skillRequests) {
