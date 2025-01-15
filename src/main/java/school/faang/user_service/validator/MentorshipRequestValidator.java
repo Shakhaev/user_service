@@ -57,9 +57,8 @@ public class MentorshipRequestValidator {
                 .findLatestRequest(mentorshipRequestDto.getRequesterId(), mentorshipRequestDto.getReceiverId())
                 .filter(request -> !request.getCreatedAt().isBefore(getMonthLimitAgo()))
                 .ifPresent(request -> {
-                    String message = "Запрос можно отправить раз в " + MONTHS_REPEAT_REQUEST_LIMIT + " месяца";
-                    log.warn(message);
-                    throw new BusinessException(message);
+                    throw new BusinessException("Запрос можно отправить раз в " +
+                            MONTHS_REPEAT_REQUEST_LIMIT + " месяца");
                 });
     }
 

@@ -22,7 +22,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MentorshipRequestService {
-
     private final MentorshipRequestValidator validator;
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper requestMapper;
@@ -38,7 +37,6 @@ public class MentorshipRequestService {
         mentorshipRequestRepository.create(requesterId, receiverId, mentorshipRequestDto.getDescription());
 
         MentorshipRequest entity = getLatestRequest(requesterId, receiverId);
-        log.info("Запрос на менторство {} создан", mentorshipRequestDto);
 
         return requestMapper.toDto(entity);
     }
@@ -70,7 +68,6 @@ public class MentorshipRequestService {
 
         MentorshipRequest entity = mentorshipRequestRepository.save(request);
 
-        log.info("Запрос на менторство с id={} был принят", id);
         return requestMapper.toDto(entity);
     }
 
@@ -82,25 +79,18 @@ public class MentorshipRequestService {
 
         MentorshipRequest entity = mentorshipRequestRepository.save(request);
 
-        log.info("Запрос на менторство с id={} был отклонен с причиной={}", id, rejectionDto.getReason());
         return requestMapper.toDto(entity);
     }
 
     public MentorshipRequest getMentorshipRequestById(long id) {
-        return mentorshipRequestRepository.findById(id).orElseThrow(() -> {
-            String message = "Запрос на менторство с id =" + id + " не найден";
-            log.warn(message);
-            return new EntityNotFoundException(message);
-        });
+        return mentorshipRequestRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство с id =" + id + " не найден"));
     }
 
     private MentorshipRequest getLatestRequest(long requesterId, long receiverId) {
         return mentorshipRequestRepository
-                .findLatestRequest(requesterId, receiverId).orElseThrow(() -> {
-                    String message = "Запрос на менторство с requesterId=" + requesterId + "и receiverId="
-                            + receiverId + " не найден";
-                    log.warn(message);
-                    return new BusinessException(message);
-                });
+                .findLatestRequest(requesterId, receiverId)
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство с requesterId=" +
+                        requesterId + "и receiverId=" + receiverId + " не найден"));
     }
 }
