@@ -1,11 +1,9 @@
 package school.faang.user_service.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.transfer.Details;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.SubscriptionService;
@@ -27,7 +25,6 @@ public class SubscriptionController {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    @JsonView(Details.class)
     public List<UserDto> getFollowers(long followerId, UserFilterDto filterDto) {
         List<User> users = subscriptionService.getFollowers(followerId, filterDto);
         return userMapper.toDtoList(users);
@@ -37,7 +34,6 @@ public class SubscriptionController {
         return subscriptionService.getFollowersCount(followerId);
     }
 
-    @JsonView(Details.class)
     public List<UserDto> getFollowing(long followeeId, UserFilterDto filterDto) {
         List<User> followingUsers = subscriptionService.getFollowing(followeeId, filterDto);
         return userMapper.toDtoList(followingUsers);
