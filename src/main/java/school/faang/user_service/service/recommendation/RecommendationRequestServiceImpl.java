@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,12 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -31,67 +33,68 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final SkillRequestRepository skillRequestRepository;
+    private final List<RecommendationRequestFilter> recommendationRequestFilters;
 
     @Override
-    public RecommendationRequestDto create(RecommendationRequestRcvDto requestDto) {
+    public RecommendationRequestDto createRequest(RecommendationRequestRcvDto requestDto) {
         validateRecommendationRequest(requestDto);
         log.info("create request: {}", requestDto);
         RecommendationRequest request = convertRequestDtoToEntity(requestDto);
         RecommendationRequest requestSaved = recommendationRequestRepository.save(request);
-        List<SkillRequest> skills = requestDto.getSkillIds().stream()
+        List<SkillRequest> skills = requestDto.skillIds().stream()
                 .map(skillId -> skillRequestRepository.create(requestSaved.getId(), skillId))
                 .toList();
         requestSaved.setSkills(skills);
-        return mapper.toDto(requestSaved);
+        return mapper.RecommendationRequestDto(requestSaved);
     }
 
     @Override
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
-        log.info("getRequests() by filter: {} ", filter);
-        return recommendationRequestRepository.findAll().stream()
-                .filter(request -> filter.getStatus() == null || request.getStatus() == filter.getStatus())
-                .filter(request -> filter.getRequesterId() == null || filter.getRequesterId().equals(
-                        request.getRequester() != null ? request.getRequester().getId() : null))
-                .filter(request -> filter.getReceiverId() == null || filter.getReceiverId().equals(
-                        request.getReceiver() != null ? request.getReceiver().getId() : null))
-                .map(mapper::toDto)
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filters) {
+        log.info("getRequests by filters: {} ", filters);
+        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
+        return recommendationRequestFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .flatMap(filter -> filter.apply(requests, filters))
+                .map(mapper::RecommendationRequestDto)
                 .toList();
     }
 
     @Override
     public RecommendationRequestDto getRequest(long id) {
-        log.info("getRequests() with id: {} ", id);
-        return mapper.toDto(recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Recommendation request with id "
-                        + id + " not found")));
+        return mapper.RecommendationRequestDto(recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(String
+                        .format("Recommendation request with id %d not found", id))));
     }
 
     @Override
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
-        log.info("rejectRequest() with id: {} reason is {}", id, rejectionDto.getReason());
+        log.info("rejectRequest with id: {} reason is {}", id, rejectionDto.reason());
         RecommendationRequest request = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Recommendation request id " + id + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException(String
+                        .format("Recommendation request id %d not found", id)));
         validateRequestForReject(request);
         request.setStatus(RequestStatus.REJECTED);
         request.setUpdatedAt(LocalDateTime.now());
-        request.setRejectionReason(rejectionDto.getReason());
-        return mapper.toDto(recommendationRequestRepository.save(request));
+        request.setRejectionReason(rejectionDto.reason());
+        return mapper.RecommendationRequestDto(recommendationRequestRepository.save(request));
     }
 
     private void validateRequestForReject(RecommendationRequest request) {
         long id = request.getId();
-        if (request.getStatus().equals(RequestStatus.ACCEPTED)) {
-                throw new IllegalArgumentException("The recommendation request id " + id + " is already accepted");
+        if (RequestStatus.ACCEPTED.equals(request.getStatus())) {
+                throw new IllegalArgumentException(String
+                        .format("The recommendation request id %d is already accepted", id));
         }
         if (request.getStatus().equals(RequestStatus.REJECTED)) {
-                throw new IllegalArgumentException("The recommendation request id " + id + " is already rejected");
+                throw new IllegalArgumentException(String
+                        .format("The recommendation request id %d is already rejected", id));
         }
     }
 
     private RecommendationRequest convertRequestDtoToEntity(RecommendationRequestRcvDto requestDto) {
-        RecommendationRequest request = mapper.toEntity(requestDto);
-        User requester = getUserById(requestDto.getRequesterId());
-        User receiver = getUserById(requestDto.getReceiverId());
+        RecommendationRequest request = mapper.toRecommendationRequestEntity(requestDto);
+        User requester = getUserById(requestDto.requesterId());
+        User receiver = getUserById(requestDto.receiverId());
         request.setRequester(requester);
         request.setReceiver(receiver);
         request.setStatus(RequestStatus.PENDING);
@@ -100,27 +103,28 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     private void validateRecommendationRequest(RecommendationRequestRcvDto request) {
-        if (request.getRequesterId() == request.getReceiverId()) {
-            throw new IllegalArgumentException("The user cannot send a request to himself");
+        if (request.requesterId().equals(request.receiverId())) {
+            throw new IllegalArgumentException(String
+                    .format("The user with id %d cannot send a request to himself", request.requesterId()));
         }
         Optional<RecommendationRequest> lastRequest = recommendationRequestRepository.findLatestPendingRequest(
-                request.getRequesterId(), request.getReceiverId());
+                request.requesterId(), request.receiverId());
         if (lastRequest.isPresent()) {
             LocalDateTime lastRequestDate = lastRequest.get().getCreatedAt();
             if (lastRequestDate.isAfter(LocalDateTime.now().minusMonths(REQUEST_PERIOD_OF_THE_SAME_USER))) {
-                throw new IllegalArgumentException("Recommendation request must be sent once in "
-                        + REQUEST_PERIOD_OF_THE_SAME_USER + " months");
+                throw new IllegalArgumentException(String.format("Recommendation request must be sent once in %d months",
+                        REQUEST_PERIOD_OF_THE_SAME_USER));
             }
         }
-        for (long id : request.getSkillIds()) {
+        for (long id : request.skillIds()) {
             if (!skillRepository.existsById(id)) {
-                throw new IllegalArgumentException("Skill with id = " + id + " not exist");
+                throw new IllegalArgumentException(String.format("Skill with id = %d not exist", id));
             }
         }
     }
 
     private User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User with id %s not found", id)));
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User with id %d not found", id)));
     }
 }

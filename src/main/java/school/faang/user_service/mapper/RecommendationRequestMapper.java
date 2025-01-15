@@ -18,17 +18,19 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "requester", ignore = true)
     @Mapping(target = "receiver", ignore = true)
-    RecommendationRequest toEntity(RecommendationRequestRcvDto requestDto);
+    RecommendationRequest toRecommendationRequestEntity(RecommendationRequestRcvDto requestDto);
 
     @Mapping(source = "skills", target = "skillIds", qualifiedByName = "mapSkills")
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
-    RecommendationRequestDto toDto(RecommendationRequest request);
+    RecommendationRequestDto RecommendationRequestDto(RecommendationRequest request);
 
     @Named("mapSkills")
     default List<Long> mapSkills(List<SkillRequest> skills) {
         if (skills != null) {
-            return skills.stream().map(SkillRequest::getId).toList();
+            return skills.stream()
+                    .map(SkillRequest::getId)
+                    .toList();
         }
         return new ArrayList<>();
     }

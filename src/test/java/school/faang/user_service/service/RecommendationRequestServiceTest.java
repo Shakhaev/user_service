@@ -1,7 +1,6 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,8 +24,14 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.recommendation.RecommendationRequestServiceImpl;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestReceiverFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestRequesterFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestStatusFilter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,23 +81,31 @@ public class RecommendationRequestServiceTest {
     private SkillRequest skillRequest3;
     private RecommendationRequestRcvDto recommendationRequestRcvDto;
     private RejectionDto rejectionDto;
+    List<RecommendationRequestFilter> filters;
 
     @BeforeEach
     void setUp() {
+        filters = new ArrayList<>(List.of(
+                new RecommendationRequestStatusFilter(),
+                new RecommendationRequestRequesterFilter(),
+                new RecommendationRequestReceiverFilter()));
+
+        recommendationRequestService = new RecommendationRequestServiceImpl(
+                recommendationRequestRepository,
+                recommendationRequestMapper,
+                userRepository,
+                skillRepository,
+                skillRequestRepository,
+                filters);
+
         requester = createUser(1L, "Requester");
         receiver = createUser(2L, "Receiver");
+
         skill1 = createSkill(1L, "Java");
         skill2 = createSkill(2L, "Kotlin");
         skill3 = createSkill(3L, "Hibernate");
 
-        recommendationRequest = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .message("Please confirm my skills")
-                .build();
+        recommendationRequest = createRequest(1L, requester, receiver, RequestStatus.PENDING);
 
         skillRequest1 = createSkillRequest(1L, recommendationRequest, skill1);
         skillRequest2 = createSkillRequest(2L, recommendationRequest, skill2);
@@ -102,14 +114,11 @@ public class RecommendationRequestServiceTest {
         recommendationRequestRcvDto = createRequestRcvDto(requester, receiver, recommendationRequest,
                 Arrays.asList(1L, 2L, 3L));
 
-        rejectionDto = RejectionDto.builder()
-                .reason("Can't confirm.")
-                .build();
+        rejectionDto = createRejectDto("Can't confirm.");
     }
 
     @Test
-    @DisplayName("Create Recommendation Request Successfully")
-    void testCreateRecommendationRequestSuccessfully() {
+    void testCreateRecommendationRequest_Successfully() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
         when(skillRepository.existsById(anyLong())).thenReturn(true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
@@ -124,35 +133,33 @@ public class RecommendationRequestServiceTest {
         when(skillRequestRepository.create(1L, 2L)).thenReturn(skillRequest2);
         when(skillRequestRepository.create(1L, 3L)).thenReturn(skillRequest3);
 
-        RecommendationRequestDto requestFromDB = recommendationRequestService.create(recommendationRequestRcvDto);
+        RecommendationRequestDto requestFromDB = recommendationRequestService.createRequest(recommendationRequestRcvDto);
 
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository, skillRepository);
         verify(recommendationRequestRepository, Mockito.times(1))
                 .save(recommendationRequestCaptor.capture());
-        assertEquals(recommendationRequestRcvDto.getMessage(), recommendationRequestCaptor.getValue().getMessage());
+        assertEquals(recommendationRequestRcvDto.message(), recommendationRequestCaptor.getValue().getMessage());
 
         assertNotNull(requestFromDB);
-        assertEquals(1L, requestFromDB.getId());
-        assertEquals(recommendationRequestRcvDto.getRequesterId(), requestFromDB.getRequesterId());
-        assertEquals(recommendationRequestRcvDto.getReceiverId(), requestFromDB.getReceiverId());
-        assertEquals(recommendationRequestRcvDto.getMessage(), requestFromDB.getMessage());
-        assertEquals(RequestStatus.PENDING, requestFromDB.getStatus());
-        assertEquals(recommendationRequestRcvDto.getSkillIds(), requestFromDB.getSkillIds());
+        assertEquals(1L, requestFromDB.id());
+        assertEquals(recommendationRequestRcvDto.requesterId(), requestFromDB.requesterId());
+        assertEquals(recommendationRequestRcvDto.receiverId(), requestFromDB.receiverId());
+        assertEquals(recommendationRequestRcvDto.message(), requestFromDB.message());
+        assertEquals(RequestStatus.PENDING, requestFromDB.status());
+        assertEquals(recommendationRequestRcvDto.skillIds(), requestFromDB.skillIds());
     }
 
     @Test
-    @DisplayName("UserRequestHimself")
     void testCreateRecommendationRequest_UserRequestHimself() {
         RecommendationRequestRcvDto requestDto = createRequestRcvDto(requester, requester, recommendationRequest,
                 Arrays.asList(1L, 2L, 3L));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> recommendationRequestService.create(requestDto));
+                () -> recommendationRequestService.createRequest(requestDto));
 
-        assertEquals("The user cannot send a request to himself", exception.getMessage());
+        assertEquals("The user with id 1 cannot send a request to himself", exception.getMessage());
     }
 
     @Test
-    @DisplayName("RequestPeriodIsNotExceeded")
     void testCreateRecommendationRequest_RequestPeriodIsNotExceeded() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.of(RecommendationRequest.builder()
@@ -160,14 +167,13 @@ public class RecommendationRequestServiceTest {
                         .build()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestRcvDto)
+                recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
         assertEquals("Recommendation request must be sent once in 6 months", exception.getMessage());
     }
 
     @Test
-    @DisplayName("SkillIdNotExist")
     void testCreateRecommendationRequest_SkillIdNotExist() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
         when(skillRepository.existsById(1L)).thenReturn(true);
@@ -175,14 +181,13 @@ public class RecommendationRequestServiceTest {
         when(skillRepository.existsById(3L)).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestRcvDto)
+                recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
         assertEquals("Skill with id = 3 not exist", exception.getMessage());
     }
 
     @Test
-    @DisplayName("UserIdNotExist")
     void testCreateRecommendationRequest_UserIdNotExist() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
         when(skillRepository.existsById(anyLong())).thenReturn(true);
@@ -190,32 +195,30 @@ public class RecommendationRequestServiceTest {
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                recommendationRequestService.create(recommendationRequestRcvDto)
+                recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
         assertEquals("User with id 2 not found", exception.getMessage());
     }
 
     @Test
-    @DisplayName("getRequest_Success")
-    void getRequest_Success() {
+    void testGetRequestById_Successfully() {
         Long id = recommendationRequest.getId();
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
 
         RecommendationRequestDto requestDto = recommendationRequestService.getRequest(id);
 
         assertNotNull(requestDto);
-        assertEquals(recommendationRequest.getId(), requestDto.getId());
-        assertEquals(recommendationRequest.getRequester().getId(), requestDto.getRequesterId());
-        assertEquals(recommendationRequest.getReceiver().getId(), requestDto.getReceiverId());
+        assertEquals(recommendationRequest.getId(), requestDto.id());
+        assertEquals(recommendationRequest.getRequester().getId(), requestDto.requesterId());
+        assertEquals(recommendationRequest.getReceiver().getId(), requestDto.receiverId());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).RecommendationRequestDto(recommendationRequest);
     }
 
     @Test
-    @DisplayName("getRequest_NotFound")
-    void getRequest_NotFound() {
+    void testGetRequestById_NotFoundRequest() {
         Long id = 5L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -223,13 +226,12 @@ public class RecommendationRequestServiceTest {
 
         assertEquals("Recommendation request with id 5 not found", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
     }
 
     @Test
-    @DisplayName("rejectRequest_Success")
-    void rejectRequest_Success() {
-        Long id = 1L;
+    void TestRejectRequest_Successfully() {
+        Long id = recommendationRequest.getId();
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
         when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
                 .thenAnswer(invocation -> {
@@ -241,21 +243,20 @@ public class RecommendationRequestServiceTest {
         RecommendationRequestDto requestDto = recommendationRequestService.rejectRequest(id, rejectionDto);
 
         assertNotNull(requestDto);
-        assertEquals(id, requestDto.getId());
-        assertEquals(RequestStatus.REJECTED, requestDto.getStatus());
-        assertEquals(rejectionDto.getReason(), requestDto.getRejectionReason());
+        assertEquals(id, requestDto.id());
+        assertEquals(RequestStatus.REJECTED, requestDto.status());
+        assertEquals(rejectionDto.reason(), requestDto.rejectionReason());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
-        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).RecommendationRequestDto(recommendationRequest);
     }
 
     @Test
-    @DisplayName("rejectRequest_AlreadyRejected")
-    void rejectRequest_AlreadyRejected() {
-        Long id = 1L;
+    void testRejectRequest_AlreadyRejectedRequest() {
+        Long id = recommendationRequest.getId();
         recommendationRequest.setStatus(RequestStatus.REJECTED);
-        recommendationRequest.setRejectionReason(rejectionDto.getReason());
+        recommendationRequest.setRejectionReason(rejectionDto.reason());
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -264,12 +265,11 @@ public class RecommendationRequestServiceTest {
         assertEquals("The recommendation request id 1 is already rejected", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
-        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
     }
 
     @Test
-    @DisplayName("rejectRequest_NotFound")
-    void rejectRequest_NotFound() {
+    void testRejectRequest_NotFoundRequest() {
         Long id = 5L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -279,91 +279,50 @@ public class RecommendationRequestServiceTest {
         assertEquals("Recommendation request id 5 not found", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
-        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
     }
 
     @Test
-    @DisplayName("getRequestsWithFilters_Successfully")
-    void getRequestsWithFilters_Successfully() {
-        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
-                .status(RequestStatus.PENDING)
-                .build();
+    void testGetRequestsWithFiltersByStatus_Successfully() {
+        RecommendationRequest request1 = createRequest(1L, requester, receiver, RequestStatus.ACCEPTED);
+        RecommendationRequest request2 = createRequest(2L, requester, receiver, RequestStatus.PENDING);
+        RecommendationRequest request3 = createRequest(3L, requester, receiver, RequestStatus.REJECTED);
+        RequestFilterDto requestFilterDto = createFilterDto(request2.getStatus(), null, null);
 
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .status(RequestStatus.ACCEPTED)
-                .build();
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .status(RequestStatus.PENDING)
-                .build();
-
-        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2, request3));
 
         List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
 
         assertEquals(1, requests.size());
-        assertEquals(2L, requests.get(0).getId());
-        assertEquals(RequestStatus.PENDING, requests.get(0).getStatus());
+        assertEquals(request2.getId(), requests.get(0).id());
+        assertEquals(request2.getStatus(), requests.get(0).status());
     }
 
     @Test
-    @DisplayName("getRequestsWithFiltersByUser_Successfully")
-    void getRequestsWithFiltersByUser_Successfully() {
-        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
-                .requesterId(requester.getId())
-                .receiverId(receiver.getId())
-                .build();
+    void testGetRequestsWithFiltersByUser_Successfully() {
+        RecommendationRequest request1 = createRequest(1L, requester, receiver, RequestStatus.ACCEPTED);
+        RecommendationRequest request2 = createRequest(2L, requester, receiver, RequestStatus.PENDING);
+        RecommendationRequest request3 = createRequest(3L, receiver, requester, RequestStatus.REJECTED);
+        RequestFilterDto requestFilterDto = createFilterDto(null, requester.getId(), null);
 
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.ACCEPTED)
-                .build();
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.PENDING)
-                .build();
-
-        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2, request3));
 
         List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
 
         assertEquals(2, requests.size());
-        assertEquals(1L, requests.get(0).getId());
-        assertEquals(2L, requests.get(1).getId());
+        assertEquals(request1.getId(), requests.get(0).id());
+        assertEquals(request2.getId(), requests.get(1).id());
     }
 
     @Test
-    @DisplayName("getRequestsWithFiltersByStatusAndUser_Successfully")
-    void getRequestsWithFiltersByStatusAndUser_Successfully() {
-        RequestFilterDto requestFilterDto = RequestFilterDto.builder()
-                .status(RequestStatus.REJECTED)
-                .requesterId(requester.getId())
-                .receiverId(receiver.getId())
-                .build();
+    void testGetRequestsWithFiltersByStatus_NotFoundRequest() {
+        RecommendationRequest request1 = createRequest(1L, requester, receiver, RequestStatus.ACCEPTED);
+        RecommendationRequest request2 = createRequest(2L, requester, receiver, RequestStatus.PENDING);
+        RecommendationRequest request3 = createRequest(3L, receiver, requester, RequestStatus.PENDING);
+        RequestFilterDto requestFilterDto = createFilterDto(RequestStatus.REJECTED, null, null);
 
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.ACCEPTED)
-                .build();
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.PENDING)
-                .build();
-
-        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-
-        List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(requestFilterDto);
-
-        assertEquals(0, requests.size());
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2, request3));
+        assertEquals(List.of(), recommendationRequestService.getRequests(requestFilterDto));
     }
 
     private User createUser(long id, String title) {
@@ -397,6 +356,31 @@ public class RecommendationRequestServiceTest {
                 .skillIds(skillIdsList)
                 .requesterId(requester.getId())
                 .receiverId(receiver.getId())
+                .build();
+    }
+
+    private RecommendationRequest createRequest(Long id, User requester, User receiver, RequestStatus status) {
+        return RecommendationRequest.builder()
+                .id(id)
+                .requester(requester)
+                .receiver(receiver)
+                .status(status)
+                .createdAt(LocalDateTime.now())
+                .message("Please confirm my skills")
+                .build();
+    }
+
+    private RejectionDto createRejectDto(String reason) {
+        return RejectionDto.builder()
+                .reason(reason)
+                .build();
+    }
+
+    private RequestFilterDto createFilterDto(RequestStatus status, Long requesterId, Long receiverId) {
+        return RequestFilterDto.builder()
+                .status(status)
+                .requesterId(requesterId)
+                .receiverId(receiverId)
                 .build();
     }
 }

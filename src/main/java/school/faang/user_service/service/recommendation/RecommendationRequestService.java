@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestRcvDto;
@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface RecommendationRequestService {
 
-    RecommendationRequestDto create(RecommendationRequestRcvDto requestDto);
+    RecommendationRequestDto createRequest(RecommendationRequestRcvDto requestDto);
 
-    List<RecommendationRequestDto> getRequests(RequestFilterDto filter);
+    List<RecommendationRequestDto> getRequests(RequestFilterDto filters);
 
     RecommendationRequestDto getRequest(long id);
 
