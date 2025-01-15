@@ -81,7 +81,7 @@ class EventServiceImplTest {
         when(userRepository.findById(eq(2L))).thenReturn(Optional.ofNullable(getUser()));
         when(skillRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getNewSkill()));
 
-        assertThrows(DataValidateException.class, () -> eventServiceImpl.create(getEventDto()));
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.create(getEventDto()));
     }
 
     @Test
@@ -123,19 +123,11 @@ class EventServiceImplTest {
 
     @Test
     public void testDeleteEvent() {
-        when(eventRepository.findById(eq(1L))).thenReturn(Optional.ofNullable(getEventWithUserParticipatedEvents()));
         doNothing().when(eventRepository).deleteById(eq(1L));
 
         eventServiceImpl.deleteEvent(1L);
 
         verify(eventRepository).deleteById(eq(1L));
-    }
-
-    @Test
-    public void testDeleteEventWhenNotExist() {
-        when(eventRepository.findById(eq(1L))).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.deleteEvent(1L));
     }
 
     @Test

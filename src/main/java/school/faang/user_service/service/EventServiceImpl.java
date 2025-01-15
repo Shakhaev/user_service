@@ -10,7 +10,6 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidateException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -21,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EventServiceImpl {
+public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
@@ -29,6 +28,7 @@ public class EventServiceImpl {
     private final List<EventFilter> filters;
 
     @Transactional
+    @Override
     public EventDto create(EventDto event) {
         User ownerUser = getUserById(event.getOwnerId());
         validateUserHaveCurrentSkills(event, ownerUser);
@@ -36,27 +36,28 @@ public class EventServiceImpl {
         newEvent.setRelatedSkills(getSkillsByIds(event));
         Event savedEntity = eventRepository.save(newEvent);
         return eventMapper.toDto(savedEntity);
-
     }
 
+    @Override
     public EventDto getEvent(long id) {
         return eventMapper.toDto(getEventById(id));
     }
 
+    @Override
     public List<EventDto> getEventByFilters(EventFilterDto filter) {
         List<Event> events = eventRepository.findAll();
-        events = getFilteredEvents(filter, events);
-        return events.stream()
+        return getFilteredEvents(filter, events).stream()
                 .map(eventMapper::toDto)
                 .toList();
     }
 
+    @Override
     @Transactional
     public void deleteEvent(long id) {
-        validateEventExist(id);
         eventRepository.deleteById(id);
     }
 
+    @Override
     @Transactional
     public EventDto updateEvent(EventDto eventDto) {
         long id = eventDto.getId();
@@ -70,6 +71,7 @@ public class EventServiceImpl {
         return eventMapper.toDto(result);
     }
 
+    @Override
     public List<EventDto> getOwnedEvents(long userId) {
         validateUser(userId);
         return eventRepository.findAllByUserId(userId)
@@ -78,6 +80,7 @@ public class EventServiceImpl {
                 .toList();
     }
 
+    @Override
     public List<EventDto> getParticipatedEvents(long userId) {
         validateUser(userId);
         return eventRepository.findParticipatedEventsByUserId(userId)
@@ -129,7 +132,7 @@ public class EventServiceImpl {
 
     private void validateUserHaveCurrentSkills(EventDto eventDto, User user) {
         if (!isHaveUserSkills(user, eventDto.getRelatedSkills())) {
-            throw new DataValidateException(
+            throw new EntityNotFoundException(
                     "User can't conduct such an event skills with ids " + eventDto.getRelatedSkills());
         }
     }
@@ -143,7 +146,8 @@ public class EventServiceImpl {
 
     private void validateUser(long userId) {
         if (userRepository.findById(userId).isEmpty()) {
-            throw new EntityNotFoundException("User with id = " + userId + " doesn't exist");
+            throw new EntityNotFoundException(
+                    String.format("User with id = %d doesn't exist", userId));
         }
     }
 
