@@ -9,7 +9,10 @@ import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RecommendationMapper {
@@ -26,13 +29,16 @@ public interface RecommendationMapper {
 
     @Named("mapSkillOffers")
     default List<SkillOfferDto> mapSkillOffers(List<SkillOffer> skillOffers) {
-        return skillOffers
-                .stream()
-                .map(skillOffer -> SkillOfferDto
-                        .builder()
+        if (skillOffers == null || skillOffers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return skillOffers.stream()
+                .filter(Objects::nonNull)
+                .map(skillOffer -> SkillOfferDto.builder()
                         .id(skillOffer.getId())
-                        .skillId(skillOffer.getSkill().getId())
+                        .skillId(skillOffer.getSkill() != null ? skillOffer.getSkill().getId() : null)
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 }
