@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class RecommendationRequestDto {
-
     private Long id;
     private String message;
     private RequestStatus status;

@@ -11,4 +11,3 @@ public interface RequestFilter {
  Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationStream,
                                      RequestFilterDto requestFilterDto);
 }
-

@@ -16,6 +16,7 @@ public class ReceiverIdFilter implements RequestFilter {
     @Override
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationStream,
                                                RequestFilterDto requestFilterDto) {
+
         return recommendationStream.filter(request -> request
                 .getReceiver()
                 .getId()
