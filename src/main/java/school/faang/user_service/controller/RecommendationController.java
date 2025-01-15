@@ -1,7 +1,7 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
@@ -15,11 +15,11 @@ public class RecommendationController {
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
         if (validateRecommendation(recommendation)) {
-            Optional<RecommendationDto> recommendationOptional = recommendationService.create(recommendation);
-
+            RecommendationDto recommendationOptional = recommendationService.create(recommendation);
         } else {
-            throw new DataValidationException("Recommendation is empty");
+            throw new ValidationException("Recommendation is empty");
         }
+        return null;
     }
 
     private boolean validateRecommendation(RecommendationDto recommendation) { // TODO: вынести валидацию в сервис?
