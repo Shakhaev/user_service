@@ -4,9 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import school.faang.user_service.dto.RecommendationRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
-import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.request.filter.RecommendationRequestFilterDto;
 
 import java.util.List;
 
@@ -19,21 +18,16 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "receiver.id", source = "receiverId")
     @Mapping(target = "recommendation", ignore = true)
     @Mapping(target = "id", ignore = true)
-    RecommendationRequest toEntity(RecommendationRequestDto dto);
+    school.faang.user_service.entity.recommendation.RecommendationRequest toEntity(RecommendationRequestDto dto);
 
     @Mapping(target = "requesterId", source = "requester.id")
     @Mapping(target = "receiverId", source = "receiver.id")
     @Mapping(target = "skills", expression = "java(getSkillIds(request))")
-    RecommendationRequestDto toDto(RecommendationRequest request);
+    RecommendationRequestDto toDto(school.faang.user_service.entity.recommendation.RecommendationRequest request);
 
-    @Mapping(target = "skillIds", expression = "java(getSkillIds(request))")
-    @Mapping(target = "requesterId", source = "requester.id")
-    @Mapping(target = "receiverId", source = "receiver.id")
-    RequestFilterDto requestToRequestFilterDto(RecommendationRequest request);
+    school.faang.user_service.entity.recommendation.RecommendationRequest update(@MappingTarget school.faang.user_service.entity.recommendation.RecommendationRequest target, school.faang.user_service.entity.recommendation.RecommendationRequest source);
 
-    RecommendationRequest update(@MappingTarget RecommendationRequest target, RecommendationRequest source);
-
-    default List<Long> getSkillIds(RecommendationRequest request) {
+    default List<Long> getSkillIds(school.faang.user_service.entity.recommendation.RecommendationRequest request) {
         if (request == null) {
             return List.of();
         }

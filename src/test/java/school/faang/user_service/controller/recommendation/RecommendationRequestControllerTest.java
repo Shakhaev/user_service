@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,13 +8,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.BaseTest;
 import school.faang.user_service.data.RecommendationRequestData;
 import school.faang.user_service.data.SkillData;
-import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -70,10 +69,10 @@ public class RecommendationRequestControllerTest extends BaseTest {
 
         try {
             mockData(data);
-            mockFindLatestPendingRequest(Optional.of(data.toRecommendationRequest()));
+            mockFindLatestPendingRequest(true);
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (ResponseStatusException e) {
-            assertEquals("400 BAD_REQUEST \"Less than min months have passed since the previous request\"", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            assertEquals("Less than min months have passed since the previous request", e.getMessage());
         }
     }
 
@@ -81,11 +80,11 @@ public class RecommendationRequestControllerTest extends BaseTest {
     public void requestRecommendationNotFoundUserFail() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
 
-        when(userRepository.findAllById(any())).thenReturn(List.of());
+        when(userRepository.existsById(any())).thenReturn(false);
         try {
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (ResponseStatusException e) {
-            assertEquals("404 NOT_FOUND \"Users not found\"", e.getMessage());
+        } catch (EntityNotFoundException e) {
+            assertEquals("User with id 1 not found", e.getMessage());
         }
     }
 
@@ -95,8 +94,8 @@ public class RecommendationRequestControllerTest extends BaseTest {
 
         try {
             recommendationRequestController.requestRecommendation(data.toDto());
-        } catch (ResponseStatusException e) {
-            assertEquals("400 BAD_REQUEST \"Message must not be null\"", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            assertEquals("Message must not be null", e.getMessage());
         }
     }
 
@@ -121,7 +120,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
 
     private void mockData(RecommendationRequestData data) {
         mockUserData(data.getRequester().getUser());
-        mockFindLatestPendingRequest(Optional.empty());
+        mockFindLatestPendingRequest(false);
         mockSkillsFindById(data);
         when(recommendationRequestRepository.save(any())).thenReturn(data.toRecommendationRequest());
         when(skillRequestRepository.saveAll(any())).thenReturn(data.getSkillsRequested().stream().map(skillData ->
@@ -135,15 +134,17 @@ public class RecommendationRequestControllerTest extends BaseTest {
     }
 
     private void mockSkillsFindById(RecommendationRequestData data) {
+        when(skillRepository.existsById(any())).thenReturn(true);
         when(skillRepository.findAllById(any())).thenReturn(data.getSkillsRequested().stream().map(SkillData::toSkill).toList());
         when(skillRepository.findById(any())).thenReturn(Optional.of(data.getSkillsRequested().get(0).toSkill()));
     }
 
-    private void mockFindLatestPendingRequest(Optional<RecommendationRequest> returnValue) {
-        when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong())).thenReturn(returnValue);
+    private void mockFindLatestPendingRequest(Boolean returnValue) {
+        when(recommendationRequestRepository.findLatestPendingRequestCreatedAfterThen(anyLong(), any())).thenReturn(returnValue);
     }
 
     private void mockUserData(User user) {
+        when(userRepository.existsById(any())).thenReturn(true);
         when(userRepository.findAllById(any())).thenReturn(List.of(user));
     }
 }

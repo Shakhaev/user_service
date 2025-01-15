@@ -12,9 +12,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  mvc:
-    servlet:
-      path: /api/v1
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -40,5 +37,7 @@ payment-service:
   port: 9080
 
 user-service:
+  api-version: /api/v1
   recommendation-request:
     min-month: 6
+    

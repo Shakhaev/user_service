@@ -1,9 +1,8 @@
 package school.faang.user_service.data;
 
-import school.faang.user_service.dto.RecommendationRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.request.filter.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
 import java.time.LocalDateTime;
@@ -71,8 +70,8 @@ public enum RecommendationRequestData {
                 .build();
     }
 
-    public RecommendationRequest toRecommendationRequest() {
-        return RecommendationRequest.builder()
+    public school.faang.user_service.entity.recommendation.RecommendationRequest toRecommendationRequest() {
+        return school.faang.user_service.entity.recommendation.RecommendationRequest.builder()
                 .id(this.id)
                 .skills(this.skillsRequested.stream()
                         .map(skillData -> SkillRequest.builder()
@@ -89,8 +88,8 @@ public enum RecommendationRequestData {
                 .build();
     }
 
-    public RequestFilterDto toFilterDto() {
-        return RequestFilterDto.builder()
+    public RecommendationRequestFilterDto toFilterDto() {
+        return RecommendationRequestFilterDto.builder()
                 .requesterId(requester.getId())
                 .receiverId(receiver.getId())
                 .message(message)

@@ -5,7 +5,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.recommendation.SkillRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,33 +49,5 @@ public enum SkillData {
 
     public long getId() {
         return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public List<UserSkillGuarantee> getGuarantees() {
-        return guarantees;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public List<Goal> getGoals() {
-        return goals;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }
