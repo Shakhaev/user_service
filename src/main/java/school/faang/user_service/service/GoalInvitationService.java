@@ -53,9 +53,10 @@ public class GoalInvitationService {
             throw new GoalInvitationException(String.format("User can not has more than %d active goals", MAX_ACTIVE_GOALS));
         }
 
-        if (isGoalAlreadyContains(invitedUserGoals, id)) {
+        if (invitedUser.getGoals().contains(invitation.getGoal())) {
             throw new GoalInvitationException("User already has such goal");
         }
+
         invitation.setStatus(RequestStatus.ACCEPTED);
         invitedUser.getGoals().add(invitation.getGoal());
         userRepository.save(invitedUser);
@@ -67,11 +68,11 @@ public class GoalInvitationService {
         GoalInvitation invitation = isGoalInvitationExists(id);
         invitation.setStatus(RequestStatus.REJECTED);
         log.info("Invitation to goal {} rejected", invitation.getGoal().getTitle());
-
     }
 
     public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
+
         if (invitations.isEmpty()) {
             throw new NoSuchElementException("No one goal invitation created");
         }
@@ -79,15 +80,6 @@ public class GoalInvitationService {
                 .filter(filter -> filter.isApplicable(filters))
                 .flatMap(filter -> filter.apply(invitations.stream(), filters))
                 .toList();
-
-
-
-    }
-
-    private boolean isGoalAlreadyContains(List<GoalInvitation> invitedUserGoals, Long id) {
-        return invitedUserGoals.stream()
-                .map(GoalInvitation::getId)
-                .anyMatch(idInv -> idInv.equals(id));
     }
 
     private boolean isUserExists(Long id) {
