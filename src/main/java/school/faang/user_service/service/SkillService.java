@@ -92,7 +92,7 @@ public class SkillService {
             RatingDTO ratingDTO = new RatingDTO(
                     u -> "User : " + u.getUsername() + " -> unfollowed another user and got rating!",
                     user,
-                    appConfig.getFollowRating(),
+                    appConfig.getSkillAcquireRating(),
                     ActionType.ACQUIRE_SKILL
             );
 
