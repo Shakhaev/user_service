@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +54,14 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     @Override
-    public List<RecommendationRequest> getRequestByFilter(RecommendationRequestFilterDto dto) {
-        AtomicReference<List<RecommendationRequest>> recommendationRequests = new AtomicReference<>(recommendationRequestRepository.findAll());
-        recommendationRequestFilters.stream()
+    public List<RecommendationRequestDto> getRequestByFilter(RecommendationRequestFilterDto dto) {
+        List<RecommendationRequest> recommendationRequests = recommendationRequestRepository.findAll();
+
+        return recommendationRequestFilters.stream()
                 .filter(filter -> filter.isApplicable(dto))
-                .forEach(filter -> recommendationRequests.set(filter.apply(recommendationRequests.get(), dto)));
-        return recommendationRequests.get();
+                .flatMap(filter -> filter.apply(recommendationRequests.stream(), dto))
+                .map(recommendationRequestMapper::toDto)
+                .toList();
     }
 
     @Override

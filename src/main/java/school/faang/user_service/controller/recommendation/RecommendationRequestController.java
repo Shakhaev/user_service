@@ -32,9 +32,7 @@ public class RecommendationRequestController {
 
     @GetMapping("/filter")
     public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RecommendationRequestFilterDto dto) {
-        return recommendationRequestService.getRequestByFilter(dto).stream()
-                .map(recommendationRequestMapper::toDto)
-                .toList();
+        return recommendationRequestService.getRequestByFilter(dto);
     }
 
     @GetMapping("/{id}")
