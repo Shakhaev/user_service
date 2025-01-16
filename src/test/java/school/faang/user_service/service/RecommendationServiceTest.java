@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +23,7 @@ import school.faang.user_service.service.impl.RecommendationServiceImpl;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +43,7 @@ class RecommendationServiceTest {
     private static final int TEST_LIST_SIZE = 1;
     private static final String ERROR_MESSAGE_BLANK_CONTENT = "Recommendation content is blank";
     private static final String ERROR_MESSAGE_SKILLS_NOT_EXIST = "These skills do not exists in system";
+    private static final String ERROR_MESSAGE_RECOMMENDATION_NOT_FOUND = "No recommendation found with id: ";
 
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
@@ -61,33 +62,26 @@ class RecommendationServiceTest {
 
     @Test
     void createRecommendation_WithBlankContent_ShouldThrowException() {
-        // Arrange
         RecommendationDto recommendationDto = createRecommendationDto(BLANK_CONTENT);
 
-        // Act
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
 
-        // Assert
         assertEquals(ERROR_MESSAGE_BLANK_CONTENT, exception.getMessage());
     }
 
     @Test
     void createRecommendation_WithNonExistingSkills_ShouldThrowException() {
-        // Arrange
         RecommendationDto recommendationDto = prepareRecommendationWithSkills(false);
 
-        // Act
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+        DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
 
-        // Assert
         assertEquals(ERROR_MESSAGE_SKILLS_NOT_EXIST, exception.getMessage());
     }
 
     @Test
     void createRecommendation_WithValidData_ShouldSucceed() {
-        // Arrange
         RecommendationDto recommendationDto = prepareRecommendationWithSkills(true);
         when(recommendationRepository.create(
                 recommendationDto.getAuthorId(),
@@ -95,50 +89,54 @@ class RecommendationServiceTest {
                 recommendationDto.getContent()))
                 .thenReturn(TEST_ID);
 
-        // Act
         RecommendationDto result = recommendationService.create(recommendationDto);
 
-        // Assert
         assertNotNull(result);
         assertEquals(TEST_ID, result.getId());
     }
 
+    @Test
+    void deleteRecommendation_WhenNotFound_ShouldThrowException() {
+        when(recommendationRepository.findById(TEST_ID)).thenReturn(Optional.empty());
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> recommendationService.delete(TEST_ID));
+
+        assertEquals(ERROR_MESSAGE_RECOMMENDATION_NOT_FOUND + TEST_ID, exception.getMessage());
+    }
 
     @Test
     void deleteRecommendation_WhenExists_ShouldSucceed() {
-        // Arrange & Act
+        Recommendation recommendation = Recommendation.builder()
+                .id(TEST_ID)
+                .build();
+        when(recommendationRepository.findById(TEST_ID)).thenReturn(Optional.of(recommendation));
+
         recommendationService.delete(TEST_ID);
 
-        // Assert
         verify(recommendationRepository).deleteById(TEST_ID);
     }
 
     @Test
     void updateRecommendation_WithBlankContent_ShouldThrowException() {
-        // Arrange
         RecommendationDto recommendationDto = createRecommendationDto(BLANK_CONTENT);
 
-        // Act & Assert
         assertThrows(DataValidationException.class, () -> recommendationService.update(recommendationDto));
     }
 
     @Test
     void updateRecommendation_WithValidData_ShouldSucceed() {
-        // Arrange
         RecommendationDto recommendationDto = prepareRecommendationWithSkills(true);
         recommendationDto.setId(TEST_ID);
 
-        // Act
         RecommendationDto result = recommendationService.update(recommendationDto);
 
-        // Assert
         assertEquals(recommendationDto, result);
         verify(skillOfferRepository).deleteAllByRecommendationId(recommendationDto.getId());
     }
 
     @Test
     void getAllUserRecommendations_ShouldReturnList() {
-        // Arrange
         Page<Recommendation> recommendationPage = new PageImpl<>(List.of(
                 Recommendation.builder()
                         .id(TEST_ID)
@@ -148,10 +146,8 @@ class RecommendationServiceTest {
         when(recommendationRepository.findAllByReceiverId(eq(TEST_RECEIVER_ID), any(Pageable.class)))
                 .thenReturn(recommendationPage);
 
-        // Act
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(TEST_RECEIVER_ID);
 
-        // Assert
         assertNotNull(result);
         assertEquals(TEST_LIST_SIZE, result.size());
         verify(recommendationMapper).toDto(any(Recommendation.class));
@@ -159,15 +155,12 @@ class RecommendationServiceTest {
 
     @Test
     void getAllUserRecommendations_WhenEmpty_ShouldReturnEmptyList() {
-        // Arrange
         Page<Recommendation> emptyPage = new PageImpl<>(Collections.emptyList());
         when(recommendationRepository.findAllByReceiverId(eq(TEST_RECEIVER_ID), any(Pageable.class)))
                 .thenReturn(emptyPage);
 
-        // Act
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(TEST_RECEIVER_ID);
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }

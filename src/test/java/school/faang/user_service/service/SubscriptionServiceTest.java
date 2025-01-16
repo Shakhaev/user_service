@@ -52,15 +52,13 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Should return list of recommendations when author has recommendations")
     void shouldReturnRecommendationsWhenAuthorHasRecommendations() {
-        // Arrange
         Page<Recommendation> recommendationPage = new PageImpl<>(List.of(recommendation));
+
         when(recommendationRepository.findAllByAuthorId(eq(AUTHOR_ID), any(Pageable.class))).thenReturn(recommendationPage);
         when(recommendationMapper.toDto(recommendation)).thenReturn(recommendationDto);
 
-        // Act
         List<RecommendationDto> result = subscriptionService.getAllGivenRecommendations(AUTHOR_ID);
 
-        // Assert
         assertThat(result).isNotEmpty().hasSize(1).first().satisfies(dto -> {
             assertThat(dto.getId()).isEqualTo(recommendation.getId());
             assertThat(dto.getContent()).isEqualTo(recommendation.getContent());
@@ -73,14 +71,11 @@ class SubscriptionServiceTest {
     @Test
     @DisplayName("Should return empty list when author has no recommendations")
     void shouldReturnEmptyListWhenAuthorHasNoRecommendations() {
-        // Arrange
         Page<Recommendation> emptyPage = new PageImpl<>(Collections.emptyList());
         when(recommendationRepository.findAllByAuthorId(eq(AUTHOR_ID), any(Pageable.class))).thenReturn(emptyPage);
 
-        // Act
         List<RecommendationDto> result = subscriptionService.getAllGivenRecommendations(AUTHOR_ID);
 
-        // Assert
         assertThat(result).isEmpty();
         verify(recommendationRepository).findAllByAuthorId(eq(AUTHOR_ID), any(Pageable.class));
     }
