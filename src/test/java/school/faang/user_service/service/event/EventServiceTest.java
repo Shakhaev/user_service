@@ -211,4 +211,5 @@ public class EventServiceTest {
         assertFalse(result.isEmpty());
         verify(eventRepository).findParticipatedEventsByUserId(anyLong());
     }
+
 }
