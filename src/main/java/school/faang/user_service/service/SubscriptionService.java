@@ -83,13 +83,4 @@ public class SubscriptionService {
             );
         }
     }
-
-    public void unfollowUser(long followerId, long followeeId) {
-        if (followerId == followeeId) {
-            throw new DataValidationException(
-                    "FollowerId %d and FolloweeId %d cannot be the same".formatted(followerId, followeeId)
-            );
-        }
-        subscriptionRepository.unfollowUser(followerId, followeeId);
-    }
 }

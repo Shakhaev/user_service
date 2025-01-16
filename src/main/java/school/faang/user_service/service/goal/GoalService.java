@@ -17,9 +17,9 @@ import school.faang.user_service.exeption.NoSkillsFoundException;
 import school.faang.user_service.exeption.NonExistentSkillException;
 import school.faang.user_service.exeption.UnsupportedGoalStatusException;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.filters.goal.GoalFilter;
-import school.faang.user_service.service.skill.SkillService;
-import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.AbstractMap;
@@ -39,6 +39,12 @@ public class GoalService {
 
     @Value("${app.max-active-goals}")
     private int MAX_ACTIVE_GOALS;
+
+    private static void validSkills(List<Skill> skills) {
+        if (skills.isEmpty()) {
+            throw new NoSkillsFoundException("No skills found for the goal");
+        }
+    }
 
     @Transactional
     public void createGoal(Long userId, Goal goal) {
@@ -130,8 +136,7 @@ public class GoalService {
     }
 
     private User getUser(Long userId) {
-        return userService.findUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return userService.getUser(userId);
     }
 
     private Goal getGoal(Long goalId) {
@@ -176,12 +181,6 @@ public class GoalService {
         if (goal.getSkillsToAchieve().stream()
                 .noneMatch(skill -> skillService.skillExistsByTitle(skill.getTitle()))) {
             throw new NonExistentSkillException("The goal contains non-existent skills");
-        }
-    }
-
-    private static void validSkills(List<Skill> skills) {
-        if (skills.isEmpty()) {
-            throw new NoSkillsFoundException("No skills found for the goal");
         }
     }
 }
