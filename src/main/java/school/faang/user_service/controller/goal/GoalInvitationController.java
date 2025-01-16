@@ -3,10 +3,13 @@ package school.faang.user_service.controller.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.service.GoalInvitationService;
 import school.faang.user_service.validator.goal.GoalInvitationDtoValidator;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -31,7 +34,9 @@ public class GoalInvitationController {
         goalInvitationService.rejectGoalInvitation(id);
     }
 
-//    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
-//
-//    }
+    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
+        List<GoalInvitation> filteredInvitations = goalInvitationService.getInvitations(filters);
+        return goalInvitationMapper.toDtoList(filteredInvitations);
+
+    }
 }

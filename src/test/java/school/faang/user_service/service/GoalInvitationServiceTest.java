@@ -1,14 +1,17 @@
 package school.faang.user_service.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -66,10 +69,10 @@ public class GoalInvitationServiceTest {
 
     @Test
     public void testCreateInvitationFailSameUser() {
-//        GoalInvitation invitation = GoalInvitation.builder()
-//                .inviter(User.builder().id(1L).build())
-//                .invited(User.builder().id(1L).build())
-//                .build();
+        GoalInvitation invitation = GoalInvitation.builder()
+                .inviter(User.builder().id(1L).build())
+                .invited(User.builder().id(1L).build())
+                .build();
 
         GoalInvitationException exception = assertThrows(GoalInvitationException.class,
                 () -> goalInvitationService.createInvitation(invitation));
