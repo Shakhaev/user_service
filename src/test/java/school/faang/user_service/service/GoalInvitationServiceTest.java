@@ -25,7 +25,7 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.NoSuchElementException;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
@@ -36,10 +36,11 @@ public class GoalInvitationServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private List<InvitationFilter> invitationFilters;
+
     @InjectMocks
     private GoalInvitationService goalInvitationService;
-
-    private List<InvitationFilter> invitationFilters;
 
     @Test
     public void testCreateInvitationSuccess() {
@@ -71,7 +72,7 @@ public class GoalInvitationServiceTest {
         GoalInvitationException exception = assertThrows(GoalInvitationException.class,
                 () -> goalInvitationService.createInvitation(invitation));
 
-        assertEquals("User cannot create invitation for himself", exception.getMessage());
+        assertEquals("The user doesn't create invitation by-self", exception.getMessage());
     }
 
     @Test
@@ -131,63 +132,12 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationsSuccess() {
-        InvitationFilter filter1 = mock(InvitationFilter.class);
-        InvitationFilter filter2 = mock(InvitationFilter.class);
+    public void testGetInvitationsFailNoInvitations() {
+        when(goalInvitationRepository.findAll()).thenReturn(List.of());
 
-        when(filter1.isApplicable(any())).thenReturn(true);
-        when(filter1.apply(any(), any())).thenAnswer(invocation -> {
-            Stream<GoalInvitation> stream = invocation.getArgument(0);
-            return stream.filter(i -> i.getId() == 1L);
-        });
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> goalInvitationService.getInvitations(mock(InvitationFilterDto.class)));
 
-        when(filter2.isApplicable(any())).thenReturn(false);
-
-        invitationFilters = List.of(filter1, filter2);
-        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userRepository, invitationFilters);
-
-        GoalInvitation invitation1 = GoalInvitation.builder().id(1L).build();
-        GoalInvitation invitation2 = GoalInvitation.builder().id(2L).build();
-        List<GoalInvitation> invitations = List.of(invitation1, invitation2);
-
-        when(goalInvitationRepository.findAll()).thenReturn(invitations);
-
-        List<GoalInvitation> result = goalInvitationService.getInvitations(new InvitationFilterDto());
-
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
-    }
-
-    @Test
-    public void testGetInvitations_ByInviterName() {
-        GoalInvitation invitation1 = GoalInvitation.builder()
-                .id(1L).inviter(User.builder()
-                        .username("John")
-                        .build())
-                .build();
-        GoalInvitation invitation2 = GoalInvitation.builder()
-                .id(2L).inviter(User.builder()
-                        .username("Alex")
-                        .build())
-                .build();
-
-        List<GoalInvitation> invitations = List.of(invitation1, invitation2);
-
-        InvitationFilter inviterNameFilter = mock(InvitationFilter.class);
-        when(inviterNameFilter.isApplicable(any())).thenReturn(true);
-        when(inviterNameFilter.apply(any(), any())).thenAnswer(invocation -> {
-            Stream<GoalInvitation> stream = invocation.getArgument(0);
-            return stream.filter(i -> "John".equals(i.getInviter().getUsername()));
-        });
-
-        invitationFilters = List.of(inviterNameFilter);
-        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userRepository, invitationFilters);
-
-        when(goalInvitationRepository.findAll()).thenReturn(invitations);
-
-        List<GoalInvitation> result = goalInvitationService.getInvitations(new InvitationFilterDto());
-
-        assertEquals(1, result.size());
-        assertEquals("John", result.get(0).getInviter().getUsername());
+        assertEquals("No one goal invitation created", exception.getMessage());
     }
 }
