@@ -19,10 +19,8 @@ import school.faang.user_service.exception.RequestAlreadyProcessedException;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.service.recommendation.UserService;
-import school.faang.user_service.service.recommendation.impl.RecommendationRequestServiceImpl;
-import school.faang.user_service.service.recommendation.impl.SkillRequestServiceImpl;
-import school.faang.user_service.service.recommendation.util.RecommendationRequestFilter;
+import school.faang.user_service.service.recommendation.RecommendationRequestFilter;
+import school.faang.user_service.service.recommendation.RecommendationRequestService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,16 +35,16 @@ class RecommendationRequestServiceTest {
     @Mock
     private UserService userService;
     @Mock
-    private SkillRequestServiceImpl skillRequestService;
+    private SkillRequestService skillRequestService;
     @Mock
     private RecommendationRequestMapperImpl recommendationRequestMapper;
     @Mock
     private RecommendationRequestFilter recommendationRequestFilter;
-    private RecommendationRequestServiceImpl recommendationRequestService;
+    private RecommendationRequestService recommendationRequestService;
 
     @BeforeEach
     void setUp() {
-        recommendationRequestService = new RecommendationRequestServiceImpl(recommendationRequestRepository,
+        recommendationRequestService = new RecommendationRequestService(recommendationRequestRepository,
                 userService, skillRequestService, recommendationRequestMapper, recommendationRequestFilter);
     }
 

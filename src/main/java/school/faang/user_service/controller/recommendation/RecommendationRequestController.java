@@ -11,13 +11,13 @@ import school.faang.user_service.service.recommendation.RecommendationRequestSer
 import java.util.List;
 
 @RestController
-@RequestMapping("/recommendations")
+@RequestMapping("/recommendations/request")
 @RequiredArgsConstructor
 public class RecommendationRequestController {
 
     private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<CreateRecommendationRequestResponse> requestRecommendation(@Valid @RequestBody CreateRecommendationRequestRequest recommendationRequest) {
         var recommendationRequestDto = recommendationRequestService.create(recommendationRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(recommendationRequestDto);

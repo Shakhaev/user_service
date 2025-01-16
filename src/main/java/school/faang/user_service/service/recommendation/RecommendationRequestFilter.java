@@ -1,4 +1,4 @@
-package school.faang.user_service.service.recommendation.util;
+package school.faang.user_service.service.recommendation;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
@@ -10,9 +10,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Component
-public class RecommendationRequestFilterImpl implements RecommendationRequestFilter {
+public class RecommendationRequestFilter {
 
-    @Override
     public List<Predicate<RecommendationRequest>> getPredicates(RequestFilterDto filter) {
         List<Predicate<RecommendationRequest>> predicates = new ArrayList<>();
         addPredicate(filter.requesterId(), predicates,
