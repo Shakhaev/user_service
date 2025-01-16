@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +22,7 @@ import school.faang.user_service.filter.goal.InvitationFilter;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.NoSuchElementException;
@@ -42,21 +42,16 @@ public class GoalInvitationServiceTest {
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
-    private GoalInvitation invitation;
-
-    @BeforeEach
-    public void setUp() {
-        invitation = GoalInvitation.builder()
+    @Test
+    public void testCreateInvitationSuccess() {
+        GoalInvitation invitation = GoalInvitation.builder()
                 .id(1L)
                 .inviter(User.builder().id(1L).username("InviterUser").build())
                 .invited(User.builder().id(2L).username("InvitedUser").build())
                 .goal(Goal.builder().id(100L).title("Test Goal").build())
                 .status(RequestStatus.PENDING)
                 .build();
-    }
 
-    @Test
-    public void testCreateInvitationSuccess() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(goalInvitationRepository.save(invitation)).thenReturn(invitation);
@@ -89,12 +84,12 @@ public class GoalInvitationServiceTest {
         List<GoalInvitation> receivedGoals = mock(List.class);
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
-        when(goalInvitationRepository.save(any())).thenAnswer(i -> i.getArguments()[0] );
+        when(goalInvitationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
         when(invitation.getInvited()).thenReturn(invitedUser);
         when(invitedUser.getReceivedGoalInvitations()).thenReturn(receivedGoals);
         when(receivedGoals.size()).thenReturn(2);
-        when(invitedUser.getGoals()).thenReturn(mock(List.class));
+        when(invitedUser.getGoals()).thenReturn(new ArrayList<>());
         when(invitation.getGoal()).thenReturn(goal);
         when(invitation.getStatus()).thenReturn(RequestStatus.ACCEPTED);
 
