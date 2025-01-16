@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import school.faang.user_service.dto.PremiumDto;
 import school.faang.user_service.entity.premium.Premium;
 
-@Mapper(componentModel = "spring ")
+@Mapper(componentModel = "spring")
 public interface PremiumMapper {
     @Mapping(source = "userId", target = "user.id")
     Premium toEntity(PremiumDto premiumDto);
