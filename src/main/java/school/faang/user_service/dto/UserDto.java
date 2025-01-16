@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
+@ToString
 @Getter
 @Setter
 public class UserDto {
@@ -19,6 +21,6 @@ public class UserDto {
 
     @NotEmpty(message = "email must not be empty")
     @NotNull(message = "email must not be null")
-    @Email
+    @Email(message = "email is not correct")
     private String email;
 }
