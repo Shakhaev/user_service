@@ -81,7 +81,7 @@ public class RecommendationRequestServiceTest {
     private SkillRequest skillRequest3;
     private RecommendationRequestRcvDto recommendationRequestRcvDto;
     private RejectionDto rejectionDto;
-    List<RecommendationRequestFilter> filters;
+    private List<RecommendationRequestFilter> filters;
 
     @BeforeEach
     void setUp() {
