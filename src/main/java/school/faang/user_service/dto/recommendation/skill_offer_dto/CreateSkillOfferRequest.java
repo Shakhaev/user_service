@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class CreateSkillOfferRequest {
     private Long skillId;
-    private Long recommendationId;
 }

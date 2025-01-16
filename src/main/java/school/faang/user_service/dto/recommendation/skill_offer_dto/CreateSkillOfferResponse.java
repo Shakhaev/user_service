@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class CreateSkillOfferResponse {
-    private Long id;
-    private Long skillId;
-    private Long recommendationId;
+    private long id;
+    private long skillId;
+    private long recommendationId;
 }

@@ -1,28 +1,26 @@
 package school.faang.user_service.controller;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationResponse;
 import school.faang.user_service.service.RecommendationService;
-
-import java.util.Optional;
+import school.faang.user_service.exception.DataValidationException;
 
 @Component
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        if (validateRecommendation(recommendation)) {
-            RecommendationDto recommendationOptional = recommendationService.create(recommendation);
+    public CreateRecommendationResponse giveRecommendation(CreateRecommendationRequest recommendationRequest) {
+        if (validateRecommendation(recommendationRequest)) {
+            return recommendationService.create(recommendationRequest);
         } else {
-            throw new ValidationException("Recommendation is empty");
+            throw new DataValidationException("Recommendation is empty");
         }
-        return null;
     }
 
-    private boolean validateRecommendation(RecommendationDto recommendation) { // TODO: вынести валидацию в сервис?
+    private boolean validateRecommendation(CreateRecommendationRequest recommendation) { // TODO: вынести валидацию в сервис?
         return !recommendation.getContent().isEmpty();
     }
 }

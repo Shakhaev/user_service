@@ -1,17 +1,17 @@
 package school.faang.user_service.dto.recommendation.recommendation_dto;
 
 import lombok.Data;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class CreateRecommendationResponse {
-    private Long id;
+    private long id;
     private Long authorId;
     private Long receiverId;
     private String content;
-    private List<SkillOfferDto> skillOffers;
+    private List<CreateSkillOfferResponse> skillOffers;
     private LocalDateTime createdAt;
 }
