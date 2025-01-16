@@ -4,7 +4,6 @@ app:
     dicebear_url: "${DICEBEAR_URL: https://api.dicebear.com/9.x/adventurer/svg?seed={seed}}"
 
 spring:
-
   mvc:
     servlet:
       path: /api/v1
@@ -30,6 +29,16 @@ spring:
     redis:
       port: 6379
       host: localhost
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+    template:
+      default-topic: test-topic
 
 server:
   port: 8080
