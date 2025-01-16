@@ -2,10 +2,8 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.request.filter.RecommendationRequestFilterDto;
 
 import java.util.List;
 
@@ -24,8 +22,6 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "receiverId", source = "receiver.id")
     @Mapping(target = "skills", expression = "java(getSkillIds(request))")
     RecommendationRequestDto toDto(school.faang.user_service.entity.recommendation.RecommendationRequest request);
-
-    school.faang.user_service.entity.recommendation.RecommendationRequest update(@MappingTarget school.faang.user_service.entity.recommendation.RecommendationRequest target, school.faang.user_service.entity.recommendation.RecommendationRequest source);
 
     default List<Long> getSkillIds(school.faang.user_service.entity.recommendation.RecommendationRequest request) {
         if (request == null) {

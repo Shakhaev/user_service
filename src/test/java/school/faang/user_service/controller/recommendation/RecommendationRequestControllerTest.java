@@ -140,7 +140,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
     }
 
     private void mockFindLatestPendingRequest(Boolean returnValue) {
-        when(recommendationRequestRepository.findLatestPendingRequestCreatedAfterThen(anyLong(), any())).thenReturn(returnValue);
+        when(recommendationRequestRepository.isLatestPendingRequestCreatedAfterThenExists(anyLong(), any())).thenReturn(returnValue);
     }
 
     private void mockUserData(User user) {
