@@ -37,6 +37,5 @@ public class GoalInvitationController {
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
         List<GoalInvitation> filteredInvitations = goalInvitationService.getInvitations(filters);
         return goalInvitationMapper.toDtoList(filteredInvitations);
-
     }
 }
