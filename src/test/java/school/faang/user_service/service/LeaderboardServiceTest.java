@@ -15,7 +15,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.calculator.leaderboard.LeaderboardCalculator;
-import school.faang.user_service.mapper.UserScoreMapperImpl;
+import school.faang.user_service.mapper.LeaderboardMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LeaderboardServiceTest {
 
     @Spy
-    private UserScoreMapperImpl userScoreMapper;
+    private LeaderboardMapperImpl leaderboardMapper;
 
     @Mock
     private UserRepository userRepository;
