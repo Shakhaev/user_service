@@ -43,7 +43,7 @@ public class EventServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
-    @Spy
+    @Mock
     private EventMapper eventMapper;
 
     @InjectMocks
