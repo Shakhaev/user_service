@@ -39,7 +39,7 @@ public class EventServiceImpl implements EventService {
 
     public EventDto getEvent(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> throwResourceNotFoundException("Event", id));
+                .orElseThrow(() -> logAndThrowResourceNotFoundException("Event", id));
 
         return eventMapper.toDto(event);
     }
@@ -49,7 +49,7 @@ public class EventServiceImpl implements EventService {
 
         long ownerId = eventData.ownerId();
         event.setOwner(userRepository.findById(ownerId)
-                .orElseThrow(() -> throwResourceNotFoundException("User", ownerId)));
+                .orElseThrow(() -> logAndThrowResourceNotFoundException("User", ownerId)));
 
         List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
         validateSkills(relatedSkills, event.getOwner());
@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService {
     public EventDto update(EventRequestDto eventData, Long id) {
         long ownerId = eventData.ownerId();
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> throwResourceNotFoundException("Event", id));
+                .orElseThrow(() -> logAndThrowResourceNotFoundException("Event", id));
         validateOwner(ownerId, event);
 
         eventMapper.update(eventData, event);
@@ -98,7 +98,7 @@ public class EventServiceImpl implements EventService {
                 .allMatch(eventFilter -> eventFilter.test(filter, event));
     }
 
-    private ResourceNotFoundException throwResourceNotFoundException(String entityName, Long id) {
+    private ResourceNotFoundException logAndThrowResourceNotFoundException(String entityName, Long id) {
         log.error("{} with id {} was not found", entityName, id);
         return new ResourceNotFoundException(entityName + " with id " + id + " was not found");
     }
@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
     private List<Skill> getRelatedSkills(List<Long> relatedSkillsIds) {
         return relatedSkillsIds == null ? new ArrayList<>() : relatedSkillsIds.stream()
                 .map(id -> skillRepository.findById(id)
-                        .orElseThrow(() -> throwResourceNotFoundException("Skill", id)))
+                        .orElseThrow(() -> logAndThrowResourceNotFoundException("Skill", id)))
                 .toList();
     }
 
