@@ -14,7 +14,24 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Service
 public class SkillService {
+
     private final SkillRepository skillRepository;
+
+    public boolean skillExistsByTitle(String title) {
+        return skillRepository.existsByTitle(title);
+    }
+
+    public void assignSkillToGoal(long skillId, long goalId) {
+        skillRepository.assignSkillToGoal(skillId, goalId);
+    }
+
+    public List<Skill> findSkillsByGoalId(long goalId) {
+        return skillRepository.findSkillsByGoalId(goalId);
+    }
+
+    public void deleteSkill(Skill skill) {
+        skillRepository.delete(skill);
+    }
 
     public List<Skill> getSkills(List<Long> ids) {
         log.info("Getting Skills with ids {}", ids);
