@@ -16,7 +16,7 @@ public class UserEmailFilter extends UserFilter {
     }
 
     @Override
-    public Stream<User> apply(@NotNull Stream<User> users, UserFilterDto filters) {
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
         return users.filter(user ->
                 user.getEmail().contains(filters.getEmailPattern()));
     }

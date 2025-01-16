@@ -1,10 +1,12 @@
 package school.faang.user_service.service.filters.user;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
@@ -16,9 +18,11 @@ public class UserSkillFilter extends UserFilter {
     }
 
     @Override
-    public Stream<User> apply(@NotNull Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getSkills().stream()
-                .anyMatch(skill ->
-                        skill.getTitle().contains(filters.getSkillPattern())));
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        return users.filter(user -> {
+            return Objects.requireNonNullElse(user.getSkills(), Collections.<Skill>emptyList()).stream()
+                    .anyMatch(skill ->
+                            skill.getTitle().contains(filters.getSkillPattern()));
+        });
     }
 }

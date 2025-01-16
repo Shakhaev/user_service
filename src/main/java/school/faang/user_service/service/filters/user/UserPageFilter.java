@@ -16,7 +16,7 @@ public class UserPageFilter extends UserFilter {
     }
 
     @Override
-    public Stream<User> apply(@NotNull Stream<User> users, UserFilterDto filters) {
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
         return users.skip((long) filters.getPage() * filters.getPageSize());
     }
 }

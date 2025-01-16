@@ -13,6 +13,7 @@ import school.faang.user_service.dto.SubscriptionUserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.validator.DtoValidator;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
+    private final DtoValidator<SubscriptionUserDto> validator;
 
     @PostMapping("/follow/{followerId}/{followeeId}")
     public ResponseEntity<Void> followUser(@PathVariable long followerId, @PathVariable long followeeId) {
@@ -43,6 +45,8 @@ public class SubscriptionController {
         List<SubscriptionUserDto> followers = userMapper.toDto(subscriptionService
                 .getFollowers(followeeId, filters));
 
+        validator.validate(followers);
+
         return ResponseEntity.ok(followers);
     }
 
@@ -59,6 +63,8 @@ public class SubscriptionController {
 
         List<SubscriptionUserDto> followings = userMapper.toDto(subscriptionService
                 .getFollowing(followerId, filters));
+
+        validator.validate(followings);
 
         return ResponseEntity.ok(followings);
     }

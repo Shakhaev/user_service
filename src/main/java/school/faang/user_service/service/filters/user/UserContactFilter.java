@@ -4,7 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.Contact;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
@@ -15,9 +19,11 @@ public class UserContactFilter extends UserFilter {
     }
 
     @Override
-    public Stream<User> apply(@NotNull Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> user.getContacts().stream()
-                .anyMatch(contact ->
-                        contact.getContact().contains(filters.getContactPattern())));
+    public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
+        return users.filter(user -> {
+            return Objects.requireNonNullElse(user.getContacts(), Collections.<Contact>emptyList()).stream()
+                    .anyMatch(contact ->
+                            contact.getContact().contains(filters.getContactPattern()));
+        });
     }
 }
