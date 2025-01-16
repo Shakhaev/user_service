@@ -1,5 +1,6 @@
 package school.faang.user_service.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PremiumDto {
     private Long id;
-    private String userId;
+    private Long userId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 }

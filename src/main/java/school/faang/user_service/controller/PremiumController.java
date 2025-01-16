@@ -24,7 +24,6 @@ public class PremiumController {
     public PremiumDto buyPremium(@PathVariable @Positive(message = "Days cannot be negative") Integer days) {
         Long userId = userContext.getUserId();
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(days);
-        log.info("premiumPeriod: {}", premiumPeriod);
 
         return premiumService.buyPremium(userId, premiumPeriod);
     }
