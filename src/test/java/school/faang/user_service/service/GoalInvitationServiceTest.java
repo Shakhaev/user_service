@@ -43,8 +43,6 @@ public class GoalInvitationServiceTest {
 
     @BeforeEach
     public void setUp() {
-//        MockitoAnnotations.openMocks(this);
-
         invitation = GoalInvitation.builder()
                 .id(1L)
                 .inviter(User.builder().id(1L).username("InviterUser").build())
@@ -55,19 +53,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitation_Success() {
-//        GoalInvitation invitation = mock(GoalInvitation.class);
-        User inviter = mock(User.class);
-        User invited = mock(User.class);
-        Goal goal = mock(Goal.class);
-
-        when(invitation.getInviter()).thenReturn(inviter);
-        when(invitation.getInvited()).thenReturn(invited);
-        when(inviter.getId()).thenReturn(1L);
-        when(invited.getId()).thenReturn(2L);
-        when(goal.getTitle()).thenReturn("Test Goal");
-        when(invitation.getStatus()).thenReturn(RequestStatus.PENDING);
-        when(invitation.getGoal()).thenReturn(goal);
+    public void testCreateInvitationSuccess() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(goalInvitationRepository.save(invitation)).thenReturn(invitation);
@@ -79,13 +65,11 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitation_Fail_SameUser() {
-        GoalInvitation invitation = mock(GoalInvitation.class);
-        User user = mock(User.class);
-
-        when(invitation.getInviter()).thenReturn(user);
-        when(invitation.getInvited()).thenReturn(user);
-        when(user.getId()).thenReturn(1L);
+    public void testCreateInvitationFailSameUser() {
+//        GoalInvitation invitation = GoalInvitation.builder()
+//                .inviter(User.builder().id(1L).build())
+//                .invited(User.builder().id(1L).build())
+//                .build();
 
         GoalInvitationException exception = assertThrows(GoalInvitationException.class,
                 () -> goalInvitationService.createInvitation(invitation));
@@ -94,10 +78,11 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitation_Success() {
+    public void testAcceptGoalInvitationSuccess() {
         GoalInvitation invitation = mock(GoalInvitation.class);
         User invitedUser = mock(User.class);
         Goal goal = mock(Goal.class);
+
         List<GoalInvitation> receivedGoals = mock(List.class);
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
@@ -117,7 +102,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitation_Fail_MaxActiveGoals() {
+    public void testAcceptGoalInvitationFailMaxActiveGoals() {
         GoalInvitation invitation = mock(GoalInvitation.class);
         User invitedUser = mock(User.class);
         List<GoalInvitation> receivedGoals = mock(List.class);
@@ -135,6 +120,7 @@ public class GoalInvitationServiceTest {
 
     @Test
     public void testRejectGoalInvitation_Success() {
+
         GoalInvitation invitation = mock(GoalInvitation.class);
         Goal goal = mock(Goal.class);
 
@@ -148,7 +134,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitations_Fail_NoInvitations() {
+    public void testGetInvitationsFailNoInvitations() {
         when(goalInvitationRepository.findAll()).thenReturn(List.of());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class,
