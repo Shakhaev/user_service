@@ -67,4 +67,9 @@ public class UserDomainService {
     public Integer countFollowersByUserId(Long ownerId) {
         return userRepository.countFollowersByUserId(ownerId);
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsById(long id) {
+        return userRepository.existsById(id);
+    }
 }

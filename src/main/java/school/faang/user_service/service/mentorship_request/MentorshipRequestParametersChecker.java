@@ -10,8 +10,8 @@ import school.faang.user_service.exception.mentorship_request.EmptyMentorshipReq
 import school.faang.user_service.exception.mentorship_request.MentorshipRequestWasAcceptedBeforeException;
 import school.faang.user_service.exception.mentorship_request.NotEnoughTimeAfterLastRequestException;
 import school.faang.user_service.exception.mentorship_request.UserRequestToHimselfException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +29,7 @@ public class MentorshipRequestParametersChecker {
     private String requestLimitPeriodType;
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
-    private final UserRepository userRepository;
+    private final UserDomainService userDomainService;
 
     public void checkExistAcceptedRequest(long requesterId, long receiverId) {
         boolean isExist = mentorshipRequestRepository.existAcceptedRequest(requesterId, receiverId);
@@ -63,7 +63,7 @@ public class MentorshipRequestParametersChecker {
     }
 
     private void checkExistUserId(long id) {
-        if (!userRepository.existsById(id)) {
+        if (!userDomainService.existsById(id)) {
             log.error("User with id {} not found", id);
             throw new UserNotFoundException(id);
         }
