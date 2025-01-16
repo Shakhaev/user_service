@@ -9,7 +9,7 @@ import java.util.List;
 public interface RecommendationRequestService {
     RecommendationRequest create(RecommendationRequestDto recommendationRequest);
 
-    List<RecommendationRequest> getRequestByFilter(RecommendationRequestFilterDto dto);
+    List<RecommendationRequestDto> getRequestByFilter(RecommendationRequestFilterDto dto);
 
     RecommendationRequest getRequestById(Long id);
 }
