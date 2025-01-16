@@ -2,8 +2,8 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -14,7 +14,7 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Stream;
 
-@RestController
+@Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
