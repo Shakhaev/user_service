@@ -5,8 +5,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.CreateGoalRequest;
-import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.GoalResponse;
 import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
@@ -36,7 +36,7 @@ public class GoalService {
     private final List<GoalFilter> filters;
 
     @Transactional
-    public GoalDto createGoal(long userId, CreateGoalRequest goalDto) {
+    public GoalResponse createGoal(long userId, CreateGoalRequest goalDto) {
         userValid(userId);
 
         if (goalRepository.countActiveGoalsPerUser(userId) >= USER_GOAL_MAX_COUNT) {
@@ -49,11 +49,11 @@ public class GoalService {
         goal.setSkillsToAchieve(skillsToGoal);
         goal = goalRepository.save(goal);
 
-        return goalMapper.toDto(goal);
+        return goalMapper.toResponse(goal);
     }
 
     @Transactional
-    public GoalDto updateGoal(UpdateGoalRequest goalDto) {
+    public GoalResponse updateGoal(UpdateGoalRequest goalDto) {
         Goal goal = getGoalById(goalDto.id());
         GoalStatus currentStatus = goal.getStatus();
 
@@ -66,7 +66,7 @@ public class GoalService {
         }
 
         goal = goalRepository.save(goal);
-        return goalMapper.toDto(goal);
+        return goalMapper.toResponse(goal);
     }
 
     public void deleteGoal(long goalId) {
@@ -74,20 +74,20 @@ public class GoalService {
         goalRepository.delete(goal);
     }
 
-    public List<GoalDto> getGoals(long userId, GoalFilterDto filterDto) {
+    public List<GoalResponse> getGoals(long userId, GoalFilterDto filterDto) {
         userValid(userId);
 
         Stream<Goal> goalStream = goalRepository.findGoalsByUserId(userId);
         return filterGoals(goalStream, filterDto)
-                .map(g -> goalMapper.toDto(g))
+                .map(g -> goalMapper.toResponse(g))
                 .toList();
     }
 
-    public List<GoalDto> getSubtasksGoal(long goalId) {
+    public List<GoalResponse> getSubtasksGoal(long goalId) {
         getGoalById(goalId);
 
         return goalRepository.findByParent(goalId)
-                .map(g -> goalMapper.toDto(g))
+                .map(g -> goalMapper.toResponse(g))
                 .toList();
     }
 

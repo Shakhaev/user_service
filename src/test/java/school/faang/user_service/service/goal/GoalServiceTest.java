@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.goal.CreateGoalRequest;
-import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.GoalResponse;
 import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
@@ -82,14 +82,14 @@ class GoalServiceTest {
         when(goalRepository.create(eq(createGoalRequest.title()), eq(createGoalRequest.description()), any())).thenReturn(goal);
         when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
-        GoalDto mappedGoalDto = GoalDto.builder()
+        GoalResponse mappedGoalResponse = GoalResponse.builder()
                 .id(goal.getId())
                 .title(goal.getTitle())
                 .build();
 
-        when(goalMapper.toDto(any(Goal.class))).thenReturn(mappedGoalDto);
+        when(goalMapper.toResponse(any(Goal.class))).thenReturn(mappedGoalResponse);
 
-        GoalDto result = goalService.createGoal(userId, createGoalRequest);
+        GoalResponse result = goalService.createGoal(userId, createGoalRequest);
 
         assertNotNull(result);
         assertEquals(101L, result.id());
@@ -184,11 +184,11 @@ class GoalServiceTest {
         List<GoalFilter> mockFilters = List.of(filter);
         ReflectionTestUtils.setField(goalService, "filters", mockFilters);
 
-        GoalDto goalDto = GoalDto.builder().id(1L).title("Test Goal").build();
+        GoalResponse goalResponse = GoalResponse.builder().id(1L).title("Test Goal").build();
 
-        when(goalMapper.toDto(goal1)).thenReturn(goalDto);
+        when(goalMapper.toResponse(goal1)).thenReturn(goalResponse);
 
-        List<GoalDto> result = goalService.getGoals(userId, filterDto);
+        List<GoalResponse> result = goalService.getGoals(userId, filterDto);
         assertEquals(1, result.size());
         assertEquals("Test Goal", result.get(0).title());
     }
@@ -217,13 +217,13 @@ class GoalServiceTest {
         List<Goal> subGoals = List.of(subGoal1, subGoal2);
         when(goalRepository.findByParent(goalId)).thenReturn(subGoals.stream());
 
-        GoalDto dto1 = GoalDto.builder().id(21L).build();
-        GoalDto dto2 = GoalDto.builder().id(22L).build();
+        GoalResponse dto1 = GoalResponse.builder().id(21L).build();
+        GoalResponse dto2 = GoalResponse.builder().id(22L).build();
 
-        when(goalMapper.toDto(subGoal1)).thenReturn(dto1);
-        when(goalMapper.toDto(subGoal2)).thenReturn(dto2);
+        when(goalMapper.toResponse(subGoal1)).thenReturn(dto1);
+        when(goalMapper.toResponse(subGoal2)).thenReturn(dto2);
 
-        List<GoalDto> result = goalService.getSubtasksGoal(goalId);
+        List<GoalResponse> result = goalService.getSubtasksGoal(goalId);
         assertEquals(2, result.size());
         assertEquals(21L, result.get(0).id());
         assertEquals(22L, result.get(1).id());
