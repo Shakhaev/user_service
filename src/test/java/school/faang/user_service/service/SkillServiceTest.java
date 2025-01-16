@@ -20,6 +20,9 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -35,6 +38,9 @@ public class SkillServiceTest {
 
     @Captor
     private ArgumentCaptor<Skill> captor;
+
+    @Captor
+    private ArgumentCaptor<Long> captorLong;
 
     @InjectMocks
     private SkillService skillService;
@@ -63,5 +69,17 @@ public class SkillServiceTest {
         Mockito.when(skillRepository.save(any(Skill.class))).thenThrow(new DataValidationException("DataValidationException!!!"));
 
         Assert.assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
+    }
+
+    @Test
+    @DisplayName("get skills from Repo")
+    public void testSkillsFromRepo() {
+        Mockito.when(skillRepository.findAllByUserId(any(Long.class))).thenReturn(new ArrayList<>());
+        List<SkillDto> skillDtoList = skillService.getUserSkills(any(Long.class));
+        /*verify(skillRepository, times(1)).findAllByUserId((Long) captorLong.capture());
+        SkillDto skill = captorLong.getValue();
+        assertEquals(skillDtoList, skillService.getUserSkills(skill).);*/
+
+
     }
 }
