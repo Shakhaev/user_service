@@ -1,6 +1,6 @@
 package school.faang.user_service.service.event;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
@@ -8,13 +8,9 @@ import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-
-    @Autowired
-    public EventParticipationService(EventParticipationRepository eventParticipationRepository) {
-        this.eventParticipationRepository = eventParticipationRepository;
-    }
 
     public void registerParticipant(long eventId, long userId) throws Exception {
         try {
