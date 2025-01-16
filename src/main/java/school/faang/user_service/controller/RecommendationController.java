@@ -36,13 +36,13 @@ public class RecommendationController {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    public List<RecommendationDto> getAllGivenRecommendations(long authorId){
+    public List<RecommendationDto> getAllRecommendations(long authorId){
         return recommendationService.getAllGivenRecommendations(authorId);
     }
 
-    public boolean checkingContent(RecommendationDto recommendation) {
+    private boolean checkingContent(RecommendationDto recommendation) {
         String content = recommendation.getContent();
-        return content == null || content.trim().isEmpty();
+        return content == null || content.isBlank();
     }
 
 
