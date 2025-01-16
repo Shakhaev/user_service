@@ -35,20 +35,19 @@ public class EventParticipationService {
                 .unregister(eventId, userId);
     }
 
-    private boolean isParticipantRegistered(long eventId, long userId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
-    }
-
     public List<UserDto> getParticipant(long eventId) {
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        List<UserDto> dto = userMapper.usersToUserDtos(users);
-        return dto;
+        return userMapper.usersToUserDtos(users);
     }
 
     public int getParticipantsCount(long eventId) {
 
         return eventParticipationRepository.countParticipants(eventId);
+    }
+
+    private boolean isParticipantRegistered(long eventId, long userId) {
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
+                .stream()
+                .anyMatch(user -> user.getId() == userId);
     }
 }

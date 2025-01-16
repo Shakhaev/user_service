@@ -2,13 +2,13 @@ package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.event.EventParticipationService;
 
@@ -29,8 +29,7 @@ public class EventParticipationServiceTest {
     @Mock
     private EventParticipationRepository eventParticipationRepository;
 
-    @Spy
-    private UserMapperImpl userMapper;
+    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Test
     public void testRegisterWithRegisteredUser() {
@@ -108,7 +107,6 @@ public class EventParticipationServiceTest {
         );
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(users);
-        when(userMapper.usersToUserDtos(users)).thenReturn(userDtos);
 
         eventParticipationRepository.findAllParticipantsByEventId(eventId);
         userMapper.usersToUserDtos(users);
@@ -117,7 +115,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testgetParticipantsCount() {
+    public void testGetParticipantsCount() {
         long eventId = 1L;
         int expectedCount = 10;
         when(eventParticipationRepository
