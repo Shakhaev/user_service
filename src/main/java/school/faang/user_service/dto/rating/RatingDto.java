@@ -10,4 +10,4 @@ public record RatingDto(
         @NonNull @Positive long id,
         @NonNull @Positive int points,
         @NonNull ActionType actionType
-) {}
+) { }

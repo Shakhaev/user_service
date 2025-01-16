@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.rating.LeaderTableDto;
 import school.faang.user_service.dto.rating.RatingDto;
+import school.faang.user_service.dto.rating.UserComparingDto;
 import school.faang.user_service.service.RatingService;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class RatingController {
     }
 
     @GetMapping("/leaders/{limit}")
-    public List<LeaderTableDto> getTableLeaders(@PathVariable int limit) {
-        return ratingService.getTableLeaders(limit);
+    public List<LeaderTableDto> getTableLeaders(@PathVariable int limit, @RequestBody UserComparingDto userComparingDto) {
+        return ratingService.getTableLeaders(limit, userComparingDto);
     }
 }
