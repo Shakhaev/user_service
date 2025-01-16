@@ -1,7 +1,8 @@
 package school.faang.user_service.service;
 
 import school.faang.user_service.constant.PremiumPeriod;
+import school.faang.user_service.dto.PremiumDto;
 
 public interface PremiumService {
-    Object buyPremium(PremiumPeriod premiumPeriod);
+    PremiumDto buyPremium(Long userId, PremiumPeriod premiumPeriod);
 }
