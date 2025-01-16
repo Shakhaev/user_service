@@ -8,5 +8,9 @@ import java.util.List;
 
 @Repository
 public interface MentorshipRepository extends JpaRepository<User, Long> {
-    List<User> findMenteesByUserId(Long userId);
+
+    List<User> findMenteesById(Long userId);
+
+    List<User> findMentorsById(Long userId);
+
 }

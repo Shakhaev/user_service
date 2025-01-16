@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
@@ -18,8 +17,15 @@ public class MentorshipController {
         this.mentorshipService = mentorshipService;
     }
 
-    @GetMapping("/mentors/{userId}/mentees")
+    @GetMapping("/users/{userId}/mentees")
     public List<UserDto> getMentees(@PathVariable long userId) {
         return mentorshipService.getMentees(userId);
     }
+
+    @GetMapping("/users/{userId}/mentors")
+    public List<UserDto> getMentors(@PathVariable long userId) {
+        return mentorshipService.getMentors(userId);
+    }
+
+
 }

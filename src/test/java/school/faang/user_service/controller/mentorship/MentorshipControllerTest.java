@@ -5,60 +5,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.UserMapperImpl;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-
-// import static reactor.core.publisher.Mono.when;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipControllerTest {
 
     @Mock
     private MentorshipService mentorshipService;
-//
-//    @Mock
-//    private MentorshipRepository mentorshipRepository;
-
-//    @Spy
-//    private UserMapperImpl userMapperImpl;
 
     @InjectMocks
     private MentorshipController mentorshipController;
 
+    private List<UserDto> users = null;
+    private List<UserDto> mentees = new ArrayList<>();
+    private List<UserDto> mentors = new ArrayList<>();
+
     @BeforeEach
     void setUp() {
-//        MockitoAnnotations.openMocks(this); // delete
-
-    }
-
-    @Test
-    void testGetMentees() {
-        // Arrange
-        // long mentorId = 1L;
-
-
-        //        List<User> users = Arrays.asList(new User(1L, "John"), new User(2L, "Jane"));
-
-
-        List<UserDto> users = Arrays.asList(
+        users = Arrays.asList(
                 UserDto.builder().id(0L).username("user0").build(),
                 UserDto.builder().id(1L).username("user1").build(),
                 UserDto.builder().id(2L).username("user2").build(),
@@ -71,30 +45,62 @@ class MentorshipControllerTest {
                 UserDto.builder().id(9L).username("user9").build()
         );
 
-        List<UserDto> mentees = Arrays.asList(
+        mentees.addAll(Arrays.asList(
                 users.get(9), users.get(8), users.get(7), users.get(6)
-        );
+        ));
+
+        mentors.addAll(Arrays.asList(
+                users.get(1), users.get(2)
+        ));
 
         users.get(3).setMentees(mentees);
         users.get(5).setMentees(mentees);
 
-        // change to repo
+        users.get(4).setMentors(mentors);
+    }
+
+    @Test
+    void testGetMentees() {
         when(mentorshipService.getMentees(3L)).thenReturn(mentees);
-//        when(mentorshipRepository.findMenteesByUserId(3L)).thenReturn(users);
-//        when(mentorshipRepository.findById(3L)).thenReturn(users);
 
-//        System.out.println(mentorshipController.getMentees(3));
-
-
-        // Act
-        // ResponseEntity<List<UserDto>> response = mentorshipController.getMentees(mentorId);
         List<UserDto> response = mentorshipController.getMentees(3);
 
-        System.out.println(response);
-
-        // Assert
-        assertNotNull(response);
         assertEquals(4, response.size());
-//        assertTrue(response.getBody().containsAll(users));
     }
+
+    @Test
+    void testGetMentors() {
+        when(mentorshipService.getMentors(4L)).thenReturn(mentors);
+
+        List<UserDto> response = mentorshipController.getMentors(4);
+
+        assertEquals(2, response.size());
+    }
+
+    @Test
+    void testDeleteMentee() {
+        mentorshipService.deleteMentee(5L, 3L);
+
+        mentees.remove(3);
+
+        when(mentorshipService.getMentees(3L)).thenReturn(mentees);
+
+        List<UserDto> response = mentorshipController.getMentees(3);
+
+        assertEquals(3, response.size());
+    }
+
+    @Test
+    void testDeleteMentor() {
+        mentorshipService.deleteMentor(4L, 1L);
+
+        mentors.remove(1);
+
+        when(mentorshipService.getMentors(4L)).thenReturn(mentors);
+
+        List<UserDto> response = mentorshipController.getMentors(4);
+
+        assertEquals(1, response.size());
+    }
+
 }
