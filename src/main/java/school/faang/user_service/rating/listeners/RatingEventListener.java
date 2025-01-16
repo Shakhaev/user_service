@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.rating.RatingDTO;
+import school.faang.user_service.dto.rating.RatingDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.rating.RatingHistory;
 import school.faang.user_service.rating.ActionType;
@@ -21,14 +21,13 @@ public class RatingEventListener {
 
     @EventListener
     @Transactional
-    public void handle(RatingDTO ratingDTO) {
-        // тут грубо вызываю get, потому что до передачи сюда id уже были произведены проверки на пользователя.
-        logger.info("Got the info -> {}, {}, {}, {}", ratingDTO.getId(), ratingDTO.getActionType(), ratingDTO.getDescriptionable(), ratingDTO.getPoints());
+    public void handle(RatingDto ratingDTO) {
+        logger.info("Got the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
 
-        User user = userRepository.findById(ratingDTO.getId()).get();
-        int points = ratingDTO.getPoints();
-        ActionType actionType = ratingDTO.getActionType();
-        Descriptionable descriptionable = ratingDTO.getDescriptionable();
+        User user = userRepository.findById(ratingDTO.id()).get();
+        int points = ratingDTO.points();
+        ActionType actionType = ratingDTO.actionType();
+        Descriptionable descriptionable = ratingDTO.descriptionable();
 
         user.setRatingPoints(user.getRatingPoints() + points);
         user.getRatingHistories().add(
@@ -41,6 +40,6 @@ public class RatingEventListener {
         );
 
         userRepository.save(user);
-        logger.info("Saved the info -> {}, {}, {}, {}", ratingDTO.getId(), ratingDTO.getActionType(), ratingDTO.getDescriptionable(), ratingDTO.getPoints());
+        logger.info("Saved the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
     }
 }

@@ -9,14 +9,12 @@ import school.faang.user_service.config.AppConfig;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.rating.RatingDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.rating.ActionType;
-import school.faang.user_service.rating.description.Descriptionable;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
