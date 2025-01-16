@@ -1,7 +1,7 @@
-package school.faang.user_service.dto.recommendation.recommendation_dto;
+package school.faang.user_service.dto.recommendation;
 
 import lombok.Data;
-import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferResponse;
+import school.faang.user_service.dto.skill_offer.CreateSkillOfferResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;

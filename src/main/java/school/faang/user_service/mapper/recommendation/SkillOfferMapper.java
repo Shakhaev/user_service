@@ -3,8 +3,8 @@ package school.faang.user_service.mapper.recommendation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferRequest;
-import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferResponse;
+import school.faang.user_service.dto.skill_offer.CreateSkillOfferRequest;
+import school.faang.user_service.dto.skill_offer.CreateSkillOfferResponse;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

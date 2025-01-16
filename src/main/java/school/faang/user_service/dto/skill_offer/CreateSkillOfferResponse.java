@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.recommendation.skill_offer_dto;
+package school.faang.user_service.dto.skill_offer;
 
 import lombok.Data;
 

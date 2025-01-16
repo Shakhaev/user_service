@@ -2,15 +2,13 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationResponse;
-import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferRequest;
-import school.faang.user_service.dto.recommendation.skill_offer_dto.CreateSkillOfferResponse;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
+import school.faang.user_service.dto.skill_offer.CreateSkillOfferResponse;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.mapper.recommendation.SkillOfferMapper;

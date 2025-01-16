@@ -3,8 +3,8 @@ package school.faang.user_service.mapper.recommendation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.recommendation_dto.CreateRecommendationResponse;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
