@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.MessageError;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -61,20 +62,20 @@ public class SkillService {
         User user = userService.getById(userId);
 
         if (skill.isPresent()) {
-            throw new BusinessException("У пользователя уже есть предложенный скил");
+            throw new BusinessException(MessageError.USER_ALREADY_HAS_SUGGESTED_SKILL.name());
         }
 
         List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
 
         if (offers.size() < MIN_SKILL_OFFERS) {
-            throw new BusinessException("Недостаточно предложений для получения скила");
+            throw new BusinessException(MessageError.NOT_ENOUGH_SKILL_OFFERS.name());
         }
 
         skillRepository.assignSkillToUser(skillId, userId);
 
         Skill finalSkill = skillRepository
                 .findUserSkill(skillId, userId)
-                .orElseThrow(() -> new BusinessException("Невозможно получить скилл"));
+                .orElseThrow(() -> new BusinessException(MessageError.SKILL_NOT_AVAILABLE.name()));
         addGuarantees(offers, finalSkill, user);
 
         return skillMapper.toDto(finalSkill);
