@@ -2,8 +2,10 @@ package school.faang.user_service.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.promotion.UserPromotionRequest;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.entity.User;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static school.faang.user_service.config.KafkaConstants.USER_KEY;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -32,6 +36,13 @@ public class UserService {
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final JsonUtil jsonUtil;
+
+    public User findById(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(id));
+    }
     private final AvatarService avatarService;
     private final MinioStorageService minioStorageService;
     private final UserMapper userMapper;
@@ -60,9 +71,11 @@ public class UserService {
         mentorshipService.removeMentorship(userId);
     }
 
-    public User findById(long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(id));
+
+    public void userPromotion(UserPromotionRequest userPromotionRequest) {
+        findById(userPromotionRequest.userId());
+        String message = jsonUtil.convertToJson(userPromotionRequest);
+        kafkaTemplate.send(PROMOTION_BOUGHT_TOPIC, USER_KEY, message);
     }
 
     public UserRegisterResponse register(@Valid UserRegisterRequest request) {
