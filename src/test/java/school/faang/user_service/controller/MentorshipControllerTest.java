@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.mentorship.MentorshipController;
 import school.faang.user_service.dto.user.UserMentorshipDto;
-import school.faang.user_service.service.BecomeMentorshipService;
+import school.faang.user_service.service.MentorshipRelationService;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipControllerTest {
     @Mock
-    private BecomeMentorshipService becomeMentorshipService;
+    private MentorshipRelationService mentorshipRelationService;
 
     @InjectMocks
     private MentorshipController mentorshipController;
@@ -56,25 +56,25 @@ public class MentorshipControllerTest {
     @Test
     void testGetMentees() {
         long mentorId = 1L;
-        when(becomeMentorshipService.getMentees(mentorId)).thenReturn(mentees);
+        when(mentorshipRelationService.getMentees(mentorId)).thenReturn(mentees);
         List<UserMentorshipDto> result = mentorshipController.getMentees(mentorId);
 
         assertEquals(2, result.size());
         assertEquals("mentee1", result.get(0).getUsername());
         assertEquals("mentee2", result.get(1).getUsername());
-        verify(becomeMentorshipService).getMentees(mentorId);
+        verify(mentorshipRelationService).getMentees(mentorId);
     }
 
     @Test
     void testGetMentors() {
         long userId = 2L;
-        when(becomeMentorshipService.getMentors(userId)).thenReturn(mentors);
+        when(mentorshipRelationService.getMentors(userId)).thenReturn(mentors);
         List<UserMentorshipDto> result = mentorshipController.getMentors(userId);
 
         assertEquals(2, result.size());
         assertEquals("mentor1", result.get(0).getUsername());
         assertEquals("mentor2", result.get(1).getUsername());
-        verify(becomeMentorshipService).getMentors(userId);
+        verify(mentorshipRelationService).getMentors(userId);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class MentorshipControllerTest {
 
         mentorshipController.deleteMentee(mentorId, menteeId);
 
-        verify(becomeMentorshipService).deleteMentee(menteeId, mentorId);
+        verify(mentorshipRelationService).deleteMentee(menteeId, mentorId);
     }
 
     @Test
@@ -94,6 +94,6 @@ public class MentorshipControllerTest {
 
         mentorshipController.deleteMentor(menteeId, mentorId);
 
-        verify(becomeMentorshipService).deleteMentor(menteeId, mentorId);
+        verify(mentorshipRelationService).deleteMentor(menteeId, mentorId);
     }
 }

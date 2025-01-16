@@ -3,29 +3,29 @@ package school.faang.user_service.controller.mentorship;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserMentorshipDto;
-import school.faang.user_service.service.BecomeMentorshipService;
+import school.faang.user_service.service.MentorshipRelationService;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class MentorshipController {
-    private final BecomeMentorshipService becomeMentorshipService;
+    private final MentorshipRelationService mentorshipRelationService;
 
     public List<UserMentorshipDto> getMentees(long mentorId) {
-        return becomeMentorshipService.getMentees(mentorId);
+        return mentorshipRelationService.getMentees(mentorId);
     }
 
     public List<UserMentorshipDto> getMentors(long userId) {
-        return becomeMentorshipService.getMentors(userId);
+        return mentorshipRelationService.getMentors(userId);
     }
 
     public void deleteMentee(long mentorId, long menteeId) {
-        becomeMentorshipService.deleteMentee(menteeId, mentorId);
+        mentorshipRelationService.deleteMentee(menteeId, mentorId);
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        becomeMentorshipService.deleteMentor(menteeId, mentorId);
+        mentorshipRelationService.deleteMentor(menteeId, mentorId);
     }
 }
 

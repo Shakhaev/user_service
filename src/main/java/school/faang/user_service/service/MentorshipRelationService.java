@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BecomeMentorshipService {
+public class MentorshipRelationService {
     private final MentorshipRepository mentorshipRepository;
     private final UserMentorshipMapper userMentorshipMapper;
 

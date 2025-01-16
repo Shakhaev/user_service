@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BecomeMentorshipServiceTest {
+public class MentorshipRelationServiceTest {
 
     @Mock
     private MentorshipRepository mentorshipRepository;
@@ -32,7 +32,7 @@ public class BecomeMentorshipServiceTest {
     private UserMentorshipMapperImpl userMapper;
 
     @InjectMocks
-    private BecomeMentorshipService becomeMentorshipService;
+    private MentorshipRelationService mentorshipRelationService;
 
     private User mentor;
     private User mentee;
@@ -57,7 +57,7 @@ public class BecomeMentorshipServiceTest {
         long userId = arrange();
 
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () ->
-                becomeMentorshipService.getMentees(userId)
+                mentorshipRelationService.getMentees(userId)
         );
 
         assertUserNotFound(exception, userId);
@@ -67,7 +67,7 @@ public class BecomeMentorshipServiceTest {
     void testGetMenteesUserExists() {
         long userId = 1L;
         when(mentorshipRepository.findById(userId)).thenReturn(Optional.of(mentor));
-        List<UserMentorshipDto> result = becomeMentorshipService.getMentees(userId);
+        List<UserMentorshipDto> result = mentorshipRelationService.getMentees(userId);
 
         assertUserExist(result, userId);
     }
@@ -77,7 +77,7 @@ public class BecomeMentorshipServiceTest {
         long userId = arrange();
 
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () ->
-                becomeMentorshipService.getMentors(userId)
+                mentorshipRelationService.getMentors(userId)
         );
 
         assertUserNotFound(exception, userId);
@@ -99,7 +99,7 @@ public class BecomeMentorshipServiceTest {
     void testGetMentorsUserExists(){
         long userId = 1L;
         when(mentorshipRepository.findById(userId)).thenReturn(Optional.of(mentee));
-        List<UserMentorshipDto> result = becomeMentorshipService.getMentors(userId);
+        List<UserMentorshipDto> result = mentorshipRelationService.getMentors(userId);
 
         assertUserExist(result, userId);
     }
@@ -114,7 +114,7 @@ public class BecomeMentorshipServiceTest {
     void testDeleteMenteeMentorNotFound() {
         extractingAnEmptyUserMock(mentor);
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
-            becomeMentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+            mentorshipRelationService.deleteMentee(mentee.getId(), mentor.getId());
         });
 
         assertEquals("Ментор с ID: 1 не найден!!!", exception.getMessage());
@@ -126,7 +126,7 @@ public class BecomeMentorshipServiceTest {
         mentor.setMentees(new ArrayList<>());
 
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
-            becomeMentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+            mentorshipRelationService.deleteMentee(mentee.getId(), mentor.getId());
         });
         assertEquals("Менти с ID: 2 не найден!!!", exception.getMessage());
     }
@@ -135,7 +135,7 @@ public class BecomeMentorshipServiceTest {
     void testDeleteMenteeSuccess() {
         extractingUserMock(mentor);
 
-        becomeMentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+        mentorshipRelationService.deleteMentee(mentee.getId(), mentor.getId());
 
         assertTrue(mentor.getMentees().isEmpty());
         verify(mentorshipRepository, times(1)).save(mentor);
@@ -145,7 +145,7 @@ public class BecomeMentorshipServiceTest {
     void testDeleteMentorMenteeNotFound() {
         extractingAnEmptyUserMock(mentee);
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
-            becomeMentorshipService.deleteMentor(mentee.getId(), mentor.getId());
+            mentorshipRelationService.deleteMentor(mentee.getId(), mentor.getId());
         });
 
         assertEquals("Менти с ID: 2 не найден!!!", exception.getMessage());
@@ -157,7 +157,7 @@ public class BecomeMentorshipServiceTest {
         mentee.setMentors(new ArrayList<>());
 
         NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
-            becomeMentorshipService.deleteMentor(mentee.getId(), mentor.getId());
+            mentorshipRelationService.deleteMentor(mentee.getId(), mentor.getId());
         });
         assertEquals("Ментор с ID: 1 не найден!!!", exception.getMessage());
     }
@@ -166,7 +166,7 @@ public class BecomeMentorshipServiceTest {
     void testDeleteMentorSuccess() {
         extractingUserMock(mentee);
 
-        becomeMentorshipService.deleteMentor(mentee.getId(), mentor.getId());
+        mentorshipRelationService.deleteMentor(mentee.getId(), mentor.getId());
 
         assertTrue(mentee.getMentors().isEmpty());
         verify(mentorshipRepository, times(1)).save(mentee);
