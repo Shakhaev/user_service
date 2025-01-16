@@ -40,12 +40,6 @@ public class GoalService {
     @Value("${app.max-active-goals}")
     private int MAX_ACTIVE_GOALS;
 
-    private static void validSkills(List<Skill> skills) {
-        if (skills.isEmpty()) {
-            throw new NoSkillsFoundException("No skills found for the goal");
-        }
-    }
-
     @Transactional
     public void createGoal(Long userId, Goal goal) {
         User user = getUser(userId);
@@ -181,6 +175,12 @@ public class GoalService {
         if (goal.getSkillsToAchieve().stream()
                 .noneMatch(skill -> skillService.skillExistsByTitle(skill.getTitle()))) {
             throw new NonExistentSkillException("The goal contains non-existent skills");
+        }
+    }
+
+    private static void validSkills(List<Skill> skills) {
+        if (skills.isEmpty()) {
+            throw new NoSkillsFoundException("No skills found for the goal");
         }
     }
 }

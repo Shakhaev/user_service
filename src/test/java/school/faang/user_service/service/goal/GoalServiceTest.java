@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.RequestGoalDto;
@@ -20,12 +19,10 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.filters.goal.GoalFilter;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -119,7 +116,7 @@ public class GoalServiceTest {
         when(userService.getUser(1L)).thenThrow(new NoSuchElementException("not found user with id 1"));
         assertThrows(NoSuchElementException.class, () -> goalService.createGoal(1L, goal1),
                 "not found user with id 1");
-        Mockito.verify(userService, times(1)).getUser(1L);
+        verify(userService, times(1)).getUser(1L);
     }
 
     @Test
