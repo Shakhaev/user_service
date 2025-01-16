@@ -40,13 +40,11 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(dto);
 
-        recommendationRequest = recommendationRequestRepository.save(
-                recommendationRequestMapper.update(recommendationRequest, RecommendationRequest.builder()
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .status(RequestStatus.PENDING)
-                        .build())
-        );
+        LocalDateTime now = LocalDateTime.now();
+        recommendationRequest.setCreatedAt(now);
+        recommendationRequest.setUpdatedAt(now);
+        recommendationRequest.setStatus(RequestStatus.PENDING);
+        recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
 
         List<SkillRequestDto> savedSkillRqs = skillRequestService.createAllSkillRequest(dto.getSkills(), recommendationRequest);
         recommendationRequest.setSkills(savedSkillRqs.stream().map(skillRequestMapper::toEntity).toList());
@@ -78,10 +76,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                     throw new EntityNotFoundException("User with id " + userId + " not found");
                 });
 
+        LocalDateTime expireDate = LocalDateTime.now().minusMonths(userServiceProperties.getRecommendationRequest().getMinMonth());
         if (userIds.size() == 1 &&
-                recommendationRequestRepository.findLatestPendingRequestCreatedAfterThen(
-                        dto.getRequesterId(),
-                        LocalDateTime.now().minusMonths(userServiceProperties.getRecommendationRequest().getMinMonth()))) {
+                recommendationRequestRepository.isLatestPendingRequestCreatedAfterThenExists(dto.getRequesterId(), expireDate)) {
             throw new IllegalArgumentException("Less than min months have passed since the previous request");
         }
 

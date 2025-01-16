@@ -24,5 +24,5 @@ public interface RecommendationRequestRepository extends JpaRepository<Recommend
                 THEN CAST(1 AS BIT)
                 ELSE CAST(0 AS BIT) END
             """)
-    Boolean findLatestPendingRequestCreatedAfterThen(long userId, LocalDateTime dateTime);
+    Boolean isLatestPendingRequestCreatedAfterThenExists(long userId, LocalDateTime dateTime);
 }
