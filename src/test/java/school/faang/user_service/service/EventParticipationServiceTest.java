@@ -6,7 +6,6 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
@@ -101,10 +100,6 @@ public class EventParticipationServiceTest {
         userSecond.setUsername("John");
         userSecond.setEmail("John@gmail.com");
         List<User> users = List.of(userFirst, userSecond);
-        List<UserDto> userDtos = List.of(
-                new UserDto(1L, "John", "Doe"),
-                new UserDto(2L, "Jane", "Smith")
-        );
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(users);
 
