@@ -1,5 +1,6 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -14,6 +15,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.service.mentorship.filters.RequestFilter;
 import school.faang.user_service.validator.mentorship.MentorshipRequestValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -28,48 +30,59 @@ public class MentorshipRequestService {
     private final List<RequestFilter> requestFilters;
 
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
-        long requesterId = mentorshipRequestDto.getRequesterId();
-        long receiverId = mentorshipRequestDto.getReceiverId();
-        requestValidator.validateUsersIdNotEqual(requesterId, receiverId);
-        requestValidator.validateUserExists(requesterId);
-        requestValidator.validateUserExists(receiverId);
-        requestValidator.validateLastRequestData(requesterId, receiverId);
+        requestValidator.validateRequestForMentorship(
+                mentorshipRequestDto.getRequesterId(),
+                mentorshipRequestDto.getReceiverId());
 
-        MentorshipRequest request = requestMapper.toEntity(mentorshipRequestDto);
-        User requester = userRepository.findById(requesterId).get();
-        User receiver = userRepository.findById(receiverId).get();
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        requester.getSentMentorshipRequests().add(request);
+        User requester = userRepository.findById(mentorshipRequestDto.getRequesterId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User receiver = userRepository.findById(mentorshipRequestDto.getReceiverId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        MentorshipRequest requestEntity = requestMapper.toEntity(mentorshipRequestDto);
+        requestEntity.setRequester(requester);
+        requestEntity.setReceiver(receiver);
+
+        requester.getSentMentorshipRequests().add(requestEntity);
+
         userRepository.save(requester);
-        requestRepository.save(request);
+        requestRepository.save(requestEntity);
     }
 
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filterRequested) {
+    public List<MentorshipRequestDto> getRequests(RequestFilterDto filtersRequested) {
         Stream<MentorshipRequest> mentorshipRequests = requestRepository.findAll().stream();
-        requestFilters.stream()
-                .filter(filter -> filter.isApplicable(filterRequested))
-                .forEach(filter -> filter.apply(mentorshipRequests, filterRequested));
-        return requestMapper.toRequestsListDto(mentorshipRequests.toList());
+        return requestFilters.stream()
+                .filter(filter -> filter.isApplicable(filtersRequested))
+                .flatMap(filter -> filter.apply(mentorshipRequests, filtersRequested))
+                .map(requestMapper::toDto)
+                .toList();
     }
 
     public MentorshipRequestDto acceptRequest(long id) {
         MentorshipRequest request = requestValidator.validateRequestId(id);
+
         User requester = request.getRequester();
         User receiver = request.getReceiver();
         requestValidator.validateNotMentorYet(requester, receiver);
+
         requester.getMentors().add(receiver);
         userRepository.save(requester);
+
         receiver.getMentees().add(requester);
         userRepository.save(receiver);
+
         request.setStatus(RequestStatus.ACCEPTED);
+        request.setCreatedAt(LocalDateTime.now());
+
         return requestMapper.toDto(requestRepository.save(request));
     }
 
     public void rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest request = requestValidator.validateRequestId(id);
+
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getRejectionReason());
+
         requestMapper.toRejectionDto(requestRepository.save(request));
     }
 }
