@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -155,7 +157,7 @@ public class MentorshipServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(user));
 
         mentorshipService.deleteMentee(1, 52);
-        Assert.assertTrue(user.getMentees().size() == mentees.size());
+        verify(repository).save(any());
     }
 
     @Test
@@ -175,6 +177,6 @@ public class MentorshipServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(user));
 
         mentorshipService.deleteMentor(1, 52);
-        Assert.assertTrue(user.getMentors().size() == mentors.size());
+        verify(repository).save(any());
     }
 }
