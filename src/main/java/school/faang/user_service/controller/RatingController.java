@@ -17,6 +17,7 @@ public class RatingController {
 
     /*
         For kafka integration
+        (пока бессмысленно добавлять брокер, потому что у нас 0 реализаций в других сервисах)
      */
     @PostMapping
     public void addRatingToUser(@RequestBody RatingDto ratingDTO) {
@@ -26,5 +27,10 @@ public class RatingController {
     @GetMapping("/leaders/{limit}")
     public List<LeaderTableDto> getTableLeaders(@PathVariable int limit, @RequestBody UserComparingDto userComparingDto) {
         return ratingService.getTableLeaders(limit, userComparingDto);
+    }
+
+    @GetMapping("/leaders/last12hours")
+    public List<LeaderTableDto> getTableLeadersLast12Hours() {
+        return ratingService.getTableLeadersLast12Hours();
     }
 }

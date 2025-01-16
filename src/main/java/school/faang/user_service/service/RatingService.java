@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.rating.LeaderTableDto;
@@ -28,6 +29,7 @@ public class RatingService {
     private final List<Comparator<User>> comparators;
     private final LeaderTableMapper leaderTableMapper;
     private final ComparatorFactory comparatorFactory;
+    private final RedisTemplate<String, Object> redisTemplate;
     private static final Logger logger = LoggerFactory.getLogger(RatingService.class);
 
     @Transactional
@@ -43,14 +45,6 @@ public class RatingService {
         return userStream.limit(limit)
                 .map(leaderTableMapper::toDto)
                 .toList();
-    }
-
-    private Stream<LeaderTableDto> filterPeople(Stream<User> followersOfUser, UserComparingDto userComparingDto) {
-        Stream<User> userStream = followersOfUser.parallel();
-        for (Comparator<User> comparator : comparators) {
-            userStream = userStream.sorted(comparator);
-        }
-        return userStream.map(leaderTableMapper::toDto);
     }
 
     public void addPoints(RatingDto ratingDTO) {
@@ -69,5 +63,12 @@ public class RatingService {
         );
 
         addPoints(ratingDTO);
+    }
+
+    public List<LeaderTableDto> getTableLeadersLast12Hours() {
+        List<Object> cachedData = redisTemplate.opsForList().range("leaderboard:last12hours", 0, -1);
+        return cachedData.stream()
+                .map(obj -> (LeaderTableDto) obj)
+                .toList();
     }
 }

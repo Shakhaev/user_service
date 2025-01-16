@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.rating.LeaderTableDto;
 import school.faang.user_service.dto.rating.RatingDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.rating.RatingHistory;
@@ -17,6 +19,7 @@ import school.faang.user_service.repository.UserRepository;
 @Component
 public class RatingEventListener {
     private final UserRepository userRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
     private static final Logger logger = LoggerFactory.getLogger(RatingEventListener.class);
 
     @EventListener
@@ -38,6 +41,15 @@ public class RatingEventListener {
                         .description(descriptionable.say(user))
                         .build()
         );
+
+        LeaderTableDto leaderTableDto = new LeaderTableDto(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRatingPoints()
+        );
+
+        redisTemplate.opsForList().leftPush("leaderboard:last12hours", leaderTableDto);
 
         userRepository.save(user);
         logger.info("Saved the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
