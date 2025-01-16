@@ -1,37 +1,59 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filters.user.UserFilter;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UserServiceTest {
-    @Mock
+
     private UserRepository userRepository;
 
-    @Mock
     private GoalService goalService;
 
-    @Mock
     private EventService eventService;
 
-    @Mock
     private MentorshipService mentorshipService;
 
-    @InjectMocks
+    private List<UserFilter> filter;
+
+    private UserMapperImpl userMapperImpl;
+
     private UserService userService;
 
-    public UserServiceTest() {
-        MockitoAnnotations.openMocks(this);
+    @BeforeEach
+    public void init() {
+        userRepository = mock(UserRepository.class);
+        goalService = mock(GoalService.class);
+        eventService = mock(EventService.class);
+        mentorshipService = mock(MentorshipService.class);
+        filter = List.of(mock(UserFilter.class));
+        userMapperImpl = spy(UserMapperImpl.class);
+        userService = new UserService(
+                userRepository,
+                goalService,
+                eventService,
+                mentorshipService,
+                filter,
+                userMapperImpl
+        );
     }
 
     @Test
@@ -55,8 +77,47 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                        userService.deactivateUser(userId));
+                userService.deactivateUser(userId));
 
         assertEquals("Пользователь с ID " + userId + " не найден", exception.getMessage());
     }
+
+    @Test
+    void testGetPremiumUsersWithFilter() {
+        UserDto userDto = UserDto.builder()
+                .id(1L)
+                .username("Mark")
+                .build();
+
+        User userOne = User.builder()
+                .id(1L)
+                .username("Mark")
+                .city("Moscow")
+                .build();
+
+        User userTwo = User.builder()
+                .id(2L)
+                .username("Tom")
+                .city("Orel")
+                .build();
+
+
+        UserFilterDto userFilterDto = new UserFilterDto();
+        userFilterDto.setNamePattern("Mark");
+
+        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(userOne));
+        when(filter.get(0).isApplicable(userFilterDto)).thenReturn(true);
+        when(filter.get(0).filterEntity(userOne, userFilterDto)).thenReturn(true);
+
+
+        List<UserDto> result = userService.getPremiumUsers(userFilterDto);
+
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(userOne.getUsername(), result.get(0).username());
+
+
+        verify(filter.get(0)).isApplicable(userFilterDto);
+    }
+
 }
