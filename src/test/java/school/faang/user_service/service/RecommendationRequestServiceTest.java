@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.recommendation.RecommendationRequestResponseDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestResponse;
+import school.faang.user_service.dto.recommendation.GetRecommendationRequestResponse;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -50,8 +51,8 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void testCreateWithNotExistingRequester() {
-        RecommendationRequestCreateDto recommendationReqSaveDto = RecommendationReqDataFactory.createRecommendationRequestSaveDto();
+    void createRecommendationRequest_ShouldThrowResourceNotFoundExceptionWhenRequesterDoesNotExist() {
+        CreateRecommendationRequestRequest recommendationReqSaveDto = RecommendationReqDataFactory.createCreateRecommendationRequestRequest();
         Mockito.when(userService.findById(recommendationReqSaveDto.requesterId()))
                 .thenThrow(ResourceNotFoundException
                         .userNotFoundException(recommendationReqSaveDto.requesterId()));
@@ -60,8 +61,8 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void testCreateWithNotExistingReceiver() {
-        RecommendationRequestCreateDto recommendationReqSaveDto = RecommendationReqDataFactory.createRecommendationRequestSaveDto();
+    void createRecommendationRequest_ShouldThrowResourceNotFoundExceptionWhenReceiverDoesNotExist() {
+        CreateRecommendationRequestRequest recommendationReqSaveDto = RecommendationReqDataFactory.createCreateRecommendationRequestRequest();
         User requester = RecommendationReqDataFactory.createRequester();
         Mockito.when(userService.findById(recommendationReqSaveDto.requesterId()))
                 .thenReturn(requester);
@@ -73,8 +74,8 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void testCreateWithSixMonthLimit() {
-        RecommendationRequestCreateDto recommendationReqSaveDto = RecommendationReqDataFactory.createRecommendationRequestSaveDto();
+    void createRecommendationRequest_ShouldThrowRecommendationRequestCreatedExceptionWhenSixMonthDoesNotLeft() {
+        CreateRecommendationRequestRequest recommendationReqSaveDto = RecommendationReqDataFactory.createCreateRecommendationRequestRequest();
         User requester = RecommendationReqDataFactory.createRequester();
         User receiver = RecommendationReqDataFactory.createReceiver();
         RecommendationRequest recommendationRequest = new RecommendationRequest();
@@ -91,9 +92,9 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void testCreateSaveRecommendationRequest() {
-        RecommendationRequestCreateDto saveDto = RecommendationReqDataFactory.createRecommendationRequestSaveDto();
-        RecommendationRequestResponseDto dto = RecommendationReqDataFactory.createRecommendationRequestDto();
+    void createRecommendationRequest_CreateRecommendationRequestSuccessfully() {
+        CreateRecommendationRequestRequest saveDto = RecommendationReqDataFactory.createCreateRecommendationRequestRequest();
+        CreateRecommendationRequestResponse dto = RecommendationReqDataFactory.createCreateRecommendationRequestResponse();
         User requester = RecommendationReqDataFactory.createRequester();
         User receiver = RecommendationReqDataFactory.createReceiver();
         RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
@@ -106,36 +107,36 @@ class RecommendationRequestServiceTest {
                 .thenReturn(request);
         Mockito.when(recommendationRequestRepository.save(request))
                 .thenReturn(savedRequest);
-        Mockito.when(recommendationRequestMapper.toDto(savedRequest))
+        Mockito.when(recommendationRequestMapper.toCreateDto(savedRequest))
                 .thenReturn(dto);
-        RecommendationRequestResponseDto result = recommendationRequestService.create(saveDto);
+        CreateRecommendationRequestResponse result = recommendationRequestService.create(saveDto);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1L, result.id());
         Mockito.verify(recommendationRequestRepository, times(1)).save(request);
     }
 
     @Test
-    void getRequest_shouldReturnRequestIfExists() {
+    void getRequest_ShouldReturnRequest() {
         RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
-        RecommendationRequestResponseDto dto = RecommendationReqDataFactory.createRecommendationRequestDto();
+        GetRecommendationRequestResponse dto = RecommendationReqDataFactory.createGetRecommendationRequestResponse();
         Mockito.when(recommendationRequestRepository.findById(1L))
                 .thenReturn(Optional.of(request));
-        Mockito.when(recommendationRequestMapper.toDto(request))
+        Mockito.when(recommendationRequestMapper.toGetDto(request))
                 .thenReturn(dto);
-        RecommendationRequestResponseDto result = recommendationRequestService.getRequest(1L);
+        GetRecommendationRequestResponse result = recommendationRequestService.getRequest(1L);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1L, result.id());
     }
 
     @Test
-    void getRequest_shouldThrowExceptionIfNotFound() {
+    void getRequest_ShouldThrowResourceNotFoundExceptionWhenDoesNotExist() {
         Mockito.when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
         Assert.assertThrows(ResourceNotFoundException.class,
                 () -> recommendationRequestService.getRequest(1L));
     }
 
     @Test
-    void rejectRequest_shouldSetStatusToRejected() {
+    void rejectRequest_ShouldSetStatusToRejected() {
         RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
         RejectionDto rejectionDto = RecommendationReqDataFactory.createRejectionDto();
         Mockito.when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
@@ -146,11 +147,12 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void rejectRequest_shouldThrowExceptionIfAlreadyProcessed() {
+    void rejectRequest_ShouldThrowRequestAlreadyProcessedExceptionWhenAlreadyProcessed() {
+        RejectionDto rejectionDto = RecommendationReqDataFactory.createRejectionDto();
         RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
         request.setStatus(RequestStatus.ACCEPTED);
         Mockito.when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
         Assert.assertThrows(RequestAlreadyProcessedException.class,
-                () -> recommendationRequestService.rejectRequest(1L, new RejectionDto("Reason")));
+                () -> recommendationRequestService.rejectRequest(1L, rejectionDto));
     }
 }

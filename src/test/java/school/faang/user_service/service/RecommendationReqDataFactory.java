@@ -1,7 +1,8 @@
 package school.faang.user_service.service;
 
-import school.faang.user_service.dto.recommendation.RecommendationRequestResponseDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestResponse;
+import school.faang.user_service.dto.recommendation.GetRecommendationRequestResponse;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -42,8 +43,8 @@ public final class RecommendationReqDataFactory {
                 .build();
     }
 
-    public static RecommendationRequestCreateDto createRecommendationRequestSaveDto() {
-        return new RecommendationRequestCreateDto(
+    public static CreateRecommendationRequestRequest createCreateRecommendationRequestRequest() {
+        return new CreateRecommendationRequestRequest(
                 "Please provide a recommendation.",
                 List.of(1L, 2L),
                 1L,
@@ -51,8 +52,19 @@ public final class RecommendationReqDataFactory {
         );
     }
 
-    public static RecommendationRequestResponseDto createRecommendationRequestDto() {
-        return new RecommendationRequestResponseDto(
+    public static CreateRecommendationRequestResponse createCreateRecommendationRequestResponse() {
+        return new CreateRecommendationRequestResponse(
+                1L,
+                "Please provide a recommendation.",
+                RequestStatus.PENDING,
+                List.of("Skill1", "Skill2"),
+                1L,
+                2L
+        );
+    }
+
+    public static GetRecommendationRequestResponse createGetRecommendationRequestResponse() {
+        return new GetRecommendationRequestResponse(
                 1L,
                 "Please provide a recommendation.",
                 RequestStatus.PENDING,

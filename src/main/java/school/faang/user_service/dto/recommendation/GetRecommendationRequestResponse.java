@@ -4,7 +4,7 @@ import school.faang.user_service.entity.RequestStatus;
 
 import java.util.List;
 
-public record RecommendationRequestResponseDto(long id,
+public record GetRecommendationRequestResponse(long id,
                                                String message,
                                                RequestStatus status,
                                                List<String> skills,
