@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.endpoints.recommendation}")
+@RequestMapping("/recommendation")
 public class RecommendationController {
     private final RecommendationService recommendationService;
     private final SubscriptionService subscriptionService;
@@ -25,7 +25,7 @@ public class RecommendationController {
         return recommendationService.update(updated);
     }
 
-    @DeleteMapping("/{recommendationId}")
+    @DeleteMapping(value = "/{recommendationId}")
     public void deleteRecommendation(@PathVariable Long recommendationId) {
         recommendationService.delete(recommendationId);
     }
