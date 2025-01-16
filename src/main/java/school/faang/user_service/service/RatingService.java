@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 public class RatingService {
     private final ApplicationEventPublisher publisher;
     private final UserRepository userRepository;
-    private final List<Comparator<User>> comparators;
     private final LeaderTableMapper leaderTableMapper;
     private final ComparatorFactory comparatorFactory;
     private final RedisTemplate<String, Object> redisTemplate;
