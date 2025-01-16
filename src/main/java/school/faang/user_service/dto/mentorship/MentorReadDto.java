@@ -1,6 +1,5 @@
 package school.faang.user_service.dto.mentorship;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;

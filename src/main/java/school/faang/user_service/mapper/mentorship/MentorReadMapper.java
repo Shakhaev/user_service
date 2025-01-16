@@ -18,7 +18,7 @@ public interface MentorReadMapper {
     MentorReadDto toDto(User entity);
 
     @Named("mapToIds")
-    default List<Long> map(List<User> users) {
+    default List<Long> mapToIds(List<User> users) {
         return users.stream().map(User::getId).toList();
     }
 }
