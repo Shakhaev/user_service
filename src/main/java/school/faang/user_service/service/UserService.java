@@ -13,6 +13,7 @@ public class UserService {
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
+
     @Transactional
     public void deactivateUser(Long userId) {
         var user = userRepository.findById(userId)
@@ -21,5 +22,9 @@ public class UserService {
         mentorshipService.deactivateMentorship(user.getId());
         goalService.deactivateGoalsByUser(user.getId());
         eventService.deactivateEventsByUser(user.getId());
+    }
+
+    public boolean isUserExist(Long userId) {
+        return userRepository.existsById(userId);
     }
 }
