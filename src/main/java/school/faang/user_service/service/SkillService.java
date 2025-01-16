@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.AppConfig;
-import school.faang.user_service.dto.rating.RatingDTO;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -89,14 +88,11 @@ public class SkillService {
                 userSkillGuaranteeRepository.save(guarantee);
             });
 
-            RatingDTO ratingDTO = new RatingDTO(
+            ratingService.addRating(
                     u -> "User : " + u.getUsername() + " -> acquired skill and got rating!",
-                    user,
-                    appConfig.getSkillAcquireRating(),
-                    ActionType.ACQUIRE_SKILL
-            );
-
-            ratingService.addPoints(ratingDTO);
+                    user.getId(),
+                    appConfig.getActiveTransaction(),
+                    ActionType.ACTIVE);
 
             return skillMapper.toDto(skill);
         }

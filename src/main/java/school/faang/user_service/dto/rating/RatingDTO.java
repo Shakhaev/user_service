@@ -10,7 +10,7 @@ import school.faang.user_service.rating.description.Descriptionable;
 @RequiredArgsConstructor
 public class RatingDTO {
     private final Descriptionable descriptionable;
-    private final User user;
+    private final long Id;
     private final int points;
     private final ActionType actionType;
 }

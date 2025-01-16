@@ -1,8 +1,8 @@
 app:
   config:
     min_skill_offers: 3
-    skill_acquire_rating: 2
-    subscription_follow_rating: 1
+    active_transaction: 5
+    passive_transaction: 2
 
 spring:
 

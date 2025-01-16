@@ -16,6 +16,7 @@ import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.rating.ActionType;
+import school.faang.user_service.rating.description.Descriptionable;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -90,14 +91,11 @@ public class SubscriptionService {
         userRepository.save(requestUser);
         userRepository.save(requestedUser);
 
-        RatingDTO ratingDTO = new RatingDTO(
+        ratingService.addRating(
                 u -> "User : " + u.getUsername() + " -> followed another user and got rating!",
-                requestedUser,
-                appConfig.getFollowRating(),
-                ActionType.FOLLOWING
-        );
-
-        ratingService.addPoints(ratingDTO);
+                followeeId,
+                appConfig.getPassiveTransaction(),
+                ActionType.PASSIVE);
 
         logger.info("Succeed of following user!");
     }
@@ -121,24 +119,20 @@ public class SubscriptionService {
         userRepository.save(requestedUser);
         userRepository.save(requestedUser);
 
-        RatingDTO ratingDTO = new RatingDTO(
+        ratingService.addRating(
                 u -> "User : " + u.getUsername() + " -> unfollowed another user and got rating!",
-                requestedUser,
-                appConfig.getFollowRating(),
-                ActionType.UNFOLLOWING
-        );
-
-        ratingService.addPoints(ratingDTO);
+                followeeId,
+                appConfig.getPassiveTransaction(),
+                ActionType.PASSIVE);
 
         logger.info("Succeed of unfollowing user!");
     }
 
-    private boolean isFollowingUserNotFollower(long followerId, long followeeId) {
+    private void isFollowingUserNotFollower(long followerId, long followeeId) {
         if (!findUserById(followerId).getFollowees().contains(findUserById(followeeId))) {
             logger.error("The followerId is not following followeeId : {} -> {}", followerId, followeeId);
             throw new DataValidationException("Trying to follow to person not followed!");
         }
-        return true;
     }
 
     private boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId) {
