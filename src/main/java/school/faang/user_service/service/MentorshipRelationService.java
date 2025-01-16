@@ -19,17 +19,20 @@ public class MentorshipRelationService {
     private final UserMentorshipMapper userMentorshipMapper;
 
     public List<UserMentorshipDto> getMentees(long userId) {
-        User mentor = mentorshipRepository.findById(userId).orElseThrow(
-                () -> new NoSuchElementException("Не существует пользователя с ID: " + userId));
+        User mentor = getUser(userId);
 
         return mentor.getMentees().stream()
                 .map(userMentorshipMapper::toDto)
                 .toList();
     }
 
-    public List<UserMentorshipDto> getMentors(long userId) {
-        User mentee = mentorshipRepository.findById(userId).orElseThrow(
+    private User getUser(long userId) {
+        return mentorshipRepository.findById(userId).orElseThrow(
                 () -> new NoSuchElementException("Не существует пользователя с ID: " + userId));
+    }
+
+    public List<UserMentorshipDto> getMentors(long userId) {
+        User mentee = getUser(userId);
 
         return mentee.getMentors().stream()
                 .map(userMentorshipMapper::toDto)

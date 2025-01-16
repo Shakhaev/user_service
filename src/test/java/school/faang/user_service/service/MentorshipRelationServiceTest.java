@@ -60,7 +60,7 @@ public class MentorshipRelationServiceTest {
                 mentorshipRelationService.getMentees(userId)
         );
 
-        assertUserNotFound(exception, userId);
+        mockMentorshipRepositoryFindByID(exception, userId);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class MentorshipRelationServiceTest {
                 mentorshipRelationService.getMentors(userId)
         );
 
-        assertUserNotFound(exception, userId);
+        mockMentorshipRepositoryFindByID(exception, userId);
     }
 
     private long arrange() {
@@ -89,7 +89,7 @@ public class MentorshipRelationServiceTest {
         return userId;
     }
 
-    private void assertUserNotFound(NoSuchElementException exception, long userId) {
+    private void mockMentorshipRepositoryFindByID(NoSuchElementException exception, long userId) {
         assertEquals("Не существует пользователя с ID: " + userId, exception.getMessage());
         verify(mentorshipRepository, times(1)).findById(userId);
         verifyNoInteractions(userMapper);
