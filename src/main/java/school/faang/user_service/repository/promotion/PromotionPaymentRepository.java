@@ -6,4 +6,5 @@ import school.faang.user_service.entity.promotion.PromotionPayment;
 
 @Repository
 public interface PromotionPaymentRepository extends JpaRepository<PromotionPayment, Long> {
+    PromotionPayment findPromotionPaymentById(String id);
 }

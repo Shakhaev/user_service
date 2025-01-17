@@ -8,6 +8,7 @@ import school.faang.user_service.enums.promotion.PromotionPaymentStatus;
 import school.faang.user_service.enums.promotion.PromotionPaymentType;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -15,11 +16,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PromotionPaymentDto {
 
-    private long id;
+    private UUID id;
 
     private long userId;
-
-    private long promotionId;
 
     private BigDecimal amount;
 

@@ -38,13 +38,13 @@ class PromotionPlanServiceImplTest {
 
     private static PromotionPlanDto getPromotionPlanDto() {
         return PromotionPlanDto.builder()
-                .id(1L)
+                .name("BASIC")
                 .build();
     }
 
     private static PromotionPlan getPromotionPlan() {
         return PromotionPlan.builder()
-                .id(1L)
+                .name("BASIC")
                 .build();
     }
 }

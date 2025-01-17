@@ -39,3 +39,6 @@ payment-service:
 promotions:
   domain:
     path: /api/v1
+payments:
+  domain:
+    path: /api/v1

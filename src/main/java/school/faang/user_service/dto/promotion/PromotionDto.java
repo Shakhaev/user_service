@@ -27,6 +27,6 @@ public class PromotionDto {
 
     private PromotionStatus status;
 
-    private Long paymentId;
+    private String paymentId;
 
 }

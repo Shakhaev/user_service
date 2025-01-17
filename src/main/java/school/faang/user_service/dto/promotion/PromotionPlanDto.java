@@ -17,5 +17,5 @@ public class PromotionPlanDto {
 
     private BigDecimal price;
 
-    private int views_count;
+    private int viewsCount;
 }
