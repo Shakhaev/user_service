@@ -6,22 +6,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.goal.GoalInvitationMapper;
+import school.faang.user_service.filters.goal.GoalInvitationFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.validation.GoalInvitationValidator;
+import school.faang.user_service.service.validator.GoalInvitationValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,24 +31,27 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceTest {
 
-    @Mock
-    UserRepository userRepository;
     @InjectMocks
     private GoalInvitationService goalInvitationService;
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
     @Spy
     private GoalInvitationMapperImpl mapper;
     @Mock
     private GoalInvitationValidator validator;
-    @Mock
-    private GoalRepository goalRepository;
 
     private GoalInvitationDto goalInvitationDto;
     private GoalInvitation goalInvitation;
     private User inviter;
     private User invited;
     private Goal goal;
+    private List<GoalInvitationFilter> goalInvitationFilters;
+    private GoalInvitationFilter filter;
+    private GoalInvitationFilterDto filterDto;
+    @Captor
+    private ArgumentCaptor<Stream<GoalInvitation>> captor;
 
     @BeforeEach
     public void init() {
@@ -70,6 +74,17 @@ public class GoalInvitationServiceTest {
         goalInvitationDto.setStatus(RequestStatus.PENDING);
 
         goalInvitation = mapper.toEntity(goalInvitationDto);
+
+        filter = mock(GoalInvitationFilter.class);
+        goalInvitationFilters = List.of(filter);
+        filterDto = new GoalInvitationFilterDto();
+        filterDto.setStatus(goalInvitationDto.getStatus());
+
+        goalInvitationService = new GoalInvitationService(goalInvitationRepository,
+                userRepository,
+                validator,
+                mapper,
+                goalInvitationFilters);
     }
 
     @Test
@@ -143,6 +158,22 @@ public class GoalInvitationServiceTest {
                 () -> goalInvitationService.rejectGoalInvitation(goalInvitationDto.getId()));
         assertEquals(ex.getMessage(), "Goal was deleted");
     }
+    @Test
+    public void getInvitations(){
+        GoalInvitation notApplicableInvitation = new GoalInvitation();
+        notApplicableInvitation.setStatus(RequestStatus.ACCEPTED);
+        List<GoalInvitation> invitations = List.of(goalInvitation, notApplicableInvitation);
+        Stream<GoalInvitation> invitationStream = invitations.stream();
 
+        when(goalInvitationRepository.findAll()).thenReturn(invitations);
+        when(filter.apply(captor.capture(), any()))
+                .thenReturn(invitationStream
+                        .filter(f -> f.getStatus().equals(filterDto.getStatus())));
 
+        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filterDto);
+
+        verify(filter, atLeastOnce()).apply(captor.getValue(), filterDto);
+        verify(goalInvitationRepository, atLeastOnce()).findAll();
+        assertEquals(1, result.size());
+    }
 }

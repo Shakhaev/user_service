@@ -1,4 +1,4 @@
-package school.faang.user_service.service.filter;
+package school.faang.user_service.filters.goal;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -9,12 +9,12 @@ import java.util.stream.Stream;
 @Component
 public class GoalInvitationInviterIdFilter implements GoalInvitationFilter{
     @Override
-    public boolean applicable(GoalInvitationFilterDto filterDto) {
+    public boolean isApplicable(GoalInvitationFilterDto filterDto) {
         return filterDto.getInviterId() != null;
     }
 
     @Override
-    public Stream<GoalInvitation> apply(Stream<GoalInvitation> entities, GoalInvitationFilterDto dto) {
-        return entities.filter(e -> e.getInviter().getId().equals(dto.getInviterId()));
+    public boolean filterEntity(GoalInvitation invitation, GoalInvitationFilterDto filters) {
+        return invitation.getInviter().getId().equals(filters.getInviterId());
     }
 }
