@@ -8,7 +8,6 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +15,6 @@ public class UserService {
     private final UserRepository userRepository;
 
     public List<User> getAllByIds(@NotNull List<Long> userIds) {
-        Objects.requireNonNull(userIds);
         return userRepository.findAllById(userIds);
     }
 
