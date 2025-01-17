@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 public class ReceiverFilter implements RequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto filters) {
-        return filters.getReceiverPattern() != null;
+        return filters.receiverPattern() != null;
     }
 
     @Override
     public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(it -> it.getReceiver().getUsername().contains(filters.getReceiverPattern()));
+        requests = requests.filter(it -> it.getReceiver().getUsername().contains(filters.receiverPattern()));
     }
 }

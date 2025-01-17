@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 public class DescriptionFilter implements RequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto filters) {
-        return filters.getDescriptionPattern() != null;
+        return filters.descriptionPattern() != null;
     }
 
     @Override
     public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(request -> request.getDescription().contains(filters.getDescriptionPattern()));
+        requests = requests.filter(request -> request.getDescription().contains(filters.descriptionPattern()));
     }
 }

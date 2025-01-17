@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 public class AuthorFilter implements RequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto filters) {
-        return filters.getAuthorPattern() != null;
+        return filters.authorPattern() != null;
     }
 
     @Override
     public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(it -> it.getRequester().getUsername().matches(".*" + filters.getAuthorPattern() + ".*"));
+        requests = requests.filter(it -> it.getRequester().getUsername().contains(filters.authorPattern()));
     }
 }

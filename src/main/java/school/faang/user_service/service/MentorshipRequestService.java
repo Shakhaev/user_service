@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.service.filter.RequestFilterDto;
 
@@ -16,14 +17,14 @@ public interface MentorshipRequestService {
      * - пользователь не может отправить запрос сам себе.
      * В случае успешной проверки запрос на менторство сохраняется в базе данных.
      */
-    MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto);
+    MentorshipResponseDto requestMentorship(MentorshipRequestDto mentorshipRequestDto);
 
     /**
      * Метод возвращает все запросы на менторство, и применяет к ним фильтрацию.
      * Метод принимает объект класса RequestFilterDto, представляющий собой набор следующих фильтров:
      * по описанию, по автору запроса, по получателю запроса, по статусу запроса.
      */
-    List<MentorshipRequestDto> getRequests(RequestFilterDto filters);
+    List<MentorshipResponseDto> getRequests(RequestFilterDto filters);
 
     /**
      * Метод реализует возможность принять запрос на менторство, пришедший от другого пользователя.

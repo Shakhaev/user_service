@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 public class StatusFilter implements RequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto filters) {
-        return filters.getStatusPattern() != null;
+        return filters.statusPattern() != null;
     }
 
     @Override
     public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(it -> it.getStatus().name().contains(filters.getStatusPattern()));
+        requests = requests.filter(it -> it.getStatus().name().contains(filters.statusPattern()));
     }
 }

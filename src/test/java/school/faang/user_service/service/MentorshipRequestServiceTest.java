@@ -30,10 +30,23 @@ public class MentorshipRequestServiceTest {
     private MentorshipRequestServiceImpl mentorshipRequestService;
 
     @Test
+    public void testRequestMentorshipWithoutDescription() {
+        MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
+                .requesterUserId(1L)
+                .receiverUserId(1L)
+                .build();
+
+        Assert.assertThrows(
+                IllegalArgumentException.class,
+                () -> mentorshipRequestService.requestMentorship(requestDto));
+    }
+
+    @Test
     public void testRequestMentorshipWithTheSameRequesterAndReceiverId() {
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(1L)
+                .description("some description")
                 .build();
 
         Assert.assertThrows(
@@ -48,6 +61,7 @@ public class MentorshipRequestServiceTest {
         var requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(2L)
+                .description("some description")
                 .build();
 
         Assert.assertThrows(
@@ -63,6 +77,7 @@ public class MentorshipRequestServiceTest {
         var requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(2L)
+                .description("some description")
                 .build();
 
         Assert.assertThrows(
@@ -80,6 +95,7 @@ public class MentorshipRequestServiceTest {
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(2L)
+                .description("some description")
                 .build();
         UserDto requester = UserDto.builder()
                 .userId(1L)

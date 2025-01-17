@@ -6,7 +6,7 @@ import school.faang.user_service.entity.RequestStatus;
 import java.time.LocalDateTime;
 
 @Builder
-public record MentorshipRequestDto(
+public record MentorshipResponseDto(
         Long id,
         String description,
         Long requesterUserId,
