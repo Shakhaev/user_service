@@ -158,4 +158,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
+
+    @OneToOne(mappedBy = "user")
+    private Tariff tariff;
 }
