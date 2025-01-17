@@ -117,7 +117,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitation_Success() {
+    public void testRejectGoalInvitationSuccess() {
 
         GoalInvitation invitation = mock(GoalInvitation.class);
         Goal goal = mock(Goal.class);
