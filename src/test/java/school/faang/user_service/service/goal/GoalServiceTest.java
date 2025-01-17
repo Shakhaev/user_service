@@ -46,8 +46,10 @@ class GoalServiceTest {
 
     @Mock
     private GoalRepository goalRepository;
+
     @Mock
     private SkillRepository skillRepository;
+
     @Mock
     private UserRepository userRepository;
 

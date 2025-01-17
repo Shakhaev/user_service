@@ -29,7 +29,13 @@ public interface GoalMapper {
     @Mapping(target = "invitationIds", expression = "java(invitationsToInvitationIds(goal.getInvitations()))")
     GoalResponse toResponse(Goal goal);
 
+    @Mapping(source = "mentorId", target = "mentor.id")
+    @Mapping(source = "parentId", target = "parent.id")
+    Goal toEntity(UpdateGoalRequest updateGoalRequest);
+
     void updateEntityFromDto(CreateGoalRequest goalRequest, @MappingTarget Goal goal);
+
+    void updateEntityFromDto(UpdateGoalRequest goalDto, @MappingTarget Goal goal);
 
     default List<Long> usersToUserIds(List<User> users) {
         return users == null ? Collections.emptyList() : users.stream().map(User::getId).collect(Collectors.toList());
@@ -42,10 +48,4 @@ public interface GoalMapper {
     default List<Long> invitationsToInvitationIds(List<GoalInvitation> invitations) {
         return invitations == null ? Collections.emptyList() : invitations.stream().map(GoalInvitation::getId).collect(Collectors.toList());
     }
-
-    @Mapping(source = "mentorId", target = "mentor.id")
-    @Mapping(source = "parentId", target = "parent.id")
-    Goal toEntity(UpdateGoalRequest updateGoalRequest);
-
-    void updateEntityFromDto(UpdateGoalRequest goalDto, @MappingTarget Goal goal);
 }
