@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum PromotionPlanType {
-    BASIC("BASIC"),
-    PREMIUM("PREMIUM");
+    USER("USER"),
+    EVENT("EVENT");
 
     private final String value;
 

@@ -14,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.enums.promotion.PromotionTariff;
+import school.faang.user_service.enums.promotion.PromotionStatus;
 import school.faang.user_service.enums.promotion.PromotionPlanType;
 
 @Data
@@ -33,14 +35,18 @@ public class Promotion {
     @Column(name = "event_id")
     private Long eventId;
 
-    @Column(name = "promotion_plan_type")
     @Enumerated(EnumType.STRING)
-    private PromotionPlanType promotionPlanType;
+    private PromotionTariff tariff;
+
+    @Column(name = "plan_type")
+    @Enumerated(EnumType.STRING)
+    private PromotionPlanType planType;
 
     @Column(name = "remaining_views")
     private Integer remainingViews;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PromotionStatus status;
 
     @OneToOne
     @JoinColumn(name = "payment_id")

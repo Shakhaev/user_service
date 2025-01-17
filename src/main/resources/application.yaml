@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  redis:
+    host: localhost
+    port: 6379
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -36,9 +39,15 @@ payment-service:
   host: localhost
   port: 9080
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: caches
 promotions:
   domain:
     path: /api/v1
+
 payments:
   domain:
     path: /api/v1

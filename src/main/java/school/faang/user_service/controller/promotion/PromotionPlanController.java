@@ -2,6 +2,7 @@ package school.faang.user_service.controller.promotion;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.promotion.PromotionPlanDto;
@@ -18,5 +19,15 @@ public class PromotionPlanController {
     @GetMapping
     public List<PromotionPlanDto> getPromotionPlans() {
         return service.getPromotionPlans();
+    }
+
+    @GetMapping("/by-name/{name}")
+    public PromotionPlanDto getPromotionPlanByName(@PathVariable("name") String name) {
+        return service.getPromotionPlanByName(name);
+    }
+
+    @GetMapping("/by-price/{price}")
+    public PromotionPlanDto getPromotionPlanByPrice(@PathVariable("price") long price) {
+        return service.getPromotionPlanByPrice(price);
     }
 }

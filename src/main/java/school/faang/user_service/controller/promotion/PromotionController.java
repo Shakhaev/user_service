@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.promotion.PromotionDto;
+import school.faang.user_service.dto.promotion.PromotionRequestDto;
+import school.faang.user_service.dto.promotion.PromotionResponseDto;
 import school.faang.user_service.service.promotion.PromotionService;
 
 import java.util.List;
@@ -20,12 +21,12 @@ public class PromotionController {
     private final PromotionService promotionService;
 
     @GetMapping("/by-user/{id}")
-    public List<PromotionDto> getPromotionsByUser(@PathVariable("id") long userId) {
+    public List<PromotionResponseDto> getPromotionsByUser(@PathVariable("id") long userId) {
         return promotionService.getPromotionsByUser(userId);
     }
 
     @PostMapping
-    public PromotionDto createPromotion(@RequestBody @Valid PromotionDto promotionDto) {
+    public PromotionResponseDto createPromotion(@RequestBody @Valid PromotionRequestDto promotionDto) {
         return promotionService.createPromotion(promotionDto);
     }
 }

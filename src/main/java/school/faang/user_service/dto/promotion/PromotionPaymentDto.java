@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.enums.promotion.Currency;
 import school.faang.user_service.enums.promotion.PromotionPaymentStatus;
-import school.faang.user_service.enums.promotion.PromotionPaymentType;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -22,7 +22,8 @@ public class PromotionPaymentDto {
 
     private BigDecimal amount;
 
+    private Currency currency;
+
     private PromotionPaymentStatus status;
 
-    private PromotionPaymentType paymentType;
 }

@@ -3,13 +3,13 @@ package school.faang.user_service.enums.promotion;
 import lombok.Getter;
 
 @Getter
-public enum PromotionPaymentType {
-    USER("USER"),
-    EVENT("EVENT");
+public enum PromotionTariff {
+    BASIC("BASIC"),
+    PREMIUM("PREMIUM");
 
     private final String value;
 
-    PromotionPaymentType(String value) {
+    PromotionTariff(String value) {
         this.value = value;
     }
 }

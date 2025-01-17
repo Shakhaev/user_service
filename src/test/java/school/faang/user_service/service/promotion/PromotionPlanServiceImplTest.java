@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.promotion.PromotionPlanDto;
-import school.faang.user_service.entity.promotion.PromotionPlan;
 import school.faang.user_service.mapper.promotion.PromotionPlanMapperImpl;
 import school.faang.user_service.repository.promotion.PromotionPlanRepository;
 
@@ -15,9 +14,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPlan;
+import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPlanDto;
 
 @ExtendWith(MockitoExtension.class)
 class PromotionPlanServiceImplTest {
+
     @Mock
     private PromotionPlanRepository promotionPlanRepository;
 
@@ -34,17 +36,5 @@ class PromotionPlanServiceImplTest {
         List<PromotionPlanDto> actualPromotionPlans = promotionPlanService.getPromotionPlans();
 
         assertEquals(List.of(getPromotionPlanDto()), actualPromotionPlans);
-    }
-
-    private static PromotionPlanDto getPromotionPlanDto() {
-        return PromotionPlanDto.builder()
-                .name("BASIC")
-                .build();
-    }
-
-    private static PromotionPlan getPromotionPlan() {
-        return PromotionPlan.builder()
-                .name("BASIC")
-                .build();
     }
 }

@@ -11,10 +11,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.enums.promotion.Currency;
 import school.faang.user_service.enums.promotion.PromotionPaymentStatus;
-import school.faang.user_service.enums.promotion.PromotionPaymentType;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -25,20 +26,18 @@ import java.math.BigDecimal;
 public class PromotionPayment {
 
     @Id
-    private String id;
+    private UUID id;
 
     @Column(name = "user_id")
     private Long userId;
 
-    @Column
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    private PromotionPaymentStatus status;
+    private Currency currency;
 
-    @Column(name = "payment_type")
     @Enumerated(EnumType.STRING)
-    private PromotionPaymentType paymentType;
+    private PromotionPaymentStatus status;
 
     @OneToOne(mappedBy = "promotionPayment")
     private Promotion promotion;
