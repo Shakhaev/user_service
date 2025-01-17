@@ -18,6 +18,7 @@ public class EventController {
     private final EventService eventService;
     private final EventDtoValidator eventDtoValidator;
     private final EventFiltersDtoValidator eventFilterValidator;
+
     private final EventMapper eventMapper;
 
     public EventDto create(EventDto eventDto) {

@@ -119,7 +119,8 @@ public class GoalServiceTest {
         when(userService.getUser(1L)).thenThrow(new NoSuchElementException("not found user with id 1"));
         assertThrows(NoSuchElementException.class, () -> goalService.createGoal(1L, goal1),
                 "not found user with id 1");
-        Mockito.verify(userService, times(1)).getUser(1L);
+
+        verify(userService, times(1)).getUser(1L);
     }
 
     @Test
