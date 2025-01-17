@@ -55,25 +55,16 @@ public class EventController {
 
     @PostMapping("/filter")
     public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto filter) {
-        List<Event> events = eventService.getEventsByFilter(filter);
-        return events.stream()
-                .map(eventMapper::toDto)
-                .toList();
+        return eventMapper.toDto(eventService.getEventsByFilter(filter));
     }
 
     @GetMapping("/owned")
     public List<EventDto> getOwnedEvents(@RequestParam("id") Long id) {
-        List<Event> events = eventService.getOwnedEvents(id);
-        return events.stream()
-                .map(eventMapper::toDto)
-                .toList();
+        return eventMapper.toDto(eventService.getOwnedEvents(id));
     }
 
     @GetMapping("/participated")
     public List<EventDto> getParticipatedEvents(@RequestParam("id") Long id) {
-        List<Event> events = eventService.getParticipatedEvents(id);
-        return events.stream()
-                .map(eventMapper::toDto)
-                .toList();
+        return eventMapper.toDto(eventService.getParticipatedEvents(id));
     }
 }

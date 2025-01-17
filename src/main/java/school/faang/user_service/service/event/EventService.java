@@ -18,10 +18,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    // private final UserService userService;
+    private final SkillRepository skillRepository;
     private final UserRepository userRepository;
     private final List<EventFilter> eventFilters;
-    private final SkillRepository skillRepository;
 
     public Event create(Event event) {
         if (!ownerHasRequiredSkills(event)) {
@@ -57,9 +56,10 @@ public class EventService {
     }
 
     public Event updateEvent(Event event) {
-        if (false) {//userService.getCurrentUserId() != ownerId
-            throw new DataValidationException("User does not have required permissions to update the event");
+        if (!ownerHasRequiredSkills(event)) {
+            throw new DataValidationException("User does not have required skills to create the event");
         }
+
         Event existingEvent = eventRepository.findById(event.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Event does not exist"));
         existingEvent.setOwner(userRepository.findById(event.getOwner().getId())
@@ -81,20 +81,20 @@ public class EventService {
     }
 
     private boolean userHasRequiredSkills(Long ownerId, List<Long> requiredSkills) {
-        if (true) { // userService.getUser(ownerId).getSkills().retainAll(requiredSkills).isEmpty()
-            return false;
-        }
-        return true;
+        return userRepository.findById(ownerId).
+                orElseThrow(() -> new IllegalArgumentException("User does not exist"))
+                .getSkills().stream()
+                .map(Skill::getId)
+                .anyMatch(requiredSkills::contains);
     }
 
     private boolean ownerHasRequiredSkills(Event event) {
-        Long userId = event.getOwner().getId();
-        List<Long> skillsId = event.getRelatedSkills().stream()
-                        .map(Skill::getId).toList();
-
-        if (true) { // userService.getUser(ownerId).getSkills().retainAll(requiredSkills).isEmpty()
-            return false;
-        }
-        return true;
+        return userRepository.findById(event.getOwner().getId()).
+                orElseThrow(() -> new IllegalArgumentException("User does not exist"))
+                .getSkills().stream()
+                .map(Skill::getId)
+                .anyMatch(event.getRelatedSkills().stream()
+                        .map(Skill::getId).toList()
+                        ::contains);
     }
 }

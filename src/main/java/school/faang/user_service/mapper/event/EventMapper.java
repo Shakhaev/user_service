@@ -7,6 +7,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring",  uses = SkillMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
     @Mapping(target = "relatedSkills", source = "relatedSkills", qualifiedByName = "relatedSkillsToDto")
@@ -32,4 +34,7 @@ public interface EventMapper {
     @Mapping(target = "type", source = "eventType")
     @Mapping(target = "status", source = "eventStatus")
     void update(@MappingTarget Event event, EventDto eventDto);
+
+    List<EventDto> toDto(List<Event> events);
+    List<Event> toEntity(List<EventDto> eventsDto);
 }
