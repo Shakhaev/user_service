@@ -31,7 +31,7 @@ public class GoalInvitationService {
         Long invitedId = invitation.getInvited().getId();
 
         if (Objects.equals(invitedId, whoInviterId)) {
-            throw new GoalInvitationException("The user doesn't create invitation by-self");
+            throw new GoalInvitationException("User cannot create invitation for himself");
         }
 
         if (!isUserExists(whoInviterId) || !isUserExists(invitedId)) {
