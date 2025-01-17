@@ -26,7 +26,7 @@ class PaymentServiceTest {
     private PaymentService paymentService;
 
     @Test
-    void sendPaymentRequestReturnSuccessResponse() {
+    void sendPaymentRequestSent() {
         PremiumPeriod period = PremiumPeriod.ONE_MONTH;
 
         doNothing().when(validator).validate(any());

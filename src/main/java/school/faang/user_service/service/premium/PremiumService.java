@@ -41,7 +41,6 @@ public class PremiumService {
 
     private void checkUserDoesntHavePremium(Long userId) {
         if (premiumRepository.existsByUserId(userId)) {
-            log.warn("User {} already has a premium subscription", userId);
             throw new DataValidationException(String.format("User %d already has a premium subscription", userId));
         }
     }
