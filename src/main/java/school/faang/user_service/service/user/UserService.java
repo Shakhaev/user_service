@@ -19,6 +19,8 @@ import school.faang.user_service.service.mentorship.MentorshipService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -64,7 +66,7 @@ public class UserService {
         userDomainService.save(user);
     }
 
-    @PublishEvent(returnedType = User.class)
+    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public List<User> getPremiumUsers(long offset, long limit) {
         return userDomainService.findAllWithActivePremiumInRange(offset, limit);

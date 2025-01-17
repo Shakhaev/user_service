@@ -8,9 +8,12 @@ import school.faang.user_service.aspect.EventPublisher;
 import school.faang.user_service.dto.premium.PremiumBoughtEventDto;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
+import school.faang.user_service.enums.publisher.PublisherType;
 import school.faang.user_service.redis.publisher.AbstractEventAggregator;
 
 import java.time.temporal.ChronoUnit;
+
+import static school.faang.user_service.enums.publisher.PublisherType.PREMIUM_BOUGHT;
 
 @Component
 public class PremiumBoughtEventPublisherToRedis extends AbstractEventAggregator<PremiumBoughtEventDto>
@@ -35,12 +38,12 @@ public class PremiumBoughtEventPublisherToRedis extends AbstractEventAggregator<
     }
 
     @Override
-    protected String getEventTypeName() {
-        return EVENT_TYPE_NAME;
+    public PublisherType getType() {
+        return PREMIUM_BOUGHT;
     }
 
     @Override
-    public Class<?> getInstance() {
-        return Premium.class;
+    protected String getEventTypeName() {
+        return EVENT_TYPE_NAME;
     }
 }

@@ -8,17 +8,20 @@ import school.faang.user_service.aspect.EventPublisher;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.ProfileViewEventDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.enums.publisher.PublisherType;
 import school.faang.user_service.redis.publisher.AbstractEventAggregator;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
 
+import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
+
 @Component
 public class ProfileViewEventPublisherToRedis extends AbstractEventAggregator<ProfileViewEventDto>
         implements EventPublisher {
     private static final String EVENT_TYPE_NAME = "Profile view";
-    private final UserContext userContext;
     private final UserRepository userRepository;
+    private final UserContext userContext;
 
     public ProfileViewEventPublisherToRedis(RedisTemplate<String, Object> redisTemplate,
                                             ObjectMapper javaTimeModuleObjectMapper,
@@ -50,8 +53,8 @@ public class ProfileViewEventPublisherToRedis extends AbstractEventAggregator<Pr
     }
 
     @Override
-    public Class<?> getInstance() {
-        return User.class;
+    public PublisherType getType() {
+        return PROFILE_VIEW;
     }
 
     private List<ProfileViewEventDto> buildProfileViewEvents(List<User> users) {

@@ -14,6 +14,8 @@ import school.faang.user_service.service.user.UserDomainService;
 
 import java.time.LocalDateTime;
 
+import static school.faang.user_service.enums.publisher.PublisherType.PREMIUM_BOUGHT;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class PremiumService {
     private final UserDomainService userDomainService;
     private final PaymentService paymentService;
 
-    @PublishEvent(returnedType = Premium.class)
+    @PublishEvent(type = PREMIUM_BOUGHT)
     @Transactional
     public Premium buyPremium(long userId, PremiumPeriod period) {
         log.info("User with id: {} buy a premium {} days subscription", userId, period.getDays());
