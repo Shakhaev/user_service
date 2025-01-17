@@ -102,6 +102,7 @@ kotlin {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    outputs.upToDateWhen { false }
 
     reports {
         xml.required.set(true)
@@ -118,6 +119,8 @@ tasks.jacocoTestReport {
                 .exclude("**/config/**")
                 .exclude("**/dto/**")
                 .exclude("**/mapper/**")
+                .exclude("**/controller/**")
+                .exclude("**/UserServiceApplication.*")
         )
     )
 
