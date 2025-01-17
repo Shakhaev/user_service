@@ -14,6 +14,7 @@ import school.faang.user_service.filter.goal.validation.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,16 +25,23 @@ public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper goalInvitationMapper;
-    private final List<GoalFilter> goalFilters;
-
-    private final List<InvitationFilter> invitationFilters;
+    private final List<GoalFilter> goalFilters = new ArrayList<>();
+    private final List<InvitationFilter> invitationFilters = new ArrayList<>();
 
     @Transactional
     public void createInvitation(GoalInvitationDto invitationDto) {
         GoalInvitation invitation = goalInvitationMapper.toEntity(invitationDto);
 
+        if (invitation.getGoal() == null) {
+            throw new InvalidInvitationException("Goal cannot be null.");
+        }
+
         Long inviterId = invitationDto.getInviterId();
         Long invitedUserId = invitationDto.getInvitedUserId();
+
+        if (inviterId.equals(invitedUserId)) {
+            throw new InvalidInvitationException("Inviter and invited user cannot be the same.");
+        }
 
         validateFilters(invitation.getGoal(), inviterId, invitedUserId);
 
