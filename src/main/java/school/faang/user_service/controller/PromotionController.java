@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.EventPromotionRequest;
-import school.faang.user_service.dto.UserPromotionRequest;
+import school.faang.user_service.dto.promotion.EventPromotionRequest;
+import school.faang.user_service.dto.promotion.UserPromotionRequest;
 import school.faang.user_service.service.EventService;
 import school.faang.user_service.service.UserService;
 

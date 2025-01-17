@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.EventPromotionRequest;
+import school.faang.user_service.dto.promotion.EventPromotionRequest;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.util.ConverterUtil;
 
-import static school.faang.user_service.config.KafkaTopics.EVENT_KEY;
-import static school.faang.user_service.config.KafkaTopics.PAYMENT_PROMOTION_TOPIC;
+import static school.faang.user_service.config.KafkaConstants.EVENT_KEY;
+import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class EventService {
 
     public void eventPromotion(EventPromotionRequest request) {
         validateEvent(request.eventId());
-        userService.validateUser(request.userId());
+        userService.findById(request.userId());
 
         String message = converterUtil.convertToJson(request);
         kafkaTemplate.send(PAYMENT_PROMOTION_TOPIC, EVENT_KEY, message);
@@ -39,5 +39,5 @@ public class EventService {
         if (!eventRepository.existsById(eventId)) {
             throw new EntityNotFoundException("Event with id " + eventId + " does not exist");
         }
-
+    }
 }

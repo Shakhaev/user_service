@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.promotion;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
