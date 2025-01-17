@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.EventPromotionRequest;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.util.JsonUtil;
+import school.faang.user_service.util.ConverterUtil;
 
 import static school.faang.user_service.config.KafkaTopics.EVENT_KEY;
 import static school.faang.user_service.config.KafkaTopics.PROMOTION_BOUGHT_TOPIC;
@@ -19,7 +19,8 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final JsonUtil jsonUtil;
+    private final ConverterUtil converterUtil;
+    private final UserService userService;
 
     @Transactional
     public void removeEvent(Long eventId) {
@@ -28,8 +29,9 @@ public class EventService {
 
     public void eventPromotion(EventPromotionRequest request) {
         validateEvent(request.eventId());
+        userService.validateUser(request.userId());
 
-        String message = jsonUtil.convertToJson(request);
+        String message = converterUtil.convertToJson(request);
         kafkaTemplate.send(PROMOTION_BOUGHT_TOPIC, EVENT_KEY, message);
     }
 

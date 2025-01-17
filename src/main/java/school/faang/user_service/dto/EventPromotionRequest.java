@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 @Builder
 public record EventPromotionRequest(@NotNull @Positive
+                                    Long userId,
+                                    @NotNull @Positive
                                     Long eventId,
                                     @Min(value = 100, message = "Бюджет на день не может быть меньше 100")
                                     Long budgetInDay,

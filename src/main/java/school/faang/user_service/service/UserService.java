@@ -32,20 +32,21 @@ import static school.faang.user_service.config.KafkaConstants.USER_KEY;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final JsonUtil jsonUtil;
+    private final ConverterUtil converterUtil;
+    private final AvatarService avatarService;
+    private final MinioStorageService minioStorageService;
+    private final UserMapper userMapper;
 
     public User findById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(id));
     }
-    private final AvatarService avatarService;
-    private final MinioStorageService minioStorageService;
-    private final UserMapper userMapper;
 
     @Transactional
     public void deactivateUser(Long userId) {
@@ -70,7 +71,6 @@ public class UserService {
 
         mentorshipService.removeMentorship(userId);
     }
-
 
     public void userPromotion(UserPromotionRequest userPromotionRequest) {
         findById(userPromotionRequest.userId());

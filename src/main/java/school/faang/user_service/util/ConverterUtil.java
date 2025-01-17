@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Component
 @RequiredArgsConstructor
-public class JsonUtil {
+public class ConverterUtil {
     private final ObjectMapper objectMapper;
 
     public String convertToJson(Serializable request) {
