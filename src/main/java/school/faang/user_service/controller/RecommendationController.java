@@ -20,7 +20,7 @@ public class RecommendationController {
         }
     }
 
-    private boolean validateRecommendation(CreateRecommendationRequest recommendation) { // TODO: вынести валидацию в сервис?
-        return !recommendation.getContent().isEmpty();
+    private boolean validateRecommendation(CreateRecommendationRequest recommendation) {
+        return !recommendation.getContent().isBlank();
     }
 }

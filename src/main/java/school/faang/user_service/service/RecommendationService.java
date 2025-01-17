@@ -41,13 +41,13 @@ public class RecommendationService {
         Recommendation recommendation = mapCreateRequestToEntity(recommendationRequest);
 
         // маппить список предлагаемых скиллов в SkillOffer пока не можем, потому что у нас ещё нет recommendationId. Он появится после создания рекомендации
-        // CrateSkillOfferRequest хранит в себе только id скиллов, поэтому маппим их в сущности Skill
+        // CreateSkillOfferRequest хранит в себе только id скиллов, поэтому можно пока сделать список скиллов
         List<Skill> offeredSkills = new ArrayList<>();
         recommendationRequest.getSkillOffers().forEach(s -> {
             offeredSkills.add(skillRepository.getReferenceById(s.getSkillId()));
         });
 
-        validateCreateRecommendationRequest(recommendation, offeredSkills);
+        validateCreateRequest(recommendation, offeredSkills);
 
         Long recommendationId = recommendationRepository.create(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
         recommendation.setId(recommendationId);
@@ -80,7 +80,7 @@ public class RecommendationService {
         return recommendationResponse;
     }
 
-    private void validateCreateRecommendationRequest(Recommendation recommendation, List<Skill> offeredSkills) {
+    private void validateCreateRequest(Recommendation recommendation, List<Skill> offeredSkills) {
         // проверка, что последняя рекомендация была не раньше, чем 6 месяцев назад
         checkLastRecommendationTime(recommendation);
 
