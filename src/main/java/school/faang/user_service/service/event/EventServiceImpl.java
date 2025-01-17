@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> logAndThrowResourceNotFoundException("User", ownerId)));
 
         List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-        validateSkills(relatedSkills, event.getOwner());
+        validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
         event.setRelatedSkills(relatedSkills);
 
         eventRepository.save(event);
@@ -68,7 +68,7 @@ public class EventServiceImpl implements EventService {
         eventMapper.update(eventData, event);
 
         List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-        validateSkills(relatedSkills, event.getOwner());
+        validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
         event.getRelatedSkills().clear();
         event.getRelatedSkills().addAll(relatedSkills);
 
@@ -104,13 +104,10 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<Skill> getRelatedSkills(List<Long> relatedSkillsIds) {
-        return relatedSkillsIds == null ? new ArrayList<>() : relatedSkillsIds.stream()
-                .map(id -> skillRepository.findById(id)
-                        .orElseThrow(() -> logAndThrowResourceNotFoundException("Skill", id)))
-                .toList();
+        return relatedSkillsIds == null ? new ArrayList<>() : skillRepository.findAllById(relatedSkillsIds);
     }
 
-    private void validateSkills(List<Skill> relatedSkills, User owner) {
+    private void validateOwnerHaveRelatedSkills(User owner, List<Skill> relatedSkills) {
         List<Skill> ownerSkills = owner.getSkills();
         for (var skill : relatedSkills) {
             if (!ownerSkills.contains(skill)) {
