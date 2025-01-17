@@ -10,7 +10,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.util.ConverterUtil;
 
 import static school.faang.user_service.config.KafkaTopics.EVENT_KEY;
-import static school.faang.user_service.config.KafkaTopics.PROMOTION_BOUGHT_TOPIC;
+import static school.faang.user_service.config.KafkaTopics.PAYMENT_PROMOTION_TOPIC;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class EventService {
         userService.validateUser(request.userId());
 
         String message = converterUtil.convertToJson(request);
-        kafkaTemplate.send(PROMOTION_BOUGHT_TOPIC, EVENT_KEY, message);
+        kafkaTemplate.send(PAYMENT_PROMOTION_TOPIC, EVENT_KEY, message);
     }
 
     private void validateEvent(Long eventId) {

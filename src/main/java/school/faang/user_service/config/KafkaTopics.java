@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class KafkaTopics {
-    public final static String PROMOTION_BOUGHT_TOPIC = "promotion_bought";
+    public final static String PAYMENT_PROMOTION_TOPIC = "payment_promotion";
     public final static String EVENT_KEY = "event";
     public final static String USER_KEY = "user";
 }

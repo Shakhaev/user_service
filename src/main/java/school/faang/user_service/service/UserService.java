@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
 
 @Service
@@ -74,8 +75,8 @@ public class UserService {
 
     public void userPromotion(UserPromotionRequest userPromotionRequest) {
         findById(userPromotionRequest.userId());
-        String message = jsonUtil.convertToJson(userPromotionRequest);
-        kafkaTemplate.send(PROMOTION_BOUGHT_TOPIC, USER_KEY, message);
+        String message = converterUtil.convertToJson(userPromotionRequest);
+        kafkaTemplate.send(PAYMENT_PROMOTION_TOPIC, USER_KEY, message);
     }
 
     public UserRegisterResponse register(@Valid UserRegisterRequest request) {
