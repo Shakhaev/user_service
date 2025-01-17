@@ -12,6 +12,7 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.List;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
 
 @RequiredArgsConstructor
 @Service
@@ -23,13 +24,13 @@ public class UserDomainService {
         return userRepository.save(user);
     }
 
-    @PublishEvent(returnedType = User.class)
+    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public User findById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    @PublishEvent(returnedType = User.class)
+    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public List<User> findAllByIds(List<Long> ids) {
         return userRepository.findAllById(ids);

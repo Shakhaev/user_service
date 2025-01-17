@@ -80,6 +80,11 @@ app:
       max_pool_size: 20
       queue_capacity: 1000
       thread_name_prefix: PremiumService-Async-
+    event_publisher:
+      core_pool_size: 10
+      max_pool_size: 20
+      queue_capacity: 1000
+      thread_name_prefix: EventPublisher-Async-
   scheduler:
     event:
       start_event:
