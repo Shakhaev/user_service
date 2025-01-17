@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.service.interfaces.SubscriptionServiceI;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/subscription")
 @RequiredArgsConstructor
 public class SubscriptionController {
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceI subscriptionService;
 
     @GetMapping("/{followeeId}")
     public List<UserDto> getFollowees(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto userFilterDto) {
