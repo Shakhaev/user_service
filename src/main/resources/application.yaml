@@ -38,6 +38,7 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+  url: localhost:9080/api
 
 user-service:
   api-version: /api/v1

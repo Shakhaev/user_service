@@ -29,19 +29,9 @@ public class PremiumServiceImpl implements PremiumService {
     private final UserRepository userRepository;
     private final PaymentServiceClient paymentServiceClient;
 
-    private static PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
-        return PaymentRequest.builder()
-                .paymentNumber(Instant.now()
-                        .toEpochMilli())
-                .amount(premiumPeriod.getPrice())
-                .currency(premiumPeriod.getCurrency())
-                .build();
-    }
-
     @Override
     public PremiumDto buyPremium(Long userId, PremiumPeriod premiumPeriod) {
         User user = validateAndGetUser(userId);
-
         PaymentRequest paymentRequest = createPaymentRequest(premiumPeriod);
         PaymentResponse paymentResponse = getNonNullPaymentResponse(paymentRequest);
 
@@ -56,12 +46,19 @@ public class PremiumServiceImpl implements PremiumService {
     private User validateAndGetUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new PremiumNotFoundException("No user found by this userId"));
-
         if (premiumRepository.existsByUserId(user.getId())) {
             throw new PremiumBadRequestException("User already has a Premium");
         }
-
         return user;
+    }
+
+    private static PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
+        return PaymentRequest.builder()
+                .paymentNumber(Instant.now()
+                        .toEpochMilli())
+                .amount(premiumPeriod.getPrice())
+                .currency(premiumPeriod.getCurrency())
+                .build();
     }
 
     private PaymentResponse getNonNullPaymentResponse(PaymentRequest paymentRequest) {
