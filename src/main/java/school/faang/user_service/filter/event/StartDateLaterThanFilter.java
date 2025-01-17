@@ -9,12 +9,13 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class StartDateLaterThanFilter implements EventFilter {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public boolean isApplicable(EventFilterDto filter) {
         return filter.startDateLaterThan() != null;
     }
 
     public boolean test(EventFilterDto filter, Event event) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return event.getStartDate().isAfter(LocalDateTime.parse(filter.startDateLaterThan(), formatter));
     }
 }
