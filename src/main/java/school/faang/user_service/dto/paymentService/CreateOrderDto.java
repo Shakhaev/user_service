@@ -1,10 +1,10 @@
 package school.faang.user_service.dto.paymentService;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import school.faang.user_service.dto.premium.PremiumPlan;
 
 public record CreateOrderDto(
-        String plan,
-        @JsonProperty("payment_method")
+        String serviceType,
+        PremiumPlan plan,
         String paymentMethod
 ) {
 }
