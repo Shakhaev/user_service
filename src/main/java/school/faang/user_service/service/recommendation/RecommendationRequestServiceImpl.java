@@ -21,7 +21,6 @@ import school.faang.user_service.service.recommendation.filter.RecommendationReq
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -45,23 +44,23 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .map(skillId -> skillRequestRepository.create(requestSaved.getId(), skillId))
                 .toList();
         requestSaved.setSkills(skills);
-        return mapper.RecommendationRequestDto(requestSaved);
+        return mapper.toRecommendationRequestDto(requestSaved);
     }
 
     @Override
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filters) {
-        log.info("getRequests by filters: {} ", filters);
-        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
-        return recommendationRequestFilters.stream()
-                .filter(filter -> filter.isApplicable(filters))
-                .flatMap(filter -> filter.apply(requests, filters))
-                .map(mapper::RecommendationRequestDto)
+
+        return recommendationRequestRepository.findAll().stream()
+                .filter(request -> recommendationRequestFilters.stream()
+                        .filter(filter -> filter.isApplicable(filters))
+                        .allMatch(filter -> filter.test(request, filters)))
+                .map(mapper::toRecommendationRequestDto)
                 .toList();
     }
 
     @Override
     public RecommendationRequestDto getRequest(long id) {
-        return mapper.RecommendationRequestDto(recommendationRequestRepository.findById(id)
+        return mapper.toRecommendationRequestDto(recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(String
                         .format("Recommendation request with id %d not found", id))));
     }
@@ -76,7 +75,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         request.setStatus(RequestStatus.REJECTED);
         request.setUpdatedAt(LocalDateTime.now());
         request.setRejectionReason(rejectionDto.reason());
-        return mapper.RecommendationRequestDto(recommendationRequestRepository.save(request));
+        return mapper.toRecommendationRequestDto(recommendationRequestRepository.save(request));
     }
 
     private void validateRequestForReject(RecommendationRequest request) {
@@ -85,7 +84,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 throw new IllegalArgumentException(String
                         .format("The recommendation request id %d is already accepted", id));
         }
-        if (request.getStatus().equals(RequestStatus.REJECTED)) {
+        if (RequestStatus.REJECTED.equals(request.getStatus())) {
                 throw new IllegalArgumentException(String
                         .format("The recommendation request id %d is already rejected", id));
         }
@@ -112,8 +111,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         if (lastRequest.isPresent()) {
             LocalDateTime lastRequestDate = lastRequest.get().getCreatedAt();
             if (lastRequestDate.isAfter(LocalDateTime.now().minusMonths(REQUEST_PERIOD_OF_THE_SAME_USER))) {
-                throw new IllegalArgumentException(String.format("Recommendation request must be sent once in %d months",
-                        REQUEST_PERIOD_OF_THE_SAME_USER));
+                throw new IllegalArgumentException(String.format("Recommendation request must be sent once in %d months"
+                                + ", the previous request with id = %d was no more than %d months ago",
+                        REQUEST_PERIOD_OF_THE_SAME_USER, lastRequest.get().getId(), REQUEST_PERIOD_OF_THE_SAME_USER));
             }
         }
         for (long id : request.skillIds()) {

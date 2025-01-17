@@ -23,7 +23,7 @@ public interface RecommendationRequestMapper {
     @Mapping(source = "skills", target = "skillIds", qualifiedByName = "mapSkills")
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
-    RecommendationRequestDto RecommendationRequestDto(RecommendationRequest request);
+    RecommendationRequestDto toRecommendationRequestDto(RecommendationRequest request);
 
     @Named("mapSkills")
     default List<Long> mapSkills(List<SkillRequest> skills) {

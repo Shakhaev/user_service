@@ -27,6 +27,9 @@ public class RecommendationRequestController {
     }
 
     public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filters) {
+        if (filters == null) {
+            throw new IllegalArgumentException("filters cannot be null");
+        }
         return recommendationRequestService.getRequests(filters);
     }
 

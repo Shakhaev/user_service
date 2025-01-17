@@ -46,6 +46,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.service.TestData.createFilterDto;
+import static school.faang.user_service.service.TestData.createRejectDto;
+import static school.faang.user_service.service.TestData.createRequest;
+import static school.faang.user_service.service.TestData.createRequestRcvDto;
+import static school.faang.user_service.service.TestData.createSkill;
+import static school.faang.user_service.service.TestData.createSkillRequest;
+import static school.faang.user_service.service.TestData.createUser;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {
@@ -170,7 +177,8 @@ public class RecommendationRequestServiceTest {
                 recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
-        assertEquals("Recommendation request must be sent once in 6 months", exception.getMessage());
+        assertEquals("Recommendation request must be sent once in 6 months,"
+                + " the previous request with id = 0 was no more than 6 months ago", exception.getMessage());
     }
 
     @Test
@@ -214,7 +222,7 @@ public class RecommendationRequestServiceTest {
         assertEquals(recommendationRequest.getReceiver().getId(), requestDto.receiverId());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestMapper, times(1)).RecommendationRequestDto(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).toRecommendationRequestDto(recommendationRequest);
     }
 
     @Test
@@ -226,11 +234,11 @@ public class RecommendationRequestServiceTest {
 
         assertEquals("Recommendation request with id 5 not found", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
+        verify(recommendationRequestMapper, never()).toRecommendationRequestDto(any());
     }
 
     @Test
-    void TestRejectRequest_Successfully() {
+    void testRejectRequest_Successfully() {
         Long id = recommendationRequest.getId();
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
         when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
@@ -249,7 +257,7 @@ public class RecommendationRequestServiceTest {
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
-        verify(recommendationRequestMapper, times(1)).RecommendationRequestDto(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).toRecommendationRequestDto(recommendationRequest);
     }
 
     @Test
@@ -265,7 +273,7 @@ public class RecommendationRequestServiceTest {
         assertEquals("The recommendation request id 1 is already rejected", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
-        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
+        verify(recommendationRequestMapper, never()).toRecommendationRequestDto(any());
     }
 
     @Test
@@ -279,15 +287,16 @@ public class RecommendationRequestServiceTest {
         assertEquals("Recommendation request id 5 not found", exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
-        verify(recommendationRequestMapper, never()).RecommendationRequestDto(any());
+        verify(recommendationRequestMapper, never()).toRecommendationRequestDto(any());
     }
 
     @Test
-    void testGetRequestsWithFiltersByStatus_Successfully() {
+    void testGetRequestsWithFiltersByStatusAndRequesterAndReceiver_Successfully() {
         RecommendationRequest request1 = createRequest(1L, requester, receiver, RequestStatus.ACCEPTED);
         RecommendationRequest request2 = createRequest(2L, requester, receiver, RequestStatus.PENDING);
         RecommendationRequest request3 = createRequest(3L, requester, receiver, RequestStatus.REJECTED);
-        RequestFilterDto requestFilterDto = createFilterDto(request2.getStatus(), null, null);
+        RequestFilterDto requestFilterDto = createFilterDto(request2.getStatus(),
+                request2.getRequester().getId(), request2.getReceiver().getId());
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2, request3));
 
@@ -296,6 +305,8 @@ public class RecommendationRequestServiceTest {
         assertEquals(1, requests.size());
         assertEquals(request2.getId(), requests.get(0).id());
         assertEquals(request2.getStatus(), requests.get(0).status());
+        assertEquals(request2.getRequester().getId(), requests.get(0).requesterId());
+        assertEquals(request2.getReceiver().getId(), requests.get(0).receiverId());
     }
 
     @Test
@@ -323,65 +334,6 @@ public class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2, request3));
         assertEquals(List.of(), recommendationRequestService.getRequests(requestFilterDto));
-    }
-
-    private User createUser(long id, String title) {
-        return User.builder()
-                .id(id)
-                .username(title)
-                .build();
-    }
-
-    private Skill createSkill(long id, String title) {
-        return Skill.builder()
-                .id(id)
-                .title(title)
-                .build();
-    }
-
-    private SkillRequest createSkillRequest(long id, RecommendationRequest recommendationRequest, Skill skill) {
-        return SkillRequest.builder()
-                .id(id)
-                .request(recommendationRequest)
-                .skill(skill)
-                .build();
-    }
-
-    private RecommendationRequestRcvDto createRequestRcvDto(User requester,
-                                                            User receiver,
-                                                            RecommendationRequest request,
-                                                            List<Long> skillIdsList) {
-        return RecommendationRequestRcvDto.builder()
-                .message(request.getMessage())
-                .skillIds(skillIdsList)
-                .requesterId(requester.getId())
-                .receiverId(receiver.getId())
-                .build();
-    }
-
-    private RecommendationRequest createRequest(Long id, User requester, User receiver, RequestStatus status) {
-        return RecommendationRequest.builder()
-                .id(id)
-                .requester(requester)
-                .receiver(receiver)
-                .status(status)
-                .createdAt(LocalDateTime.now())
-                .message("Please confirm my skills")
-                .build();
-    }
-
-    private RejectionDto createRejectDto(String reason) {
-        return RejectionDto.builder()
-                .reason(reason)
-                .build();
-    }
-
-    private RequestFilterDto createFilterDto(RequestStatus status, Long requesterId, Long receiverId) {
-        return RequestFilterDto.builder()
-                .status(status)
-                .requesterId(requesterId)
-                .receiverId(receiverId)
-                .build();
     }
 }
 
