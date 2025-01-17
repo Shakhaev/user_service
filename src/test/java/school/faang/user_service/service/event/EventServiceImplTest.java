@@ -17,7 +17,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.ResourceNotFoundException;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -34,7 +35,7 @@ public class EventServiceImplTest {
     @Mock
     private EventRepository eventRepository;
     @Spy
-    private EventMapper eventMapper;
+    private EventMapperImpl eventMapper;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -62,13 +63,13 @@ public class EventServiceImplTest {
                 .build();
 
         dto = EventRequestDto.builder()
-                .title("meeting")
+                .title("new meeting")
                 .startDate("2024-01-04 10:00:00")
                 .ownerId(1L)
                 .description("opening meeting")
-                .maxAttendees(70)
-                .eventType("PRESENTATION")
-                .eventStatus("PLANNED")
+                .maxAttendees(50)
+                .eventType(EventType.valueOf("PRESENTATION"))
+                .eventStatus(EventStatus.valueOf("PLANNED"))
                 .build();
     }
 
@@ -96,11 +97,24 @@ public class EventServiceImplTest {
     @Test
     public void testGetEvent() {
         long id = event.getId();
-        Mockito.when(eventRepository.findById(id)).thenReturn(Optional.of(new Event()));
+        Mockito.when(eventRepository.findById(id)).thenReturn(Optional.of(event));
 
         eventService.getEvent(id);
 
         Mockito.verify(eventRepository, Mockito.times(1)).findById(id);
+    }
+
+    @Test
+    public void testCreate() {
+        Mockito.when(userRepository.findById(dto.ownerId())).thenReturn(Optional.of(new User()));
+
+        eventService.create(dto);
+
+        Mockito.verify(eventRepository, Mockito.times(1)).save(captor.capture());
+
+        Event capturedEvent = captor.getValue();
+        assertEquals(dto.title(), capturedEvent.getTitle());
+        assertEquals(dto.maxAttendees(), capturedEvent.getMaxAttendees());
     }
 
     @Test
@@ -110,6 +124,10 @@ public class EventServiceImplTest {
         eventService.update(dto, event.getId());
 
         Mockito.verify(eventRepository, Mockito.times(1)).save(captor.capture());
+
+        Event capturedEvent = captor.getValue();
+        assertEquals(dto.title(), capturedEvent.getTitle());
+        assertEquals(dto.maxAttendees(), capturedEvent.getMaxAttendees());
     }
 
     @Test
