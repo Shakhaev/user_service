@@ -1,13 +1,8 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
-  push:
-    branches:
-      - chimera-dev
-      - chimera-master-stream8
   pull_request:
     branches:
-      - chimera-dev
       - chimera-master-stream8
 
 jobs:
@@ -37,5 +32,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Run CheckStyle
+        run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
+
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew test --no-daemon
