@@ -18,9 +18,4 @@ public class RatingController {
     public List<LeaderTableDto> getTableLeaders(@PathVariable int limit, @RequestBody UserComparingDto userComparingDto) {
         return ratingService.getTableLeaders(limit, userComparingDto);
     }
-
-    @GetMapping("/leaders/last12hours")
-    public List<LeaderTableDto> getTableLeadersLast12Hours() {
-        return ratingService.getTableLeadersLast12Hours();
-    }
 }

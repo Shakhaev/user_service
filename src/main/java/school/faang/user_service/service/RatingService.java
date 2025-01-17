@@ -14,12 +14,10 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.LeaderTableMapper;
 import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.rating.description.Descriptionable;
-import school.faang.user_service.rating.factory.ComparatorFactory;
 import school.faang.user_service.repository.UserRepository;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +25,49 @@ public class RatingService {
     private final ApplicationEventPublisher publisher;
     private final UserRepository userRepository;
     private final LeaderTableMapper leaderTableMapper;
-    private final ComparatorFactory comparatorFactory;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final Logger logger = LoggerFactory.getLogger(RatingService.class);
 
+    private static final String LEADERBOARD_KEY = "leaderboard";
+    private static final int LEADERBOARD_LIMIT = 100;
+
     @Transactional
     public List<LeaderTableDto> getTableLeaders(int limit, UserComparingDto userComparingDto) {
-        List<User> users = userRepository.findAll();
-        Stream<User> userStream = users.stream();
+        Set<Object> topUsers = redisTemplate.opsForZSet().reverseRange(LEADERBOARD_KEY, 0, limit - 1);
 
-        Comparator<User> comparator = comparatorFactory.getComparator(userComparingDto);
-        if (comparator != null) {
-            userStream = userStream.sorted(comparator);
+        if (topUsers == null || topUsers.isEmpty()) {
+            syncLeaderboardWithDatabase(limit);
+            topUsers = redisTemplate.opsForZSet().reverseRange(LEADERBOARD_KEY, 0, limit - 1);
         }
 
-        return userStream.limit(limit)
-                .map(leaderTableMapper::toDto)
+        if (topUsers == null || topUsers.size() < limit) {
+            List<User> additionalUsers = userRepository.findTopByOrderByRatingPointsDesc(limit);
+            return additionalUsers.stream()
+                    .map(leaderTableMapper::toDto)
+                    .toList();
+        }
+
+        return topUsers.stream()
+                .map(userId -> {
+                    User user = userRepository.findById((Long) userId)
+                            .orElseThrow(() -> new IllegalArgumentException("User was not found!"));
+                    return leaderTableMapper.toDto(user);
+                })
                 .toList();
+    }
+
+    private void syncLeaderboardWithDatabase(int limit) {
+        int adjustedLimit = Math.min(limit, LEADERBOARD_LIMIT);
+
+        Set<Object> cachedUsers = redisTemplate.opsForZSet().reverseRange(LEADERBOARD_KEY, 0, adjustedLimit - 1);
+
+        if (cachedUsers != null && cachedUsers.size() < adjustedLimit) {
+            int remainingLimit = adjustedLimit - cachedUsers.size();
+            List<User> additionalUsers = userRepository.findTopByOrderByRatingPointsDesc(remainingLimit);
+
+            additionalUsers.forEach(user -> redisTemplate.opsForZSet()
+                    .add(LEADERBOARD_KEY, user.getId(), user.getRatingPoints()));
+        }
     }
 
     public void addPoints(RatingDto ratingDTO) {
@@ -62,12 +86,5 @@ public class RatingService {
         );
 
         addPoints(ratingDTO);
-    }
-
-    public List<LeaderTableDto> getTableLeadersLast12Hours() {
-        List<Object> cachedData = redisTemplate.opsForList().range("leaderboard:last12hours", 0, -1);
-        return cachedData.stream()
-                .map(obj -> (LeaderTableDto) obj)
-                .toList();
     }
 }

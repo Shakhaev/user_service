@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Stream<User> findPremiumUsers();
 
     List<User> findByUsernameLike(String username);
+
+    @Query(value = "SELECT u FROM User u ORDER BY u.ratingPoints DESC LIMIT :limit")
+    List<User> findTopByOrderByRatingPointsDesc(int limit);
 }

@@ -11,6 +11,7 @@ import school.faang.user_service.dto.rating.LeaderTableDto;
 import school.faang.user_service.dto.rating.RatingDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.rating.RatingHistory;
+import school.faang.user_service.mapper.LeaderTableMapper;
 import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.rating.description.Descriptionable;
 import school.faang.user_service.repository.UserRepository;
@@ -21,6 +22,10 @@ public class RatingEventListener {
     private final UserRepository userRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final Logger logger = LoggerFactory.getLogger(RatingEventListener.class);
+    private final LeaderTableMapper leaderTableMapper;
+
+    private static final String LEADERBOARD_KEY = "leaderboard";
+    private static final int LEADERBOARD_LIMIT = 100;
 
     @EventListener
     @Transactional
@@ -42,16 +47,26 @@ public class RatingEventListener {
                         .build()
         );
 
-        LeaderTableDto leaderTableDto = new LeaderTableDto(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRatingPoints()
-        );
+        LeaderTableDto leaderTableDto = leaderTableMapper.toDto(user);
 
-        redisTemplate.opsForList().leftPush("leaderboard:last12hours", leaderTableDto);
+        if (isInTop(user)) {
+            updateLeaderboardCache(leaderTableDto);
+        }
 
         userRepository.save(user);
         logger.info("Saved the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
+    }
+
+    private boolean isInTop(User user) {
+        Double lowestScore = redisTemplate.opsForZSet().score(LEADERBOARD_KEY, LEADERBOARD_KEY + ":min");
+        if (lowestScore == null || user.getRatingPoints() > lowestScore) {
+            return true;
+        }
+        return false;
+    }
+
+    private void updateLeaderboardCache(LeaderTableDto leaderTableDto) {
+        redisTemplate.opsForZSet().add(LEADERBOARD_KEY, leaderTableDto.id(), leaderTableDto.ratingPoints());
+        redisTemplate.opsForZSet().removeRange(LEADERBOARD_KEY, 0, -LEADERBOARD_LIMIT - 1);
     }
 }
