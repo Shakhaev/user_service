@@ -1,5 +1,6 @@
 package school.faang.user_service.service.impl;
 
+import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
@@ -16,7 +17,7 @@ public class SubscriptionUserCountryFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return filter.countryPattern() != null && !filter.countryPattern().isEmpty();
+        return !StringUtils.isBlank(filter.countryPattern());
     }
 
     @Override

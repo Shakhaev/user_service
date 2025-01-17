@@ -66,9 +66,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         if (applicableFilterNum > 0) {
             filteredUsers = subscriptionFilters.stream()
                     .filter(filter -> filter.isApplicable(filterDto))
-                    .peek(filter -> log.info("Applied filter {}", filter.getName()))
-                    .flatMap(filter -> filter.apply(users, filterDto))
-                    .peek(user -> log.info("Applied for user {}", user.getUsername()));
+                    .flatMap(filter -> filter.apply(users, filterDto));
         } else {
             filteredUsers = users;
         }
