@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
 
     public List<EventDto> getEventsByFilter(EventFilterDto filter) {
         return eventRepository.findAll().stream()
-                .filter(event -> isEventMatchingFilter(event, filter))
+                .filter(event -> filter == null || isEventMatchingFilter(event, filter))
                 .map(eventMapper::toDto)
                 .toList();
     }
@@ -52,7 +52,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> logAndThrowResourceNotFoundException("User", ownerId)));
 
         List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-        validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
+        if (!relatedSkills.isEmpty()) {
+            validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
+        }
         event.setRelatedSkills(relatedSkills);
 
         eventRepository.save(event);
@@ -67,10 +69,12 @@ public class EventServiceImpl implements EventService {
 
         eventMapper.update(eventData, event);
 
-        List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-        validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
-        event.getRelatedSkills().clear();
-        event.getRelatedSkills().addAll(relatedSkills);
+        if (eventData.relatedSkillsIds() != null) {
+            List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
+            validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
+            event.getRelatedSkills().clear();
+            event.getRelatedSkills().addAll(relatedSkills);
+        }
 
         eventRepository.save(event);
         return eventMapper.toDto(event);

@@ -44,7 +44,7 @@ public interface EventMapper {
 
     @Named("map")
     default List<Long> map(List<Skill> skills) {
-        return skills.stream()
+        return skills == null ? null : skills.stream()
                 .map(Skill::getId)
                 .toList();
     }
