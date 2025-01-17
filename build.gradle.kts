@@ -100,6 +100,17 @@ kotlin {
     jvmToolchain(17)
 }
 
+val exclusions = listOf(
+    "**/entity/**",
+    "**/com/json/**",
+    "**/client/**",
+    "**/config/**",
+    "**/dto/**",
+    "**/mapper/**",
+    "**/controller/**",
+    "**/UserServiceApplication.*"
+)
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     outputs.upToDateWhen { false }
@@ -110,19 +121,7 @@ tasks.jacocoTestReport {
         html.required.set(true)
     }
 
-    classDirectories.setFrom(
-        files(
-            fileTree("build/classes/java/main")
-                .exclude("**/entity/**")
-                .exclude("**/com/json/**")
-                .exclude("**/client/**")
-                .exclude("**/config/**")
-                .exclude("**/dto/**")
-                .exclude("**/mapper/**")
-                .exclude("**/controller/**")
-                .exclude("**/UserServiceApplication.*")
-        )
-    )
+    classDirectories.setFrom(files(fileTree("build/classes/java/main").exclude(exclusions)))
 
     doLast {
         val reportDir = file("${buildDir}/reports/jacoco/test/html")
@@ -138,6 +137,9 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
+
+    classDirectories.setFrom(files(fileTree("build/classes/java/main").exclude(exclusions)))
+
     violationRules {
         rule {
             limit {
