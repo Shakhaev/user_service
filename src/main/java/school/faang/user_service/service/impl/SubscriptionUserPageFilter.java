@@ -14,8 +14,9 @@ public class SubscriptionUserPageFilter implements SubscriptionFilter {
 
     @Override
     public String getName() {
-        return "User User Page Filter";
+        return "User Page Filter";
     }
+
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return false;

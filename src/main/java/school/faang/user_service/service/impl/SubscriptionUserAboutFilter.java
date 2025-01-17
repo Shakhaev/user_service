@@ -13,6 +13,7 @@ public class SubscriptionUserAboutFilter implements SubscriptionFilter {
     public String getName() {
         return "User About Filter";
     }
+
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return filter.aboutPattern() != null && !filter.aboutPattern().isEmpty();

@@ -23,6 +23,7 @@ class SubscriptionUserSkillFilterTest {
     void setUp() {
         users = TestData.getUsers();
     }
+
     @Test
     @DisplayName("Test true applicability user filter by Skill")
     void isApplicableTest() {

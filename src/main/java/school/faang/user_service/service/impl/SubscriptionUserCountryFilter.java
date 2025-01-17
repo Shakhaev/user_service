@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class SubscriptionUserCountryFilter implements SubscriptionFilter {
     @Override
     public String getName() {
-        return "User User Country Filter";
+        return "User Country Filter";
     }
 
     @Override

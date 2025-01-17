@@ -11,8 +11,9 @@ import java.util.stream.Stream;
 public class SubscriptionUserExperienceFilter implements SubscriptionFilter {
     @Override
     public String getName() {
-        return "User User Experience Filter";
+        return "User Experience Filter";
     }
+
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         int minExperience = filter.experienceMin();

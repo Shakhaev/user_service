@@ -24,7 +24,7 @@ class SubscriptionUserPageFilterTest {
     @Test
     @DisplayName("Test true applicability user filter by Page/PageSize")
     void isApplicableTest() {
-        boolean isApplicableExpected = true;
+        boolean isApplicableExpected = false;
         subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
                 .page(1)
                 .pageSize(1)

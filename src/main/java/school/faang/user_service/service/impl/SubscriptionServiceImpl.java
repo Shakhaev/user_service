@@ -59,10 +59,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private List<SubscriptionUserDto> getFilteredUsers(Stream<User> users, SubscriptionUserFilterDto filterDto) {
-        Stream<User> filteredUsers = subscriptionFilters.stream()
-                .filter(filter -> filter.isApplicable(filterDto))
-                .flatMap(filter -> filter.apply(users, filterDto));
+        int applicableFilterNum = subscriptionFilters.stream()
+                .filter(filter -> filter.isApplicable(filterDto)).toList().size();
         SubscriptionUserPageFilter pageFilter = new SubscriptionUserPageFilter();
+        Stream<User> filteredUsers;
+        if (applicableFilterNum > 0) {
+            filteredUsers = subscriptionFilters.stream()
+                    .filter(filter -> filter.isApplicable(filterDto))
+                    .peek(filter -> log.info("Applied filter {}", filter.getName()))
+                    .flatMap(filter -> filter.apply(users, filterDto))
+                    .peek(user -> log.info("Applied for user {}", user.getUsername()));
+        } else {
+            filteredUsers = users;
+        }
         filteredUsers = pageFilter.apply(filteredUsers, filterDto);
 
         return filteredUsers

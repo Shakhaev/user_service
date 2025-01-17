@@ -11,8 +11,9 @@ import java.util.stream.Stream;
 public class SubscriptionUserPhoneFilter implements SubscriptionFilter {
     @Override
     public String getName() {
-        return "User User Phone Filter";
+        return "User Phone Filter";
     }
+
     @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return filter.phonePattern() != null && !filter.phonePattern().isEmpty();

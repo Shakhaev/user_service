@@ -23,14 +23,8 @@ import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
-    //@Mock
-    //private SubscriptionRepository subscriptionRepository;
-    //private SubscriptionRepository subscriptionRepository;
-    //@InjectMocks
-    //private SubscriptionServiceImpl subscriptionService;
     private SubscriptionRepository subscriptionRepositoryMock;
     private SubscriptionService subscriptionService;
-    private SubscriptionFilter filterMock;
     @Spy
     SubscriptionUserMapper mapper = new SubscriptionUserMapperImpl();
     private long followerId;
@@ -45,15 +39,9 @@ public class SubscriptionServiceTest {
         List<SubscriptionFilter> filters = generateFilters();
 
         subscriptionRepositoryMock = Mockito.mock(SubscriptionRepository.class);
-        //SubscriptionUserMapper mapperMock = Mockito.mock(SubscriptionUserMapper.class);
-        filterMock = Mockito.mock(SubscriptionFilter.class);
-
-
-        //List<SubscriptionFilter> filters = List.of(filterMock);
+        //SubscriptionFilter filterMock = Mockito.mock(SubscriptionFilter.class);
         subscriptionService = new SubscriptionServiceImpl(subscriptionRepositoryMock, filters, mapper);
-
     }
-
 
 
     @Test
@@ -103,11 +91,7 @@ public class SubscriptionServiceTest {
                 .page(1)
                 .pageSize(10)
                 .build();
-
         Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followeeId)).thenReturn(allUsers.stream());
-        //Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
-        //Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
-
         List<SubscriptionUserDto> actualUsersDtos =
                 subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto);
 
@@ -121,11 +105,7 @@ public class SubscriptionServiceTest {
                 .page(1)
                 .pageSize(10)
                 .build();
-
         Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
-        //Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
-        //Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
-
         List<SubscriptionUserDto> actualUsersDtos =
                 subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
 
@@ -175,6 +155,28 @@ public class SubscriptionServiceTest {
         Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
     }
 
+    @Test
+    @DisplayName("Get Filtered Followees By Experience on first page")
+    void testGetFilteredByExperienceOnFirstPageFollowees() {
+        SubscriptionUserFilterDto subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
+                .experienceMin(20)
+                .experienceMax(40)
+                .page(1)
+                .pageSize(1)
+                .build();
+
+        Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
+        List<SubscriptionUserDto> expectedUserDtos = allUsers.stream()
+                .filter(u -> u.getId() == 2L)
+                .map(user -> mapper.toSubscriptionUserDto(user))
+                .toList();
+
+        List<SubscriptionUserDto> actualUsersDtos =
+                subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
+
+        Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
+    }
+
     private List<SubscriptionFilter> generateFilters() {
         SubscriptionFilter pageFilter = new SubscriptionUserPageFilter();
         SubscriptionFilter aboutFilter = new SubscriptionUserAboutFilter();
@@ -186,9 +188,6 @@ public class SubscriptionServiceTest {
         SubscriptionFilter nameFilter = new SubscriptionUserNameFilter();
         SubscriptionFilter phoneFilter = new SubscriptionUserPhoneFilter();
         SubscriptionFilter skillFilter = new SubscriptionUserSkillFilter();
-        SubscriptionFilter defaultFilter = new SubscriptionUserDefaultFilter();
-
-
 
         List<SubscriptionFilter> filters = new ArrayList<>();
         filters.add(aboutFilter);
@@ -201,7 +200,6 @@ public class SubscriptionServiceTest {
         filters.add(phoneFilter);
         filters.add(skillFilter);
         filters.add(pageFilter);
-        filters.add(defaultFilter);
 
         return filters;
     }

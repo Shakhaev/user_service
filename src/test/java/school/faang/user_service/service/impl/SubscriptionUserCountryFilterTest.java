@@ -22,6 +22,7 @@ class SubscriptionUserCountryFilterTest {
     void setUp() {
         users = TestData.getUsers();
     }
+
     @Test
     @DisplayName("Test true applicability user filter by Country")
     void isApplicableTest() {
