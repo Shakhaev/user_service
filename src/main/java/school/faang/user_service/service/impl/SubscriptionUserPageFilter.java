@@ -13,8 +13,12 @@ public class SubscriptionUserPageFilter implements SubscriptionFilter {
     private static final int DEFAULT_PAGE_SIZE = 10;
 
     @Override
+    public String getName() {
+        return "User User Page Filter";
+    }
+    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
-        return true;
+        return false;
     }
 
     @Override

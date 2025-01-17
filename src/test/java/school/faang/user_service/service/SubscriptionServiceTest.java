@@ -7,18 +7,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SubscriptionUserDto;
 import school.faang.user_service.dto.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SubscriptionUserMapper;
+import school.faang.user_service.mapper.SubscriptionUserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.service.impl.SubscriptionServiceImpl;
+import school.faang.user_service.service.impl.*;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -30,6 +31,8 @@ public class SubscriptionServiceTest {
     private SubscriptionRepository subscriptionRepositoryMock;
     private SubscriptionService subscriptionService;
     private SubscriptionFilter filterMock;
+    @Spy
+    SubscriptionUserMapper mapper = new SubscriptionUserMapperImpl();
     private long followerId;
     private long followeeId;
     private List<User> allUsers;
@@ -39,16 +42,19 @@ public class SubscriptionServiceTest {
         followerId = 1L;
         followeeId = 2L;
         allUsers = TestData.getUsers();
+        List<SubscriptionFilter> filters = generateFilters();
 
         subscriptionRepositoryMock = Mockito.mock(SubscriptionRepository.class);
-        SubscriptionUserMapper mapperMock = Mockito.mock(SubscriptionUserMapper.class);
+        //SubscriptionUserMapper mapperMock = Mockito.mock(SubscriptionUserMapper.class);
         filterMock = Mockito.mock(SubscriptionFilter.class);
-        //SubscriptionFilter filter = new SubscriptionUserPageFilter();
 
-        List<SubscriptionFilter> filters = List.of(filterMock);
-        subscriptionService = new SubscriptionServiceImpl(subscriptionRepositoryMock, filters, mapperMock);
+
+        //List<SubscriptionFilter> filters = List.of(filterMock);
+        subscriptionService = new SubscriptionServiceImpl(subscriptionRepositoryMock, filters, mapper);
 
     }
+
+
 
     @Test
     @DisplayName("Follow To Another User")
@@ -99,14 +105,14 @@ public class SubscriptionServiceTest {
                 .build();
 
         Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followeeId)).thenReturn(allUsers.stream());
-        Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
-        Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
+        //Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
+        //Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
 
         List<SubscriptionUserDto> actualUsersDtos =
                 subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto);
 
-        Assertions.assertEquals(3,actualUsersDtos.size());
-     }
+        Assertions.assertEquals(3, actualUsersDtos.size());
+    }
 
     @Test
     @DisplayName("Get Followees")
@@ -117,12 +123,86 @@ public class SubscriptionServiceTest {
                 .build();
 
         Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
-        Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
-        Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
+        //Mockito.when(filterMock.isApplicable(subscriptionUserFilterDto)).thenReturn(true);
+        //Mockito.when(filterMock.apply(any(), any())).thenReturn(allUsers.stream());
 
         List<SubscriptionUserDto> actualUsersDtos =
                 subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
 
-        Assertions.assertEquals(3,actualUsersDtos.size());
+        Assertions.assertEquals(3, actualUsersDtos.size());
+    }
+
+    @Test
+    @DisplayName("Get Filtered Followees By Name")
+    void testGetFilteredByNameFollowees() {
+        SubscriptionUserFilterDto subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
+                .namePattern("misha")
+                .page(1)
+                .pageSize(10)
+                .build();
+
+        Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
+        List<SubscriptionUserDto> expectedUserDtos = allUsers.stream()
+                .filter(u -> u.getId() == 1L)
+                .map(user -> mapper.toSubscriptionUserDto(user))
+                .toList();
+
+        List<SubscriptionUserDto> actualUsersDtos =
+                subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
+
+        Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
+    }
+
+    @Test
+    @DisplayName("Get Filtered Followees By Experience")
+    void testGetFilteredByExperienceFollowees() {
+        SubscriptionUserFilterDto subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
+                .experienceMin(20)
+                .experienceMax(40)
+                .page(1)
+                .pageSize(10)
+                .build();
+
+        Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
+        List<SubscriptionUserDto> expectedUserDtos = allUsers.stream()
+                .filter(u -> (u.getId() == 2L || u.getId() == 3L))
+                .map(user -> mapper.toSubscriptionUserDto(user))
+                .toList();
+
+        List<SubscriptionUserDto> actualUsersDtos =
+                subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
+
+        Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
+    }
+
+    private List<SubscriptionFilter> generateFilters() {
+        SubscriptionFilter pageFilter = new SubscriptionUserPageFilter();
+        SubscriptionFilter aboutFilter = new SubscriptionUserAboutFilter();
+        SubscriptionFilter cityFilter = new SubscriptionUserCityFilter();
+        SubscriptionFilter contactFilter = new SubscriptionUserContactFilter();
+        SubscriptionFilter countryFilter = new SubscriptionUserCountryFilter();
+        SubscriptionFilter emailFilter = new SubscriptionUserEmailFilter();
+        SubscriptionFilter experienceFilter = new SubscriptionUserExperienceFilter();
+        SubscriptionFilter nameFilter = new SubscriptionUserNameFilter();
+        SubscriptionFilter phoneFilter = new SubscriptionUserPhoneFilter();
+        SubscriptionFilter skillFilter = new SubscriptionUserSkillFilter();
+        SubscriptionFilter defaultFilter = new SubscriptionUserDefaultFilter();
+
+
+
+        List<SubscriptionFilter> filters = new ArrayList<>();
+        filters.add(aboutFilter);
+        filters.add(cityFilter);
+        filters.add(contactFilter);
+        filters.add(countryFilter);
+        filters.add(emailFilter);
+        filters.add(experienceFilter);
+        filters.add(nameFilter);
+        filters.add(phoneFilter);
+        filters.add(skillFilter);
+        filters.add(pageFilter);
+        filters.add(defaultFilter);
+
+        return filters;
     }
 }

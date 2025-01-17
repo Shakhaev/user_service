@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserContactFilter implements SubscriptionFilter {
     @Override
+    public String getName() {
+        return "User User Contact Filter";
+    }
+    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return filter.contactPattern() != null && !filter.contactPattern().isEmpty();
     }

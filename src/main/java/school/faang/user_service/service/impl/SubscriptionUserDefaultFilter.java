@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserDefaultFilter implements SubscriptionFilter {
     @Override
+    public String getName() {
+        return "User User Default Filter";
+    }
+    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return true;
     }

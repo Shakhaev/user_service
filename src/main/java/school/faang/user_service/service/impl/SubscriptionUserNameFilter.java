@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserNameFilter implements SubscriptionFilter {
     @Override
+    public String getName() {
+        return "User User Name Filter";
+    }
+    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return filter.namePattern() != null && !filter.namePattern().isEmpty();
     }
@@ -17,5 +21,6 @@ public class SubscriptionUserNameFilter implements SubscriptionFilter {
     @Override
     public Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter) {
         return users.filter(user -> user.getUsername().contains(filter.namePattern()));
+
     }
 }

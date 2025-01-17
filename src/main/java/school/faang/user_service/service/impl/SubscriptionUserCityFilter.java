@@ -10,6 +10,11 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserCityFilter implements SubscriptionFilter {
     @Override
+    public String getName() {
+        return "User City Filter";
+    }
+
+    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return filter.cityPattern() != null && !filter.cityPattern().isEmpty();
     }
