@@ -15,8 +15,6 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +38,9 @@ public class EventService {
         log.info("Event's owner found: id={}, username={}", owner.getId(), owner.getUsername());
 
         List<Skill> skills = skillRepository.findAllById(event.getRelatedSkills());
-        if (skills.size() != event.getRelatedSkills().size()) {
+        if (event.getRelatedSkills().stream()
+                .anyMatch(skillId -> skills.stream().noneMatch(skill ->
+                        skill.getId()==(skillId)))) {
             log.error("User with id {} and name {} does not own all the skills: {}",
                     owner.getId(), owner.getUsername(), event.getRelatedSkills());
             throw new DataValidationException("User does not own all the skills");
@@ -70,37 +70,20 @@ public class EventService {
     }
 
     public List<EventDto> getEventsByFilter(EventFilterDto filter) {
-        log.info("Getting events by filter: {}", filter);
+    log.info("Getting events by filter: {}", filter);
 
-        List<Event> events = eventRepository.findAll();
+    List<Event> events = eventRepository.findAll();
 
-        List<Event> filteredEvents = events.stream()
-                .filter(event -> filter.getTitle() == null
-                        || event.getTitle().contains(filter.getTitle()))
-                .filter(event -> filter.getOwnerId() == null
-                        || event.getOwner().getId().equals(filter.getOwnerId()))
-                .filter(event -> filter.getSkillId() == null
-                        || event.getRelatedSkills().stream().anyMatch(skill ->
-                        skill.getId() == (filter.getSkillId())))
-                .filter(event -> (filter.getStartDate() == null)
-                        || event.getStartDate().isAfter(
-                        LocalDateTime.ofEpochSecond(filter.getStartDate(), 0, ZoneOffset.UTC)))
-                .filter(event -> filter.getEndDate() == null
-                        || event.getEndDate().isBefore(
-                        LocalDateTime.ofEpochSecond(filter.getEndDate(), 0, ZoneOffset.UTC)))
-                .filter(event -> filter.getMinAttendees() == null
-                        || event.getAttendees().size() >= filter.getMinAttendees())
-                .filter(event -> filter.getMaxAttendees() == null
-                        || event.getAttendees().size() <= filter.getMaxAttendees())
-                .toList();
+    List<Event> filteredEvents = events.stream()
+            .filter(new EventFilter(filter))
+            .toList();
 
-        log.info("Events found after filtering: {}", filteredEvents.size());
+    log.info("Events found after filtering: {}", filteredEvents.size());
 
-        return filteredEvents.stream()
-                .map(eventMapper::toDto)
-                .toList();
-
-    }
+    return filteredEvents.stream()
+            .map(eventMapper::toDto)
+            .toList();
+}
 
     public void deleteEvent(long eventId) {
         log.info("Deleting event with id: {}", eventId);
