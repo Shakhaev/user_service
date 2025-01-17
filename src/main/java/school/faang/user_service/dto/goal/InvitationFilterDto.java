@@ -1,12 +1,14 @@
 package school.faang.user_service.dto.goal;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.RequestStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Data
 public class InvitationFilterDto {
     private String inviterNamePattern;
