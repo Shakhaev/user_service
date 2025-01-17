@@ -11,7 +11,9 @@ import school.faang.user_service.mapper.mentorship.MenteeReadMapper;
 import school.faang.user_service.mapper.mentorship.MentorReadMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -25,7 +27,7 @@ public class MentorshipService {
     public List<MenteeReadDto> getMentees(long userId) {
         User mentor = getUser(userId);
 
-        return mentor.getMentees().stream()
+        return Optional.ofNullable(mentor.getMentees()).orElseGet(ArrayList::new).stream()
                 .map(menteeReadMapper::toDto)
                 .toList();
     }
@@ -33,7 +35,7 @@ public class MentorshipService {
     public List<MentorReadDto> getMentors(long userId) {
         User mentee = getUser(userId);
 
-        return mentee.getMentors().stream()
+        return Optional.ofNullable(mentee.getMentors()).orElseGet(ArrayList::new).stream()
                 .map(mentorReadMapper::toDto)
                 .toList();
     }
@@ -41,7 +43,9 @@ public class MentorshipService {
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = getUser(mentorId);
 
-        boolean isDeleted = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
+        boolean isDeleted = Optional.ofNullable(mentor.getMentees())
+                .orElseGet(ArrayList::new)
+                .removeIf(mentee -> mentee.getId().equals(menteeId));
 
         saveIfUserDeleted(mentor, isDeleted);
     }
@@ -49,7 +53,9 @@ public class MentorshipService {
     public void deleteMentor(long mentorId, long menteeId) {
         User mentee = getUser(menteeId);
 
-        boolean isDeleted = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
+        boolean isDeleted = Optional.ofNullable(mentee.getMentors())
+                .orElseGet(ArrayList::new)
+                .removeIf(mentor -> mentor.getId().equals(mentorId));
 
         saveIfUserDeleted(mentee, isDeleted);
     }
@@ -57,7 +63,6 @@ public class MentorshipService {
     private User getUser(long userId) {
         return mentorshipRepository.findById(userId).orElseThrow(() -> {
             String message = "Пользователь с ID " + userId + " не найден";
-            log.warn(message);
             return new EntityNotFoundException(message);
         });
     }
