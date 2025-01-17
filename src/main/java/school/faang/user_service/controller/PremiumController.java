@@ -1,6 +1,5 @@
 package school.faang.user_service.controller;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,7 @@ public class PremiumController {
     private final UserContext userContext;
 
     @PutMapping(value = "/buy/{days}")
-    public PremiumDto buyPremium(@PathVariable @Positive(message = "Days cannot be negative") Integer days) {
+    public PremiumDto buyPremium(@PathVariable Integer days) {
         Long userId = userContext.getUserId();
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(days);
 

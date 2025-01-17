@@ -2,6 +2,7 @@ package school.faang.user_service.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import school.faang.user_service.exception.PremiumBadRequestException;
 
 import java.math.BigDecimal;
 
@@ -24,7 +25,6 @@ public enum PremiumPeriod {
                 return premiumPeriod;
             }
         }
-        throw new RuntimeException("No PremiumPeriod by requestedDays");
-
+        throw new PremiumBadRequestException("No PremiumPeriod by requestedDays");
     }
 }

@@ -1,7 +1,7 @@
 package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.constant.PaymentStatus;
@@ -20,44 +20,16 @@ import school.faang.user_service.service.PremiumService;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class PremiumServiceImpl implements PremiumService {
-    private final PaymentServiceClient paymentServiceClient;
     private final PremiumRepository premiumRepository;
     private final PremiumMapper premiumMapper;
     private final UserRepository userRepository;
+    private final PaymentServiceClient paymentServiceClient;
 
-    @Override
-    public PremiumDto buyPremium(Long userId, PremiumPeriod premiumPeriod) {
-        User user = getUserWithCheck(userId);
-        checkIfAlreadyPremium(user);
-        PaymentRequest paymentRequest = getPaymentRequest(premiumPeriod);
-        PaymentResponse paymentResponse = getNonNullPaymentResponse(paymentRequest);
-
-        if (Objects.requireNonNull(paymentResponse)
-                .status()
-                .equals(PaymentStatus.SUCCESS)) {
-            Premium premium = savePremium(premiumPeriod, user);
-            return premiumMapper.toDto(premium);
-        }
-        throw new PremiumBadRequestException(String.format("Error from paymentService: %s", paymentResponse.message()));
-    }
-
-    private User getUserWithCheck(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new PremiumNotFoundException("No user found by this userId"));
-    }
-
-    private void checkIfAlreadyPremium(User user) {
-        if (premiumRepository.existsByUserId(user.getId())) {
-            throw new PremiumBadRequestException("User already has a Premium");
-        }
-    }
-
-    private static PaymentRequest getPaymentRequest(PremiumPeriod premiumPeriod) {
+    private static PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
         return PaymentRequest.builder()
                 .paymentNumber(Instant.now()
                         .toEpochMilli())
@@ -66,22 +38,46 @@ public class PremiumServiceImpl implements PremiumService {
                 .build();
     }
 
-    @NotNull
-    private PaymentResponse getNonNullPaymentResponse(PaymentRequest paymentRequest) {
-        return Objects.requireNonNull(
-                paymentServiceClient.sendPayment(paymentRequest)
-                        .getBody(),
-                "Payment service returned null response"
-        );
+    @Override
+    public PremiumDto buyPremium(Long userId, PremiumPeriod premiumPeriod) {
+        User user = validateAndGetUser(userId);
+
+        PaymentRequest paymentRequest = createPaymentRequest(premiumPeriod);
+        PaymentResponse paymentResponse = getNonNullPaymentResponse(paymentRequest);
+
+        if (paymentResponse.status()
+                .equals(PaymentStatus.SUCCESS)) {
+            Premium premium = savePremium(premiumPeriod, user);
+            return premiumMapper.toDto(premium);
+        }
+        throw new PremiumBadRequestException(String.format("Error from paymentService: %s", paymentResponse.message()));
     }
 
-    @NotNull
+    private User validateAndGetUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new PremiumNotFoundException("No user found by this userId"));
+
+        if (premiumRepository.existsByUserId(user.getId())) {
+            throw new PremiumBadRequestException("User already has a Premium");
+        }
+
+        return user;
+    }
+
+    private PaymentResponse getNonNullPaymentResponse(PaymentRequest paymentRequest) {
+        ResponseEntity<PaymentResponse> response = paymentServiceClient.sendPayment(paymentRequest);
+        if (response == null || response.getBody() == null) {
+            throw new PremiumBadRequestException("Payment service returned null response");
+        }
+        return response.getBody();
+    }
+
     private Premium savePremium(PremiumPeriod premiumPeriod, User user) {
+        LocalDateTime now = LocalDateTime.now();
         return premiumRepository.save(Premium.builder()
                 .user(user)
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now()
-                        .plusDays(premiumPeriod.getDays()))
+                .startDate(now)
+                .endDate(now.plusDays(premiumPeriod.getDays()))
                 .build());
     }
 }

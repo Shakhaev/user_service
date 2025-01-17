@@ -1,5 +1,6 @@
 package school.faang.user_service.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -40,6 +41,18 @@ public class GlobalExceptionHandler {
                 : e.getMessage();
 
         return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
+        String errorMessage = e.getConstraintViolations()
+                .stream()
+                .map(violation -> String.format("Field '%s': %s",
+                        violation.getPropertyPath(), violation.getMessage()))
+                .collect(Collectors.joining("; ")); // Собираем все сообщения об ошибках в одну строку
+
+        return new ErrorResponse(errorMessage);
     }
 
     @ExceptionHandler(RuntimeException.class)

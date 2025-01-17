@@ -12,5 +12,5 @@ import school.faang.user_service.dto.res.PaymentResponse;
 public interface PaymentServiceClient {
 
     @PostMapping("/payment")
-    ResponseEntity<PaymentResponse> sendPayment(@RequestBody @Validated PaymentRequest dto);
+    ResponseEntity<PaymentResponse> sendPayment(@RequestBody @Validated PaymentRequest paymentRequest);
 }

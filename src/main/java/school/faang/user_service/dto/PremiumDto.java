@@ -2,12 +2,11 @@ package school.faang.user_service.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@RequiredArgsConstructor
+@Builder
 public class PremiumDto {
     private Long id;
     private Long userId;
