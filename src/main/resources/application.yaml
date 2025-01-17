@@ -38,7 +38,3 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
-
-api:
-  endpoints:
-    recommendation: /recommendation
