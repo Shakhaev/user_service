@@ -22,6 +22,7 @@ public class UserService {
 
     public List<UserDto> getPremiumUsers(UserFilterDto userFilterDto) {
         var users = userRepository.findPremiumUsers();
+
         return filterUsers(userFilterDto, users)
                 .map(userMapper::toDto)
                 .toList();
