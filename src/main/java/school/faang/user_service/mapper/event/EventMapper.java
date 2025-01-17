@@ -30,8 +30,8 @@ public interface EventMapper {
     @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "relatedSkills", target = "relatedSkillsIds", qualifiedByName = "map")
-    @Mapping(source = "type.message", target = "eventType")
-    @Mapping(source = "status.message", target = "eventStatus")
+    @Mapping(source = "type", target = "eventType")
+    @Mapping(source = "status", target = "eventStatus")
     EventDto toDto(Event entity);
 
     @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

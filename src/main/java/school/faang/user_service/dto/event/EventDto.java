@@ -1,5 +1,8 @@
 package school.faang.user_service.dto.event;
 
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.event.EventType;
+
 import java.util.List;
 
 public record EventDto(
@@ -12,5 +15,5 @@ public record EventDto(
         List<Long> relatedSkillsIds,
         String location,
         int maxAttendees,
-        String eventType,
-        String eventStatus) {}
+        EventType eventType,
+        EventStatus eventStatus) {}

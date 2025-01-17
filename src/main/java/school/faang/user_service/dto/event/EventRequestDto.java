@@ -3,7 +3,6 @@ package school.faang.user_service.dto.event;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import school.faang.user_service.dto.event.constraints.EnumValidator;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
@@ -30,9 +29,7 @@ public record EventRequestDto(
         int maxAttendees,
 
         @NotNull
-        @EnumValidator(enumClass = EventType.class)
-        String eventType,
+        EventType eventType,
 
         @NotNull
-        @EnumValidator(enumClass = EventStatus.class)
-        String eventStatus) {}
+        EventStatus eventStatus) {}
