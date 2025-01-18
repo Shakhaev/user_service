@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class CreateRecommendationResponse extends RecommendationDto {
+public class UpdateRecommendationResponse extends RecommendationDto {
     private Long id;
     private Long authorId;
     private Long receiverId;

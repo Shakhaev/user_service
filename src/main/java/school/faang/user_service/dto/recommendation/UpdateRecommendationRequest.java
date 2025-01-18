@@ -7,10 +7,10 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class CreateRecommendationResponse extends RecommendationDto {
+public class UpdateRecommendationRequest extends RecommendationDto {
     private Long id;
     private Long authorId;
     private Long receiverId;
     private String content;
-    private List<Long> skillOfferIds;
+    private List<Long> skillIds;
 }

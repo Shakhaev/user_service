@@ -1,35 +1,32 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.skill_offer.CreateSkillOfferRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.mapper.recommendation.SkillOfferMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
-
     @InjectMocks
     private RecommendationService recommendationService;
-
-    @Spy
-    private RecommendationMapper recommendationMapper;
-    @Spy
-    private SkillOfferMapper skillOfferMapper;
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -42,21 +39,17 @@ public class RecommendationServiceTest {
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
+    @Spy
+    private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
+
     @Test
     public void createRecommendation_ShouldThrowDataValidationExceptionWhenRecommendationContentIsEmpty() {
-        List<CreateSkillOfferRequest> createSkillOfferRequests = List.of(new CreateSkillOfferRequest(), new CreateSkillOfferRequest());
+        CreateRecommendationRequest request = new CreateRecommendationRequest();
+        request.setAuthorId(1L);
+        request.setReceiverId(2L);
+        request.setContent("");
+        request.setSkillIds(List.of(1L, 2L));
 
-        createSkillOfferRequests.get(0).setSkillId(1L);
-        createSkillOfferRequests.get(1).setSkillId(2L);
-
-        CreateRecommendationRequest createRecommendationRequest = new CreateRecommendationRequest();
-        createRecommendationRequest.setAuthorId(1L);
-        createRecommendationRequest.setReceiverId(2L);
-        createRecommendationRequest.setContent("");
-        createRecommendationRequest.setSkillOffers(createSkillOfferRequests);
-        createRecommendationRequest.setCreatedAt(LocalDateTime.now());
-
-        assertThrows(DataValidationException.class, () -> recommendationService.create(createRecommendationRequest));
+        assertThrows(DataValidationException.class, () -> recommendationService.create(request));
     }
-
 }

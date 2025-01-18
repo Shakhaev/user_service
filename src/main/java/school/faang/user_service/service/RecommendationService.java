@@ -1,17 +1,22 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
-import school.faang.user_service.dto.skill_offer.CreateSkillOfferResponse;
+import school.faang.user_service.dto.recommendation.GetAllGivenRecommendationsResponse;
+import school.faang.user_service.dto.recommendation.GetAllUserRecommendationsResponse;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.mapper.recommendation.SkillOfferMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -19,17 +24,15 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.*;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
-    private final SkillOfferMapper skillOfferMapper;
 
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
@@ -38,58 +41,58 @@ public class RecommendationService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public CreateRecommendationResponse create(CreateRecommendationRequest recommendationRequest) {
-        Recommendation recommendation = mapCreateRequestToEntity(recommendationRequest);
-
-        // маппить список предлагаемых скиллов в SkillOffer пока не можем, потому что у нас ещё нет recommendationId. Он появится после создания рекомендации
-        // CreateSkillOfferRequest хранит в себе только id скиллов, поэтому можно пока сделать список скиллов
-        List<Skill> offeredSkills = new ArrayList<>();
-        recommendationRequest.getSkillOffers().forEach(s -> {
-            offeredSkills.add(skillRepository.getReferenceById(s.getSkillId()));
-        });
-
-        validateCreateRequest(recommendation, offeredSkills);
+        Recommendation recommendation = mapAndValidateRecommendation(recommendationRequest);
+        List<Skill> skills = mapAndValidateSkills(recommendationRequest.getSkillIds());
 
         Long recommendationId = recommendationRepository.create(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
         recommendation.setId(recommendationId);
-        saveSkillOffers(recommendation, offeredSkills);
+        saveSkillOffers(recommendation, skills);
 
-        return mapEntityToCreateResponse(recommendation);
+        return (CreateRecommendationResponse) recommendationMapper.toDto(recommendation);
     }
 
-    private Recommendation mapCreateRequestToEntity(CreateRecommendationRequest recommendationRequest) {
-        Recommendation recommendation = recommendationMapper.createRequestToEntity(recommendationRequest);
+    public UpdateRecommendationResponse update(UpdateRecommendationRequest recommendationRequest) {
+        Recommendation recommendation = mapAndValidateRecommendation(recommendationRequest);
+        List<Skill> skills = mapAndValidateSkills(recommendationRequest.getSkillIds());
 
-        User author = userRepository.getReferenceById(recommendationRequest.getAuthorId());
+        recommendationRepository.update(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
+        skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
+        saveSkillOffers(recommendation, skills);
+
+        return (UpdateRecommendationResponse) recommendationMapper.toDto(recommendation);
+    }
+
+    public void delete(long id) {
+        skillOfferRepository.deleteAllByRecommendationId(id);
+        recommendationRepository.deleteById(id);
+    }
+
+    public List<GetAllUserRecommendationsResponse> getAllUserRecommendations(long receiverId) {
+        Page<Recommendation> recommendationPage = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
+        return recommendationPage.get()
+                .map(recommendationMapper::toDto)
+                .map(r -> (GetAllUserRecommendationsResponse)r)
+                .toList();
+    }
+
+    public List<GetAllGivenRecommendationsResponse> getAllGivenRecommendations(long authorId) {
+        Page<Recommendation> recommendationPage = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
+        return recommendationPage.get()
+                .map(recommendationMapper::toDto)
+                .map(r -> (GetAllGivenRecommendationsResponse)r)
+                .toList();
+    }
+
+    private Recommendation mapAndValidateRecommendation(RecommendationDto recommendationDto) {
+        Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
+        User author = userRepository.getReferenceById(recommendationDto.getAuthorId());
         recommendation.setAuthor(author);
-
-        User receiver = userRepository.getReferenceById(recommendationRequest.getReceiverId());
+        User receiver = userRepository.getReferenceById(recommendationDto.getReceiverId());
         recommendation.setReceiver(receiver);
 
-        return recommendation;
-    }
+        if (recommendation.getContent().isBlank())
+            throw new DataValidationException("Recommendation content is empty");
 
-    private CreateRecommendationResponse mapEntityToCreateResponse(Recommendation recommendation) {
-        CreateRecommendationResponse recommendationResponse = recommendationMapper.entityToCreateResponse(recommendation);
-
-        List<CreateSkillOfferResponse> skillOfferResponses = new ArrayList<>();
-        recommendation.getSkillOffers().forEach(s -> {
-            skillOfferResponses.add(skillOfferMapper.entityToCreateResponse(s));
-        });
-        recommendationResponse.setSkillOffers(skillOfferResponses);
-
-        return recommendationResponse;
-    }
-
-    private void validateCreateRequest(Recommendation recommendation, List<Skill> offeredSkills) {
-        // проверка, что последняя рекомендация была не раньше, чем 6 месяцев назад
-        checkLastRecommendationTime(recommendation);
-
-        // проверка, что навыки, предлагаемые в рекомендации, существуют
-        checkSkillsExisting(offeredSkills);
-    }
-
-
-    private void checkLastRecommendationTime(Recommendation recommendation) {
         Optional<Recommendation> recommendationOptional =  recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendation.getAuthor().getId(), recommendation.getReceiver().getId());
         if (recommendationOptional.isPresent()) {
             Recommendation lastRecommendation = recommendationOptional.get();
@@ -100,20 +103,26 @@ public class RecommendationService {
                 throw new DataValidationException("The author can make a recommendation to the user no earlier than 6 months after the last recommendationDto. The last recommendationDto was given " + lastRecommendation.getCreatedAt());
             }
         }
+
+        return recommendation;
     }
 
-    private void checkSkillsExisting(List<Skill> offeredSkills) {
-        offeredSkills.forEach(skill -> {
+    private List<Skill> mapAndValidateSkills(List<Long> skillIds) {
+        List<Skill> skills = skillIds.stream().map(skillRepository::getReferenceById).toList();
+
+        skills.forEach(skill -> {
             if (!skillRepository.existsById(skill.getId())) {
                 throw new DataValidationException("Skill with ID = " + skill.getId() + " doesn't exist");
             }
         });
+
+        return skills;
     }
 
-    private void saveSkillOffers(Recommendation recommendation, List<Skill> offeredSkills) {
-        offeredSkills.forEach(skill -> {
+    private void saveSkillOffers(Recommendation recommendation, List<Skill> skills) {
+        skills.forEach(skill -> {
             Long skillOfferId = skillOfferRepository.create(skill.getId(), recommendation.getId());
-            //recommendation.addSkillOffer(skillOfferRepository.findById(skillOfferId).orElseThrow());
+            recommendation.addSkillOffer(skillOfferRepository.findById(skillOfferId).orElseThrow());
             addGuarantee(recommendation, skill);
         });
     }
