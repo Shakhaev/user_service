@@ -1,0 +1,99 @@
+package school.faang.user_service.service.premium;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.payment_service.PaymentResponse;
+import school.faang.user_service.dto.payment_service.PaymentStatus;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.entity.premium.PremiumPeriod;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.PremiumException;
+import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.payment.PaymentService;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class PremiumServiceTest {
+    private static final Long USER_ID = 1L;
+    private static final PremiumPeriod PREMIUM_PERIOD = PremiumPeriod.THREE_MONTHS;
+    @Mock
+    private PremiumRepository premiumRepository;
+    @Mock
+    private PaymentService paymentService;
+    @Mock
+    private UserService userService;
+    @InjectMocks
+    PremiumService premiumService;
+
+    @Test
+    void buyPremiumUserHavePremiumThrowsException() {
+        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(true);
+
+        DataValidationException ex = assertThrows(DataValidationException.class, () ->
+                premiumService.buyPremium(USER_ID, PREMIUM_PERIOD));
+
+        assertEquals("User 1 already has a premium subscription", ex.getMessage());
+        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        verify(paymentService, never()).sendPaymentRequest(any());
+    }
+
+    @Test
+    void buyPremiumResponseStatusNotSuccessThrowsException() {
+        PaymentResponse paymentResponse = PaymentResponse.builder()
+                .status(PaymentStatus.FAIL)
+                .build();
+        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(false);
+        when(paymentService.sendPaymentRequest(PREMIUM_PERIOD)).thenReturn(paymentResponse);
+
+        PremiumException ex = assertThrows(PremiumException.class, () ->
+                premiumService.buyPremium(USER_ID, PREMIUM_PERIOD));
+
+        assertEquals("Cannot buy premium, try again later", ex.getMessage());
+        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        verify(paymentService, times(1)).sendPaymentRequest(any());
+        verify(userService, never()).getUser(USER_ID);
+    }
+
+    @Test
+    void buyPremiumSuccess() {
+        PaymentResponse paymentResponse = PaymentResponse.builder()
+                .status(PaymentStatus.SUCCESS)
+                .build();
+        User user = User.builder().id(USER_ID).build();
+        LocalDateTime currentTime = LocalDateTime.now();
+        Premium expected = Premium.builder()
+                .user(user)
+                .startDate(currentTime)
+                .endDate(currentTime.plusDays(PREMIUM_PERIOD.getDays()))
+                .build();
+        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(false);
+        when(paymentService.sendPaymentRequest(PREMIUM_PERIOD)).thenReturn(paymentResponse);
+        when(userService.getUser(USER_ID)).thenReturn(user);
+        when(premiumRepository.save(any())).thenReturn(expected);
+
+        Premium actual = premiumService.buyPremium(USER_ID, PREMIUM_PERIOD);
+
+        assertEquals(expected.getUser().getId(), actual.getUser().getId());
+        assertEquals(expected.getStartDate(), actual.getStartDate());
+        assertEquals(expected.getEndDate(), actual.getEndDate());
+
+        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        verify(premiumRepository, times(1)).save(any());
+        verify(paymentService, times(1)).sendPaymentRequest(any());
+        verify(userService, times(1)).getUser(USER_ID);
+    }
+}

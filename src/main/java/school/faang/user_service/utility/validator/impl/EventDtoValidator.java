@@ -8,8 +8,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.utility.validator.AbstractDataValidator;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Objects;
 
 @Component
 public class EventDtoValidator extends AbstractDataValidator<EventDto> {
@@ -44,12 +42,6 @@ public class EventDtoValidator extends AbstractDataValidator<EventDto> {
 
     public void checkChronology(LocalDateTime startDate, LocalDateTime endDate, String errorMessage) {
         if (endDate.isBefore(startDate)) {
-            throw new DataValidationException(errorMessage);
-        }
-    }
-
-    public <T extends Enum<T>> void checkEnumValue(Enum<?> value, Enum<?>[] validValues, String errorMessage) {
-        if (Arrays.stream(validValues).noneMatch(validValue -> Objects.equals(validValue, value))) {
             throw new DataValidationException(errorMessage);
         }
     }
