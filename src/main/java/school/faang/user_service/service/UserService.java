@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
