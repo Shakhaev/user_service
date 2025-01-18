@@ -1,6 +1,9 @@
 package school.faang.user_service.repository.goal;
 
+import feign.Param;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -47,4 +50,26 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal_skill WHERE goal_id = :goalId
+            """)
+
+    @Modifying
+    @Transactional
+    void removeSkillsFromGoal(@Param("goalId") long goalId);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = """
+            INSERT INTO goal_skill (skill_id, goal_id) VALUES (:skillId, :goalId)
+            """)
+    void addSkillToGoal(@Param("skillId") long skillId, @Param("goalId") long goalId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(ug.user_id) FROM user_goal ug
+            WHERE ug.goal_id = :goalId
+            """)
+    int countUsersSharingGoal(@Param("goalId") long goalId);
+
 }
