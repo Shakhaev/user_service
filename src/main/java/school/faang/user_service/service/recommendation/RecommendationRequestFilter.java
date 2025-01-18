@@ -49,7 +49,7 @@ public class RecommendationRequestFilter {
     private static <T> void addPredicate(T value,
                                          List<Predicate<RecommendationRequest>> predicates,
                                          Function<T, Predicate<RecommendationRequest>> predicateSupplier) {
-        if(value != null) {
+        if (value != null) {
             predicates.add(predicateSupplier.apply(value));
         }
     }

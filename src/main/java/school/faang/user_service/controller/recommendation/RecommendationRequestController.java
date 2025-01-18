@@ -33,7 +33,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequest(id);
     }
 
-    @PutMapping( "/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Void> rejectRequest(@PathVariable long id, RejectionDto rejection) {
         recommendationRequestService.rejectRequest(id, rejection);
         return ResponseEntity.noContent().build();

@@ -69,8 +69,8 @@ public class RecommendationRequestService {
     public void rejectRequest(long id, RejectionDto rejection) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.recommendationNotFoundException(id));
-        if (recommendationRequest.getStatus().equals(RequestStatus.REJECTED) ||
-                recommendationRequest.getStatus().equals(RequestStatus.ACCEPTED)) {
+        if (recommendationRequest.getStatus().equals(RequestStatus.REJECTED)
+                || recommendationRequest.getStatus().equals(RequestStatus.ACCEPTED)) {
             throw new RequestAlreadyProcessedException("The request has already been processed");
         }
         recommendationRequest.setStatus(RequestStatus.REJECTED);
