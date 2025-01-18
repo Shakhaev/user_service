@@ -10,6 +10,9 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.service.impl.MentorshipServiceImpl;
+import school.faang.user_service.service.impl.UserServiceImpl;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,10 +29,10 @@ import static org.mockito.Mockito.never;
 class MentorshipServiceTest {
 
     @InjectMocks
-    public MentorshipService mentorshipService;
+    public MentorshipServiceImpl mentorshipService;
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Mock
     private UserMapper userMapper;
