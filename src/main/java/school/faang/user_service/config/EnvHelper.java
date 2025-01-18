@@ -4,7 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.github.cdimascio.dotenv.DotenvEntry;
 
 public class EnvHelper {
-    public static void loadVariables() {
+    public void loadVariables() {
         Dotenv dotenv = Dotenv.configure()
             .directory("src/main/resources")
             .ignoreIfMissing()

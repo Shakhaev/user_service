@@ -2,6 +2,7 @@ package school.faang.user_service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -14,9 +15,12 @@ public class UserServiceApplication {
 
     public static void main(String[] args)
     {
-        EnvHelper.loadVariables();
-
         SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @PostConstruct
+    public void init() {
+        new EnvHelper().loadVariables();
     }
 
     @Bean
