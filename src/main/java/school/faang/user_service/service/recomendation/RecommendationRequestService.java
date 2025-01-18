@@ -1,12 +1,9 @@
 package school.faang.user_service.service.recomendation;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recomendation.FilterRecommendationRequestsDto;
-import school.faang.user_service.dto.recomendation.RejectRecommendationRequestDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.recomendation.request.RecommendationRequestNotFoundException;
@@ -17,15 +14,14 @@ import school.faang.user_service.service.recomendation.filters.RecommendationReq
 import school.faang.user_service.validator.RecommendationRequestValidator;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RecommendationRequestService {
-    private final List<RecommendationRequestFilter> filters;
-    private final SkillRequestRepository skillRequestRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
+    private final SkillRequestRepository skillRequestRepository;
+    private final List<RecommendationRequestFilter> filters;
     private final RecommendationRequestValidator validator;
 
     @Transactional
@@ -33,24 +29,19 @@ public class RecommendationRequestService {
         validator.validateCreateRecommendationRequest(recommendationRequest, skillIds);
 
         recommendationRequest.setStatus(RequestStatus.PENDING);
-        RecommendationRequest savedRequest = this.recommendationRequestRepository.save(
-                recommendationRequest
-        );
+        RecommendationRequest savedRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        skillIds.forEach((skillId) -> {
-            this.skillRequestRepository.create(savedRequest.getId(), skillId);
-        });
+        skillIds.forEach((skillId) -> skillRequestRepository.create(savedRequest.getId(), skillId));
 
         return savedRequest;
     }
 
     @Transactional(readOnly = true)
     public List<RecommendationRequest> getRecommendationRequests(
-            FilterRecommendationRequestsDto filterRecommendationRequestsDto
-    ) {
-        Stream<RecommendationRequest> requests = this.recommendationRequestRepository.findAll().stream();
+            FilterRecommendationRequestsDto filterRecommendationRequestsDto) {
+        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
 
-        return this.filters.stream()
+        return filters.stream()
                 .filter(filter -> filter.isApplicable(filterRecommendationRequestsDto))
                 .reduce(requests,
                         (stream, filter) -> filter.apply(stream, filterRecommendationRequestsDto),
@@ -60,14 +51,14 @@ public class RecommendationRequestService {
 
     @Transactional(readOnly = true)
     public RecommendationRequest findRequestById(Long id) {
-        return this.recommendationRequestRepository
+        return recommendationRequestRepository
                 .findById(id)
                 .orElseThrow(() -> new RecommendationRequestNotFoundException(id));
     }
 
     @Transactional
     public RecommendationRequest rejectRequest(RecommendationRequest rejection) {
-        RecommendationRequest recommendationRequest = this.findRequestById(rejection.getId());
+        RecommendationRequest recommendationRequest = findRequestById(rejection.getId());
 
         if (recommendationRequest.getStatus() != RequestStatus.PENDING) {
             throw new RecommendationRequestRejectException(RequestStatus.PENDING);
@@ -75,6 +66,7 @@ public class RecommendationRequestService {
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.getRejectionReason());
-        return this.recommendationRequestRepository.save(recommendationRequest);
+
+        return recommendationRequestRepository.save(recommendationRequest);
     }
 }

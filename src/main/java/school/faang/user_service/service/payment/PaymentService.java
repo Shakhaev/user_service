@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 
 @Slf4j
 @EnableRetry
-@Service
 @RequiredArgsConstructor
+@Service
 public class PaymentService {
     private final PaymentServiceClient paymentServiceClient;
 
@@ -60,3 +60,4 @@ public class PaymentService {
         return paymentServiceClient.sendPayment(paymentRequest);
     }
 }
+
