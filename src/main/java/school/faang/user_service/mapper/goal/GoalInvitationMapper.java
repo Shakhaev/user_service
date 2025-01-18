@@ -15,5 +15,8 @@ public interface GoalInvitationMapper {
     @Mapping(source = "invited.id", target = "invitedUserId")
     GoalInvitationDto toDto(GoalInvitation entity);
 
+    @Mapping(source = "goalId", target = "goal.id")
+    @Mapping(source = "inviterId", target = "inviter.id")
+    @Mapping(source = "invitedUserId", target = "invited.id")
     GoalInvitation toEntity(GoalInvitationDto dto);
 }
