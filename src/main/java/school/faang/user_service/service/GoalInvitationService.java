@@ -27,16 +27,10 @@ public class GoalInvitationService {
     private final List<InvitationFilter> invitationFilters;
 
     public GoalInvitation createInvitation(GoalInvitation invitation) {
-        Long whoInviterId = invitation.getInviter().getId();
-        Long invitedId = invitation.getInvited().getId();
+        User whoInviter = invitation.getInviter();
+        User invited = invitation.getInvited();
 
-        if (Objects.equals(invitedId, whoInviterId)) {
-            throw new GoalInvitationException("User cannot create invitation for himself");
-        }
-
-        if (!isUserExists(whoInviterId) || !isUserExists(invitedId)) {
-            throw new GoalInvitationException("User not found");
-        }
+        checkUsers(whoInviter, invited);
 
         invitation.setStatus(RequestStatus.PENDING);
         log.info("New invitation to goal {} was created", invitation.getGoal().getTitle());
@@ -73,13 +67,27 @@ public class GoalInvitationService {
     public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
-        if (invitations.isEmpty()) {
-            throw new NoSuchElementException("No one goal invitation created");
-        }
         return invitationFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .flatMap(filter -> filter.apply(invitations.stream(), filters))
                 .toList();
+    }
+
+    private void checkUsers(User whoInviter, User invited) {
+        if (whoInviter == null || invited == null) {
+            throw new GoalInvitationException("Inviter or invited user not found");
+        }
+
+        Long invitedId = invited.getId();
+        Long whoInviterId = whoInviter.getId();
+
+        if (Objects.equals(invitedId, whoInviterId)) {
+            throw new GoalInvitationException("User cannot create invitation for himself");
+        }
+
+        if (!isUserExists(whoInviterId) || !isUserExists(invitedId)) {
+            throw new GoalInvitationException("Inviter or invited user not found");
+        }
     }
 
     private boolean isUserExists(Long id) {
