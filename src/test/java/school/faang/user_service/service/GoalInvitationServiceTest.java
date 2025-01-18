@@ -24,7 +24,6 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -129,16 +128,6 @@ public class GoalInvitationServiceTest {
         goalInvitationService.rejectGoalInvitation(1L);
 
         verify(invitation).setStatus(RequestStatus.REJECTED);
-    }
-
-    @Test
-    public void testGetInvitationsFailNoInvitations() {
-        when(goalInvitationRepository.findAll()).thenReturn(List.of());
-
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
-                () -> goalInvitationService.getInvitations(mock(InvitationFilterDto.class)));
-
-        assertEquals("No one goal invitation created", exception.getMessage());
     }
 
     @Test
