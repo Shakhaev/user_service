@@ -11,4 +11,8 @@ public interface PromotionService {
     PromotionResponseDto createPromotion(PromotionRequestDto promotionDto);
 
     List<PromotionResponseDto> getPromotionsByUser(long userId);
+
+    void updatePromotionViews(Long id);
+
+    List<PromotionResponseDto> getPromotionsByEvent(long eventId);
 }

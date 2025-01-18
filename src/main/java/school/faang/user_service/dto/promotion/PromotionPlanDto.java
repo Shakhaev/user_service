@@ -18,5 +18,5 @@ public class PromotionPlanDto implements Serializable {
 
     private BigDecimal price;
 
-    private int viewsCount;
+    private Integer viewsCount;
 }

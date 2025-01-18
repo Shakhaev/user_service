@@ -1,7 +1,6 @@
 package school.faang.user_service.service.promotion;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.promotion.PromotionPlanDto;
@@ -15,7 +14,6 @@ import java.util.List;
 public class PromotionPlanServiceImpl implements PromotionPlanService {
     private final PromotionPlanRepository repository;
     private final PromotionPlanMapper mapper;
-    private final CacheManager cacheManager;
 
     @Cacheable(value = "promotionPlans")
     @Override

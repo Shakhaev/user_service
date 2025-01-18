@@ -25,6 +25,11 @@ public class PromotionController {
         return promotionService.getPromotionsByUser(userId);
     }
 
+    @GetMapping("/by-event/{id}")
+    public List<PromotionResponseDto> getPromotionsByEvent(@PathVariable("id") long eventId) {
+        return promotionService.getPromotionsByEvent(eventId);
+    }
+
     @PostMapping
     public PromotionResponseDto createPromotion(@RequestBody @Valid PromotionRequestDto promotionDto) {
         return promotionService.createPromotion(promotionDto);

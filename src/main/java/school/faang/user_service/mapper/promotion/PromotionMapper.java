@@ -11,7 +11,8 @@ import school.faang.user_service.entity.promotion.Promotion;
 public interface PromotionMapper {
 
     @Mapping(source = "promotionPayment.id", target = "paymentId")
-    @Mapping(target = "amount", ignore = true)
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "event.id", target = "eventId")
     PromotionResponseDto toDto(Promotion promotion);
 
     Promotion toEntity(PromotionRequestDto promotionDto);

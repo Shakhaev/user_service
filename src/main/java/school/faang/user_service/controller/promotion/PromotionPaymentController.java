@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.promotion.PromotionPaymentDto;
 import school.faang.user_service.service.promotion.PromotionPaymentService;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${payments.domain.path}/payments")
@@ -15,7 +17,7 @@ public class PromotionPaymentController {
     private final PromotionPaymentService promotionPaymentService;
 
     @GetMapping("/{id}")
-    public PromotionPaymentDto getPromotionPaymentById(@PathVariable("id") String id) {
+    public PromotionPaymentDto getPromotionPaymentById(@PathVariable("id") UUID id) {
         return promotionPaymentService.getPromotionPaymentById(id);
     }
 }

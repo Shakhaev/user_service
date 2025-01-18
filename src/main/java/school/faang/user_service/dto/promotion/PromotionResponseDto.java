@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.enums.promotion.Currency;
 import school.faang.user_service.enums.promotion.PromotionPlanType;
-import school.faang.user_service.enums.promotion.PromotionTariff;
 import school.faang.user_service.enums.promotion.PromotionStatus;
+import school.faang.user_service.enums.promotion.PromotionTariff;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -22,17 +20,13 @@ public class PromotionResponseDto {
 
     private Long eventId;
 
-    private BigDecimal amount;
+    private PromotionTariff tariff;
 
-    private Currency currency;
-
-    private PromotionTariff promotionTariff;
-
-    private PromotionPlanType promotionPlanType;
-
-    private Integer remainingViews;
+    private PromotionPlanType planType;
 
     private PromotionStatus status;
+
+    private Integer usedViews;
 
     private UUID paymentId;
 

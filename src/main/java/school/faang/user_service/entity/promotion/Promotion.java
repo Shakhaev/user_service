@@ -8,15 +8,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.enums.promotion.PromotionTariff;
-import school.faang.user_service.enums.promotion.PromotionStatus;
+import lombok.ToString;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.enums.promotion.PromotionPlanType;
+import school.faang.user_service.enums.promotion.PromotionStatus;
+import school.faang.user_service.enums.promotion.PromotionTariff;
 
 @Data
 @Builder
@@ -29,11 +33,13 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(name = "event_id")
-    private Long eventId;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 
     @Enumerated(EnumType.STRING)
     private PromotionTariff tariff;
@@ -42,12 +48,13 @@ public class Promotion {
     @Enumerated(EnumType.STRING)
     private PromotionPlanType planType;
 
-    @Column(name = "remaining_views")
-    private Integer remainingViews;
-
     @Enumerated(EnumType.STRING)
     private PromotionStatus status;
 
+    @Column(name = "used_views")
+    private Integer usedViews;
+
+    @ToString.Exclude
     @OneToOne
     @JoinColumn(name = "payment_id")
     private PromotionPayment promotionPayment;

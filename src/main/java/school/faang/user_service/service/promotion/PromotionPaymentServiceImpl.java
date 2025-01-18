@@ -23,20 +23,21 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
     private final PromotionPaymentMapper promotionPaymentMapper;
     private final PromotionPaymentFeignClient promotionPaymentClient;
 
-//    @Transactional
     @Override
-    public PromotionPaymentDto sendAndCreate(PromotionRequestDto dto) {
-        var newPayment = createPayment(dto);
-        var paymentRequest = createPaymentRequest(newPayment);
-        PaymentResponse paymentResponse = promotionPaymentClient.sendPayment(paymentRequest);
-        newPayment.setStatus(getPaymentStatus(paymentResponse));
-
-        return promotionPaymentMapper.toDto(promotionPaymentRepository.save(newPayment));
+    public PromotionPaymentDto getPromotionPaymentById(UUID id) {
+        return promotionPaymentMapper.toDto(promotionPaymentRepository.findPromotionPaymentById(id));
     }
 
     @Override
-    public PromotionPaymentDto getPromotionPaymentById(String id) {
-        return promotionPaymentMapper.toDto(promotionPaymentRepository.findPromotionPaymentById(id));
+    @Transactional
+    public PromotionPaymentDto sendAndCreate(PromotionRequestDto dto) {
+        PromotionPayment newPayment = createPayment(dto);
+        PaymentRequest paymentRequest = createPaymentRequest(newPayment);
+        PaymentResponse paymentResponse = promotionPaymentClient.sendPayment(paymentRequest);
+        newPayment.setStatus(getPaymentStatus(paymentResponse));
+
+        PromotionPayment savedPayment = promotionPaymentRepository.save(newPayment);
+        return promotionPaymentMapper.toDto(savedPayment);
     }
 
     private PromotionPayment createPayment(PromotionRequestDto dto) {
