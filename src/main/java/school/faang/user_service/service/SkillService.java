@@ -88,6 +88,13 @@ public class SkillService {
                 userSkillGuaranteeRepository.save(guarantee);
             });
 
+            ratingService.addRating(
+                    u -> "User : " + u.getUsername() + " -> acquired and got rating!",
+                    userId,
+                    appConfig.getActiveTransaction(),
+                    ActionType.ACTIVE
+            );
+
             return skillMapper.toDto(skill);
         }
 

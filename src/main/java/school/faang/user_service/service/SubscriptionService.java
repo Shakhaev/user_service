@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 public class SubscriptionService {
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final RatingService ratingService;
+    private final AppConfig appConfig;
     private final UserFollowingMapper userFollowingMapper;
     private final List<UserFilter> filters;
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
@@ -87,6 +89,13 @@ public class SubscriptionService {
         userRepository.save(requestUser);
         userRepository.save(requestedUser);
 
+        ratingService.addRating(
+                u -> "User : " + u.getUsername() + " -> followed user: "  + followerId + " and got rating!",
+                followeeId,
+                appConfig.getPassiveTransaction(),
+                ActionType.PASSIVE
+        );
+
         logger.info("Succeed of following user!");
     }
 
@@ -108,6 +117,13 @@ public class SubscriptionService {
 
         userRepository.save(requestedUser);
         userRepository.save(requestedUser);
+
+        ratingService.addRating(
+                u -> "User : " + u.getUsername() + " -> unfollowed user: "  + followerId + " and got rating!",
+                followeeId,
+                appConfig.getPassiveTransaction(),
+                ActionType.PASSIVE
+        );
 
         logger.info("Succeed of unfollowing user!");
     }
