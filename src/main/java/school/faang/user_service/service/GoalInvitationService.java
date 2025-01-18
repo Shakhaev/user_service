@@ -85,13 +85,13 @@ public class GoalInvitationService {
             throw new GoalInvitationException("User cannot create invitation for himself");
         }
 
-        if (!isUserExists(whoInviterId) || !isUserExists(invitedId)) {
+        if (isUserNotExists(whoInviterId) || isUserNotExists(invitedId)) {
             throw new GoalInvitationException("Inviter or invited user not found");
         }
     }
 
-    private boolean isUserExists(Long id) {
-        return userRepository.existsById(id);
+    private boolean isUserNotExists(Long id) {
+        return !userRepository.existsById(id);
     }
 
     private GoalInvitation isGoalInvitationExists(Long id) {
