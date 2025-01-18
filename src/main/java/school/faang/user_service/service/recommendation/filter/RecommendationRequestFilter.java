@@ -9,5 +9,5 @@ import java.util.stream.Stream;
 public interface RecommendationRequestFilter {
     boolean isApplicable(RequestFilterDto filters);
 
-    boolean test(RecommendationRequest request, RequestFilterDto filters);
+    Stream<RecommendationRequest> apply(Stream<RecommendationRequest> requests, RequestFilterDto filters);
 }

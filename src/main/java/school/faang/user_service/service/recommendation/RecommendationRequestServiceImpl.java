@@ -21,6 +21,7 @@ import school.faang.user_service.service.recommendation.filter.RecommendationReq
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -49,11 +50,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filters) {
-
-        return recommendationRequestRepository.findAll().stream()
-                .filter(request -> recommendationRequestFilters.stream()
-                        .filter(filter -> filter.isApplicable(filters))
-                        .allMatch(filter -> filter.test(request, filters)))
+        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
+        return recommendationRequestFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .reduce(requests,
+                        (requestStream, filter) -> filter.apply(requestStream, filters),
+                        (s1, s2) -> s1)
                 .map(mapper::toRecommendationRequestDto)
                 .toList();
     }
