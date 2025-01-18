@@ -10,6 +10,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
