@@ -12,25 +12,31 @@ import java.util.List;
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
 
-    public void registerParticipant(long eventId, long userId) throws Exception {
+    public void registerParticipant(long eventId, long userId) {
         try {
-            if (eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
-                    .noneMatch(user -> user.getId() == userId)) {
-                eventParticipationRepository.register(eventId, userId);
+            boolean isAlreadyRegistered = eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
+                    .anyMatch(user -> Long.valueOf(user.getId()).equals(userId));
+
+            if (isAlreadyRegistered) {
+                throw new RuntimeException("User is already registered for the event.");
             }
+            eventParticipationRepository.register(eventId, userId);
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new RuntimeException("An error occurred while registering the participant", e);
         }
     }
 
-    public void unregisterParticipant(long eventId, long userId) throws Exception {
+    public void unregisterParticipant(long eventId, long userId) {
         try {
-            if (eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
-                    .anyMatch(user -> user.getId() == userId)) {
-                eventParticipationRepository.unregister(eventId, userId);
+            boolean isAlreadyRegistered = eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
+                    .anyMatch(user -> Long.valueOf(user.getId()).equals(userId));
+
+            if (!isAlreadyRegistered) {
+                throw new RuntimeException("User wasn't registered on the event yet");
             }
+            eventParticipationRepository.unregister(eventId, userId);
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new RuntimeException("An error occurred while unregistering the participant", e);
         }
     }
 
