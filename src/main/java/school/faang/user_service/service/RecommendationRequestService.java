@@ -27,17 +27,12 @@ import java.util.stream.Stream;
 public class RecommendationRequestService {
 
     private final RecommendationRequestRepository requestRepository;
-
     private final RecommendationRequestMapper recommendationRequestMapper;
-
     private final RequestValidation requestValidation;
-
     private final SkillRequestRepository skillRequestRepository;
-
     private final List<RequestFilter> requestFilters;
 
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
-        log.info("Создание запроса на рекомендацию: {}", dto);
 
         List<Skill> skills = requestValidation.validateRequest(dto);
 
@@ -45,8 +40,6 @@ public class RecommendationRequestService {
         request = requestRepository.save(request);
 
         saveSkillRequests(request, skills);
-        log.info("Запрос рекомендации успешно создан с использованием ID: {}", request.getId());
-
         return recommendationRequestMapper.toDto(request);
     }
 
@@ -61,19 +54,15 @@ public class RecommendationRequestService {
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
-        log.info("Отклонение запроса на рекомендацию ID: {}", id);
         RecommendationRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found"));
-
         if (request.getStatus() != RequestStatus.PENDING) {
-            log.error("Запрос на рекомендацию с ID {} не найден", id);
             throw new IllegalStateException("Cannot reject a non pending request");
         }
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getReason());
         request = requestRepository.save(request);
-        log.info("Запрос на рекомендацию с ID: {} откланен успешно", id);
         return recommendationRequestMapper.toDto(request);
     }
 
@@ -88,16 +77,12 @@ public class RecommendationRequestService {
     }
 
     public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
-        log.info("Получение запросов на рекомендации с помощью фильтра: {}", filter);
         List<RecommendationRequest> requests = requestRepository.findAll();
 
-        List<RecommendationRequestDto> result = requests.stream()
+        return  requests.stream()
                 .filter(request -> filterMatches(request, filter))
                 .map(recommendationRequestMapper::toDto)
                 .toList();
-
-        log.info("Фильтр для сопоставления запросов на рекомендации: {}", filter);
-        return result;
     }
 
     public RecommendationRequestDto getRecommendationRequests(long id) {
@@ -114,11 +99,7 @@ public class RecommendationRequestService {
     }
 
     private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
-        for (RequestFilter filter : requestFilters) {
-            if (filter.isApplicable(filters) && filter.apply(Stream.of(request), filters).findAny().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return requestFilters.stream().noneMatch(filter -> filter.isApplicable(filters)
+                && filter.apply(Stream.of(request), filters).findAny().isEmpty());
     }
 }

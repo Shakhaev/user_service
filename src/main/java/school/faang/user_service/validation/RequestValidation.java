@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -33,34 +34,29 @@ public class RequestValidation {
         }
 
         if (dto.getMessage() == null || dto.getMessage().isBlank()) {
-            log.warn("Ошибка проверки: сообщение пустое или null. DTO: {}", dto);
-            throw new IllegalArgumentException("Message cannot be empty");
+            throw new BusinessException("Ошибка проверки: сообщение пустое или null. DTO: " + dto);
         }
 
         if (!userRepository.existsById(dto.getRequesterId()) || !userRepository.existsById(dto.getReceiverId())) {
-            log.error("Ошибка проверки: Один или два юзера не существуют. RequesterId: {}, ReceiverId: {}",
-                    dto.getRequesterId(), dto.getReceiverId());
-            throw new IllegalArgumentException("Users must exist");
+            throw new BusinessException("Ошибка проверки: Один или два юзера не существуют. RequesterId: "
+                    + dto.getRequesterId() + ". ReceiverId: " + dto.getReceiverId());
         }
 
         if (requestRepository.findLatestPendingRequest(dto.getRequesterId(), dto.getReceiverId())
                 .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(SIX_MONTH_RECOMMENDATION_LIMIT)))
                 .isPresent()) {
-            log.warn("Запрос уже существует в течение последних 6 месяцев DTO: {}", dto);
-            throw new IllegalArgumentException("Request already exists within the past 6 months");
+            throw new BusinessException("Запрос уже существует в течение последних 6 месяцев DTO: " + dto);
         }
 
         List<Long> skillIds = dto.getSkillsIds();
         if (skillIds == null) {
-            log.warn("Ошибка проверки: В запросе не указаны навыки. DTO: {}", dto);
             return List.of();
         }
 
         List<Skill> skills = skillRepository.findAllById(skillIds);
 
         if (skills.size() != skillIds.size()) {
-            log.warn("Некоторые навыки не существуют. Предоставленные ID навыков: {}", skillIds);
-            throw new IllegalArgumentException("One or more skills do not exist");
+            throw new BusinessException("Некоторые навыки не существуют. Предоставленные ID навыков: " + skillIds);
         }
         return skills;
     }
