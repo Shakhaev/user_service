@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -32,7 +33,9 @@ public interface RecommendationRequestMapper {
     GetRecommendationRequestResponse toGetDto(RecommendationRequest recommendationRequest);
 
     default List<String> toSkills(List<SkillRequest> skillRequests) {
-        return skillRequests.stream()
+        return skillRequests == null
+                ? new ArrayList<>()
+                : skillRequests.stream()
                 .map(SkillRequest::getSkill)
                 .map(Skill::getTitle)
                 .toList();

@@ -1,8 +1,6 @@
 package school.faang.user_service.service;
 
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestRequest;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequestResponse;
-import school.faang.user_service.dto.recommendation.GetRecommendationRequestResponse;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -47,28 +45,6 @@ public final class RecommendationReqDataFactory {
         return new CreateRecommendationRequestRequest(
                 "Please provide a recommendation.",
                 List.of(1L, 2L),
-                1L,
-                2L
-        );
-    }
-
-    public static CreateRecommendationRequestResponse createCreateRecommendationRequestResponse() {
-        return new CreateRecommendationRequestResponse(
-                1L,
-                "Please provide a recommendation.",
-                RequestStatus.PENDING,
-                List.of("Skill1", "Skill2"),
-                1L,
-                2L
-        );
-    }
-
-    public static GetRecommendationRequestResponse createGetRecommendationRequestResponse() {
-        return new GetRecommendationRequestResponse(
-                1L,
-                "Please provide a recommendation.",
-                RequestStatus.PENDING,
-                List.of("Skill1", "Skill2"),
                 1L,
                 2L
         );

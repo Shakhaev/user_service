@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 
@@ -17,10 +16,8 @@ public class SkillRequestService {
 
     public List<SkillRequest> createSkillRequests(Long recommendationRequestId,
                                                   List<Long> skillIds) {
-        List<Skill> skills = skillIds.stream()
+        return skillIds.stream()
                 .map(skillService::findById)
-                .toList();
-        return skills.stream()
                 .map(skill -> skillRequestRepository.create(recommendationRequestId, skill.getId()))
                 .toList();
     }

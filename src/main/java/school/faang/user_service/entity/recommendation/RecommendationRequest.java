@@ -25,7 +25,6 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -63,7 +62,7 @@ public class RecommendationRequest {
     private Recommendation recommendation;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    private List<SkillRequest> skills = new ArrayList<>();
+    private List<SkillRequest> skills;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestRequest;
@@ -17,7 +18,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.RecommendationRequestCreatedException;
 import school.faang.user_service.exception.RequestAlreadyProcessedException;
 import school.faang.user_service.exception.ResourceNotFoundException;
-import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
+import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
@@ -36,14 +37,14 @@ class RecommendationRequestServiceTest {
     private UserService userService;
     @Mock
     private SkillRequestService skillRequestService;
-    @Mock
-    private RecommendationRequestMapperImpl recommendationRequestMapper;
+    private RecommendationRequestMapper recommendationRequestMapper;
     @Mock
     private RecommendationRequestFilter recommendationRequestFilter;
     private RecommendationRequestService recommendationRequestService;
 
     @BeforeEach
     void setUp() {
+        recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
         recommendationRequestService = new RecommendationRequestService(recommendationRequestRepository,
                 userService, skillRequestService, recommendationRequestMapper, recommendationRequestFilter);
     }
@@ -92,21 +93,16 @@ class RecommendationRequestServiceTest {
     @Test
     void createRecommendationRequest_CreateRecommendationRequestSuccessfully() {
         CreateRecommendationRequestRequest saveDto = RecommendationReqDataFactory.createCreateRecommendationRequestRequest();
-        CreateRecommendationRequestResponse dto = RecommendationReqDataFactory.createCreateRecommendationRequestResponse();
         User requester = RecommendationReqDataFactory.createRequester();
         User receiver = RecommendationReqDataFactory.createReceiver();
-        RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
         RecommendationRequest savedRequest = RecommendationReqDataFactory.createRecommendationRequest();
         Mockito.when(userService.findById(1L))
                 .thenReturn(requester);
         Mockito.when(userService.findById(2L))
                 .thenReturn(receiver);
-        Mockito.when(recommendationRequestMapper.toEntity(saveDto, requester, receiver))
-                .thenReturn(request);
+        RecommendationRequest request = recommendationRequestMapper.toEntity(saveDto, requester, receiver);
         Mockito.when(recommendationRequestRepository.save(request))
                 .thenReturn(savedRequest);
-        Mockito.when(recommendationRequestMapper.toCreateDto(savedRequest))
-                .thenReturn(dto);
         CreateRecommendationRequestResponse result = recommendationRequestService.create(saveDto);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1L, result.id());
@@ -116,11 +112,8 @@ class RecommendationRequestServiceTest {
     @Test
     void getRequest_ShouldReturnRequest() {
         RecommendationRequest request = RecommendationReqDataFactory.createRecommendationRequest();
-        GetRecommendationRequestResponse dto = RecommendationReqDataFactory.createGetRecommendationRequestResponse();
         Mockito.when(recommendationRequestRepository.findById(1L))
                 .thenReturn(Optional.of(request));
-        Mockito.when(recommendationRequestMapper.toGetDto(request))
-                .thenReturn(dto);
         GetRecommendationRequestResponse result = recommendationRequestService.getRequest(1L);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1L, result.id());

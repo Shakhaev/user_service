@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RecommendationRequestService {
 
