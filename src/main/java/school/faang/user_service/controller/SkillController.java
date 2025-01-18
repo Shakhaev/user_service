@@ -12,7 +12,6 @@ import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.service.SkillService;
-import school.faang.user_service.service.interfaces.SkillServiceI;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ import java.util.List;
 @RequestMapping("/skill")
 @RequiredArgsConstructor
 public class SkillController {
-    private final SkillServiceI skillService;
+    private final SkillService skillService;
 
     @PostMapping("/create")
     public SkillDto create(@Valid @RequestBody CreateSkillDto skillDto) {
