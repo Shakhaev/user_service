@@ -39,7 +39,6 @@ public class SubscriptionServiceTest {
         List<SubscriptionFilter> filters = generateFilters();
 
         subscriptionRepositoryMock = Mockito.mock(SubscriptionRepository.class);
-        //SubscriptionFilter filterMock = Mockito.mock(SubscriptionFilter.class);
         subscriptionService = new SubscriptionServiceImpl(subscriptionRepositoryMock, filters, mapper);
     }
 
