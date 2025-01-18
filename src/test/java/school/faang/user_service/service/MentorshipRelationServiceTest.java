@@ -9,12 +9,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserMentorshipDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMentorshipMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,7 +56,7 @@ public class MentorshipRelationServiceTest {
     void testGetMenteesUserNotFound() {
         long userId = arrange();
 
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () ->
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () ->
                 mentorshipRelationService.getMentees(userId)
         );
 
@@ -76,7 +76,7 @@ public class MentorshipRelationServiceTest {
     void testGetMentorsUserNotFound() {
         long userId = arrange();
 
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () ->
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () ->
                 mentorshipRelationService.getMentors(userId)
         );
 
@@ -89,7 +89,7 @@ public class MentorshipRelationServiceTest {
         return userId;
     }
 
-    private void mockMentorshipRepositoryFindByID(NoSuchElementException exception, long userId) {
+    private void mockMentorshipRepositoryFindByID(EntityNotFoundException exception, long userId) {
         assertEquals("Не существует пользователя с ID: " + userId, exception.getMessage());
         verify(mentorshipRepository, times(1)).findById(userId);
         verifyNoInteractions(userMapper);
@@ -113,7 +113,7 @@ public class MentorshipRelationServiceTest {
     @Test
     void testDeleteMenteeMentorNotFound() {
         extractingAnEmptyUserMock(mentor);
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () -> {
             mentorshipRelationService.deleteMentee(mentee.getId(), mentor.getId());
         });
 
@@ -125,7 +125,7 @@ public class MentorshipRelationServiceTest {
         extractingUserMock(mentor);
         mentor.setMentees(new ArrayList<>());
 
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () -> {
             mentorshipRelationService.deleteMentee(mentee.getId(), mentor.getId());
         });
         assertEquals("Менти с ID: 2 не найден!!!", exception.getMessage());
@@ -144,7 +144,7 @@ public class MentorshipRelationServiceTest {
     @Test
     void testDeleteMentorMenteeNotFound() {
         extractingAnEmptyUserMock(mentee);
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () -> {
             mentorshipRelationService.deleteMentor(mentee.getId(), mentor.getId());
         });
 
@@ -156,7 +156,7 @@ public class MentorshipRelationServiceTest {
         extractingUserMock(mentee);
         mentee.setMentors(new ArrayList<>());
 
-        NoSuchElementException exception = Assert.assertThrows(NoSuchElementException.class, () -> {
+        EntityNotFoundException exception = Assert.assertThrows(EntityNotFoundException.class, () -> {
             mentorshipRelationService.deleteMentor(mentee.getId(), mentor.getId());
         });
         assertEquals("Ментор с ID: 1 не найден!!!", exception.getMessage());
