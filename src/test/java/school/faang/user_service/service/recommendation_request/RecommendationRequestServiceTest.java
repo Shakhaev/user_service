@@ -7,10 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-
 import school.faang.user_service.dto.recomendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recomendation.FilterRecommendationRequestsDto;
 import school.faang.user_service.dto.recomendation.RejectRecommendationRequestDto;
@@ -19,9 +15,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.recomendation.request.RecommendationRequestNotFoundException;
 import school.faang.user_service.exception.recomendation.request.RecommendationRequestRejectException;
+import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.service.recomendation.RecommendationRequestService;
 import school.faang.user_service.service.recomendation.filters.RecommendationRequestIdFilter;
 import school.faang.user_service.service.recomendation.filters.RecommendationRequestMessageFilter;
@@ -32,8 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -185,13 +183,13 @@ public class RecommendationRequestServiceTest {
         filterRecommendationRequestsDto.setStatus(RequestStatus.PENDING);
 
         recommendationRequestService = new RecommendationRequestService(
+                recommendationRequestRepository,
+                skillRequestRepository,
                 List.of(
                         new RecommendationRequestIdFilter(),
                         new RecommendationRequestStatusFilter(),
                         new RecommendationRequestMessageFilter()
-                ),
-                skillRequestRepository,
-                recommendationRequestRepository,
+                        ),
                 validator
         );
 

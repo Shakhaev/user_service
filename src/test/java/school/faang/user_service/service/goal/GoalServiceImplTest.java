@@ -14,13 +14,13 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.global.BadRequestException;
 import school.faang.user_service.exception.global.ResourceNotFoundException;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalDescriptionFilter;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 import school.faang.user_service.service.goal.filter.GoalStatusFilter;
 import school.faang.user_service.service.goal.filter.GoalTitleFilter;
+import school.faang.user_service.service.skill.SkillDomainService;
+import school.faang.user_service.service.user.UserDomainService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,20 +48,17 @@ class GoalServiceImplTest extends CommonGoalTest {
     private GoalRepository goalRepository;
 
     @Mock
-    private SkillRepository skillRepository;
+    private SkillDomainService skillDomainService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserDomainService userDomainService;
 
     @InjectMocks
     private GoalServiceImpl goalService;
 
     private static List<GoalFilter> goalFilters;
-
     private Goal goal;
-
     private User user;
-
     private GoalFilterDto filterDto;
 
     @BeforeAll
@@ -85,7 +82,7 @@ class GoalServiceImplTest extends CommonGoalTest {
     @Test
     void testCreateGoal_exception_hasNoExistingSkills() {
         List<Long> skillIds = List.of(SKILL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(0);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(0);
 
         assertThrows(BadRequestException.class, () ->
             goalService.createGoal(goal, USER_ID, null, List.of(SKILL_ID))
@@ -95,7 +92,7 @@ class GoalServiceImplTest extends CommonGoalTest {
     @Test
     void testCreateGoal_exception_activeGoalsForUserMoreThanLimit() {
         List<Long> skillIds = List.of(SKILL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(1);
         when(goalRepository.countActiveGoalsPerUser(eq(USER_ID))).thenReturn(MAX_EXISTED_ACTIVE_GOALS);
 
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
@@ -108,7 +105,7 @@ class GoalServiceImplTest extends CommonGoalTest {
     @Test
     void testCreateGoal_exception_parentGoalNotFound() {
         List<Long> skillIds = List.of(SKILL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(1);
         when(goalRepository.countActiveGoalsPerUser(eq(USER_ID))).thenReturn(MAX_EXISTED_ACTIVE_GOALS - 1);
         when(goalRepository.findById(eq(PARENT_GOAL_ID))).thenReturn(Optional.empty());
 
@@ -120,24 +117,11 @@ class GoalServiceImplTest extends CommonGoalTest {
     }
 
     @Test
-    void testCreateGoal_exception_userNotFound() {
-        List<Long> skillIds = List.of(SKILL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
-        when(goalRepository.countActiveGoalsPerUser(eq(USER_ID))).thenReturn(MAX_EXISTED_ACTIVE_GOALS - 1);
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-            goalService.createGoal(goal, USER_ID, null, List.of(SKILL_ID))
-        );
-
-        assertEquals("User 1 not found", exception.getMessage());
-    }
-
-    @Test
     void testCreateGoal_success_ParentGoalNull_SkillIdsNull() {
         Goal createdGoal = createGoal();
         createdGoal.setId(GOAL_ID);
         when(goalRepository.countActiveGoalsPerUser(eq(USER_ID))).thenReturn(MAX_EXISTED_ACTIVE_GOALS - 1);
-        when(userRepository.findById(eq(USER_ID))).thenReturn(Optional.of(user));
+        when(userDomainService.findById(eq(USER_ID))).thenReturn(user);
         when(goalRepository.save(any(Goal.class))).thenReturn(createdGoal);
 
         Goal result = goalService.createGoal(goal, USER_ID, null, null);
@@ -153,11 +137,11 @@ class GoalServiceImplTest extends CommonGoalTest {
         Goal parentGoal = createGoal();
         Goal createdGoal = createGoal();
         createdGoal.setId(GOAL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(1);
         when(goalRepository.countActiveGoalsPerUser(eq(USER_ID))).thenReturn(MAX_EXISTED_ACTIVE_GOALS - 1);
-        when(userRepository.findById(eq(USER_ID))).thenReturn(Optional.of(user));
+        when(userDomainService.findById(eq(USER_ID))).thenReturn(user);
         when(goalRepository.save(any(Goal.class))).thenReturn(createdGoal);
-        when(skillRepository.findByIds(eq(skillIds))).thenReturn(List.of(Skill.builder().id(SKILL_ID).build()));
+        when(skillDomainService.findByIds(eq(skillIds))).thenReturn(List.of(Skill.builder().id(SKILL_ID).build()));
         when(goalRepository.findById(eq(PARENT_GOAL_ID))).thenReturn(Optional.of(parentGoal));
 
         Goal result = goalService.createGoal(goal, USER_ID, PARENT_GOAL_ID, List.of(SKILL_ID));
@@ -170,7 +154,7 @@ class GoalServiceImplTest extends CommonGoalTest {
     @Test
     void testUpdateGoal_exception_hasNoExistingSkills() {
         List<Long> skillIds = List.of(SKILL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(0);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(0);
 
         assertThrows(BadRequestException.class, () ->
             goalService.updateGoal(goal, List.of(SKILL_ID))
@@ -182,7 +166,7 @@ class GoalServiceImplTest extends CommonGoalTest {
         List<Long> skillIds = List.of(SKILL_ID);
         Goal existedGoal = createGoal();
         existedGoal.setStatus(COMPLETED);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(1);
         when(goalRepository.findById(eq(GOAL_ID))).thenReturn(Optional.of(existedGoal));
 
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
@@ -198,7 +182,7 @@ class GoalServiceImplTest extends CommonGoalTest {
         Goal existedGoal = createGoal();
         Goal createdGoal = createGoal();
         createdGoal.setId(GOAL_ID);
-        when(skillRepository.countExisting(eq(skillIds))).thenReturn(1);
+        when(skillDomainService.countExisting(eq(skillIds))).thenReturn(1);
         when(goalRepository.findById(eq(GOAL_ID))).thenReturn(Optional.of(existedGoal));
         when(goalRepository.save(any(Goal.class))).thenReturn(createdGoal);
 
