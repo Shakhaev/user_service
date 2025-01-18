@@ -2,9 +2,13 @@ package school.faang.user_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -12,8 +16,11 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.validation.UserValidation;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -24,8 +31,8 @@ public class UserService {
     private final UserValidation userValidation;
 
     @Autowired
-    public UserService(UserRepository userRepository, EventRepository eventRepository, GoalRepository goalRepository
-            , MentorshipService mentorshipService, UserMapper userMapper, UserValidation userValidation) {
+    public UserService(UserRepository userRepository, EventRepository eventRepository, GoalRepository goalRepository,
+                       MentorshipService mentorshipService, UserMapper userMapper, UserValidation userValidation) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
         this.goalRepository = goalRepository;
@@ -35,7 +42,7 @@ public class UserService {
     }
 
     public UserDto deactivate(Long userId) {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         removeEvents(userId);
         removeGoals(userId);
         user.setActive(false);
@@ -56,7 +63,7 @@ public class UserService {
 
     private void removeEvents(Long userId) {
         userValidation.validateUserIdExist(userId);
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!user.getOwnedEvents().isEmpty()) {
             user.getOwnedEvents().forEach(event -> {
                 event.setStatus(EventStatus.CANCELED);
@@ -67,7 +74,7 @@ public class UserService {
 
     private void removeGoals(Long userId) {
         userValidation.validateUserIdExist(userId);
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!user.getGoals().isEmpty()) {
             user.getGoals().forEach(goal -> {
                 goal.getUsers().remove(user);
@@ -76,5 +83,24 @@ public class UserService {
                 }
             });
         }
+    }
+
+    public void isUserExists(long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("Пользователя с id " + userId + " не существует");
+        }
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    public List<User> getAllByIds(@NotNull List<Long> userIds) {
+        return userRepository.findAllById(userIds);
+    }
+
+    public User getById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Невозможно получить пользователя"));
     }
 }
