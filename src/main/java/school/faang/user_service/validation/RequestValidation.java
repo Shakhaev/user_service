@@ -19,11 +19,8 @@ import java.util.List;
 public class RequestValidation {
 
     private static final int SIX_MONTH_RECOMMENDATION_LIMIT = 6;
-
     private final UserRepository userRepository;
-
     private final SkillRepository skillRepository;
-
     private final RecommendationRequestRepository requestRepository;
 
 
