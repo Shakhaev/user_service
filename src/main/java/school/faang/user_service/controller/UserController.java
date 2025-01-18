@@ -26,7 +26,7 @@ public class UserController {
         return new BooleanResponse(userService.isUserExist(userId));
     }
 
-    public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
+    public List<UserDto> getPremiumUsers(@RequestBody(required = false) UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
     }
 

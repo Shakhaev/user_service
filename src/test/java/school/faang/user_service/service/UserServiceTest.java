@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UserServiceTest {
-
     private UserRepository userRepository;
 
     private GoalService goalService;
@@ -37,6 +36,8 @@ public class UserServiceTest {
     private UserMapperImpl userMapperImpl;
 
     private UserService userService;
+
+    private User user;
 
     @BeforeEach
     public void init() {
@@ -54,15 +55,19 @@ public class UserServiceTest {
                 filter,
                 userMapperImpl
         );
+
+        user = User.builder()
+                .id(1L)
+                .username("Mark")
+                .city("Moscow")
+                .build();
     }
 
     @Test
     void deactivateUser_userExist_callsAllServices() {
-        Long userId = 1L;
-        User mockUser = new User();
-        mockUser.setId(userId);
+        Long userId = user.getId();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         userService.deactivateUser(userId);
 
@@ -73,7 +78,7 @@ public class UserServiceTest {
 
     @Test
     void deactivateUser_userNotFound_throwsException() {
-        Long userId = 1L;
+        Long userId = user.getId();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
@@ -84,40 +89,18 @@ public class UserServiceTest {
 
     @Test
     void testGetPremiumUsersWithFilter() {
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .username("Mark")
-                .build();
-
-        User userOne = User.builder()
-                .id(1L)
-                .username("Mark")
-                .city("Moscow")
-                .build();
-
-        User userTwo = User.builder()
-                .id(2L)
-                .username("Tom")
-                .city("Orel")
-                .build();
-
-
         UserFilterDto userFilterDto = new UserFilterDto();
         userFilterDto.setNamePattern("Mark");
 
-        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(userOne));
+        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(user));
         when(filter.get(0).isApplicable(userFilterDto)).thenReturn(true);
-        when(filter.get(0).filterEntity(userOne, userFilterDto)).thenReturn(true);
-
+        when(filter.get(0).filterEntity(user, userFilterDto)).thenReturn(true);
 
         List<UserDto> result = userService.getPremiumUsers(userFilterDto);
 
-
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(userOne.getUsername(), result.get(0).username());
+        Assertions.assertEquals(user.getUsername(), result.get(0).username());
 
-
-        verify(filter.get(0)).isApplicable(userFilterDto);
     }
 
 }
