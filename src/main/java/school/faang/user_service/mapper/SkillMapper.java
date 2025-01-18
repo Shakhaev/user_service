@@ -9,6 +9,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper {
@@ -22,8 +23,15 @@ public interface SkillMapper {
     @Named("map")
     default List<Long> map(List<User> users) {
 
-        return users.stream()
-                .map(User::getId).toList();
+        return Optional.ofNullable(users)
+                .map(usersList -> usersList.stream().map(User::getId).toList())
+                .orElse(List.of());
     }
 
+    default List<SkillDto> mapToList(List<Skill> skills) {
+        return skills
+                .stream()
+                .map(this::toSkillDto)
+                .toList();
+    }
 }
