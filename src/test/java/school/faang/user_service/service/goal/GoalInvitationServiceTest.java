@@ -13,6 +13,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.goal.GoalInvitationFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
 import school.faang.user_service.repository.UserRepository;
@@ -113,7 +114,7 @@ public class GoalInvitationServiceTest {
     public void acceptInvitationNotFound(){
         when(goalInvitationRepository.findById(goalInvitationDto.getId())).thenReturn(Optional.empty());
 
-        DataValidationException ex = assertThrows(DataValidationException.class,
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> goalInvitationService.acceptInvitation(goalInvitationDto.getId()));
         assertEquals(ex.getMessage(), "Invitation not found");
     }
@@ -144,7 +145,7 @@ public class GoalInvitationServiceTest {
     public void rejectInvitationNotFound(){
         when(goalInvitationRepository.findById(goalInvitationDto.getId())).thenReturn(Optional.empty());
 
-        DataValidationException ex = assertThrows(DataValidationException.class,
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> goalInvitationService.rejectGoalInvitation(goalInvitationDto.getId()));
         assertEquals(ex.getMessage(), "Invitation not found");
     }

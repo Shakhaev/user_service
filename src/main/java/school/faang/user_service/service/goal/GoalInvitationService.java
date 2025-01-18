@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.goal.GoalInvitationFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -75,6 +76,6 @@ public class GoalInvitationService {
 
     private GoalInvitation findGoalInvitation(Long id) {
         return goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("Invitation not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invitation not found"));
     }
 }

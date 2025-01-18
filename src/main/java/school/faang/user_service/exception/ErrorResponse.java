@@ -16,6 +16,7 @@ public class ErrorResponse {
     private int status;
     private String error;
     private String message;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 

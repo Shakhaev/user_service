@@ -10,14 +10,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(DataValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataValidationException(DataValidationException e){
+    public ErrorResponse handleDataValidationException(DataValidationException e) {
         log.error("Data is not valid", e);
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
+        log.error("Entity is not valid", e);
+        return new ErrorResponse(e.getMessage());
+    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<String> handleRequestAlreadyProcessed(BusinessException ex) {
