@@ -19,8 +19,8 @@ public interface RecommendationRequestMapper {
 
     @Named("mapSkillsRequests")
     default List<Long> mapSkillsRequests(List<SkillRequest> skillRequests) {
-        if (skillRequests == null) {
-            return null;
+        if (skillRequests == null || skillRequests.isEmpty()) {
+            return List.of();
         }
         return skillRequests.stream()
             .map(SkillRequest::getId)

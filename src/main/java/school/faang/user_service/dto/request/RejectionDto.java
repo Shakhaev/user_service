@@ -1,8 +1,5 @@
 package school.faang.user_service.dto.request;
 
-import lombok.Data;
+public record RejectionDto(String reason) {
 
-@Data
-public class RejectionDto {
-    private String reason;
 }

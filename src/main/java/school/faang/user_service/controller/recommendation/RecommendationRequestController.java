@@ -20,26 +20,24 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.service.RecommendationRequestService;
 
-@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/recommendation-requests")
+@RestController
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
     private final RecommendationRequestMapper mapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RecommendationResponseDto requestRecommendation(
-        @Valid @RequestBody RecommendationRequestDto rec) {
-        RecommendationRequest entity = recommendationRequestService.create(rec.getRequesterId(),
-            rec.getReceiverId(), rec.getMessage(), rec.getSkillsIds());
+    public RecommendationResponseDto requestRecommendation(@Valid @RequestBody RecommendationRequestDto rec) {
+        RecommendationRequest entity = recommendationRequestService.create(rec.requesterId(),
+            rec.receiverId(), rec.message(), rec.skillsIds());
         return mapper.toDto(entity);
     }
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<RecommendationResponseDto> getRecommendationRequests(
-        @RequestBody RequestFilterDto filter) {
+    public List<RecommendationResponseDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
         List<RecommendationRequest> requests = recommendationRequestService.getAllRequests(filter);
         return requests.stream()
             .map(mapper::toDto)
@@ -48,10 +46,8 @@ public class RecommendationRequestController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RecommendationResponseDto getRecommendationById(
-        @PathVariable(name = "id") Long recommendationId) {
-        RecommendationRequest entity =
-            recommendationRequestService.getRequestById(recommendationId);
+    public RecommendationResponseDto getRecommendationById(@PathVariable(name = "id") Long recommendationId) {
+        RecommendationRequest entity = recommendationRequestService.getRequestById(recommendationId);
         return mapper.toDto(entity);
     }
 

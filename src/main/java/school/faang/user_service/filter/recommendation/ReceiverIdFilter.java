@@ -15,14 +15,12 @@ public class ReceiverIdFilter implements RecommendationRequestFilter {
     }
 
     @Override
-    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> entity,
-                                               RequestFilterDto filterDto) {
+    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> entity, RequestFilterDto filterDto) {
         if (entity == null || filterDto == null) {
             return Stream.empty();
         }
 
         return entity
-            .filter(
-                requestIds -> requestIds.getReceiver().getId().equals(filterDto.getReceiverId()));
+            .filter(requestIds -> requestIds.getReceiver().getId().equals(filterDto.getReceiverId()));
     }
 }

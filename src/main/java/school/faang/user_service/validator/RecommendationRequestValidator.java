@@ -13,6 +13,12 @@ public class RecommendationRequestValidator {
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
 
+    public void validateMessage(String  message) {
+        if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("Message must not be empty or blank");
+        }
+    }
+
     public void validateUserExistence(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException(String.format("User not found with id: %d", userId));
