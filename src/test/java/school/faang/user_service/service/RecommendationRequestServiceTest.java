@@ -46,13 +46,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.TestData.createFilterDto;
-import static school.faang.user_service.service.TestData.createRejectDto;
-import static school.faang.user_service.service.TestData.createRequest;
-import static school.faang.user_service.service.TestData.createRequestRcvDto;
-import static school.faang.user_service.service.TestData.createSkill;
-import static school.faang.user_service.service.TestData.createSkillRequest;
-import static school.faang.user_service.service.TestData.createUser;
+import static school.faang.user_service.service.TestDataCreator.createFilterDto;
+import static school.faang.user_service.service.TestDataCreator.createRejectDto;
+import static school.faang.user_service.service.TestDataCreator.createRequest;
+import static school.faang.user_service.service.TestDataCreator.createRequestRcvDto;
+import static school.faang.user_service.service.TestDataCreator.createSkill;
+import static school.faang.user_service.service.TestDataCreator.createSkillRequest;
+import static school.faang.user_service.service.TestDataCreator.createUser;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {

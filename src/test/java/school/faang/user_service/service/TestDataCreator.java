@@ -12,7 +12,7 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class TestData {
+public class TestDataCreator {
     public static User createUser(long id, String title) {
         return User.builder()
                 .id(id)
