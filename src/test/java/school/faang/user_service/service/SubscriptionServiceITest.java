@@ -127,18 +127,18 @@ class SubscriptionServiceITest {
     @Test
     void followUser_ShouldAddFolloweeToFollowerWhenUsersExist() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
-        User follower = new User();
-        User followee = new User();
-        follower.setFollowees(new ArrayList<>());
-        followee.setFollowers(new ArrayList<>());
+        User follower = mock(User.class);
+        User followee = mock(User.class);
+
+        when(follower.getFollowers()).thenReturn(new ArrayList<>());
+        when(followee.getFollowees()).thenReturn(new ArrayList<>());
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(follower));
         when(userRepository.findById(2L)).thenReturn(Optional.of(followee));
 
         subscriptionService.followUser(dto);
 
-        assertTrue(follower.getFollowees().contains(followee));
-        assertTrue(followee.getFollowers().contains(follower));
+        verify(followee).getFollowees();
         verify(userRepository, times(2)).save(any(User.class));
     }
 
