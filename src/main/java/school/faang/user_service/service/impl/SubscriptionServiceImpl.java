@@ -20,6 +20,9 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
+    private static final int DEFAULT_PAGE_NUMBER = 1;
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     private final SubscriptionRepository subscriptionRepository;
     private final List<SubscriptionFilter> subscriptionFilters;
     private final SubscriptionUserMapper subscriptionUserMapper;
@@ -59,21 +62,28 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private List<SubscriptionUserDto> getFilteredUsers(Stream<User> users, SubscriptionUserFilterDto filterDto) {
-        int applicableFilterNum = subscriptionFilters.stream()
-                .filter(filter -> filter.isApplicable(filterDto)).toList().size();
-        SubscriptionUserPageFilter pageFilter = new SubscriptionUserPageFilter();
-        Stream<User> filteredUsers;
-        if (applicableFilterNum > 0) {
-            filteredUsers = subscriptionFilters.stream()
-                    .filter(filter -> filter.isApplicable(filterDto))
-                    .flatMap(filter -> filter.apply(users, filterDto));
-        } else {
-            filteredUsers = users;
+        for (SubscriptionFilter userFilter : subscriptionFilters) {
+            if (userFilter.isApplicable(filterDto)) {
+                users = userFilter.apply(users, filterDto);
+            }
         }
-        filteredUsers = pageFilter.apply(filteredUsers, filterDto);
 
-        return filteredUsers
+        int page = calculatePage(filterDto);
+        int pageSize = calculatePageSize(filterDto);
+
+        return users
+                .skip((long) (page - 1) * pageSize).limit(pageSize)
                 .map(subscriptionUserMapper::toSubscriptionUserDto)
                 .toList();
+    }
+
+    private int calculatePage(SubscriptionUserFilterDto filterDto) {
+        int page = filterDto.page();
+        return page == 0 ? DEFAULT_PAGE_NUMBER : page;
+    }
+
+    private int calculatePageSize(SubscriptionUserFilterDto filterDto) {
+        int pageSize = filterDto.pageSize();
+        return pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
     }
 }

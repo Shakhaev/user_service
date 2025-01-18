@@ -11,11 +11,6 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserCountryFilter implements SubscriptionFilter {
     @Override
-    public String getName() {
-        return "User Country Filter";
-    }
-
-    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return !StringUtils.isBlank(filter.countryPattern());
     }

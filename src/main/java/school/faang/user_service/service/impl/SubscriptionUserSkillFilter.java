@@ -11,11 +11,6 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserSkillFilter implements SubscriptionFilter {
     @Override
-    public String getName() {
-        return "User Skill Filter";
-    }
-
-    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return !StringUtils.isBlank(filter.skillPattern());
     }

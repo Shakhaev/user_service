@@ -9,6 +9,4 @@ public interface SubscriptionFilter {
     boolean isApplicable(SubscriptionUserFilterDto filter);
 
     Stream<User> apply(Stream<User> users, SubscriptionUserFilterDto filter);
-
-    String getName();
 }

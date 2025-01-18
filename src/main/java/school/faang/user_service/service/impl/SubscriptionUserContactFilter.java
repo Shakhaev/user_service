@@ -11,11 +11,6 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserContactFilter implements SubscriptionFilter {
     @Override
-    public String getName() {
-        return "User Contact Filter";
-    }
-
-    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         return !StringUtils.isBlank(filter.contactPattern());
     }

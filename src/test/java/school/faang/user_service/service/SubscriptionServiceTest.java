@@ -177,8 +177,29 @@ public class SubscriptionServiceTest {
         Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
     }
 
+    @Test
+    @DisplayName("Get Filtered Followees By Name and City")
+    void testGetFilteredByNameCityFollowees() {
+        SubscriptionUserFilterDto subscriptionUserFilterDto = SubscriptionUserFilterDto.builder()
+                .namePattern("sha")
+                .cityPattern("Kazan")
+                .page(1)
+                .pageSize(10)
+                .build();
+
+        Mockito.when(subscriptionRepositoryMock.findByFolloweeId(followerId)).thenReturn(allUsers.stream());
+        List<SubscriptionUserDto> expectedUserDtos = allUsers.stream()
+                .filter(u -> u.getId() == 3L)
+                .map(user -> mapper.toSubscriptionUserDto(user))
+                .toList();
+
+        List<SubscriptionUserDto> actualUsersDtos =
+                subscriptionService.getFollowing(followerId, subscriptionUserFilterDto);
+
+        Assertions.assertEquals(expectedUserDtos, actualUsersDtos);
+    }
+
     private List<SubscriptionFilter> generateFilters() {
-        SubscriptionFilter pageFilter = new SubscriptionUserPageFilter();
         SubscriptionFilter aboutFilter = new SubscriptionUserAboutFilter();
         SubscriptionFilter cityFilter = new SubscriptionUserCityFilter();
         SubscriptionFilter contactFilter = new SubscriptionUserContactFilter();
@@ -199,7 +220,6 @@ public class SubscriptionServiceTest {
         filters.add(nameFilter);
         filters.add(phoneFilter);
         filters.add(skillFilter);
-        filters.add(pageFilter);
 
         return filters;
     }

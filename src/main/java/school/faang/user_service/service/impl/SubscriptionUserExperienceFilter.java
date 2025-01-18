@@ -10,11 +10,6 @@ import java.util.stream.Stream;
 @Component
 public class SubscriptionUserExperienceFilter implements SubscriptionFilter {
     @Override
-    public String getName() {
-        return "User Experience Filter";
-    }
-
-    @Override
     public boolean isApplicable(SubscriptionUserFilterDto filter) {
         int minExperience = filter.experienceMin();
         int maxExperience = filter.experienceMax();
