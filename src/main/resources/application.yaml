@@ -33,6 +33,14 @@ spring:
         event-start:
           name: event_start_topic
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user_service
+    topic:
+      user:
+        profile_view: profile_view
+
 server:
   port: 8080
 
