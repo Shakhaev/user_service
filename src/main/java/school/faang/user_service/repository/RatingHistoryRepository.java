@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.rating.RatingHistory;
 
 @Repository
-public interface RatingHistoryRepository extends JpaRepository<RatingHistory, Long> { }
+public interface RatingHistoryRepository extends JpaRepository<RatingHistory, Long> {}

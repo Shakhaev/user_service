@@ -10,4 +10,4 @@ public record LeaderTableDto(
         @NotNull String username,
         @NotNull String email,
         @NotNull @Positive int ratingPoints
-) implements Serializable { }
+) implements Serializable {}

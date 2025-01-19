@@ -29,13 +29,17 @@ public class RatingEventListener {
 
     @EventListener
     @Transactional
-    public void handle(RatingDto ratingDTO) {
-        logger.info("Got the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
+    public void handle(RatingDto ratingDto) {
+        logger.info("Got the info -> {}, {}, {}, {}",
+                ratingDto.id(),
+                ratingDto.actionType(),
+                ratingDto.descriptionable(),
+                ratingDto.points());
 
-        User user = userRepository.findById(ratingDTO.id()).get();
-        int points = ratingDTO.points();
-        ActionType actionType = ratingDTO.actionType();
-        Descriptionable descriptionable = ratingDTO.descriptionable();
+        User user = userRepository.findById(ratingDto.id()).get();
+        int points = ratingDto.points();
+        ActionType actionType = ratingDto.actionType();
+        Descriptionable descriptionable = ratingDto.descriptionable();
 
         user.setRatingPoints(user.getRatingPoints() + points);
         user.getRatingHistories().add(
@@ -54,7 +58,11 @@ public class RatingEventListener {
         }
 
         userRepository.save(user);
-        logger.info("Saved the info -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
+        logger.info("Saved the info -> {}, {}, {}, {}",
+                ratingDto.id(),
+                ratingDto.actionType(),
+                ratingDto.descriptionable(),
+                ratingDto.points());
     }
 
     private boolean isInTop(User user) {

@@ -7,5 +7,6 @@ import school.faang.user_service.entity.User;
 @Mapper(componentModel = "spring")
 public interface LeaderTableMapper {
     User toEntity(LeaderTableDto tableDto);
+
     LeaderTableDto toDto(User user);
 }

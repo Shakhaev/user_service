@@ -97,10 +97,14 @@ public class RatingService {
         }
     }
 
-    public void addPoints(RatingDto ratingDTO) {
-        logger.info("Publishing event -> {}, {}, {}, {}", ratingDTO.id(), ratingDTO.actionType(), ratingDTO.descriptionable(), ratingDTO.points());
+    public void addPoints(RatingDto ratingDto) {
+        logger.info("Publishing event -> {}, {}, {}, {}",
+                ratingDto.id(),
+                ratingDto.actionType(),
+                ratingDto.descriptionable(),
+                ratingDto.points());
 
-        publisher.publishEvent(ratingDTO);
+        publisher.publishEvent(ratingDto);
     }
 
     public void addRating(Descriptionable descriptionable, long userId,
