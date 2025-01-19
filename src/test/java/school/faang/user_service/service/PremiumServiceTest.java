@@ -4,10 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +18,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.PremiumBadRequestException;
 import school.faang.user_service.exception.PremiumNotFoundException;
-import school.faang.user_service.mapper.PremiumMapper;
+import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.impl.PremiumServiceImpl;
@@ -45,8 +42,9 @@ public class PremiumServiceTest {
     private PaymentServiceClient paymentServiceClient;
     @Mock
     private PremiumRepository premiumRepository;
-    @Mock
-    private PremiumMapper premiumMapper;
+
+    @Spy
+    private PremiumMapperImpl premiumMapper;
 
     @Mock
     private UserRepository userRepository;
@@ -62,7 +60,6 @@ public class PremiumServiceTest {
     private User testUser;
     private PremiumPeriod premiumPeriod;
     private Premium testPremium;
-    private PremiumDto expectedPremiumDto;
 
     @BeforeEach
     void setUp() {
@@ -79,12 +76,6 @@ public class PremiumServiceTest {
                 .startDate(now)
                 .endDate(now.plusDays(premiumPeriod.getDays()))
                 .build();
-
-        expectedPremiumDto = PremiumDto.builder()
-                .userId(TEST_USER_ID)
-                .startDate(now)
-                .endDate(now.plusDays(premiumPeriod.getDays()))
-                .build();
     }
 
 
@@ -95,7 +86,6 @@ public class PremiumServiceTest {
         when(paymentServiceClient.sendPayment(any(PaymentRequest.class)))
                 .thenReturn(getPatmentResponseEntity());
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
-        when(premiumMapper.toDto(any(Premium.class))).thenReturn(expectedPremiumDto);
 
         PremiumDto result = premiumService.buyPremium(TEST_USER_ID, premiumPeriod);
 

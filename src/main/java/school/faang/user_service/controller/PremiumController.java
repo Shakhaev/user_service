@@ -1,7 +1,6 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +10,6 @@ import school.faang.user_service.constant.PremiumPeriod;
 import school.faang.user_service.dto.PremiumDto;
 import school.faang.user_service.service.PremiumService;
 
-@Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/premium")
