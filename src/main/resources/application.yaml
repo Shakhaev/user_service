@@ -40,6 +40,7 @@ spring:
     topic:
       user:
         profile_view: profile_view
+        premium_bought: premium_bought
 
 server:
   port: 8080
@@ -101,11 +102,6 @@ app:
     profile_view_event_topic: profileViewEvent
   premium-redis-config:
     premium_bought_event_topic: premiumBoughtEvent
-  quartz-config:
-    profile-view-publish:
-      trigger_interval_sec: 10
-    premium-bought-event-publish:
-      trigger_interval_sec: 10
   mentorship:
     request_for_mentoring_limit:
       times: 1

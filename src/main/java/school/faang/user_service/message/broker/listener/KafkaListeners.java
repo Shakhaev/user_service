@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class KafkaListeners {
-    @KafkaListener(topics = "${spring.kafka.topic.user.profile_view}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${spring.kafka.topic.user.premium_bought}", groupId = "${spring.kafka.consumer.group-id}")
     public void method(String message) {
         log.info("########## MESSAGE: {}", message);
     }
