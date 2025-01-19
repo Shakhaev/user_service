@@ -33,7 +33,6 @@ public class UserService {
             }
         });
 
-
         user.setActive(false);
         userRepository.save(user);
 
