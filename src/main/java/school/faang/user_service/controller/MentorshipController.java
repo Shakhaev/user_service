@@ -20,4 +20,13 @@ public class MentorshipController {
     private List<User> getMentees(long userId) {
         return mentorshipService.getMentees(userId);
     }
+    private List<User> getMentors(long userId) {
+        return mentorshipService.getMentors(userId);
+    }
+    private void deleteMentee(long menteeId, long mentorId) {
+        mentorshipService.deleteMentee(menteeId, mentorId);
+    }
+    private void deleteMentor(long menteeId, long mentorId) {
+        mentorshipService.deleteMentor(menteeId, mentorId);
+    }
 }
