@@ -13,7 +13,7 @@ public class StatusFilter implements RequestFilter {
     }
 
     @Override
-    public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(it -> it.getStatus().name().contains(filters.statusPattern()));
+    public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
+        return requests.filter(it -> it.getStatus().name().contains(filters.statusPattern().toUpperCase()));
     }
 }

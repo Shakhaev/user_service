@@ -13,7 +13,8 @@ public class DescriptionFilter implements RequestFilter {
     }
 
     @Override
-    public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(request -> request.getDescription().contains(filters.descriptionPattern()));
+    public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
+        return requests.filter(request -> request.getDescription().toLowerCase()
+                .contains(filters.descriptionPattern().toLowerCase()));
     }
 }

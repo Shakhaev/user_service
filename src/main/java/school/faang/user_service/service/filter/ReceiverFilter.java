@@ -13,7 +13,8 @@ public class ReceiverFilter implements RequestFilter {
     }
 
     @Override
-    public void apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
-        requests = requests.filter(it -> it.getReceiver().getUsername().contains(filters.receiverPattern()));
+    public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> requests, RequestFilterDto filters) {
+        return requests.filter(it -> it.getReceiver().getUsername().toLowerCase()
+                .contains(filters.receiverPattern().toLowerCase()));
     }
 }

@@ -1,36 +1,59 @@
 package school.faang.user_service.service;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.filter.AuthorFilter;
+import school.faang.user_service.service.filter.DescriptionFilter;
+import school.faang.user_service.service.filter.ReceiverFilter;
+import school.faang.user_service.service.filter.RequestFilter;
+import school.faang.user_service.service.filter.RequestFilterDto;
+import school.faang.user_service.service.filter.StatusFilter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
+    MentorshipRequestRepository mentorshipRequestRepositoryMock;
+    UserService userServiceMock;
+    MentorshipRequestMapper mapperSpy;
+    AuthorFilter authorFilterMock;
+    DescriptionFilter descriptionFilterMock;
+    ReceiverFilter receiverFilterMock;
+    StatusFilter statusFilterMock;
+    List<RequestFilter> filters;
+    MentorshipRequestService mentorshipRequestService;
 
-    @Mock
-    private MentorshipRequestRepository mentorshipRequestRepository;
-    @Mock
-    private UserService userService;
-    @Spy
-    private MentorshipRequestMapperImpl mapper;
-    @InjectMocks
-    private MentorshipRequestServiceImpl mentorshipRequestService;
+
+    @BeforeEach
+    void init() {
+        mentorshipRequestRepositoryMock = Mockito.mock(MentorshipRequestRepository.class);
+        userServiceMock = Mockito.mock(UserService.class);
+        mapperSpy = Mockito.spy(MentorshipRequestMapperImpl.class);
+
+        authorFilterMock = Mockito.spy(AuthorFilter.class);
+        descriptionFilterMock = Mockito.spy(DescriptionFilter.class);
+        receiverFilterMock = Mockito.spy(ReceiverFilter.class);
+        statusFilterMock = Mockito.spy(StatusFilter.class);
+
+        filters = List.of(authorFilterMock, descriptionFilterMock, receiverFilterMock, statusFilterMock);
+
+        mentorshipRequestService =
+                new MentorshipRequestServiceImpl(mentorshipRequestRepositoryMock, userServiceMock, mapperSpy, filters);
+    }
 
     @Test
-    public void testRequestMentorshipWithoutDescription() {
+    public void testRequestMentorshipWithoutDescriptionFailed() {
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(1L)
@@ -42,7 +65,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void testRequestMentorshipWithTheSameRequesterAndReceiverId() {
+    public void testRequestMentorshipWithTheSameRequesterAndReceiverIdFailed() {
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(1L)
@@ -55,8 +78,8 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void testRequestMentorshipWithNonExistentRequesterUserId() {
-        Mockito.when(userService.findById(1L)).thenThrow(new IllegalArgumentException());
+    public void testRequestMentorshipWithNonExistentRequesterUserIdFailed() {
+        Mockito.when(userServiceMock.findById(1L)).thenThrow(new IllegalArgumentException());
 
         var requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
@@ -70,9 +93,9 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void testRequestMentorshipWithNonExistentReceiverUserId() {
-        Mockito.when(userService.findById(1L)).thenReturn(UserDto.builder().userId(1L).build());
-        Mockito.when(userService.findById(2L)).thenThrow(new IllegalArgumentException());
+    public void testRequestMentorshipWithNonExistentReceiverUserIdFailed() {
+        Mockito.when(userServiceMock.findById(1L)).thenReturn(UserDto.builder().userId(1L).build());
+        Mockito.when(userServiceMock.findById(2L)).thenThrow(new IllegalArgumentException());
 
         var requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
@@ -86,7 +109,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void testRequestMentorshipWithTooFrequentRequest() {
+    public void testRequestMentorshipWithTooFrequentRequestFailed() {
         long requesterId = 1L;
         long receiverId = 2L;
         MentorshipRequest latestMentorshipRequest = new MentorshipRequest();
@@ -103,10 +126,10 @@ public class MentorshipRequestServiceTest {
         UserDto receiver = UserDto.builder()
                 .userId(2L)
                 .build();
-        Mockito.when(mentorshipRequestRepository.findLatestRequest(requesterId, receiverId))
+        Mockito.when(mentorshipRequestRepositoryMock.findLatestRequest(requesterId, receiverId))
                 .thenReturn(Optional.of(latestMentorshipRequest));
-        Mockito.when(userService.findById(1L)).thenReturn(requester);
-        Mockito.when(userService.findById(2L)).thenReturn(receiver);
+        Mockito.when(userServiceMock.findById(1L)).thenReturn(requester);
+        Mockito.when(userServiceMock.findById(2L)).thenReturn(receiver);
 
         Assert.assertThrows(
                 IllegalArgumentException.class,
@@ -114,18 +137,35 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void testRequestMentorshipWithCorrectRequest() {
+    public void testRequestMentorshipSuccess() {
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .requesterUserId(1L)
                 .receiverUserId(2L)
                 .description("description")
                 .build();
 
-        Mockito.when(userService.findById(1L)).thenReturn(UserDto.builder().userId(1L).build());
-        Mockito.when(userService.findById(2L)).thenReturn(UserDto.builder().userId(2L).build());
+        Mockito.when(userServiceMock.findById(1L)).thenReturn(UserDto.builder().userId(1L).build());
+        Mockito.when(userServiceMock.findById(2L)).thenReturn(UserDto.builder().userId(2L).build());
 
         mentorshipRequestService.requestMentorship(requestDto);
-        Mockito.verify(mentorshipRequestRepository, Mockito.times(1))
+        Mockito.verify(mentorshipRequestRepositoryMock, Mockito.times(1))
                 .create(1L, 2L, "description");
+    }
+
+    @Test
+    public void testGetRequestsSuccess() {
+        RequestFilterDto filters = RequestFilterDto.builder()
+                .authorPattern("Ali")
+                .statusPattern("accept")
+                .descriptionPattern("desc")
+                .receiverPattern("Jack")
+                .build();
+        Mockito.when(mentorshipRequestRepositoryMock.findAll())
+                .thenReturn(TestData.getListOfRequests());
+
+        List<MentorshipResponseDto> requests = mentorshipRequestService.getRequests(filters);
+
+        Assertions.assertEquals(1, requests.size());
+        Assertions.assertEquals(5L, (long) requests.get(0).id());
     }
 }

@@ -44,8 +44,16 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public List<MentorshipResponseDto> getRequests(RequestFilterDto filters) {
         log.info("MentorshipRequestServiceImpl: method #getRequests started with filters: {}", filters);
-        Stream<MentorshipRequest> requestStream = repository.findAll().stream();
-        return applyFilters(filters, requestStream);
+        Stream<MentorshipRequest> mentorshipRequests = repository.findAll().stream();
+
+        for (RequestFilter requestFilter : requestFilters) {
+            mentorshipRequests = requestFilter.apply(mentorshipRequests, filters)
+                    .toList().stream();
+        }
+
+        return mentorshipRequests
+                .map(mapper::toMentorshipResponseDto)
+                .toList();
     }
 
     @Override
@@ -93,16 +101,6 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         }
     }
 
-    private List<MentorshipResponseDto> applyFilters(RequestFilterDto filters, Stream<MentorshipRequest> requestStream) {
-        for (RequestFilter filter : requestFilters) {
-            if (filter.isApplicable(filters)) {
-                filter.apply(requestStream, filters);
-            }
-        }
-        return requestStream
-                .map(mapper::toMentorshipResponseDto)
-                .toList();
-    }
 
     private void checkRequestIsNotTooOften(MentorshipRequest lastMentorshipRequest) {
         if (lastMentorshipRequest.getCreatedAt().isAfter(
