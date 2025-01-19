@@ -39,7 +39,7 @@ public class RatingService {
     private static final String LEADERBOARD_KEY = "leaderboard";
     private static final int LEADERBOARD_LIMIT = 100;
 
-    @KafkaListener(topics = "success-payment-topic", groupId = "user-service-group")
+    @KafkaListener(topics = "success_payment", groupId = "user-service-group")
     public void successTransactionListener(String userIdStr) {
         logger.info("Made the success payment!");
         queueForMessages.add(userIdStr);
