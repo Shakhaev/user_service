@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SkillService {
     private static final String NOT_VALID_SKILL_MSG_EXCEPTION_TITLE_ALREADY_EXISTS = "Skill's title already exists";
+    private static final int AMOUNT_OF_ENOUGH_CONFIRMATIONS = 3;
 
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
@@ -46,13 +47,13 @@ public class SkillService {
 
         if (!skillOpt.isPresent()) {
             List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
-            if (offers.size() > 2) {
+            if (offers.size() > AMOUNT_OF_ENOUGH_CONFIRMATIONS - 1) {
                 skillRepository.assignSkillToUser(skillId, userId);
             }
 
             skillOpt = skillRepository.findUserSkill(skillId, userId);
         }
-        return skillOpt.get();
+        return skillOpt.orElse(null);
     }
 
     private void validateSkill(Skill skill) {
