@@ -9,7 +9,6 @@ public class FailTest {
     @Test
     public void checkFailTest() {
         fail();
-
     }
 
     @Test
