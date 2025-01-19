@@ -1,53 +1,63 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.UnRegistredException;
+import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
 @Component
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
-    public void registerParticipation(long eventId, long userId) {
-        boolean isPatricipationRegistred = isPatricipantnRegistred(eventId, userId);
-        if (isPatricipationRegistred) {
-            throw new IllegalArgumentException(String.format("Пользователь с id: <%d>"
-                    + "уже зарегистрирован на событие c id: <%d>", userId, eventId));
+    public UserDto registerParticipant(long eventId, long userId) {
+        boolean isPatricipantRegistred = isPatricipantnRegistred(eventId, userId);
+        if (isPatricipantRegistred) {
+            throw new UserNotFoundException("Пользователь уже зарегистрирован!");
         }
         eventParticipationRepository.register(eventId, userId);
-        log.info(String.format("Регистрация позьзователя с id: <%d>"
-                + "на событие с id: <%d> -прошла успешно!", userId, eventId));
+        log.info("Регистрация позьзователя с id: {} на событие с id: {} -прошла успешно!", userId, eventId);
 
+        User user = userRepository.getReferenceById(userId);
+        return userMapper.toDto(userRepository.save(user));
     }
 
-    public void unregisterPartipation(long eventId, long userId) {
+    public UserDto unregisterParticipant(long eventId, long userId) {
         boolean isPatricipantRegistred = isPatricipantnRegistred(eventId, userId);
 
         if (!isPatricipantRegistred) {
-            throw new IllegalArgumentException(String.format("Пользователь с id: <%d>"
-                    + "НЕ ЗАРЕГИСТРИРОВАН на событие с id: <%d>", userId, eventId));
+            throw new UnRegistredException("Пользователь не ЗАРЕГИСТРИРОВАН на событие!");
         }
         eventParticipationRepository.unregister(eventId, userId);
-        log.info("Отмена регистрации на событие с id: <%d>,"
-                + "для пользователя с id: <%d> -прошла успешно!", eventId, userId);
+        log.info("Отмена регистрации на событие с id: {} для пользователя с id: {} -прошла успешно!", eventId, userId);
+
+        User user = userRepository.getReferenceById(userId);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public List<UserDto> getParticipant(long eventId) {
         List<User> events = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
-        return events.stream().map(userMapper::toDto).collect(Collectors.toList());
+        return Optional.ofNullable(events)
+                .orElseGet(ArrayList::new)
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public int getParticipantsCount(long eventId) {
@@ -55,9 +65,13 @@ public class EventParticipationService {
     }
 
     public boolean isPatricipantnRegistred(long eventId, long userId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
+        Optional<List<User>> participants = Optional.ofNullable(eventParticipationRepository.findAllParticipantsByEventId(eventId));
+
+        return participants
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.stream()
+                        .anyMatch(user -> user.getId() == userId))
+                .orElse(false);
     }
 
 }

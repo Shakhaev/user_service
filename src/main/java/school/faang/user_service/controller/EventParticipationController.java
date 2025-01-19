@@ -12,12 +12,12 @@ import java.util.List;
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
-    public void registerParticipation(long userId, long eventId) {
-        eventParticipationService.registerParticipation(userId, eventId);
+    public void registerParticipant(long userId, long eventId) {
+        eventParticipationService.registerParticipant(userId, eventId);
     }
 
-    public void unregisterPartipantion(long userId, long eventId) {
-        eventParticipationService.unregisterPartipation(userId, eventId);
+    public void unregisterParticipant(long userId, long eventId) {
+        eventParticipationService.unregisterParticipant(userId, eventId);
     }
 
     public List<UserDto> getParticipant(long eventId) {
