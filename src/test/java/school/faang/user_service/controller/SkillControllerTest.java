@@ -64,8 +64,10 @@ class SkillControllerTest {
     void create() {
         SkillDto sentDto = new SkillDto(SKILL_ID1, SKILL_TITLE1);
         Skill sentEntity = skillMapper.toEntity(sentDto);
+
         when(skillService.create(sentEntity)).thenReturn(sentEntity);
         SkillDto returnedDto = skillController.create(sentDto);
+
         assertEquals(sentDto.getTitle(), returnedDto.getTitle());
     }
 
@@ -123,9 +125,10 @@ class SkillControllerTest {
     void acquireSkillFromOffers() {
         final long skillId = 123L;
         final long userId = 2345L;
-        when(skillService.acquireSkillFromOffers(skillId, userId)).thenReturn(skill);
 
+        when(skillService.acquireSkillFromOffers(skillId, userId)).thenReturn(skill);
         SkillDto testDto = skillController.acquireSkillFromOffers(skillId, userId);
+
         assertEquals(skillDto, testDto);
     }
 }
