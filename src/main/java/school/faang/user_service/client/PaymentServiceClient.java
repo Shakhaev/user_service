@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import school.faang.user_service.dto.paymentService.CreateOrderDto;
-import school.faang.user_service.dto.paymentService.OrderDto;
+import school.faang.user_service.dto.payment.CreateOrderDto;
+import school.faang.user_service.dto.payment.OrderDto;
 
 @FeignClient(name = "paymentService")
 public interface PaymentServiceClient {

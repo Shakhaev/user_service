@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.paymentService.CreateOrderDto;
-import school.faang.user_service.dto.paymentService.OrderDto;
-import school.faang.user_service.dto.paymentService.PaymentStatus;
+import school.faang.user_service.dto.payment.CreateOrderDto;
+import school.faang.user_service.dto.payment.OrderDto;
+import school.faang.user_service.dto.payment.PaymentStatus;
 import school.faang.user_service.dto.premium.PremiumPlan;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.BusinessException;
@@ -32,7 +32,7 @@ public class PremiumService {
         if (premiumRepository.existsByUserId(user_id)) {
             throw new DataValidationException("Пользователь уже является премиум пользователем");
         }
-        CreateOrderDto dto = new CreateOrderDto("premium", plan, paymentMethod);
+        CreateOrderDto dto = new CreateOrderDto("premium", plan.toString(), paymentMethod);
         userContext.setUserId(user_id);
         return paymentServiceClient.createOrder(dto);
     }
