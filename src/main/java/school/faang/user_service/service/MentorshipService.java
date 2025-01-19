@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Collections;
@@ -54,5 +53,22 @@ public class MentorshipService {
     private User getUserById(long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователя с таким id не существует"));
+    }
+
+    public void removeMentorship(long mentorId) {
+        User mentor = repository.findById(mentorId).orElseThrow(() ->
+                new IllegalArgumentException("Не удалось получить пользователя по айди " + mentorId));
+        mentor.getMentees().forEach(mentee -> {
+            deleteMentor(mentee.getId(), mentorId);
+            mentee.setGoals(mentee.getGoals().stream().map(goal -> {
+                if (goal.getMentor().getId() == mentorId) {
+                    goal.setMentor(null);
+                }
+                return goal;
+            }).toList());
+            repository.save(mentee);
+        });
+        mentor.setMentees(Collections.emptyList());
+        repository.save(mentor);
     }
 }
