@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.List;
+import java.util.Objects;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
 
@@ -17,7 +18,7 @@ public class EventParticipationService {
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
         boolean isRegistered = users.stream()
-                .anyMatch(user -> user.getId() == userId);
+                .anyMatch(user -> Objects.equals(user.getId(),userId));
         if (isRegistered) {
             throw new IllegalArgumentException("User %d already registered to the event %d".formatted(userId, eventId));
         }
@@ -29,7 +30,7 @@ public class EventParticipationService {
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
         boolean isRegistered = users.stream()
-                .anyMatch(user -> user.getId() == userId);
+                .anyMatch(user -> Objects.equals(user.getId(),userId));
         if (isRegistered) {
             eventParticipationRepository.unregister(eventId, userId);
             log.info("Registration is cancelled to user: {} from the event: {}", userId, eventId);
