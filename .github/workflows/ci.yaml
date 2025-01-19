@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - basilisk-master-stream8
+      - basilisk8/BJS2-52756-ci-pipeline
   pull_request:
     branches:
-      - basilisk-master-stream8
+      - basilisk8/BJS2-52756-ci-pipeline
 
 jobs:
   build:
