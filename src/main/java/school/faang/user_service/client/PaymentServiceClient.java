@@ -1,17 +1,19 @@
 package school.faang.user_service.client;
 
-import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import school.faang.user_service.dto.payment.PaymentRequestDto;
-import school.faang.user_service.dto.payment.PaymentResponseDto;
+import school.faang.user_service.dto.payment.CreateOrderDto;
+import school.faang.user_service.dto.payment.OrderDto;
 
-@FeignClient(name = "payment-service", url = "${payment-service.url}")
+@FeignClient(name = "paymentService")
 public interface PaymentServiceClient {
 
-    PaymentResponseDto createOrder(
-            @RequestBody @Valid PaymentRequestDto dto,
-            @RequestHeader(value = "x-user-id") Long userId
-    );
+    @PostMapping("order")
+    OrderDto createOrder(@RequestBody CreateOrderDto dto);
+
+    @GetMapping("order/{orderId}")
+    OrderDto getOrder(@PathVariable Long orderId);
 }

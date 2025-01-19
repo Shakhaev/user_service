@@ -3,7 +3,7 @@ package school.faang.user_service.config.context;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserContext {
+public class  UserContext {
 
     private final ThreadLocal<Long> userIdHolder = new ThreadLocal<>();
 
