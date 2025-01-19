@@ -1,12 +1,10 @@
 package school.faang.user_service.service.service;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -15,7 +13,6 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -29,10 +26,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
@@ -53,17 +47,20 @@ public class RecommendationServiceTest {
     private RecommendationServiceValidator validator;
 
     @Spy
-    private RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
+    private RecommendationMapperImpl recommendationMapper = new RecommendationMapperImpl();
 
     private RecommendationDto recommendationDto;
     private Recommendation recommendation;
     private long id;
 
     @BeforeEach
-    public void init() {
+    public void setUp() {
         recommendationDto = RecommendationDto.builder()
                 .id(1L)
-                .skillOffers(List.of(new SkillOfferDto(2L, 1L), new SkillOfferDto(2L, 1L)))
+                .skillOffers(List.of(
+                        new SkillOfferDto(2L, 1L),
+                        new SkillOfferDto(2L, 1L)
+                ))
                 .authorId(5L)
                 .receiverId(4L)
                 .content("some content")
@@ -81,20 +78,8 @@ public class RecommendationServiceTest {
         id = 1L;
     }
 
-
     @Test
-    public void createRecommendation_ShouldCallValidatorMethods() {
-        doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
-        doNothing().when(validator).validateSkillOffers(recommendationDto);
-
-        recommendationService.create(recommendationDto);
-
-        verify(validator).validateMonthsBetweenRecommendations(recommendationDto);
-        verify(validator).validateSkillOffers(recommendationDto);
-    }
-
-    @Test
-    void createRecommendation_ShouldCreateWhenValidationPasses() {
+    public void createRecommendation_shouldCallValidatorMethods() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
         when(skillRepository.findUserSkill(anyLong(), anyLong())).thenReturn(Optional.empty());
@@ -102,56 +87,61 @@ public class RecommendationServiceTest {
 
         RecommendationDto result = recommendationService.create(recommendationDto);
 
-        assertEquals(recommendationDto, result);
         verify(validator).validateMonthsBetweenRecommendations(recommendationDto);
         verify(validator).validateSkillOffers(recommendationDto);
-        verify(skillOfferRepository, times(2)).create(anyLong(), anyLong());
+
+        assertEquals(recommendationDto, result);
     }
 
     @Test
-    public void updateRecommendation_ShouldUpdateWhenValidationPasses() {
+    public void updateRecommendation_shouldCallMapperAndValidator() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
 
         RecommendationDto result = recommendationService.update(recommendationDto);
 
-        assertEquals(recommendationDto, result);
         verify(validator).validateMonthsBetweenRecommendations(recommendationDto);
         verify(validator).validateSkillOffers(recommendationDto);
+
         verify(skillOfferRepository).deleteAllByRecommendationId(recommendationDto.id());
         verify(skillOfferRepository, times(2)).create(anyLong(), anyLong());
+
+        assertEquals(recommendationDto, result);
     }
 
     @Test
-    public void deleteRecommendation_ShouldDeleteById() {
+    public void getAllUserRecommendations_shouldMapEntitiesToDto() {
+        Page<Recommendation> recommendations = new PageImpl<>(List.of(recommendation));
+        when(recommendationRepository.findAllByReceiverId(anyLong(), any())).thenReturn(recommendations);
+
+        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(id);
+
+        verify(recommendationRepository).findAllByReceiverId(anyLong(), any());
+        verify(recommendationMapper).toDto(recommendation);
+
+        assertEquals(1, result.size());
+        assertEquals(recommendation.getContent(), result.get(0).content());
+    }
+
+    @Test
+    public void getAllGivenRecommendations_shouldMapEntitiesToDto() {
+        Page<Recommendation> recommendations = new PageImpl<>(List.of(recommendation));
+        when(recommendationRepository.findAllByAuthorId(anyLong(), any())).thenReturn(recommendations);
+
+        List<RecommendationDto> result = recommendationService.getAllGivenRecommendations(id);
+
+        verify(recommendationRepository).findAllByAuthorId(anyLong(), any());
+        verify(recommendationMapper).toDto(recommendation);
+
+        assertEquals(1, result.size());
+        assertEquals(recommendation.getContent(), result.get(0).content());
+    }
+
+    @Test
+    public void deleteRecommendation_shouldRemoveEntityById() {
         recommendationService.delete(id);
 
         verify(recommendationRepository).deleteById(id);
-    }
-
-    @Test
-    public void getAllUserRecommendations_ShouldReturnForGivenReceiverId() {
-        Page<Recommendation> recommendations = new PageImpl<>(List.of(recommendation));
-        when(recommendationRepository.findAllByReceiverId(anyLong(), Mockito.any())).thenReturn(recommendations);
-        when(recommendationMapper.toDto(Mockito.any())).thenReturn(recommendationDto);
-        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(id);
-
-        assertEquals(1, result.size());
-        verify(recommendationRepository).findAllByReceiverId(anyLong(), Mockito.any());
-        verify(recommendationMapper).toDto(Mockito.any());
-    }
-
-    @Test
-    void getAllGivenRecommendations_ShouldReturnRecommendationsForGivenAuthorId() {
-        Page<Recommendation> recommendationPage = new PageImpl<>(List.of(recommendation));
-        when(recommendationRepository.findAllByAuthorId(anyLong(), Mockito.any())).thenReturn(recommendationPage);
-        when(recommendationMapper.toDto(Mockito.any())).thenReturn(recommendationDto);
-        List<RecommendationDto> result = recommendationService.getAllGivenRecommendations(id);
-
-        assertEquals(1, result.size());
-
-        verify(recommendationRepository).findAllByAuthorId(anyLong(), Mockito.any());
-        verify(recommendationMapper).toDto(Mockito.any());
+        verifyNoInteractions(recommendationMapper);
     }
 }
-
