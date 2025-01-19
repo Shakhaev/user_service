@@ -1,8 +1,9 @@
 package school.faang.user_service.filter.goal;
-/*
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.filter.goal.data.InvitedIdFilter;
 
@@ -39,14 +40,21 @@ class InvitedIdFilterTest extends InvitationFilterTest {
     void apply_ShouldFilterInvitationsByMatchingId() {
         filters.setInvitedId(1L);
 
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
+        User user3 = new User();
+        user3.setId(1L);
+
         invitation1 = new GoalInvitation();
-        invitation1.setInvitedId(1L);
+        invitation1.setInvited(user1);
 
         invitation2 = new GoalInvitation();
-        invitation2.setInvitedId(2L);
+        invitation2.setInvited(user2);
 
         invitation3 = new GoalInvitation();
-        invitation3.setInvitedId(1L);
+        invitation3.setInvited(user3);
 
         Stream<GoalInvitation> input = Stream.of(invitation1, invitation2, invitation3);
         Stream<GoalInvitation> expected = Stream.of(invitation1, invitation3);
@@ -60,11 +68,16 @@ class InvitedIdFilterTest extends InvitationFilterTest {
     void apply_ShouldReturnEmptyStream_WhenNoInvitationsMatch() {
         filters.setInvitedId(3L);
 
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
+
         invitation1 = new GoalInvitation();
-        invitation1.setInvitedId(1L);
+        invitation1.setInvited(user1);
 
         invitation2 = new GoalInvitation();
-        invitation2.setInvitedId(2L);
+        invitation2.setInvited(user2);
 
         Stream<GoalInvitation> input = Stream.of(invitation1, invitation2);
 
@@ -73,5 +86,3 @@ class InvitedIdFilterTest extends InvitationFilterTest {
         assertTrue(result.isEmpty());
     }
 }
-
- */

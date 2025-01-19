@@ -73,5 +73,4 @@ class InviterNameFilterTest extends InvitationFilterTest {
         assertTrue(result.isEmpty());
     }
 }
-
  */
