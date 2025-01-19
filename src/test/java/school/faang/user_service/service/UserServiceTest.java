@@ -47,6 +47,19 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById(id);
     }
 
+    @Test
+    void testGetUserById_WithError(){
+        long id = 1L;
+        when(userRepository.findById(id)).thenReturn(Optional.of(receiver));
+
+        User user = userService.getUserById(id);
+
+        assertNotNull(user);
+        assertEquals(requester.getId(), user.getId());
+        assertEquals(requester, user);
+        verify(userRepository, times(1)).findById(id);
+    }
+
 
 
     public static User createUser(long id, String title) {
