@@ -23,6 +23,15 @@ public class RecommendationDto {
     @NotBlank(message = "The content field cannot be null!")
     private String content;
     private List<SkillOfferDto> skillOffers;
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        if (createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        } else {
+            this.createdAt = createdAt;
+        }
+    }
 
 }

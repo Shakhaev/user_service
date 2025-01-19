@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
     @InjectMocks
-    private RecommendationService recommendationService;
+    private RecommendationServiceImpl recommendationService;
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
@@ -292,9 +292,9 @@ public class RecommendationServiceTest {
     }
 
     private List<UserSkillGuarantee> getUserSkillGuarantees() {
-        return List.of(UserSkillGuarantee.builder().guarantor(getReceiverUser())
+        return List.of(UserSkillGuarantee.builder().guarantor(getAuthorUser())
                 .skill(Skill.builder().id(15L).title("java").build())
-                .user(getAuthorUser()).build());
+                .user(getReceiverUser()).build());
     }
 
     private Page<Recommendation> createPageFromList(List<Recommendation> recommendations, int page, int size) {
