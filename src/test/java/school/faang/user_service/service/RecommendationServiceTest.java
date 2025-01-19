@@ -16,12 +16,11 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.RecommendationValidator;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
@@ -38,6 +37,9 @@ public class RecommendationServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+
+    @Spy
+    private RecommendationValidator recommendationValidator;
 
     @Spy
     private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
