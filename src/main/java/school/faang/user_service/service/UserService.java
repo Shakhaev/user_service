@@ -16,4 +16,5 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException(String.format("User with " +
                         "id %d not found", id)));
     }
+
 }
