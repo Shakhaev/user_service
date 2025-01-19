@@ -61,17 +61,3 @@ jobs:
           name: checkstyle_report
           path: build/reports/checkstyle
 
-      - name: Comment on Pull Request if build failed
-        if: failure()
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue_number = context.issue.number;
-            const message = "Сборка завалилась: либо ошибки компиляции, либо не прошли тесты, либо возникли ошибки в стиле кода.";
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: message
-            });
