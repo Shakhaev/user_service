@@ -14,12 +14,6 @@ public class RedisTopicsFactory {
     @Value("${redis.banner.topic}")
     private String userBanTopic;
 
-    @Value("${app.user-redis-config.profile_view_event_topic}")
-    private String profileViewEventTopic;
-
-    @Value("${app.premium-redis-config.premium_bought_event_topic}")
-    private String premiumBoughtEvent;
-
     @Value("${spring.data.redis.channel-topics.mentorship.request_received}")
     private String mentorshipRequestReceivedTopicName;
 
@@ -34,16 +28,6 @@ public class RedisTopicsFactory {
     @Bean
     public ChannelTopic userBanTopic() {
         return new ChannelTopic(userBanTopic);
-    }
-
-    @Bean
-    public ChannelTopic profileViewEventTopic() {
-        return new ChannelTopic(profileViewEventTopic);
-    }
-
-    @Bean
-    public ChannelTopic premiumBoughtEventTopic() {
-        return new ChannelTopic(premiumBoughtEvent);
     }
 
     @Bean

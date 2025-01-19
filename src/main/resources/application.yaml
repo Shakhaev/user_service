@@ -98,10 +98,6 @@ app:
     event:
       start_event:
         cron: "0 * * * * *" # every minute
-  user-redis-config:
-    profile_view_event_topic: profileViewEvent
-  premium-redis-config:
-    premium_bought_event_topic: premiumBoughtEvent
   mentorship:
     request_for_mentoring_limit:
       times: 1
