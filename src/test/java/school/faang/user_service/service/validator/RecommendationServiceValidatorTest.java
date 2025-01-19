@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceValidatorTest {
 
@@ -36,7 +35,7 @@ public class RecommendationServiceValidatorTest {
     private SkillRepository skillRepository;
 
     @InjectMocks
-    RecommendationServiceValidator validator;
+    private RecommendationServiceValidator validator;
 
     private RecommendationDto recommendationDto;
     private long id;
@@ -55,39 +54,39 @@ public class RecommendationServiceValidatorTest {
     }
 
     @Test
-    public void validateMonthsBetweenRecommendations_ShouldThrowException_WhenIsRecent() {
-        Recommendation recommendationDB = Recommendation.builder()
+    public void validateMonthsBetweenRecommendationsShouldThrowExceptionWhenRecent() {
+        Recommendation recommendationDb = Recommendation.builder()
                 .id(2L)
                 .createdAt(LocalDateTime.now())
                 .build();
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
-                .thenReturn(Optional.of(recommendationDB));
+                .thenReturn(Optional.of(recommendationDb));
 
         assertThrows(DataValidationException.class, () -> validator.validateMonthsBetweenRecommendations(recommendationDto));
     }
 
     @Test
-    public void validateMonthsBetweenRecommendations_ShouldNotThrowException_WhenNoRecentRecommendation() {
-        Recommendation recommendationFromDB = Recommendation.builder()
+    public void validateMonthsBetweenRecommendationsShouldNotThrowExceptionWhenNoRecentRecommendation() {
+        Recommendation recommendationFromDb = Recommendation.builder()
                 .id(2L)
                 .createdAt(LocalDateTime.now().minusMonths(MONTHS_BEFORE_NEW_RECOMMENDATION))
                 .build();
 
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
-                .thenReturn(Optional.of(recommendationFromDB));
+                .thenReturn(Optional.of(recommendationFromDb));
 
         assertDoesNotThrow(() -> validator.validateMonthsBetweenRecommendations(recommendationDto));
     }
 
     @Test
-    void validateSkillOffers_ShouldThrowException_WhenSkillDoesNotExist() {
+    void validateSkillOffersShouldThrowExceptionWhenSkillDoesNotExist() {
         when(skillRepository.existsById(anyLong())).thenReturn(false);
 
         assertThrows(DataValidationException.class, () -> validator.validateSkillOffers(recommendationDto));
     }
 
     @Test
-    void validateSkillOffers_ShouldNotThrowException_WhenSkillsAreValidAndUnique() {
+    void validateSkillOffersShouldNotThrowExceptionWhenSkillsAreValidAndUnique() {
         when(skillRepository.existsById(anyLong())).thenReturn(true);
 
         assertDoesNotThrow(() -> validator.validateSkillOffers(recommendationDto));
