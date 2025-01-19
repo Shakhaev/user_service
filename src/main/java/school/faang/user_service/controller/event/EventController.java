@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import school.faang.user_service.dto.event.EventDto;
@@ -21,13 +20,15 @@ public class EventController {
 
 
     public EventDto create(EventDto event) {
-        validation(event);
+        validationEventDto(event);
         return eventService.create(event);
     }
 
-    public EventDto update (EventDto event){
-        validation(event);
-        return eventService.updateEvent(event);
+    public EventDto update (EventDto eventDto, Event event) {
+        validationEventDto(eventDto);
+        eventDto.setId(event.getId());
+
+        return eventService.updateEvent(eventDto);
     }
 
     public EventDto getEvent(EventDto event) {
@@ -50,10 +51,10 @@ public class EventController {
         return eventService.getEventsByFilter(eventDto,filter,userId);
     }
 
-    private void validation(EventDto event) throws DataValidationException {
+    private void validationEventDto(EventDto event) throws DataValidationException {
         if (event.getTitle().isBlank() || event.getOwnerId() == null || event.getStartDate() == null) {
-            throw new DataValidationException("Cannot create event without owner id, " +
-                    "blank or empty title, start date");
+            throw new DataValidationException("Нельзя создать событие с пустыми owner id, " +
+                    "названием, или датой начала");
         }
     }
 }
