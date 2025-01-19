@@ -25,7 +25,7 @@ public class RatingEventListener {
     private final LeaderTableMapper leaderTableMapper;
 
     private static final String LEADERBOARD_KEY = "leaderboard";
-    private static final int LEADERBOARD_LIMIT = 100;
+    private static final int LEADERBOARD_LIMIT = 50;
 
     @EventListener
     @Transactional

@@ -2,6 +2,7 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -28,4 +29,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u FROM User u ORDER BY u.ratingPoints DESC LIMIT :limit")
     List<User> findTopByOrderByRatingPointsDesc(int limit);
+
+    @Query(value = "SELECT u FROM User u WHERE u.ratingPoints < :minRating ORDER BY u.ratingPoints DESC LIMIT :limit")
+    List<User> findTopByRatingBelowLimit(@Param("minRating") int minRating, @Param("limit") int limit);
+
 }

@@ -15,7 +15,7 @@ public class RatingController {
     private final RatingService ratingService;
 
     @GetMapping("/leaders/{limit}")
-    public List<LeaderTableDto> getTableLeaders(@PathVariable int limit, @RequestBody UserComparingDto userComparingDto) {
-        return ratingService.getTableLeaders(limit, userComparingDto);
+    public List<LeaderTableDto> getTableLeaders(@PathVariable int limit) {
+        return ratingService.getTableLeaders(limit);
     }
 }
