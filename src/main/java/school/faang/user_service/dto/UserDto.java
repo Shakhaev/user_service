@@ -14,4 +14,5 @@ public class UserDto {
     private String password;
     private boolean active;
     private List<MentorshipRequestDto> sentMentorshipRequests;
+    private String username;
 }
