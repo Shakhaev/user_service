@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.skills.SkillService;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class SkillController {
     private final SkillService service;
 
     @PostMapping("/create")
-    public SkillDto create(@RequestBody SkillDto skillDto) {
+    public SkillDto create(@RequestBody SkillDto skillDto) throws DataValidationException {
         if (skillDto.getTitle().isBlank()) {
             throw new DataValidationException("Title can not be empty and null");
         }
@@ -40,7 +40,7 @@ public class SkillController {
     }
 
     @PostMapping("/acquire")
-    public SkillDto acquireSkillFromOffered(@RequestParam long skillId, @RequestParam long userId) {
+    public SkillDto acquireSkillFromOffered(@RequestParam long skillId, @RequestParam long userId) throws DataValidationException {
         return service.acquireSkillFromOffer(skillId, userId);
     }
 }
