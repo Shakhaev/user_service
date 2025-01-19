@@ -3,7 +3,6 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.user.UserIdListIsEmptyException;
 import school.faang.user_service.exception.user.UserNotFoundException;
@@ -12,7 +11,6 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.List;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
 
 @RequiredArgsConstructor
 @Service
@@ -24,13 +22,11 @@ public class UserDomainService {
         return userRepository.save(user);
     }
 
-    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public User findById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public List<User> findAllByIds(List<Long> ids) {
         return userRepository.findAllById(ids);

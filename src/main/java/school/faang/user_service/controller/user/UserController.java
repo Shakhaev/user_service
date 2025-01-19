@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.entity.User;
@@ -22,6 +23,8 @@ import school.faang.user_service.service.user.UserDomainService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
+
+import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
 
 @Slf4j
 @Tag(name = "User Management", description = "Operations related to user management")
@@ -50,18 +53,21 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PublishEvent(type = PROFILE_VIEW)
     @PostMapping("/search/premium")
     public List<UserResponseDto> getPremiumUsers(@RequestParam long offset, @RequestParam long limit) {
         List<User> foundUsers = userService.getPremiumUsers(offset, limit);
         return userMapper.toDtos(foundUsers);
     }
 
+    @PublishEvent(type = PROFILE_VIEW)
     @GetMapping("/{userId}")
     public UserResponseDto getUser(@PathVariable long userId) {
         User user = userDomainService.findById(userId);
         return userMapper.toDto(user);
     }
 
+    @PublishEvent(type = PROFILE_VIEW)
     @PostMapping()
     List<UserResponseDto> getUsersByIds(@RequestBody List<Long> ids) {
         List<User> users = userDomainService.findAllByIds(ids);

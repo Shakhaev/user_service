@@ -1,6 +1,7 @@
 package school.faang.user_service.aspect.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.Topic;
 import org.springframework.stereotype.Component;
@@ -27,8 +28,8 @@ public class PremiumBoughtEventPublisherToRedis extends AbstractEventAggregator<
     }
 
     @Override
-    public void publish(Object eventObject) {
-        if (eventObject instanceof Premium premium) {
+    public void publish(JoinPoint joinPoint, Object returnedValue) {
+        if (returnedValue instanceof Premium premium) {
             long userId = premium.getUser().getId();
             int days = (int) ChronoUnit.DAYS.between(premium.getStartDate(), premium.getEndDate());
             double cost = PremiumPeriod.fromDays(days).getCost();

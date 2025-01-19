@@ -1,9 +1,11 @@
 package school.faang.user_service.annotation.publisher;
 
+import org.aspectj.lang.JoinPoint;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.aspect.redis.PremiumBoughtEventPublisherToRedis;
@@ -25,6 +27,9 @@ class PremiumBoughtEventPublisherToRedisTest {
     private static final LocalDateTime START_DATE = LocalDateTime.of(2000, 1, 1, 1, 1);
     private static final LocalDateTime END_DATE = START_DATE.plusDays(31);
 
+    @Mock
+    private JoinPoint joinPoint;
+
     @InjectMocks
     PremiumBoughtEventPublisherToRedis premiumBoughtEventPublisherToRedis;
 
@@ -32,7 +37,7 @@ class PremiumBoughtEventPublisherToRedisTest {
     @Test
     @DisplayName("Given not User and List<User> return value and do nothing")
     void testAddToPublishNotInstanceDoNothing() {
-        premiumBoughtEventPublisherToRedis.publish(new Object());
+        premiumBoughtEventPublisherToRedis.publish(joinPoint, new Object());
         Queue<PremiumBoughtEventDto> analyticEvents =
                 (Queue<PremiumBoughtEventDto>) ReflectionTestUtils.getField(premiumBoughtEventPublisherToRedis, "events");
 
@@ -46,7 +51,7 @@ class PremiumBoughtEventPublisherToRedisTest {
         User user = getUser(USER_ID);
         Premium premium = getPremium(PREMIUM_ID, user, START_DATE, END_DATE);
 
-        premiumBoughtEventPublisherToRedis.publish(premium);
+        premiumBoughtEventPublisherToRedis.publish(joinPoint, premium);
         Queue<PremiumBoughtEventDto> analyticEvents =
                 (Queue<PremiumBoughtEventDto>) ReflectionTestUtils.getField(premiumBoughtEventPublisherToRedis, "events");
 

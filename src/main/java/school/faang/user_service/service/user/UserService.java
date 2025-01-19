@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.entity.AvatarStyle;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
@@ -18,8 +17,6 @@ import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static school.faang.user_service.enums.publisher.PublisherType.PROFILE_VIEW;
 
 @Slf4j
 @Service
@@ -66,7 +63,6 @@ public class UserService {
         userDomainService.save(user);
     }
 
-    @PublishEvent(type = PROFILE_VIEW)
     @Transactional(readOnly = true)
     public List<User> getPremiumUsers(long offset, long limit) {
         return userDomainService.findAllWithActivePremiumInRange(offset, limit);
