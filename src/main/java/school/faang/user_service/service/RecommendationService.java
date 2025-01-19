@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
 import school.faang.user_service.dto.recommendation.GetAllGivenRecommendationsResponse;
@@ -22,6 +23,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.RecommendationValidator;
 
 import java.time.Period;
 import java.util.List;
@@ -40,6 +42,9 @@ public class RecommendationService {
     private final UserRepository userRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
+    private final RecommendationValidator recommendationValidator;
+
+    @Transactional
     public CreateRecommendationResponse create(CreateRecommendationRequest recommendationRequest) {
         validateRecommendation(recommendationRequest);
 
@@ -50,9 +55,10 @@ public class RecommendationService {
         recommendation.setId(recommendationId);
         saveSkillOffers(recommendation, skills);
 
-        return (CreateRecommendationResponse) recommendationMapper.toDto(recommendation);
+        return recommendationMapper.toCreateDto(recommendation);
     }
 
+    @Transactional
     public UpdateRecommendationResponse update(UpdateRecommendationRequest recommendationRequest) {
         validateRecommendation(recommendationRequest);
 
@@ -63,44 +69,36 @@ public class RecommendationService {
         skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
         saveSkillOffers(recommendation, skills);
 
-        return (UpdateRecommendationResponse) recommendationMapper.toDto(recommendation);
+        return recommendationMapper.toUpdateDto(recommendation);
     }
 
+    @Transactional
     public void delete(long id) {
         skillOfferRepository.deleteAllByRecommendationId(id);
         recommendationRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<GetAllUserRecommendationsResponse> getAllUserRecommendations(long receiverId) {
         Page<Recommendation> recommendationPage = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
         return recommendationPage.get()
-                .map(recommendationMapper::toDto)
-                .map(r -> (GetAllUserRecommendationsResponse)r)
+                .map(recommendationMapper::toGetAllUserDto)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<GetAllGivenRecommendationsResponse> getAllGivenRecommendations(long authorId) {
         Page<Recommendation> recommendationPage = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
         return recommendationPage.get()
-                .map(recommendationMapper::toDto)
-                .map(r -> (GetAllGivenRecommendationsResponse)r)
+                .map(recommendationMapper::toGetAllGivenDto)
                 .toList();
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) {
-        if (recommendationDto.getContent().isBlank())
-            throw new DataValidationException("Recommendation content is empty");
+        recommendationValidator.validateRecommendationContentIsNotEmpty(recommendationDto);
 
-        Optional<Recommendation> recommendationOptional =  recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
-        if (recommendationOptional.isPresent()) {
-            Recommendation lastRecommendation = recommendationOptional.get();
-
-            Period timeDifference = Period.between(lastRecommendation.getCreatedAt().toLocalDate(), now().toLocalDate());
-
-            if (timeDifference.getMonths() < 6) {
-                throw new DataValidationException("The author can make a recommendation to the user no earlier than 6 months after the last recommendationDto. The last recommendationDto was given " + lastRecommendation.getCreatedAt());
-            }
-        }
+        Optional<Recommendation> lastRecommendationOptional =  recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
+        lastRecommendationOptional.ifPresent(recommendationValidator::validateLastRecommendationTime);
 
         recommendationDto.getSkillOfferIds().forEach(s -> {
             if (!skillRepository.existsById(s)) {
@@ -108,6 +106,7 @@ public class RecommendationService {
             }
         });
     }
+
     private Recommendation mapRecommendation(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
         User author = userRepository.getReferenceById(recommendationDto.getAuthorId());
@@ -118,7 +117,7 @@ public class RecommendationService {
     }
 
     private List<Skill> mapSkills(List<Long> skillIds) {
-        return skillIds.stream().map(skillRepository::getReferenceById).toList();
+        return skillRepository.findAllById(skillIds);
     }
 
     private void saveSkillOffers(Recommendation recommendation, List<Skill> skills) {

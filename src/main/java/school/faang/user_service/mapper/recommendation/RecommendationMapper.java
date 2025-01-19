@@ -4,7 +4,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
+import school.faang.user_service.dto.recommendation.GetAllGivenRecommendationsResponse;
+import school.faang.user_service.dto.recommendation.GetAllUserRecommendationsResponse;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 
@@ -19,7 +23,22 @@ public interface RecommendationMapper {
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "receiver.id", target = "receiverId")
     @Mapping(source = "skillOffers", target = "skillOfferIds", qualifiedByName = "mapSkillOffersToIds")
-    RecommendationDto toDto(Recommendation recommendation);
+    CreateRecommendationResponse toCreateDto(Recommendation recommendation);
+
+    @Mapping(source = "author.id", target = "authorId")
+    @Mapping(source = "receiver.id", target = "receiverId")
+    @Mapping(source = "skillOffers", target = "skillOfferIds", qualifiedByName = "mapSkillOffersToIds")
+    UpdateRecommendationResponse toUpdateDto(Recommendation recommendation);
+
+    @Mapping(source = "author.id", target = "authorId")
+    @Mapping(source = "receiver.id", target = "receiverId")
+    @Mapping(source = "skillOffers", target = "skillOfferIds", qualifiedByName = "mapSkillOffersToIds")
+    GetAllGivenRecommendationsResponse toGetAllGivenDto(Recommendation recommendation);
+
+    @Mapping(source = "author.id", target = "authorId")
+    @Mapping(source = "receiver.id", target = "receiverId")
+    @Mapping(source = "skillOffers", target = "skillOfferIds", qualifiedByName = "mapSkillOffersToIds")
+    GetAllUserRecommendationsResponse toGetAllUserDto(Recommendation recommendation);
 
     @Named("mapSkillOffersToIds")
     default List<Long> mapSkillOffersToIds(List<SkillOffer> skillOffers) {
