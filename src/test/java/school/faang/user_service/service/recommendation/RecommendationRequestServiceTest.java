@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,6 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-import school.faang.user_service.service.recommendation.RecommendationRequestServiceImpl;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestReceiverFilter;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestRequesterFilter;
@@ -46,13 +45,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.TestDataCreator.createFilterDto;
-import static school.faang.user_service.service.TestDataCreator.createRejectDto;
-import static school.faang.user_service.service.TestDataCreator.createRequest;
-import static school.faang.user_service.service.TestDataCreator.createRequestRcvDto;
-import static school.faang.user_service.service.TestDataCreator.createSkill;
-import static school.faang.user_service.service.TestDataCreator.createSkillRequest;
-import static school.faang.user_service.service.TestDataCreator.createUser;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createFilterDto;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createRejectDto;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createRequest;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createRequestRcvDto;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createSkill;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createSkillRequest;
+import static school.faang.user_service.service.recommendation.TestDataCreator.createUser;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {
