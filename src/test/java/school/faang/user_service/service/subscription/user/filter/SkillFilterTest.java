@@ -47,7 +47,7 @@ public class SkillFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenCityPatternIsNotNull() {
+    void shouldBeApplicableWhenSkillPatternIsNotNull() {
         userFilterDto.setSkillPattern("java");
         boolean isApplicable = skillFilter.isApplicable(userFilterDto);
 
@@ -55,7 +55,7 @@ public class SkillFilterTest {
     }
 
     @Test
-    void shouldNotBeApplicableWhenCityPatternIsNull() {
+    void shouldNotBeApplicableWhenSkillPatternIsNull() {
         userFilterDto.setSkillPattern(null);
         boolean isApplicable = skillFilter.isApplicable(userFilterDto);
 
@@ -63,7 +63,7 @@ public class SkillFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByCityPattern() {
+    void shouldFilterUsersBySkillPattern() {
         userFilterDto.setSkillPattern("java");
         List<User> filteredUsers = skillFilter.apply(users, userFilterDto);
 

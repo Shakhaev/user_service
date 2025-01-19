@@ -47,7 +47,7 @@ public class CountryFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenCityPatternIsNotNull() {
+    void shouldBeApplicableWhenCountryPatternIsNotNull() {
         userFilterDto.setCountryPattern("Canada");
         boolean isApplicable = countryFilter.isApplicable(userFilterDto);
 
@@ -55,7 +55,7 @@ public class CountryFilterTest {
     }
 
     @Test
-    void shouldNotBeApplicableWhenCityPatternIsNull() {
+    void shouldNotBeApplicableWhenCountryPatternIsNull() {
         userFilterDto.setCountryPattern(null);
         boolean isApplicable = countryFilter.isApplicable(userFilterDto);
 
@@ -63,7 +63,7 @@ public class CountryFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByCityPattern() {
+    void shouldFilterUsersByCountryPattern() {
         userFilterDto.setCountryPattern("Canada");
         List<User> filteredUsers = countryFilter.apply(users, userFilterDto);
 

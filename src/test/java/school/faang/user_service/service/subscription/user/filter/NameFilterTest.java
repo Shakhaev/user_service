@@ -39,14 +39,14 @@ public class NameFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenAboutPatternIsNotNull() {
+    void shouldBeApplicableWhenNamePatternIsNotNull() {
         boolean isApplicable = nameFilter.isApplicable(userFilterDto);
 
         assertTrue(isApplicable);
     }
 
     @Test
-    void shouldNotBeApplicableWhenAboutPatternIsNull() {
+    void shouldNotBeApplicableWhenNamePatternIsNull() {
         userFilterDto.setNamePattern(null);
         boolean isApplicable = nameFilter.isApplicable(userFilterDto);
 
@@ -54,7 +54,7 @@ public class NameFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByAboutPattern() {
+    void shouldFilterUsersByNamePattern() {
         userFilterDto.setNamePattern("John");
         List<User> filteredUsers = nameFilter.apply(users, userFilterDto);
 

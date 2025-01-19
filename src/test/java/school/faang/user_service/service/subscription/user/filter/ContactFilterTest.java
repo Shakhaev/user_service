@@ -44,7 +44,7 @@ public class ContactFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenCityPatternIsNotNull() {
+    void shouldBeApplicableWhenContactPatternIsNotNull() {
         userFilterDto.setContactPattern("contact");
         boolean isApplicable = contactFilter.isApplicable(userFilterDto);
 
@@ -52,7 +52,7 @@ public class ContactFilterTest {
     }
 
     @Test
-    void shouldNotBeApplicableWhenCityPatternIsNull() {
+    void shouldNotBeApplicableWhenContactPatternIsNull() {
         userFilterDto.setContactPattern(null);
         boolean isApplicable = contactFilter.isApplicable(userFilterDto);
 
@@ -60,7 +60,7 @@ public class ContactFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByCityPattern() {
+    void shouldFilterUsersByContactPattern() {
         userFilterDto.setContactPattern("phone");
         List<User> filteredUsers = contactFilter.apply(users, userFilterDto);
 

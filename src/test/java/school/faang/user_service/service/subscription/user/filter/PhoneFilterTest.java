@@ -39,14 +39,14 @@ public class PhoneFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenAboutPatternIsNotNull() {
+    void shouldBeApplicableWhenPhonePatternIsNotNull() {
         boolean isApplicable = phoneFilter.isApplicable(userFilterDto);
 
         assertTrue(isApplicable);
     }
 
     @Test
-    void shouldNotBeApplicableWhenAboutPatternIsNull() {
+    void shouldNotBeApplicableWhenPhonePatternIsNull() {
         userFilterDto.setPhonePattern(null);
         boolean isApplicable = phoneFilter.isApplicable(userFilterDto);
 
@@ -54,7 +54,7 @@ public class PhoneFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByAboutPattern() {
+    void shouldFilterUsersByPhonePattern() {
         userFilterDto.setPhonePattern("123");
         List<User> filteredUsers = phoneFilter.apply(users, userFilterDto);
 

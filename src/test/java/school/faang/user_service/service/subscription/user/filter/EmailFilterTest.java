@@ -39,14 +39,14 @@ public class EmailFilterTest {
     }
 
     @Test
-    void shouldBeApplicableWhenAboutPatternIsNotNull() {
+    void shouldBeApplicableWhenEmailPatternIsNotNull() {
         boolean isApplicable = emailFilter.isApplicable(userFilterDto);
 
         assertTrue(isApplicable);
     }
 
     @Test
-    void shouldNotBeApplicableWhenAboutPatternIsNull() {
+    void shouldNotBeApplicableWhenEmailPatternIsNull() {
         userFilterDto.setEmailPattern(null);
         boolean isApplicable = emailFilter.isApplicable(userFilterDto);
 
@@ -54,7 +54,7 @@ public class EmailFilterTest {
     }
 
     @Test
-    void shouldFilterUsersByAboutPattern() {
+    void shouldFilterUsersByEmailPattern() {
         userFilterDto.setEmailPattern("ment");
         List<User> filteredUsers = emailFilter.apply(users, userFilterDto);
 
