@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.BusinessException;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -95,14 +95,14 @@ public class RecommendationService {
 
     private void validateRecommendationExistsById(Long recommendationId) {
         if (!recommendationRepository.existsById(recommendationId)) {
-            throw new DataValidationException("Рекомендация с id:" + recommendationId + " не найдена в системе");
+            throw new EntityNotFoundException("Рекомендация с id:" + recommendationId + " не найдена в системе");
         }
     }
 
     private void validateSkillsInSystem(RecommendationDto recommendationDto) {
         recommendationDto.getSkillOffers().forEach(skillOffer -> {
-            if (!skillRepository.existsById(skillOffer.getSkillId())){
-                throw new DataValidationException("Вы предлагаете навыки, которых нет в системе");
+            if (!skillRepository.existsById(skillOffer.getSkillId())) {
+                throw new EntityNotFoundException("Вы предлагаете навыки, которых нет в системе");
             }
         });
     }
@@ -121,11 +121,11 @@ public class RecommendationService {
     private Recommendation createRecommendationEntityFromDto(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
         recommendation.setAuthor(userRepository.findById(recommendationDto.getAuthorId())
-                .orElseThrow(() -> new DataValidationException(String.format("Автора с id: %s не существует",
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Автора с id: %s не существует",
                         recommendationDto.getAuthorId()))));
 
         recommendation.setReceiver(userRepository.findById(recommendationDto.getReceiverId())
-                .orElseThrow(() -> new DataValidationException(String.format("Получателя рекомендации с id: %s не существует",
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Получателя рекомендации с id: %s не существует",
                         recommendationDto.getReceiverId()))));
         recommendation.setSkillOffers(skillOfferRepository.findAllByUserId(recommendationDto.getReceiverId()));
 

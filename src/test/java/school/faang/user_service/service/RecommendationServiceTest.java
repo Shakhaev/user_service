@@ -17,7 +17,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.BusinessException;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -31,7 +31,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -41,9 +40,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
     private final static int TEST_PERIOD_TO_ADD_NEW_RECOMMENDATION = 3;
-
-    @InjectMocks
-    private RecommendationService recommendationService;
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -56,14 +52,23 @@ public class RecommendationServiceTest {
     @Spy
     private RecommendationMapperImpl recommendationMapper;
 
+    @InjectMocks
+    private RecommendationService recommendationService;
+
     private RecommendationDto recommendationDto;
     private Recommendation recommendation;
     private User author;
+    private User receiver;
 
     @BeforeEach
     public void setUp() {
         author = new User();
+        author.setId(1L);
+        receiver = new User();
+        receiver.setId(2L);
+
         recommendationDto = RecommendationDto.builder()
+                .id(10L)
                 .authorId(1L)
                 .receiverId(2L)
                 .content("content")
@@ -72,7 +77,10 @@ public class RecommendationServiceTest {
                         .skillId(1L)
                         .build()))
                 .build();
+
         recommendation = recommendationMapper.toEntity(recommendationDto);
+        recommendation.setAuthor(author);
+        recommendation.setReceiver(receiver);
         recommendation.setSkillOffers(List.of(SkillOffer.builder().id(1L).skill(Skill.builder().id(1L).build()).build()));
     }
 
@@ -89,49 +97,53 @@ public class RecommendationServiceTest {
 
     @Test
     void testValidateSkillInSystemNotExists() {
-        Exception exception = assertThrows(DataValidationException.class,
+        Exception exception = assertThrows(EntityNotFoundException.class,
                 () -> recommendationService.create(recommendationDto));
         assertEquals("Вы предлагаете навыки, которых нет в системе", exception.getMessage());
     }
 
     @Test
     public void testCreateRecommendationSuccessful() {
-        recommendation.setId(10L);
-        recommendation.setAuthor(User.builder().id(1L).build());
-        recommendation.setReceiver(User.builder().id(2L).build());
-
+        when(skillRepository.existsById(1L)).thenReturn(true);
         when(userRepository.findById(recommendationDto.getAuthorId()))
-                .thenReturn(Optional.ofNullable(User.builder().id(1L).build()));
+                .thenReturn(Optional.ofNullable(author));
         when(userRepository.findById(recommendationDto.getReceiverId()))
-                .thenReturn(Optional.ofNullable(User.builder().id(2L).build()));
+                .thenReturn(Optional.ofNullable(receiver));
+        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(true);
         when(skillOfferRepository.findAllByUserId(recommendationDto.getReceiverId()))
-                .thenReturn(List.<SkillOffer>of(SkillOffer.builder()
+                .thenReturn(List.of(SkillOffer.builder()
                         .id(1L)
                         .skill(Skill.builder().id(1L).build())
                         .build()));
-        when(skillOfferRepository.create(1L, 10L)).thenReturn(1L);
-        when(recommendationRepository.save(any(Recommendation.class))).thenReturn(recommendation);
+        when(recommendationRepository.save(recommendation)).thenReturn(recommendation);
 
         RecommendationDto result = recommendationService.create(recommendationDto);
 
+        verify(recommendationRepository, times(1)).save(recommendation);
+        verify(skillOfferRepository, times(1)).create(recommendationDto.getSkillOffers().get(0).getSkillId(),
+                recommendation.getId());
+
+        assertNotNull(result);
         assertEquals(10L, result.getId());
     }
 
     @Test
     void testUpdateSuccessful() {
-        recommendationDto.setId(10L);
-        recommendation.setId(10L);
-        when(recommendationRepository.findById(recommendationDto.getId())).thenReturn(Optional.of(recommendation));
+        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(true);
+        when(skillRepository.existsById(1L)).thenReturn(true);
 
         RecommendationDto result = recommendationService.update(recommendationDto);
-        result.setContent("Updated content");
+        result.setContent("updated content");
 
         verify(recommendationRepository, times(1))
                 .update(anyLong(), anyLong(), anyString());
+        verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(recommendationDto.getId());
+        verify(skillOfferRepository, times(1)).create(recommendationDto.getSkillOffers().get(0).getSkillId(),
+                recommendation.getId());
 
         assertNotNull(result);
         assertEquals(10L, result.getId());
-        assertEquals("Updated content", result.getContent());
+        assertEquals("updated content", recommendationDto.getContent());
     }
 
     @Test
@@ -182,10 +194,9 @@ public class RecommendationServiceTest {
 
     @Test
     void testDeleteWithValidateExistsById() {
-        recommendation.setId(10L);
         when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
 
-        Exception result = assertThrows(DataValidationException.class, () ->
+        Exception result = assertThrows(EntityNotFoundException.class, () ->
                 recommendationService.delete(recommendation.getId()));
 
         assertEquals("Рекомендация с id:" + recommendation.getId() + " не найдена в системе",
@@ -194,7 +205,6 @@ public class RecommendationServiceTest {
 
     @Test
     void testDeleteSuccessful() {
-        recommendation.setId(10L);
         when(recommendationRepository.existsById(recommendation.getId())).thenReturn(true);
 
         recommendationService.delete(recommendation.getId());
