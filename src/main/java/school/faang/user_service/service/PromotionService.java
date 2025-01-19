@@ -54,7 +54,7 @@ public class PromotionService {
         Promotion promotion = findPromotion(promotionId);
 
         if (promotion.isActive()) {
-            throw new IllegalStateException("Промо-акция уже активирована");
+            throw new BusinessException("Промо-акция уже активирована");
         }
 
         PromotionPlan plan = buyPromotionDto.getPlan();

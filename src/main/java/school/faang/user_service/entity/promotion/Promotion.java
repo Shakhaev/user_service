@@ -16,7 +16,6 @@ public class Promotion {
     private int currentImpressions;
     private boolean isActive;
     private LocalDateTime startTime;
-    private LocalDateTime endTime;
 
     public boolean isActive() {
         return currentImpressions < impressionsLimit;
