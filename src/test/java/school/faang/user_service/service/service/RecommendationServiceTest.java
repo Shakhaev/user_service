@@ -76,7 +76,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void createRecommendation_ShouldCallValidatorAndMapperMethods() {
+    public void createRecommendation_ShouldCallValidator() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
         when(skillRepository.findUserSkill(anyLong(), anyLong())).thenReturn(Optional.empty());
@@ -91,7 +91,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void updateRecommendation_ShouldCallValidatorAndMapperMethods() {
+    public void updateRecommendation_ShouldCallMapper() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
 
