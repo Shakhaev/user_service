@@ -25,7 +25,7 @@ public class PremiumService {
     private final PaymentServiceClient paymentServiceClient;
     private final UserContext userContext;
 
-    public String buyPremium(long user_id, PremiumPlan plan, String paymentMethod) {
+    public OrderDto buyPremium(long user_id, PremiumPlan plan, String paymentMethod) {
         if (!userRepository.existsById(user_id)) {
             throw new DataValidationException("Такой пользователь не существует");
         }

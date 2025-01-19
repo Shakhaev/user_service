@@ -12,7 +12,7 @@ import school.faang.user_service.dto.payment.OrderDto;
 public interface PaymentServiceClient {
 
     @PostMapping("order")
-    String createOrder(@RequestBody CreateOrderDto dto);
+    OrderDto createOrder(@RequestBody CreateOrderDto dto);
 
     @GetMapping("order/{orderId}")
     OrderDto getOrder(@PathVariable Long orderId);
