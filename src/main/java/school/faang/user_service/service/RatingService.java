@@ -109,13 +109,13 @@ public class RatingService {
 
     public void addRating(Descriptionable descriptionable, long userId,
                            int points, ActionType actionType) {
-        RatingDto ratingDTO = new RatingDto(
+        RatingDto ratingDto = new RatingDto(
                 descriptionable,
                 userId,
                 points,
                 actionType
         );
 
-        addPoints(ratingDTO);
+        addPoints(ratingDto);
     }
 }
