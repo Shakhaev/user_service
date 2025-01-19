@@ -54,10 +54,13 @@ public class RecommendationServiceTest {
     private long id;
 
     @BeforeEach
-    public void init() {
+    public void setUp() {
         recommendationDto = RecommendationDto.builder()
                 .id(1L)
-                .skillOffers(List.of(new SkillOfferDto(2L, 1L), new SkillOfferDto(2L, 1L)))
+                .skillOffers(List.of(
+                        new SkillOfferDto(2L, 1L),
+                        new SkillOfferDto(2L, 1L)
+                ))
                 .authorId(5L)
                 .receiverId(4L)
                 .content("some content")
@@ -76,7 +79,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void createRecommendation_ShouldCallValidator() {
+    public void createRecommendation_shouldCallValidatorMethods() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
         when(skillRepository.findUserSkill(anyLong(), anyLong())).thenReturn(Optional.empty());
@@ -91,7 +94,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void updateRecommendation_ShouldCallMapper() {
+    public void updateRecommendation_shouldCallMapperAndValidator() {
         doNothing().when(validator).validateMonthsBetweenRecommendations(recommendationDto);
         doNothing().when(validator).validateSkillOffers(recommendationDto);
 
@@ -107,35 +110,35 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void getAllUserRecommendations_ShouldCallMapperToDto() {
+    public void getAllUserRecommendations_shouldMapEntitiesToDto() {
         Page<Recommendation> recommendations = new PageImpl<>(List.of(recommendation));
         when(recommendationRepository.findAllByReceiverId(anyLong(), any())).thenReturn(recommendations);
 
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(id);
 
         verify(recommendationRepository).findAllByReceiverId(anyLong(), any());
-        verify(recommendationMapper, times(1)).toDto(recommendation);
+        verify(recommendationMapper).toDto(recommendation);
 
         assertEquals(1, result.size());
         assertEquals(recommendation.getContent(), result.get(0).content());
     }
 
     @Test
-    public void getAllGivenRecommendations_ShouldCallMapperToDto() {
-        Page<Recommendation> recommendationPage = new PageImpl<>(List.of(recommendation));
-        when(recommendationRepository.findAllByAuthorId(anyLong(), any())).thenReturn(recommendationPage);
+    public void getAllGivenRecommendations_shouldMapEntitiesToDto() {
+        Page<Recommendation> recommendations = new PageImpl<>(List.of(recommendation));
+        when(recommendationRepository.findAllByAuthorId(anyLong(), any())).thenReturn(recommendations);
 
         List<RecommendationDto> result = recommendationService.getAllGivenRecommendations(id);
 
         verify(recommendationRepository).findAllByAuthorId(anyLong(), any());
-        verify(recommendationMapper, times(1)).toDto(recommendation);
+        verify(recommendationMapper).toDto(recommendation);
 
         assertEquals(1, result.size());
         assertEquals(recommendation.getContent(), result.get(0).content());
     }
 
     @Test
-    public void deleteRecommendation_ShouldDeleteById() {
+    public void deleteRecommendation_shouldRemoveEntityById() {
         recommendationService.delete(id);
 
         verify(recommendationRepository).deleteById(id);
