@@ -1,19 +1,16 @@
 package school.faang.user_service.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.AppConfig;
 import school.faang.user_service.dto.rating.LeaderTableDto;
 import school.faang.user_service.dto.rating.RatingDto;
-import school.faang.user_service.dto.rating.UserComparingDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.LeaderTableMapper;
 import school.faang.user_service.rating.ActionType;
@@ -21,7 +18,6 @@ import school.faang.user_service.rating.description.Descriptionable;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
