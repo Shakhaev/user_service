@@ -38,11 +38,8 @@ jobs:
             key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle.properties', '**/gradle-wrapper.properties') }}
             restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Test with Gradle
-        run: ./gradlew test -x testClasses --no-daemon --continue
+      - name: Build and Test with Gradle
+        run: ./gradlew build test -x testClasses --no-daemon --continue
 
       - name: Checkstyle verification
         run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
@@ -53,4 +50,3 @@ jobs:
         with:
           name: checkstyle_report
           path: build/reports/checkstyle
-
