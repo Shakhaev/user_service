@@ -10,4 +10,5 @@ import java.util.List;
 public class UserDto {
     private Long userId;
     private List<MentorshipRequestDto> sentMentorshipRequests;
+    private String username;
 }
