@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,8 +10,14 @@ public class FailTest {
     public void checkFailTest() {
         fail();
     }
+
     @Test
-    public void checkAsserEqTest(){
+    public void checkAsserEqTest() {
         assertEquals(1, 2);
+    }
+
+    @Test
+    public void checkStyleTest() {
+        assertEquals("faang_faang_faang_faang_faang_faang_faang_faang_faang_faang", "faang_faang_faang_faang_faang_faang_faang_faang_faang_faang");
     }
 }
