@@ -8,6 +8,10 @@ on:
     branches:
       - basilisk8/BJS2-52756-ci-pipeline
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   run-tests:
     runs-on: ubuntu-latest
@@ -20,7 +24,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'corretto'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -28,28 +35,43 @@ jobs:
             path: |
               ~/.gradle/caches
               ~/.gradle/wrapper
-            key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
+            key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle.properties', '**/gradle-wrapper.properties') }}
             restore-keys: ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build --info
+        run: ./gradlew build testClasses -x test -x check -x checkstyleMain -x checkstyleTest --no-daemon
 
-      - name: Cache build outputs
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-build-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-build-
+      - name: Test with Gradle
+        run: ./gradlew test -x testClasses --no-daemon --continue
 
-      - name: Run tests
-        run: ./gradlew test --no-daemon --continue
+      - name: Checkstyle verification
+        run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
 
-      - name: Run Checkstyle on changed files
-        run: ./gradlew checkstyleMain checkstyleTest
-
-      - name: Upload Checkstyle report
+      - name: Archive test report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: checkstyle-report
-          path: build/reports/checkstyle/
+          name: test_report
+          path: build/reports/tests/test
+
+      - name: Archive checkstyle report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkstyle_report
+          path: build/reports/checkstyle
+
+      - name: Comment on Pull Request if build failed
+        if: failure()
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue_number = context.issue.number;
+            const message = "Сборка завалилась: либо ошибки компиляции, либо не прошли тесты, либо возникли ошибки в стиле кода.";
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: message
+            });
