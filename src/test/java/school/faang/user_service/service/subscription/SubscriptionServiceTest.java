@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.subscription;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,13 +7,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.user.filter.UserFilter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.any;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -31,15 +33,18 @@ public class SubscriptionServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
+    @Mock
+    private UserFilter userFilter;
+
     @Spy
     private UserMapperImpl userMapper;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    private UserFilterDto filter;
-    private User user1;
-    private User user2;
+    private UserFilterDto filterDto;
+    private User firstUser;
+    private User secondUser;
 
     @Test
     public void shouldFollowUserWhenNotAlreadySubscribed() {
@@ -106,60 +111,90 @@ public class SubscriptionServiceTest {
 
     @BeforeEach
     void setUp() {
-        filter = new UserFilterDto();
-        filter.setNamePattern("JohnDoe");
-        filter.setEmailPattern("johndoe@example.com");
-        filter.setCityPattern("New York");
-        filter.setExperienceMin(1);
-        filter.setExperienceMax(10);
-        filter.setPage(0);
-        filter.setPageSize(10);
+        filterDto = new UserFilterDto();
+        filterDto.setNamePattern("JohnDoe");
+        filterDto.setEmailPattern("johndoe@example.com");
+        filterDto.setCityPattern("New York");
+        filterDto.setExperienceMin(1);
+        filterDto.setExperienceMax(10);
+        filterDto.setPage(0);
+        filterDto.setPageSize(10);
 
-        user1 = new User();
-        user1.setUsername("JohnDoe");
-        user1.setEmail("johndoe@example.com");
-        user1.setCity("New York");
-        user1.setExperience(2);
+        firstUser = new User();
+        firstUser.setUsername("JohnDoe");
+        firstUser.setEmail("johndoe@example.com");
+        firstUser.setCity("New York");
+        firstUser.setExperience(2);
 
-        user2 = new User();
-        user2.setUsername("JaneSmith");
-        user2.setEmail("janesmith@example.com");
-        user2.setCity("London");
-        user2.setExperience(5);
+        secondUser = new User();
+        secondUser.setUsername("JaneSmith");
+        secondUser.setEmail("janesmith@example.com");
+        secondUser.setCity("London");
+        secondUser.setExperience(5);
+
+        List<UserFilter> userFilters = List.of(userFilter);
+        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, userFilters);
+
     }
 
     @Test
-    void shouldFilterFollowersBasedOnCriteria() {
+    void shouldFilterFollowersCorrectly() {
 
-        Stream<User> followers = Stream.of(user1, user2);
+        Stream<User> followers = Stream.of(firstUser, secondUser);
+        when(userFilter.isApplicable(filterDto)).thenReturn(true);
+        when(userFilter.apply(followers, filterDto))
+                .thenAnswer(invocation -> List.of(firstUser, secondUser));
 
-        List<User> filteredUsers = subscriptionService.filterUsers(followers, filter);
+        List<User> filteredUsers = subscriptionService.filterUsers(followers, filterDto);
 
-        assertEquals(1, filteredUsers.size());
+        assertEquals(2, filteredUsers.size());
         assertEquals("JohnDoe", filteredUsers.get(0).getUsername());
+        verify(userFilter, times(1)).apply(any(), any());
     }
 
     @Test
-    void shouldReturnFollowersAsDtos() {
+    void shouldReturnFollowers() {
         long followeeId = 1L;
+        Stream<User> userStream = Stream.of(firstUser);
 
-        User user = new User();
-        user.setUsername("JohnDoe");
-        user.setEmail("johndoe@example.com");
+        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(userStream);
+        when(userFilter.isApplicable(filterDto)).thenReturn(true);
+        when(userFilter.apply(userStream, filterDto))
+                .thenAnswer(invocation -> List.of(firstUser, secondUser));
+        when(subscriptionService.filterUsers(userStream, filterDto)).thenReturn(userStream.collect(Collectors.toList()));
 
-        UserDto userDto = new UserDto();
-        userDto.setUsername("JohnDoe");
-        userDto.setEmail("johndoe@example.com");
-
-        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(user));
-        when(userMapper.toDto(user)).thenReturn(userDto);
-
-        List<UserDto> result = subscriptionService.getFollowers(followeeId, filter);
+        List<User> result = subscriptionService.getFollowers(followeeId, filterDto);
 
         assertEquals(1, result.size());
-        assertEquals("Alice", result.get(0).getUsername());
-        assertEquals("alice@example.com", result.get(0).getEmail());
+        assertEquals("JohnDoe", result.get(0).getUsername());
+        assertEquals("johndoe@example.com", result.get(0).getEmail());
         verify(subscriptionRepository, times(1)).findByFolloweeId(followeeId);
-        verify(userMapper, times(1)).toDto(user);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoFollowers() {
+        long followeeId = 1L;
+
+        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.empty());
+        List<User> result = subscriptionService.getFollowers(followeeId, filterDto);
+
+        assertEquals(0, result.size());
+        verify(subscriptionRepository, times(1)).findByFolloweeId(followeeId);
+    }
+
+    @Test
+    void shouldReturnLimitedUsersWhenPageSizeIsMaximum() {
+        long followeeId = 1L;
+        filterDto.setPageSize(Integer.MAX_VALUE);
+        filterDto = new UserFilterDto();
+
+        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(firstUser, secondUser));
+        when(userFilter.isApplicable(filterDto)).thenReturn(true);
+        when(userFilter.apply(any(), any())).thenAnswer(invocation -> List.of(firstUser, secondUser));
+
+        List<User> result = subscriptionService.getFollowers(followeeId, filterDto);
+
+        assertEquals(2, result.size());
+        verify(subscriptionRepository, times(1)).findByFolloweeId(followeeId);
     }
 }
