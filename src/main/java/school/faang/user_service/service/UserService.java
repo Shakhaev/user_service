@@ -19,7 +19,7 @@ public class UserService {
 
     public void deactivateUser(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
-            new IllegalArgumentException("Не удалось получить пользователя с id " + userId));
+                new IllegalArgumentException("Не удалось получить пользователя с id " + userId));
 
         List<Goal> goals = user.getGoals();
         goals.forEach(goal -> goalService.removeUserFromGoal(goal, userId));
@@ -30,7 +30,6 @@ public class UserService {
                 eventService.removeEvent(event.getId());
             }
         });
-
 
         user.setActive(false);
         userRepository.save(user);

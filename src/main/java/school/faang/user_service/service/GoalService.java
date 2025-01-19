@@ -16,7 +16,7 @@ public class GoalService {
     public void removeUserFromGoal(Goal goal, long userId) {
         List<User> users = goal.getUsers();
         if (!users.removeIf(user -> user.getId() == userId)) {
-            throw new IllegalArgumentException("Пользователь у цели с айди "+ userId +" не был найден");
+            throw new IllegalArgumentException("Пользователь у цели с айди " + userId + " не был найден");
         }
         goal.setUsers(users);
         if (goal.getUsers().size() < 1) {
