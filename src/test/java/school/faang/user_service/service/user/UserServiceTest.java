@@ -18,10 +18,11 @@ import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
+import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,6 +71,8 @@ public class UserServiceTest {
 
     @Mock
     private CountryService countryService;
+    @Mock
+    private MentorshipService mentorshipService;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +82,7 @@ public class UserServiceTest {
                 .id(3L)
                 .mentors(List.of(secondUser))
                 .mentees(List.of(firstUser))
+                .active(true)
                 .build();
         user = thirdUser;
         users = List.of(thirdUser);
@@ -264,5 +269,32 @@ public class UserServiceTest {
         verify(userMapper, times(1)).toDto(user);
         assertEquals(user.getId(), userDto.getId());
         assertNotNull(userDto);
+    }
+
+    @Test
+    void testDeactivateUser() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+
+        userService.deactivateUser(1L);
+        assertFalse(user.isActive());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void testDeactivateUserByIncorrectId() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DataValidationException.class, () -> userService.deactivateUser(1L));
+    }
+
+    @Test
+    void testDeactivateUserByDeactivatedUser() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+        user.setActive(false);
+
+        assertThrows(DataValidationException.class, () -> userService.deactivateUser(1L));
     }
 }
