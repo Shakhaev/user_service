@@ -64,7 +64,7 @@ class MentorshipServiceTest {
                 mentorshipService.deactivateMentorship(invalidUserId)
         );
 
-        assertEquals("Пользователь с айди 999 не найден", exception.getMessage());
+        assertEquals("Пользователь с ID 999 не найден", exception.getMessage());
     }
 
     @Test
