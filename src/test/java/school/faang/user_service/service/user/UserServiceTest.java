@@ -12,17 +12,22 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.filters.avatar.AvatarFilter;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -39,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -264,5 +270,59 @@ public class UserServiceTest {
         verify(userMapper, times(1)).toDto(user);
         assertEquals(user.getId(), userDto.getId());
         assertNotNull(userDto);
+    }
+
+    @Test
+    void testSaveCustomAvatar() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+        AvatarFilter avatarFilterMock = mock(AvatarFilter.class);
+        ReflectionTestUtils.setField(userService, "avatarFilters", List.of(avatarFilterMock));
+
+        userService.saveCustomAvatar(file);
+        verify(avatarFilterMock).resizeAndUploadToMinio(any(), any(), any(UserProfilePic.class));
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testDeleteAvatar() {
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+        userService.deleteAvatar();
+
+        verify(avatarService).deleteFromMinio(any());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testGetBigAvatar() {
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setFileId("big avatar");
+        User user = new User();
+        user.setUserProfilePic(userProfilePic);
+
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.getAvatar(false);
+        verify(avatarService).getAvatar(userProfilePic.getFileId());
+    }
+
+    @Test
+    void testGetSmallAvatar() {
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setSmallFileId("small avatar");
+        User user = new User();
+        user.setUserProfilePic(userProfilePic);
+
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.getAvatar(true);
+        verify(avatarService).getAvatar(userProfilePic.getSmallFileId());
     }
 }

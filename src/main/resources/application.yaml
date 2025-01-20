@@ -31,6 +31,11 @@ spring:
         premium-bought-channel: premium_bought_channel
         recommendation-requested-channel: recommendation_requested_channel
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 30MB
+
 server:
   port: 8080
 
@@ -56,7 +61,12 @@ minio:
   username: user
   password: password
   region: us-east-1
-  avatarBucket: avatars
+  avatar:
+    bucket: avatars
+    max-size: 5MB
+    resolution:
+      small: 170
+      big: 1080
 
 premium:
   updater:

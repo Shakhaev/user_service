@@ -11,20 +11,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.filters.avatar.AvatarFilter;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.country.CountryService;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -40,6 +44,7 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class UserService {
     private final static int BATCH_SIZE = 50;
+
     @PersistenceContext
     private final EntityManager entityManager;
     private final UserMapper userMapper;
@@ -49,6 +54,7 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
+    private final List<AvatarFilter> avatarFilters;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -109,6 +115,55 @@ public class UserService {
         user.setUserProfilePic(userProfilePic);
         userRepository.save(user);
         return randomAvatarUrl;
+    }
+
+    @Transactional
+    public String saveCustomAvatar(MultipartFile file) {
+        try {
+            log.info("Start loading custom avatar for user with id={}.", userContext.getUserId());
+            User user = userRepository.findById(userContext.getUserId()).orElseThrow(() ->
+                    new EntityNotFoundException("User doesn't exist."));
+            avatarService.validateCustomAvatarSize(file);
+
+            String supportedFormatName = avatarService.convertFromMimeType(file.getContentType());
+            BufferedImage originalImage = ImageIO.read(file.getInputStream());
+            UserProfilePic userProfilePic = new UserProfilePic();
+
+            avatarFilters.forEach(avatarFilter ->
+                    avatarFilter.resizeAndUploadToMinio(originalImage, supportedFormatName, userProfilePic));
+            user.setUserProfilePic(userProfilePic);
+            userRepository.save(user);
+
+            log.info("Successful completion of uploading a custom avatar for user id={}", userContext.getUserId());
+            return getAvatar(false);
+        } catch (IOException e) {
+            throw new RuntimeException("Something went wrong while uploading the avatar.", e);
+        }
+    }
+
+    @Transactional
+    public void deleteAvatar() {
+        log.info("Start deleting user avatar with id={}", userContext.getUserId());
+        User user = userRepository.findById(userContext.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User doesn't exist."));
+
+        avatarService.deleteFromMinio(user.getUserProfilePic());
+        user.setUserProfilePic(null);
+        userRepository.save(user);
+        log.info("Successful deletion of user avatar with id={}", userContext.getUserId());
+    }
+
+    public String getAvatar(boolean isSmall) {
+        log.info("Start receiving user avatar with id={}; isSmall={}", userContext.getUserId(), isSmall);
+        User user = userRepository.findById(userContext.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User doesn't exist."));
+        avatarService.checkUserHasAvatar(user);
+
+        log.info("Successfully retrieve avatar of user id={}; isSmall={}", userContext.getUserId(), isSmall);
+        if (isSmall) {
+            return avatarService.getAvatar(user.getUserProfilePic().getSmallFileId());
+        }
+        return avatarService.getAvatar(user.getUserProfilePic().getFileId());
     }
 
     public UserDto getUserDtoById(long userId) {
