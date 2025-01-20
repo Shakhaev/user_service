@@ -3,12 +3,13 @@ package school.faang.user_service.service.subscription;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.constant.ErrorMessages;
+import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.constant.SubscriptionConst;
 import school.faang.user_service.dto.user.UserExtendedFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.validation.DataValidationException;
-import school.faang.user_service.redis.publisher.subscribe.PublishSubscribeUserEvent;
+import school.faang.user_service.exception.user.AlreadySubscribedToUserException;
+import school.faang.user_service.exception.user.AreNotSubscribedToUserException;
+import school.faang.user_service.exception.user.SubscribeOrUnsubscribeToSelfException;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserFilter;
 
@@ -16,18 +17,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static school.faang.user_service.enums.publisher.PublisherType.NEW_FOLLOWER;
+
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final List<UserFilter> userFilters;
 
+    @PublishEvent(type = NEW_FOLLOWER)
     @Transactional
-    @PublishSubscribeUserEvent
     public void followUser(long followerId, long followeeId) {
         checkNotToFollowOrUnfollowToSelf(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(ErrorMessages.ALREADY_SUBSCRIBE);
+            throw new AlreadySubscribedToUserException(followeeId);
         }
         subscriptionRepository.followUser(followerId, followeeId);
     }
@@ -36,7 +39,7 @@ public class SubscriptionService {
     public void unfollowUser(long followerId, long followeeId) {
         checkNotToFollowOrUnfollowToSelf(followerId, followeeId);
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(ErrorMessages.USER_NOT_SUBSCRIBED);
+            throw new AreNotSubscribedToUserException(followeeId);
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
@@ -50,9 +53,7 @@ public class SubscriptionService {
 
     @Transactional(readOnly = true)
     public List<Long> getFollowerIds(long followeeId) {
-        List<Long> followerIds = subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
-
-        return followerIds;
+        return subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +91,7 @@ public class SubscriptionService {
 
     private void checkNotToFollowOrUnfollowToSelf(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new DataValidationException(ErrorMessages.CANNOT_SUBSCRIBE_OR_UNSUBSCRIBE_TO_SELF);
+            throw new SubscribeOrUnsubscribeToSelfException();
         }
     }
 }
