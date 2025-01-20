@@ -149,6 +149,7 @@ public class UserService {
         log.info("Start deleting user avatar with id={}", userContext.getUserId());
         User user = userRepository.findById(userContext.getUserId()).orElseThrow(() ->
                 new EntityNotFoundException("User doesn't exist."));
+        avatarService.checkUserHasAvatar(user);
 
         avatarService.deleteFromMinio(user.getUserProfilePic());
         user.setUserProfilePic(null);
