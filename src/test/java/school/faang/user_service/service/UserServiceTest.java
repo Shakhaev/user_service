@@ -55,10 +55,10 @@ public class UserServiceTest {
         User user = userService.getUserById(id);
 
         assertNotNull(user);
-        //assertEquals(requester.getId(), user.getId());
-        //assertEquals(requester, user);
-        assertEquals(receiver.getId(), user.getId());
-        assertEquals(receiver, user);
+        assertEquals(requester.getId(), user.getId());
+        assertEquals(requester, user);
+        //assertEquals(receiver.getId(), user.getId());
+        //assertEquals(receiver, user);
         verify(userRepository, times(1)).findById(id);
     }
 
