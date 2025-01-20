@@ -49,7 +49,7 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
         return promotionPayment;
     }
 
-    private static PaymentRequest createPaymentRequest(PromotionPayment newPayment) {
+    private PaymentRequest createPaymentRequest(PromotionPayment newPayment) {
         return PaymentRequest.builder()
                 .paymentNumber(newPayment.getId())
                 .amount(newPayment.getAmount())

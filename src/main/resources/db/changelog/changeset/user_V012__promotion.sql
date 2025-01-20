@@ -13,4 +13,3 @@ CREATE TABLE promotion (
 );
 
 CREATE INDEX idx_promotion_user_id ON promotion (user_id);
-CREATE INDEX idx_promotion_event_id ON promotion (event_id);

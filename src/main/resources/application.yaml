@@ -56,3 +56,6 @@ payments:
 search:
   domain:
     path: /api/v1
+
+redis:
+  ttl-minutes: 5

@@ -78,18 +78,16 @@ public class PromotionServiceImpl implements PromotionService {
 
     private Promotion createPromotion(PromotionRequestDto dto, PromotionPaymentDto payment) {
         PromotionPlanDto promotionPlan = promotionPlanService.getPromotionPlanByName(dto.getTariff().getValue());
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("User with id = %d doesn't exists", dto.getUserId())));
-        Event event = null;
-        if (dto.getEventId() != null) {
-            event = eventRepository.findById(dto.getEventId()).orElse(null);
-            checkEvent(dto, user);
-        }
+        User user = getUser(dto);
 
+        return createPromotion(dto, payment, user, promotionPlan);
+    }
+
+    private Promotion createPromotion(PromotionRequestDto dto, PromotionPaymentDto payment, User user,
+                                      PromotionPlanDto promotionPlan) {
         return Promotion.builder()
                 .user(user)
-                .event(event)
+                .event(getEvent(dto, user))
                 .tariff(dto.getTariff())
                 .planType(dto.getPlanType())
                 .usedViews(promotionPlan.getViewsCount())
@@ -98,14 +96,27 @@ public class PromotionServiceImpl implements PromotionService {
                 .build();
     }
 
+    private User getUser(PromotionRequestDto dto) {
+        return userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("User with id = %d doesn't exists", dto.getUserId())));
+    }
+
+    private Event getEvent(PromotionRequestDto dto, User user) {
+        Event event = null;
+        if (dto.getEventId() != null) {
+            event = eventRepository.findById(dto.getEventId()).orElse(null);
+            checkEvent(dto, user);
+        }
+        return event;
+    }
+
     private void checkEvent(PromotionRequestDto dto, User user) {
         if (PromotionPlanType.EVENT.equals(dto.getPlanType())) {
             Long eventId = dto.getEventId();
             if (eventId != null) {
                 Optional<Event> event = eventRepository.findById(eventId);
-                if (PromotionPlanType.EVENT.equals(dto.getPlanType()) && event.isPresent()) {
-                    checkUserHaveEvent(user, event.get());
-                }
+                event.ifPresent(value -> checkUserHaveEvent(user, value));
             } else {
                 throw new EntityNotFoundException("Event haven't doesn't exists");
             }

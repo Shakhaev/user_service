@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionPlan;
+import school.faang.user_service.enums.promotion.PromotionPlanType;
 import school.faang.user_service.enums.promotion.PromotionStatus;
 import school.faang.user_service.enums.promotion.PromotionTariff;
 import school.faang.user_service.mapper.event.EventMapper;
@@ -26,26 +27,41 @@ public class PromotionSearchServiceImpl implements PromotionSearchService {
 
     @Override
     public List<Object> searchResults(String query, int limit) {
-        List<Object> result = new ArrayList<>();
-        List<Promotion> promotedUsers = getPromotedUsers(query);
-        List<Promotion> promotedEvents = getPromotedEvents(query);
-
-        for (Promotion promotion : promotedUsers) {
-            if (promotion.getUsedViews() <= getPromotionPlanByTariff(promotion.getTariff()).getViewsCount()) {
-                result.add(userMapper.toDto(promotion.getUser()));
-                promotionService.updatePromotionViews(promotion.getId());
-            }
-        }
-        for (Promotion promotion : promotedEvents) {
-            if (promotion.getUsedViews() <= getPromotionPlanByTariff(promotion.getTariff()).getViewsCount()
-                    && promotion.getStatus().equals(PromotionStatus.ACTIVE)) {
-                result.add(eventMapper.toDto(promotion.getEvent()));
-                promotionService.updatePromotionViews(promotion.getId());
-            }
-        }
+        List<Object> result = updateAndGetPromotionViewsFor(query);
         return result.stream()
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+
+    private List<Object> updateAndGetPromotionViewsFor(String query) {
+        List<Object> result = new ArrayList<>();
+        List<Promotion> promotedUsersAndEvents = getPromotedUsersAndEvents(query);
+
+        for (Promotion promotion : promotedUsersAndEvents) {
+            if (promotion.getUsedViews() <= getViewsCountByPromotionPlan(promotion)
+                    && promotion.getStatus().equals(PromotionStatus.ACTIVE)) {
+                if (PromotionPlanType.USER.equals(promotion.getPlanType())) {
+                    result.add(userMapper.toDto(promotion.getUser()));
+                } else if (PromotionPlanType.EVENT.equals(promotion.getPlanType())) {
+                    result.add(eventMapper.toDto(promotion.getEvent()));
+                }
+                promotionService.updatePromotionViews(promotion.getId());
+            }
+        }
+        return result;
+    }
+
+    private List<Promotion> getPromotedUsersAndEvents(String query) {
+        List<Promotion> promoted = new ArrayList<>();
+        List<Promotion> promotedUsers = getPromotedUsers(query);
+        List<Promotion> promotedEvents = getPromotedEvents(query);
+        promoted.addAll(promotedUsers);
+        promoted.addAll(promotedEvents);
+        return promoted;
+    }
+
+    private Integer getViewsCountByPromotionPlan(Promotion promotion) {
+        return getPromotionPlanByTariff(promotion.getTariff()).getViewsCount();
     }
 
     private List<Promotion> getPromotedEvents(String query) {
