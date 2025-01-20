@@ -24,6 +24,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.filter.Filter;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.validator.RecommendationRequestValidator;
@@ -33,6 +34,9 @@ public class RecommendationRequestServiceTest {
 
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
+
+    @Mock
+    private SkillRepository skillRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -64,16 +68,14 @@ public class RecommendationRequestServiceTest {
     @Test
     @DisplayName("Проверка создания recommendationRequest")
     void testCreate() {
-        when(recommendationRequestRepository.findLatestPendingRequest(anyLong(),
-            anyLong())).thenReturn(Optional.empty());
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(skillRepository.countExisting(anyList())).thenReturn(1);
+        when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong())).thenReturn(Optional.empty());
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(new User()));
-        when(skillRequestService.createSkillRequests(any(RecommendationRequest.class),
-            anyList())).thenReturn(List.of());
-        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(
-            recommendationRequest);
+        when(skillRequestService.createSkillRequests(any(RecommendationRequest.class), anyList())).thenReturn(List.of());
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(recommendationRequest);
 
-        RecommendationRequest result =
-            recommendationRequestService.create(1L, 2L, "Test message", List.of(1L));
+        RecommendationRequest result = recommendationRequestService.create(1L, 2L, "Test message", List.of(1L));
 
         assertNotNull(result);
         assertEquals("Test message", result.getMessage());
@@ -85,8 +87,7 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(recommendationRequest));
         when(filters.stream()).thenReturn(Stream.of());
 
-        List<RecommendationRequest> result =
-            recommendationRequestService.getAllRequests(new RequestFilterDto());
+        List<RecommendationRequest> result = recommendationRequestService.getAllRequests(new RequestFilterDto());
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -95,8 +96,7 @@ public class RecommendationRequestServiceTest {
 
     @Test
     void testGetRequestById() {
-        when(recommendationRequestRepository.findById(anyLong())).thenReturn(
-            Optional.of(recommendationRequest));
+        when(recommendationRequestRepository.findById(anyLong())).thenReturn(Optional.of(recommendationRequest));
 
         RecommendationRequest result = recommendationRequestService.getRequestById(1L);
 
@@ -106,10 +106,8 @@ public class RecommendationRequestServiceTest {
 
     @Test
     void testRejectRequest() {
-        when(recommendationRequestRepository.findById(anyLong())).thenReturn(
-            Optional.of(recommendationRequest));
-        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(
-            recommendationRequest);
+        when(recommendationRequestRepository.findById(anyLong())).thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(recommendationRequest);
 
         RejectionDto rejectionDto = new RejectionDto("Rejection reason");
         RecommendationRequest result = recommendationRequestService.rejectRequest(1L, rejectionDto);

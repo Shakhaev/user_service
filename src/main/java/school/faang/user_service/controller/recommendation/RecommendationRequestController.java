@@ -29,9 +29,8 @@ public class RecommendationRequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RecommendationResponseDto requestRecommendation(@Valid @RequestBody RecommendationRequestDto rec) {
-        RecommendationRequest entity = recommendationRequestService.create(rec.requesterId(),
-            rec.receiverId(), rec.message(), rec.skillsIds());
+    public RecommendationResponseDto requestRecommendation(@RequestBody RecommendationRequestDto rec) {
+        RecommendationRequest entity = recommendationRequestService.create(rec.requesterId(), rec.receiverId(), rec.message(), rec.skillsIds());
         return mapper.toDto(entity);
     }
 
@@ -39,9 +38,7 @@ public class RecommendationRequestController {
     @ResponseStatus(HttpStatus.OK)
     public List<RecommendationResponseDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
         List<RecommendationRequest> requests = recommendationRequestService.getAllRequests(filter);
-        return requests.stream()
-            .map(mapper::toDto)
-            .collect(Collectors.toList());
+        return mapper.toDtoList(requests);
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -16,6 +17,12 @@ public interface RecommendationRequestMapper {
     @Mapping(source = "receiver.id", target = "receiverId")
     @Mapping(source = "skillsRequests", target = "skillsRequests", qualifiedByName = "mapSkillsRequests")
     RecommendationResponseDto toDto(RecommendationRequest recommendationRequest);
+
+    default List<RecommendationResponseDto> toDtoList(List<RecommendationRequest> requests) {
+        return requests.stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+    }
 
     @Named("mapSkillsRequests")
     default List<Long> mapSkillsRequests(List<SkillRequest> skillRequests) {

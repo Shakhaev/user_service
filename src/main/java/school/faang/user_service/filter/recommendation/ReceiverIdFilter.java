@@ -1,5 +1,6 @@
 package school.faang.user_service.filter.recommendation;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,14 @@ public class ReceiverIdFilter implements RecommendationRequestFilter {
     }
 
     @Override
-    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> entity, RequestFilterDto filterDto) {
-        if (entity == null || filterDto == null) {
+    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> entities, RequestFilterDto filterDto) {
+        if (entities == null || filterDto == null) {
             return Stream.empty();
         }
 
-        return entity
-            .filter(requestIds -> requestIds.getReceiver().getId().equals(filterDto.getReceiverId()));
+        return entities
+            .filter(recommendationRequest ->
+                Objects.nonNull(recommendationRequest.getReceiver().getId()) &&
+                    recommendationRequest.getReceiver().getId().equals(filterDto.getReceiverId()));
     }
 }
