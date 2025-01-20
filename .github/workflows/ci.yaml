@@ -36,11 +36,8 @@ jobs:
             key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle.properties', '**/gradle-wrapper.properties') }}
             restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build and Test with Gradle
-        run: ./gradlew build test -x testClasses --no-daemon --continue
-
-      - name: Checkstyle verification
-        run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
+      - name: Build, checkstyle and test with Gradle
+        run: ./gradlew build test -x testClasses checkstyleMain checkstyleTest --no-daemon --continue
 
       - name: Archive checkstyle report
         if: always()
