@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
@@ -38,13 +38,13 @@ public class EventServiceTest {
     void createEvent_ShouldNotSaveWhenEventNotValid() {
         prepareValidationThrows();
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventService.createEvent(new EventCreateDto()));
+        Assertions.assertThrows(DataValidationException.class, () -> eventService.createEvent(new CreateEventDto()));
         Mockito.verify(eventRepository, Mockito.never()).save(Mockito.any(Event.class));
     }
 
     @Test
     void createEvent_ShouldSaveWhenEventValid() {
-        EventCreateDto preparedEvent = new EventCreateDto();
+        CreateEventDto preparedEvent = new CreateEventDto();
 
         Assertions.assertDoesNotThrow(() -> eventService.createEvent(preparedEvent));
         Mockito.verify(eventRepository, Mockito.times(1))
@@ -78,7 +78,7 @@ public class EventServiceTest {
         var eventList = List.of(correctEvent1, correctEvent2, wrongEvent);
 
         var expectedRes = Stream.of(correctEvent1, correctEvent2)
-                .map(eventMapper::toForClientDto)
+                .map(eventMapper::toDto)
                 .toList();
 
         Mockito.when(eventRepository.findAll()).thenReturn(eventList);
@@ -98,7 +98,7 @@ public class EventServiceTest {
     void updateEvent_ShouldThrowWithInvalidUpdateInfo() {
         prepareValidationThrows();
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventService.updateEvent(new EventUpdateDto()));
+        Assertions.assertThrows(DataValidationException.class, () -> eventService.updateEvent(new UpdateEventDto()));
         Mockito.verify(eventRepository, Mockito.never()).save(Mockito.any(Event.class));
     }
 
@@ -107,7 +107,7 @@ public class EventServiceTest {
         prepareFindingEvent(false);
 
         Assertions.assertThrows(EntityNotFoundException.class,
-                () -> eventService.updateEvent(new EventUpdateDto()));
+                () -> eventService.updateEvent(new UpdateEventDto()));
         Mockito.verify(eventRepository, Mockito.never()).save(Mockito.any(Event.class));
     }
 
@@ -115,7 +115,7 @@ public class EventServiceTest {
     void updateEvent_ShouldSaveUpdatedEvent() {
         prepareFindingEvent(true);
 
-        Assertions.assertDoesNotThrow(() -> eventService.updateEvent(new EventUpdateDto()));
+        Assertions.assertDoesNotThrow(() -> eventService.updateEvent(new UpdateEventDto()));
         Mockito.verify(eventRepository, Mockito.times(1)).save(Mockito.any(Event.class));
     }
 

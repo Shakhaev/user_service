@@ -3,7 +3,7 @@ package school.faang.user_service.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.SkillDto;
-import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 public class EventValidator {
     private final SkillService skillService;
 
-    public void validateCreatorSkills(EventCreateDto eventCreateDto) {
-        var ownerSkills = skillService.findSkillsByUserId(eventCreateDto.getOwnerId())
+    public void validateCreatorSkills(CreateEventDto createEventDto) {
+        var ownerSkills = skillService.findSkillsByUserId(createEventDto.getOwnerId())
                 .stream()
                 .map(SkillDto::getId)
                 .collect(Collectors.toCollection(HashSet::new));
-        var necessarySkills = eventCreateDto.getRelatedSkillsIds();
+        var necessarySkills = createEventDto.getRelatedSkillsIds();
         if (!ownerSkills.containsAll(necessarySkills)) {
             throw new DataValidationException("Owner should have all related skills");
         }

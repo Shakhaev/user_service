@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.event.EventCreateDto;
-import school.faang.user_service.dto.event.EventForClientDto;
-import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 
@@ -18,17 +18,17 @@ import java.util.stream.Collectors;
 public interface EventMapper {
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(target = "relatedSkillsIds", expression = "java(mapSkillsToIds(event.getRelatedSkills()))")
-    EventForClientDto toForClientDto(Event event);
+    EventDto toDto(Event event);
 
     @Mapping(source = "ownerId", target = "owner.id")
-    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventCreateDto.getRelatedSkillsIds()))")
-    Event fromCreateDtoToEntity(EventCreateDto eventCreateDto);
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(createEventDto.getRelatedSkillsIds()))")
+    Event fromCreateDtoToEntity(CreateEventDto createEventDto);
 
-    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
-    Event fromUpdateDtoToEntity(EventUpdateDto eventUpdateDto);
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(updateEventDto.getRelatedSkillsIds()))")
+    Event fromUpdateDtoToEntity(UpdateEventDto updateEventDto);
 
-    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(eventUpdateDto.getRelatedSkillsIds()))")
-    void update(@MappingTarget Event entity, EventUpdateDto eventUpdateDto);
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkillsIds(updateEventDto.getRelatedSkillsIds()))")
+    void update(@MappingTarget Event entity, UpdateEventDto updateEventDto);
 
     default List<Long> mapSkillsToIds(List<Skill> relatedSkills) {
         return relatedSkills == null ? new ArrayList<>() :

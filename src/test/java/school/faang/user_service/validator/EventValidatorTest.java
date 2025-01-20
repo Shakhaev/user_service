@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SkillDto;
-import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.service.SkillService;
@@ -33,11 +33,11 @@ class EventValidatorTest {
         Mockito.when(skillService.findSkillsByUserId(Mockito.anyLong()))
                 .thenReturn(List.of(skill));
 
-        EventCreateDto eventCreateDto = new EventCreateDto();
-        eventCreateDto.setOwnerId(1L);
-        eventCreateDto.setRelatedSkillsIds(List.of(2L, 3L));
+        CreateEventDto createEventDto = new CreateEventDto();
+        createEventDto.setOwnerId(1L);
+        createEventDto.setRelatedSkillsIds(List.of(2L, 3L));
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventValidator.validateCreatorSkills(eventCreateDto));
+        Assertions.assertThrows(DataValidationException.class, () -> eventValidator.validateCreatorSkills(createEventDto));
     }
 
     @Test
@@ -51,16 +51,16 @@ class EventValidatorTest {
         Mockito.when(skillService.findSkillsByUserId(Mockito.anyLong()))
                 .thenReturn(List.of(skill, skill2, skill1));
 
-        EventCreateDto EventCreateDto = new EventCreateDto();
-        EventCreateDto.setOwnerId(1L);
-        EventCreateDto.setRelatedSkillsIds(List.of(1L, 2L));
+        CreateEventDto CreateEventDto = new CreateEventDto();
+        CreateEventDto.setOwnerId(1L);
+        CreateEventDto.setRelatedSkillsIds(List.of(1L, 2L));
 
-        Assertions.assertDoesNotThrow(() -> eventValidator.validateCreatorSkills(EventCreateDto));
+        Assertions.assertDoesNotThrow(() -> eventValidator.validateCreatorSkills(CreateEventDto));
     }
 
     @Test
     void validateEventInfo_ShouldThrowWithBlankTitle() {
-        EventCreateDto event = new EventCreateDto();
+        CreateEventDto event = new CreateEventDto();
         event.setTitle(" \n\t ");
         Assertions.assertThrows(DataValidationException.class,
                 () -> eventValidator.validateEventInfo(eventMapper.fromCreateDtoToEntity(event)));
@@ -68,14 +68,14 @@ class EventValidatorTest {
 
     @Test
     void validateEventInfo_ShouldThrowWithNullTitle() {
-        EventCreateDto event = new EventCreateDto();
+        CreateEventDto event = new CreateEventDto();
         Assertions.assertThrows(DataValidationException.class,
                 () -> eventValidator.validateEventInfo(eventMapper.fromCreateDtoToEntity(event)));
     }
 
     @Test
     void validateEventInfo_ShouldThrowWithNullDate() {
-        EventCreateDto event = new EventCreateDto();
+        CreateEventDto event = new CreateEventDto();
         event.setTitle("title");
         Assertions.assertThrows(DataValidationException.class,
                 () -> eventValidator.validateEventInfo(eventMapper.fromCreateDtoToEntity(event)));
@@ -83,7 +83,7 @@ class EventValidatorTest {
     
     @Test
     void validateEventInfo_ShouldNotThrowWithCorrectEvent() {
-        EventCreateDto event = new EventCreateDto();
+        CreateEventDto event = new CreateEventDto();
         event.setTitle("title");
         event.setStartDate(LocalDateTime.now());
         Assertions.assertDoesNotThrow(() -> eventValidator.validateEventInfo(eventMapper.fromCreateDtoToEntity(event)));

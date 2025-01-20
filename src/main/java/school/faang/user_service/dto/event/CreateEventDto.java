@@ -8,17 +8,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class EventForClientDto {
-    private long id;
+public class CreateEventDto {
     private String title;
-    private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private Long ownerId;
+    private String description;
+    private List<Long> relatedSkillsIds;
     private String location;
     private int maxAttendees;
-    private List<Long> attendeesIds;
-    private long ownerId;
-    private List<Long> relatedSkillsIds;
     private EventType type;
     private EventStatus status;
 }

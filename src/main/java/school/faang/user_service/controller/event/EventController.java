@@ -3,16 +3,17 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.EventForClientDto;
-import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
@@ -23,38 +24,38 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
 
-    @PostMapping("/create-event")
-    public EventForClientDto createEvent(@RequestBody EventCreateDto eventDto) {
+    @PostMapping("/")
+    public EventDto createEvent(@RequestBody CreateEventDto eventDto) {
         return eventService.createEvent(eventDto);
     }
 
-    @GetMapping("/get-event-by-id")
-    public EventForClientDto getEvent(@RequestParam long id) {
+    @GetMapping("/{id}")
+    public EventDto getEvent(@PathVariable long id) {
         return eventService.getEvent(id);
     }
 
-    @GetMapping("/get-events-by-filter")
-    public List<EventForClientDto> getEventsByFilter(@RequestBody EventFilterDto eventFilterDto) {
+    @GetMapping("/filter")
+    public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto eventFilterDto) {
         return eventService.getEventsByFilter(eventFilterDto);
     }
 
-    @GetMapping("/get-owned-events")
-    public List<EventForClientDto> getOwnedEvents(@RequestParam long userId) {
+    @GetMapping("/owned")
+    public List<EventDto> getOwnedEvents(@RequestParam long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
-    @GetMapping("/get-participated-events")
-    public List<EventForClientDto> getParticipatedEvents(@RequestParam long userId) {
+    @GetMapping("/participated")
+    public List<EventDto> getParticipatedEvents(@RequestParam long userId) {
         return eventService.getParticipatedEvents(userId);
     }
 
-    @DeleteMapping("/delete-event")
+    @DeleteMapping("/")
     public void deleteEvent(@RequestParam long id) {
         eventService.deleteEvent(id);
     }
 
-    @PutMapping("/update-event")
-    public EventForClientDto updateEvent(@RequestBody EventUpdateDto event) {
+    @PutMapping("/")
+    public EventDto updateEvent(@RequestBody UpdateEventDto event) {
         return eventService.updateEvent(event);
     }
 }
