@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "authorId": 2,
+  "receiverId": 3,
+  "content": "Рекомендация",
+  "skillOffers": [
+    {
+      "id": 1,
+      "skillId": 1,
+      "title": "java"
+    }
+  ]
+}
