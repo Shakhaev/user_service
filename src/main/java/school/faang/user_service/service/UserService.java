@@ -13,8 +13,8 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User with "
-                        + "id %d not found", id)));
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User with " +
+                        "id %d not found", id)));
     }
 
 }
