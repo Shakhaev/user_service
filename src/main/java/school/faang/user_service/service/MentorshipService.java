@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
@@ -36,6 +37,7 @@ public class MentorshipService {
         }
     }
 
+    @Transactional
     public void deleteMentee(long mentorId, long menteeId) {
         User mentor = service.getUser(mentorId);
         mentor.setMentees(
@@ -44,6 +46,7 @@ public class MentorshipService {
         repository.save(mentor);
     }
 
+    @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = service.getUser(menteeId);
         mentee.setMentors(
@@ -52,6 +55,7 @@ public class MentorshipService {
         repository.save(mentee);
     }
 
+    @Transactional
     public void removeMentorship(long mentorId) {
         User mentor = service.getUser(mentorId);
         mentor.getMentees().forEach(mentee -> {
