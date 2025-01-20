@@ -83,7 +83,7 @@ public class PromotionService {
         checkOwnership(userContext.getUserId(), promotion);
 
         if (!promotion.isActive()) {
-            throw new IllegalStateException("Промоушен не активен, обновление невозможно");
+            throw new BusinessException("Промоушен не активен, обновление невозможно");
         }
 
         PromotionPlan currentPlan = promotion.getPlan();
