@@ -1,7 +1,6 @@
 package school.faang.user_service.util.premium;
 
 import school.faang.user_service.dto.payment.PaymentResponseDto;
-import school.faang.user_service.dto.premium.PremiumBoughtEventDto;
 import school.faang.user_service.dto.premium.PremiumResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.payment.PaymentStatus;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 public class PremiumFabric {
-
     public static Premium getPremium(long id, User user, LocalDateTime startDate, LocalDateTime endDate) {
         return Premium
                 .builder()
@@ -78,16 +76,5 @@ public class PremiumFabric {
                 .builder()
                 .id(id)
                 .build();
-    }
-
-    public static PremiumBoughtEventDto buildPremiumBoughtEvent(Long userId, double cost, int days) {
-        return new PremiumBoughtEventDto(userId, cost, days);
-    }
-
-    public static List<PremiumBoughtEventDto> buildPremiumBoughtEvent(int number) {
-        return LongStream
-                .rangeClosed(1, number)
-                .mapToObj(i -> buildPremiumBoughtEvent(i, (double) i, (int) i))
-                .toList();
     }
 }
