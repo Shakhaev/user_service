@@ -23,6 +23,9 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
     public Event create(Event event) {
+        if (event.getRelatedSkills().isEmpty()) {
+            throw new DataValidationException("Event must have at least one related skill");
+        }
         if (!ownerHasRequiredSkills(event)) {
             throw new DataValidationException("User does not have required skills to create the event");
         }
@@ -32,8 +35,6 @@ public class EventService {
                 .map(Optional::get)
                 .toList());
 
-        event.setOwner(userRepository.findById(event.getOwner().getId())
-                .orElseThrow(() -> new IllegalArgumentException("User does not exist")));
         return eventRepository.save(event);
     }
 
