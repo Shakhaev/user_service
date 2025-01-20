@@ -3,7 +3,6 @@ package school.faang.user_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.rating.LeaderTableDto;
-import school.faang.user_service.dto.rating.UserComparingDto;
 import school.faang.user_service.service.RatingService;
 
 import java.util.List;
