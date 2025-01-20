@@ -7,28 +7,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public void giveRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
-        recommendationService.create(recommendationDto);
+    public RecommendationDto giveRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        return recommendationService.create(recommendationDto);
     }
 
-    public void updateRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
-        recommendationService.update(recommendationDto);
+    public RecommendationDto updateRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        return recommendationService.update(recommendationDto);
     }
 
     public void deleteRecommendation(long recommendationId) {
         recommendationService.delete(recommendationId);
     }
 
-    public void getAllUserRecommendations(long receiverId) {
-        recommendationService.getAllUserRecommendations(receiverId);
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    public void getAllGivenRecommendations(long authorId) {
-        recommendationService.getAllGivenRecommendations(authorId);
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        return recommendationService.getAllGivenRecommendations(authorId);
     }
 }
