@@ -1,5 +1,6 @@
 package school.faang.user_service.service.premium;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,10 +18,12 @@ import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.payment.PaymentService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,16 +41,33 @@ class PremiumServiceTest {
     private UserService userService;
     @InjectMocks
     PremiumService premiumService;
+    private int premiumPeriodDays;
+    private final LocalDateTime currentTime = LocalDateTime.now();
+    private LocalDateTime futureTime;
+    private User testUser;
+    Premium testPremium;
+
+    @BeforeEach
+    void setUp() {
+        premiumPeriodDays = PREMIUM_PERIOD.getDays();
+        futureTime = currentTime.plusDays(1L);
+
+        testUser = User.builder().id(USER_ID).build();
+        testPremium = Premium.builder()
+                .endDate(futureTime)
+                .build();
+    }
 
     @Test
     void buyPremiumUserHavePremiumThrowsException() {
-        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(true);
+        when(premiumRepository.findByUserIdAndEndDateAfter(eq(USER_ID), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(testPremium));
 
         DataValidationException ex = assertThrows(DataValidationException.class, () ->
-                premiumService.buyPremium(USER_ID, PREMIUM_PERIOD));
+                premiumService.buyPremium(USER_ID, premiumPeriodDays));
 
-        assertEquals("User 1 already has a premium subscription", ex.getMessage());
-        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        assertEquals("User 1 already has a valid premium subscription until " + futureTime, ex.getMessage());
+        verify(premiumRepository, times(1)).findByUserIdAndEndDateAfter(any(), any());
         verify(paymentService, never()).sendPaymentRequest(any());
     }
 
@@ -56,14 +76,15 @@ class PremiumServiceTest {
         PaymentResponse paymentResponse = PaymentResponse.builder()
                 .status(PaymentStatus.FAIL)
                 .build();
-        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(false);
+        when(premiumRepository.findByUserIdAndEndDateAfter(any(), any()))
+                .thenReturn(Optional.empty());
         when(paymentService.sendPaymentRequest(PREMIUM_PERIOD)).thenReturn(paymentResponse);
 
         PremiumException ex = assertThrows(PremiumException.class, () ->
-                premiumService.buyPremium(USER_ID, PREMIUM_PERIOD));
+                premiumService.buyPremium(USER_ID, premiumPeriodDays));
 
         assertEquals("Cannot buy premium, try again later", ex.getMessage());
-        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        verify(premiumRepository, times(1)).findByUserIdAndEndDateAfter(any(), any());
         verify(paymentService, times(1)).sendPaymentRequest(any());
         verify(userService, never()).getUser(USER_ID);
     }
@@ -73,25 +94,25 @@ class PremiumServiceTest {
         PaymentResponse paymentResponse = PaymentResponse.builder()
                 .status(PaymentStatus.SUCCESS)
                 .build();
-        User user = User.builder().id(USER_ID).build();
-        LocalDateTime currentTime = LocalDateTime.now();
         Premium expected = Premium.builder()
-                .user(user)
+                .user(testUser)
                 .startDate(currentTime)
-                .endDate(currentTime.plusDays(PREMIUM_PERIOD.getDays()))
+                .endDate(currentTime.plusDays(premiumPeriodDays))
                 .build();
-        when(premiumRepository.existsByUserId(USER_ID)).thenReturn(false);
+
+        when(premiumRepository.findByUserIdAndEndDateAfter(any(), any()))
+                .thenReturn(Optional.empty());
         when(paymentService.sendPaymentRequest(PREMIUM_PERIOD)).thenReturn(paymentResponse);
-        when(userService.getUser(USER_ID)).thenReturn(user);
+        when(userService.getUser(USER_ID)).thenReturn(testUser);
         when(premiumRepository.save(any())).thenReturn(expected);
 
-        Premium actual = premiumService.buyPremium(USER_ID, PREMIUM_PERIOD);
+        Premium actual = premiumService.buyPremium(USER_ID, premiumPeriodDays);
 
         assertEquals(expected.getUser().getId(), actual.getUser().getId());
         assertEquals(expected.getStartDate(), actual.getStartDate());
         assertEquals(expected.getEndDate(), actual.getEndDate());
 
-        verify(premiumRepository, times(1)).existsByUserId(USER_ID);
+        verify(premiumRepository, times(1)).findByUserIdAndEndDateAfter(any(), any());
         verify(premiumRepository, times(1)).save(any());
         verify(paymentService, times(1)).sendPaymentRequest(any());
         verify(userService, times(1)).getUser(USER_ID);

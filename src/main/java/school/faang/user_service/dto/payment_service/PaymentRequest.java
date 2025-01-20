@@ -7,5 +7,5 @@ import java.math.BigDecimal;
 @Builder
 public record PaymentRequest(
         long paymentNumber,
-        BigDecimal price,
+        BigDecimal amount,
         Currency currency) {}

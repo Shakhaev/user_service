@@ -9,6 +9,6 @@ public record PaymentResponse(
         PaymentStatus status,
         int verificationCode,
         long paymentNumber,
-        BigDecimal price,
+        BigDecimal amount,
         Currency currency,
         String message) {}

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.mapper.premium.PremiumMapper;
 import school.faang.user_service.service.premium.PremiumService;
 import school.faang.user_service.utility.validator.impl.premium.PremiumRequestValidator;
@@ -28,10 +27,9 @@ public class PremiumController {
     @ResponseStatus(HttpStatus.CREATED)
     public PremiumDto buyPremium(@RequestParam int days) {
         validator.validate(days);
-        PremiumPeriod period = PremiumPeriod.fromDays(days);
-        Long userId = userContext.getUserId();
 
-        Premium premium = premiumService.buyPremium(userId, period);
+        Long userId = userContext.getUserId();
+        Premium premium = premiumService.buyPremium(userId, days);
         return premiumMapper.toDto(premium);
     }
 }
