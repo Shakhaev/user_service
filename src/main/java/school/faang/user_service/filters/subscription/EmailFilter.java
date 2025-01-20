@@ -1,6 +1,6 @@
 package school.faang.user_service.filters.subscription;
 
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filters.interfaces.UserFilter;
 

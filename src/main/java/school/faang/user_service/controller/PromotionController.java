@@ -3,14 +3,19 @@ package school.faang.user_service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.event.EventResponse;
 import school.faang.user_service.dto.promotion.EventPromotionRequest;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.EventService;
 import school.faang.user_service.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/promotion")
@@ -30,6 +35,16 @@ public class PromotionController {
     public ResponseEntity<Void> buyEvent(@Valid @RequestBody EventPromotionRequest request) {
         eventService.eventPromotion(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users")
+    public List<UserDto> getPromotionUsers() {
+        return userService.getPromotionUsers();
+    }
+
+    @GetMapping("/events")
+    public List<EventResponse> getPromotionEvents() {
+        return eventService.getPromotionEvents();
     }
 }
 

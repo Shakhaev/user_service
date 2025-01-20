@@ -6,6 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.entity.User;
@@ -14,6 +15,8 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
+import school.faang.user_service.client.PromotionServiceClient;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.exception.UserAlreadyExistsException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -40,6 +43,8 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ConverterUtil converterUtil;
+    private final PromotionServiceClient promotionServiceClient;
+    private final UserMapper userMapper;
     private final AvatarService avatarService;
     private final MinioStorageService minioStorageService;
     private final UserMapper userMapper;
@@ -77,6 +82,13 @@ public class UserService {
         findById(userPromotionRequest.userId());
         String message = converterUtil.convertToJson(userPromotionRequest);
         kafkaTemplate.send(PAYMENT_PROMOTION_TOPIC, USER_KEY, message);
+    }
+
+    public List<UserDto> getPromotionUsers() {
+        List<Long> userIds = promotionServiceClient.getPromotionUsers();
+        return userIds.stream()
+                .map(userId -> userMapper.toDto(findById(userId)))
+                .toList();
     }
 
     public UserRegisterResponse register(@Valid UserRegisterRequest request) {
