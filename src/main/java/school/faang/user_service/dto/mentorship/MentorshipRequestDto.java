@@ -9,8 +9,8 @@ import school.faang.user_service.entity.RequestStatus;
 public class MentorshipRequestDto {
     private long id;
     private String description;
-    private Long requesterId;
-    private Long receiverId;
+    private long requesterId;
+    private long receiverId;
     private String rejectionReason;
     private RequestStatus status;
 }

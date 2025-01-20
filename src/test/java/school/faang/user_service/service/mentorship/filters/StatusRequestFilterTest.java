@@ -1,6 +1,7 @@
 package school.faang.user_service.service.mentorship.filters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
@@ -18,8 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StatusRequestFilterTest {
 
     private StatusRequestFilter statusFiler;
-    private final RequestFilterDto filterDto = new RequestFilterDto();
+    private RequestFilterDto filterDto;
 
+    @BeforeEach
+    public void init() {
+        statusFiler = new StatusRequestFilter();
+        filterDto = new RequestFilterDto();
+    }
 
     @Test
     public void testIsNotApplicable() {

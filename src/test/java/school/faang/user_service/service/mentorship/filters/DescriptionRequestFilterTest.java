@@ -1,6 +1,7 @@
 package school.faang.user_service.service.mentorship.filters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 
@@ -14,14 +15,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DescriptionRequestFilterTest {
 
     private DescriptionRequestFilter descriptionFilter;
-    private final RequestFilterDto filterDto = new RequestFilterDto();
+    private RequestFilterDto filterDto;
+    private Stream<MentorshipRequest> requests;
 
-    private final Stream<MentorshipRequest> requests = Stream.of(
-            MentorshipRequest.builder().description("lear coding").build(),
-            MentorshipRequest.builder().description("Java Developer").build(),
-            MentorshipRequest.builder().description("Python or *Java").build(),
-            MentorshipRequest.builder().description(" ").build());
-
+    @BeforeEach
+    public void init() {
+        descriptionFilter = new DescriptionRequestFilter();
+        filterDto = new RequestFilterDto();
+        requests = Stream.of(
+                MentorshipRequest.builder().description("learn coding").build(),
+                MentorshipRequest.builder().description("Java Developer").build(),
+                MentorshipRequest.builder().description("Python or *Java").build(),
+                MentorshipRequest.builder().description(" ").build());
+    }
 
     @Test
     public void testIsNotApplicable() {

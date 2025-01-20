@@ -1,16 +1,19 @@
 package school.faang.user_service.controller.mentorship;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
+import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import static org.mockito.Mockito.verify;
@@ -23,6 +26,9 @@ public class MentorshipRequestControllerTest {
 
     @Mock
     private MentorshipRequestService mentorshipRequestService;
+
+    @Spy
+    private MentorshipRequestMapper requestMapper;
 
     @Test
     public void testDescriptionIsNull() {
@@ -38,7 +44,7 @@ public class MentorshipRequestControllerTest {
     @Test
     public void testDescriptionIsEmpty() {
         MentorshipRequestDto testDto = MentorshipRequestDto.builder()
-                .description(" ")
+                .description("")
                 .build();
 
         Assert.assertThrows(
@@ -50,10 +56,14 @@ public class MentorshipRequestControllerTest {
     public void testValidRequestDto() {
         MentorshipRequestDto testDto = MentorshipRequestDto.builder()
                 .description("reason")
+                .requesterId(1L)
+                .receiverId(2L)
                 .build();
 
+        MentorshipRequest requestEntity = requestMapper.toEntity(testDto);
+
         mentorshipRequestController.requestMentorship(testDto);
-        verify(mentorshipRequestService, Mockito.times(1)).requestMentorship(testDto);
+        verify(mentorshipRequestService, Mockito.times(1)).requestMentorship(requestEntity);
     }
 
     @Test

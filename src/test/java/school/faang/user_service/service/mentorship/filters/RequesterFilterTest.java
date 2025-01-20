@@ -16,24 +16,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RequesterFilterTest {
 
     private RequesterFilter requesterFilter;
-    private final RequestFilterDto filterDto = new RequestFilterDto();
+    private RequestFilterDto filterDto;
     private Stream<MentorshipRequest> requests;
-
-    @Test
-    public void testIsNotApplicable() {
-        assertFalse(requesterFilter.isApplicable(filterDto));
-    }
 
     @BeforeEach
     public void testDataInit() {
         User firstUser = User.builder().id(1L).build();
         User secondUser = User.builder().id(2L).build();
 
+        requesterFilter = new RequesterFilter();
+        filterDto = new RequestFilterDto();
         filterDto.setRequesterId(firstUser.getId());
 
-        Stream<MentorshipRequest> requests = Stream.of(
+        requests = Stream.of(
                 MentorshipRequest.builder().requester(firstUser).build(),
                 MentorshipRequest.builder().requester(secondUser).build());
+    }
+
+    @Test
+    public void testIsNotApplicable() {
+        assertFalse(requesterFilter.isApplicable(new RequestFilterDto()));
     }
 
     @Test

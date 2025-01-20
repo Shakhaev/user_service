@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static reactor.core.publisher.Mono.when;
+
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
 
@@ -52,11 +54,11 @@ public class MentorshipRequestServiceTest {
     public void initTestData() {
         long requesterId = 5L;
         long receiverId = 7L;
-        User requester = User.builder().id(requesterId).build();
-        User receiver = User.builder().id(receiverId).build();
-        LocalDateTime testTme = LocalDateTime.now().minusMonths(5);
+        requester = User.builder().id(requesterId).build();
+        receiver = User.builder().id(receiverId).build();
+        LocalDateTime testTime = LocalDateTime.now().minusMonths(5);
 
-        MentorshipRequestDto requestDto = MentorshipRequestDto
+        requestDto = MentorshipRequestDto
                 .builder()
                 .id(1L)
                 .description("mentorship request")
@@ -69,9 +71,12 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testRequestMentorship() {
+        requestEntity = requestMapper.toEntity(requestDto);
 
-        Mockito.when(requestValidator.validateRequestForMentorship(
-                requestDto.getRequesterId(), requestDto.getReceiverId()))
+        long requesterId = requestEntity.getRequester().getId();
+        long receiverId = requestEntity.getRequester().getId();
+
+        Mockito.when(requestValidator.validateLastRequestData(requesterId, receiverId))
                 .thenReturn(true);
 
         Mockito.when(userRepository.findById(requestDto.getRequesterId()))
@@ -79,8 +84,7 @@ public class MentorshipRequestServiceTest {
         Mockito.when(userRepository.findById(requestDto.getReceiverId()))
                 .thenReturn(Optional.of(receiver));
 
-
-        requestService.requestMentorship(requestDto);
+        requestService.requestMentorship(requestEntity);
 
         Mockito.verify(requestEntity, Mockito.times(1)).setRequester(requester);
         Mockito.verify(requestEntity, Mockito.times(1)).setReceiver(receiver);
