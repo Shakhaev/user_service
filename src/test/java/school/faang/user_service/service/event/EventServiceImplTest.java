@@ -11,8 +11,6 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
-import school.faang.user_service.redis.event.EventStartEvent;
-import school.faang.user_service.redis.publisher.EventStartEventPublisher;
 import school.faang.user_service.service.event.filters.EventFilter;
 import school.faang.user_service.service.event.filters.EventLocationFilter;
 import school.faang.user_service.service.event.filters.EventTitleFilter;
@@ -36,10 +34,10 @@ import static org.mockito.Mockito.when;
 public class EventServiceImplTest {
     @Mock
     private EventDomainService eventDomainService;
+
     @Mock
     private UserDomainService userDomainService;
-    @Mock
-    private EventStartEventPublisher eventStartEventPublisher;
+
     @InjectMocks
     private EventServiceImpl eventServiceImpl;
 
@@ -137,7 +135,7 @@ public class EventServiceImplTest {
 
         List<EventFilter> realFilters = Arrays.asList(locationFilter, titleFilter);
 
-        eventServiceImpl = new EventServiceImpl(eventStartEventPublisher, eventDomainService, userDomainService,
+        eventServiceImpl = new EventServiceImpl(eventDomainService, userDomainService,
                 realFilters);
 
         EventFilters filters = new EventFilters();
@@ -196,11 +194,8 @@ public class EventServiceImplTest {
 
         when(eventDomainService.findAllByStatusAndStartDateBetween(any(EventStatus.class), eq(from), eq(to)))
                 .thenReturn(Arrays.asList(event, otherEvent));
-        doNothing().when(eventStartEventPublisher).publish(any(EventStartEvent.class));
         when(eventDomainService.saveAll(anyList())).thenReturn(Arrays.asList(event, otherEvent));
 
         eventServiceImpl.startEventsFromPeriod(from, to);
-
-        verify(eventStartEventPublisher, times(2)).publish(any(EventStartEvent.class));
     }
 }
