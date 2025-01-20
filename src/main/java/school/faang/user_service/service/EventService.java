@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.EventDto;
@@ -34,7 +35,7 @@ public class EventService {
         return eventRepository.findById(eventId)
                 .map(eventMapper::toDto)
                 .orElseThrow(() ->
-                        new NoSuchElementException(String.format("Не найден ивент с айди %d", eventId)));
+                        new EntityNotFoundException(String.format("Не найден ивент с айди %d", eventId)));
     }
 
     public List<EventDto> getEventsByFilter(EventFilterDto filter) {

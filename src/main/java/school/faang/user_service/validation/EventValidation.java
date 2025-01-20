@@ -1,5 +1,6 @@
 package school.faang.user_service.validation;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.EventDto;
@@ -49,7 +50,7 @@ public class EventValidation {
             throw new DataValidationException("ID не может быть null.");
         }
         if (!eventRepository.existsById(id)) {
-            throw new DataValidationException("Не существует события с ID: " + id);
+            throw new EntityNotFoundException("Не существует события с ID: " + id);
         }
     }
 
