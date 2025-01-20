@@ -95,27 +95,22 @@ kotlin {
     jvmToolchain(17)
 }
 checkstyle {
-    toolVersion = "10.0"
-    configFile = file("config/checkstyle/checkstyle.xml")
+    toolVersion = "10.17.0"
+    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+    checkstyle.enableExternalDtdLoad.set(true)
 }
 
 tasks.checkstyleMain {
-    source = sourceSets.main.get().allJava
-    reports {
-        xml.required.set(true)
-        html.required.set(false)
-    }
+    source = fileTree("${project.rootDir}/src/main/java")
+    include("**/*.java")
+    exclude("**/resources/**")
+
+    classpath = files()
 }
 
 tasks.checkstyleTest {
-    source = sourceSets.test.get().allJava
-    reports {
-        xml.required.set(true)
-        html.required.set(false)
-    }
-}
+    source = fileTree("${project.rootDir}/src/test")
+    include("**/*.java")
 
-tasks.check {
-    dependsOn(tasks.checkstyleMain)
-    dependsOn(tasks.checkstyleTest)
+    classpath = files()
 }
