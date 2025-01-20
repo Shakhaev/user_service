@@ -15,10 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MentorshipService {
     private final UserRepository repository;
+    private final UserService service;
     private final UserMapper mapper;
 
     public List<UserDto> getMentees(long id) {
-        User mentor = getUserById(id);
+        User mentor = service.getUser(id);
         if (!CollectionUtils.isEmpty(mentor.getMentees())) {
             return mentor.getMentees().stream().map(mapper::toDto).toList();
         } else {
@@ -27,7 +28,7 @@ public class MentorshipService {
     }
 
     public List<UserDto> getMentors(long id) {
-        User mentee = getUserById(id);
+        User mentee = service.getUser(id);
         if (!CollectionUtils.isEmpty(mentee.getMentors())) {
             return mentee.getMentors().stream().map(mapper::toDto).toList();
         } else {
@@ -36,7 +37,7 @@ public class MentorshipService {
     }
 
     public void deleteMentee(long mentorId, long menteeId) {
-        User mentor = getUserById(mentorId);
+        User mentor = service.getUser(mentorId);
         mentor.setMentees(
                 mentor.getMentees().stream().filter(mentee -> mentee.getId() != menteeId).toList()
         );
@@ -44,21 +45,15 @@ public class MentorshipService {
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        User mentee = getUserById(menteeId);
+        User mentee = service.getUser(menteeId);
         mentee.setMentors(
                 mentee.getMentors().stream().filter(mentor -> mentor.getId() != mentorId).toList()
         );
         repository.save(mentee);
     }
 
-    private User getUserById(long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователя с таким id не существует"));
-    }
-
     public void removeMentorship(long mentorId) {
-        User mentor = repository.findById(mentorId).orElseThrow(() ->
-                new IllegalArgumentException("Не удалось получить пользователя по айди " + mentorId));
+        User mentor = service.getUser(mentorId);
         mentor.getMentees().forEach(mentee -> {
             deleteMentor(mentee.getId(), mentorId);
             mentee.setGoals(mentee.getGoals().stream().map(goal -> {

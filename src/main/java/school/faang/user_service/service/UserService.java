@@ -19,9 +19,13 @@ public class UserService {
     private final EventService eventService;
     private final MentorshipService mentorshipService;
 
-    public void deactivateUser(long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new IllegalArgumentException("Не удалось получить пользователя с id " + userId));
+    public User getUser(Long id) {
+        return userRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("Не удалось получить пользователя с id " + id));
+    }
+
+    public void deactivateUser(Long userId) {
+        User user = getUser(userId);
 
         List<Goal> goals = user.getGoals();
         goals.forEach(goal -> goalService.removeUserFromGoal(goal, userId));
