@@ -25,12 +25,14 @@ import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.country.CountryService;
+import school.faang.user_service.service.mentorship.MentorshipService;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +56,7 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
+    private final MentorshipService mentorshipService;
     private final List<AvatarFilter> avatarFilters;
 
     public Optional<User> findById(long userId) {
@@ -217,5 +220,20 @@ public class UserService {
 
     public String generateRandomPassword(User user) {
         return user.getEmail();
+    }
+
+    public void deactivateUser(long userId) {
+        Optional<User> userOptional = findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new DataValidationException("User not found by current id");
+        }
+        User user = userOptional.get();
+        if (!user.isActive()) {
+            throw new DataValidationException("User is already deactivated");
+        }
+
+        user.setActive(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

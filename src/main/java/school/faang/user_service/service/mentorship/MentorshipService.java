@@ -2,13 +2,13 @@ package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
+import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,10 @@ public class MentorshipService {
 
     public List<UserDto> getMentees(Long userId, UserFilterDto filters) {
         User mentor = findUserById(userId);
-        Stream<User> mentees = new ArrayList<>(mentor.getMentees()).stream();
+        Stream<User> mentees = new ArrayList<>(mentor.getMentees())
+                .stream()
+                .filter(User::isActive);
+
         return userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .reduce(mentees,
@@ -37,7 +40,10 @@ public class MentorshipService {
 
     public List<UserDto> getMentors(Long userId, UserFilterDto filters) {
         User mentee = findUserById(userId);
-        Stream<User> mentors = new ArrayList<>(mentee.getMentors()).stream();
+        Stream<User> mentors = new ArrayList<>(mentee.getMentors())
+                .stream()
+                .filter(User::isActive);
+
         return userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .reduce(mentors,

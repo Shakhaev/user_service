@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.service.user.UserService;
 
 import java.io.IOException;
@@ -70,5 +70,10 @@ public class UserController {
     @GetMapping("/avatar")
     public String getAvatar(@RequestParam(value = "isSmall", required = false) boolean isSmall) {
         return userService.getAvatar(isSmall);
+    }
+
+    @PostMapping("/{userId}/deactivate")
+    public void deactivate(@NotNull @PathVariable long userId) {
+        userService.deactivateUser(userId);
     }
 }
