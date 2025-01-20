@@ -28,6 +28,9 @@ public class EventValidation {
         if (eventDto.getStartDate() == null || eventDto.getStartDate().isBefore(LocalDateTime.now())) {
             throw new DataValidationException("Укажите дату начала события, она должна быть в будущем.");
         }
+        if (eventDto.getEndDate() != null && eventDto.getEndDate().isBefore(eventDto.getStartDate())) {
+            throw new DataValidationException("Дата начала события должна быть ранее даты окончания события.");
+        }
         if (eventDto.getOwnerId() == null) {
             throw new DataValidationException("Требуется ID владельца события.");
         }

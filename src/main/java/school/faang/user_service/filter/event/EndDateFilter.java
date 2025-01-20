@@ -16,7 +16,8 @@ public class EndDateFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto filter) {
-        return events.filter(event -> !event.getStartDate().isAfter(filter.getStartDatePattern()));
+        return events.filter(event -> !event.getEndDate()
+                .isAfter(filter.getEndDatePattern()));
 
     }
 }

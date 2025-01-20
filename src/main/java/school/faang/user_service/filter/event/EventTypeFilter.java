@@ -1,23 +1,22 @@
 package school.faang.user_service.filter.event;
 
-import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 
 import java.util.stream.Stream;
 
-@Component
-public class EventTypeFilter implements EventFilter {
+public enum EventTypeFilter implements EventFilter {
+    TYPE;
+
     @Override
     public boolean isApplicable(EventFilterDto filter) {
-        String eventType = filter.getEventTypePattern();
-        return eventType != null && !eventType.isBlank();
+        return filter.getEventTypePattern() != null;
     }
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto filter) {
-        return events.filter(event -> event.getType().getMessage()
-                .equalsIgnoreCase(filter.getEventTypePattern()));
+        return events.filter(event -> event.getType() == filter
+                .getEventTypePattern());
     }
 }

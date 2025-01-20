@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
     @Mapping(source = "owner.id", target = "ownerId")
-    @Mapping(source = "relatedSkills", target = "relatedSkills", qualifiedByName = "mapSkills")
+    @Mapping(source = "relatedSkills", target = "relatedSkillIds", qualifiedByName = "mapSkills")
     EventDto toDto(Event entity);
 
     @Mapping(target = "relatedSkills", ignore = true)

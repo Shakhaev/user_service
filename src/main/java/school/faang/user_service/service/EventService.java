@@ -23,6 +23,7 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
     public EventDto create(EventDto eventDto) {
+        validation.validateEvent(eventDto);
         validation.validateUserSkills(eventDto);
         Event event = eventMapper.toEntity(eventDto);
         Event updatedEvent = eventRepository.save(event);
@@ -51,6 +52,7 @@ public class EventService {
 
     public EventDto updateEvent(EventDto eventDto) {
         validation.validateEventId(eventDto.getId());
+        validation.validateEvent(eventDto);
         validation.validateEventOwner(eventDto);
         validation.validateUserSkills(eventDto);
 
@@ -64,7 +66,6 @@ public class EventService {
                 .map(eventMapper::toDto)
                 .toList();
     }
-
 
     public List<EventDto> getParticipatedEvents(long userId) {
         return eventRepository.findParticipatedEventsByUserId(userId).stream()

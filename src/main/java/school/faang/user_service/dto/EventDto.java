@@ -1,5 +1,6 @@
 package school.faang.user_service.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
@@ -15,7 +16,7 @@ public class EventDto {
     private LocalDateTime endDate;
     private Long ownerId;
     private String description;
-    private List<Long> relatedSkills;
+    private List<Long> relatedSkillIds;
     private String location;
     private int maxAttendees;
     private EventType eventType;

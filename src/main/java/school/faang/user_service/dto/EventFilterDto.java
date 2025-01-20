@@ -1,6 +1,8 @@
 package school.faang.user_service.dto;
 
 import lombok.Data;
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.event.EventType;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +13,6 @@ public class EventFilterDto {
     private LocalDateTime endDatePattern;
     private String locationPattern;
     private String ownerPattern;
-    private String eventTypePattern;
-    private String eventStatusPattern;
+    private EventType eventTypePattern;
+    private EventStatus eventStatusPattern;
 }

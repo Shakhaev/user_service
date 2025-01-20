@@ -13,10 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
-    private final EventValidation validation;
 
     public EventDto create(EventDto event) {
-        validation.validateEvent(event);
         return eventService.create(event);
     }
 
@@ -33,7 +31,6 @@ public class EventController {
     }
 
     public EventDto updateEvent(EventDto event) {
-        validation.validateEvent(event);
         return eventService.updateEvent(event);
     }
 

@@ -18,6 +18,6 @@ public class OwnerFilter implements EventFilter {
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto filter) {
         return events.filter(event -> event.getOwner().getUsername().toLowerCase()
-                .contains(filter.getOwnerPattern()));
+                .contains(filter.getOwnerPattern().toLowerCase()));
     }
 }
