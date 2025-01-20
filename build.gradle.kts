@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    jacoco
 }
 
 group = "faang.school"
@@ -83,6 +84,34 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(
+        classDirectories.files.map {
+        fileTree(it) {
+            exclude(listOf(
+                "**/dto/**",
+                "**/entity/**",
+                "**/mapper/**",
+                "com/json/student/**"
+            ))
+        }
+    })
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
