@@ -14,6 +14,8 @@ public class UserSkillFilter implements UserFilter {
 
     @Override
     public boolean filterEntity(User user, UserFilterDto filters) {
-        return user.getSkills().stream().anyMatch(skill -> skill.getTitle().contains(filters.getSkillPattern()));
+        return user.getSkills().stream()
+                .anyMatch(skill -> skill.getTitle()
+                        .contains(filters.getSkillPattern()));
     }
 }

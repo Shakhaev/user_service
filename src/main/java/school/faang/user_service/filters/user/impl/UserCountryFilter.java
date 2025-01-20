@@ -14,6 +14,7 @@ public class UserCountryFilter implements UserFilter {
 
     @Override
     public boolean filterEntity(User user, UserFilterDto filters) {
-        return user.getCountry().getTitle().contains(filters.getCountryPattern());
+        return user.getCountry().getTitle()
+                .contains(filters.getCountryPattern());
     }
 }

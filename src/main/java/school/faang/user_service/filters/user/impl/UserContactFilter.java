@@ -14,6 +14,8 @@ public class UserContactFilter implements UserFilter {
 
     @Override
     public boolean filterEntity(User user, UserFilterDto filters) {
-        return user.getContacts().stream().anyMatch(contact -> contact.getContact().contains(filters.getContactPattern()));
+        return user.getContacts().stream()
+                .anyMatch(contact -> contact.getContact()
+                        .contains(filters.getContactPattern()));
     }
 }
