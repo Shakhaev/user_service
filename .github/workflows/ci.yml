@@ -3,7 +3,7 @@ name: user-service CI
 on:
   pull_request:
     branches:
-      - dev
+      - feature/pipeline-BC-52779
 
 jobs:
   build:
