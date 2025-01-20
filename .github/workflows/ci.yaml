@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - basilisk8/BJS2-52756-ci-pipeline
+
   pull_request:
     branches:
       - basilisk8/BJS2-52756-ci-pipeline
