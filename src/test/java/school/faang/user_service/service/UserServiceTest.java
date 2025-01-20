@@ -35,7 +35,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserById_Successfully(){
+    void testGetUserById_Successfully() {
         long id = 1L;
         when(userRepository.findById(id)).thenReturn(Optional.of(requester));
 
@@ -48,7 +48,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserById_WithError(){
+    void testGetUserById_WithError() {
         long id = 1L;
         when(userRepository.findById(id)).thenReturn(Optional.of(receiver));
 
