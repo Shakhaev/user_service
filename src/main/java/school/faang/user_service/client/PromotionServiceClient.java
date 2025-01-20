@@ -5,12 +5,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "promotion-service", url = "http://localhost:8089")
+@FeignClient(
+        name = "promotion-service",
+        url = "${promotion-service.host}:${promotion-service.port}"
+)
 public interface PromotionServiceClient {
     @GetMapping("/promotion/users")
     List<Long> getPromotionUsers();
 
     @GetMapping("/promotion/events")
     List<Long> getPromotionEvents();
-
 }

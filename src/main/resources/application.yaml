@@ -54,3 +54,7 @@ project-service:
 payment-service:
   host: ${PAYMENT_SERVICE_HOST:localhost}
   port: ${PAYMENT_SERVICE_PORT:9080}
+
+promotion-service:
+  host: ${PROMOTION_SERVICE_HOST:localhost}
+  port: ${PROMOTION_SERVICE_PORT:8089}
