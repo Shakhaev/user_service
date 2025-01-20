@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.NoSuchElementException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -32,11 +34,11 @@ public class InvitationDtoValidatorTest {
 
     @BeforeEach
     void setUp() {
-        validGoalInvitationDto = new GoalInvitationDto(null,1L,2L,1L, null);
+        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 2L, 1L, null);
     }
 
     @Test
-    void testValidate_SuccessfulValidation() {
+    void testValidateSuccessfulValidation() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(goalRepository.existsById(1L)).thenReturn(true);
@@ -45,22 +47,53 @@ public class InvitationDtoValidatorTest {
     }
 
     @Test
-    void testValidate_UserInvitesSelf_ThrowsException() {
-        validGoalInvitationDto = new GoalInvitationDto(null,1L,1L,1L, null);
+    void testValidateUserInvitesSelfThrowsException() {
+        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 1L, 1L, null);
 
-        assertThrows(DataValidationException.class, () ->
-                invitationDtoValidator.validate(validGoalInvitationDto)
-        );
+        assertThrows(DataValidationException.class, () -> invitationDtoValidator.validate(validGoalInvitationDto));
     }
 
     @Test
-    void testValidate_GoalDoesNotExist_ThrowsException() {
+    void testValidateUserDoesNotInviteHimselfShouldThrowExceptionWhenUserInvitesHimself() {
+        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 1L, 1L, null);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> invitationDtoValidator.validate(validGoalInvitationDto));
+
+        assertEquals("The user cannot invite himself!", exception.getMessage());
+    }
+
+    @Test
+    void testValidateUserExistsShouldThrowEntityNotFoundExceptionWhenUserNotFound() {
+        Long userId = 1L;
+        String userType = "Inviter";
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> invitationDtoValidator.validate(validGoalInvitationDto)
+        );
+        assertEquals(String.format("%s user with id: %s does not exist.", userType, userId), exception.getMessage());
+    }
+
+    @Test
+    void testValidateGoalExistsShouldThrowNoSuchElementExceptionWhenGoalNotFound() {
+        Long goalId = 1L;
+
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(goalRepository.existsById(goalId)).thenReturn(false);
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> invitationDtoValidator.validate(validGoalInvitationDto)
+        );
+        assertEquals(String.format("Goal with id: %s does not exist.", goalId), exception.getMessage());
+    }
+
+    @Test
+    void testValidateGoalDoesNotExistThrowsException() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(goalRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(NoSuchElementException.class, () ->
-                invitationDtoValidator.validate(validGoalInvitationDto)
-        );
+        assertThrows(NoSuchElementException.class, () -> invitationDtoValidator.validate(validGoalInvitationDto));
     }
 }

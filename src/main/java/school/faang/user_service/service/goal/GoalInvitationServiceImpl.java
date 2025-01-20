@@ -2,6 +2,7 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
@@ -17,7 +18,9 @@ import school.faang.user_service.service.goal.filter.invitation.InvitationFilter
 import school.faang.user_service.validator.goal.InvitationDtoValidator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -81,17 +84,16 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         return goalInvitationMapper.toDto(invitation);
     }
 
-    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filter) {
+    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filterDto) {
         log.info("Invitation filter.");
 
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
-        if (invitations.isEmpty()) {
-            return new ArrayList<>();
-        }
-        filters.stream()
-                .filter(f -> f.isAcceptable(filter))
-                .forEach(f -> f.apply(invitations.stream(), filter));
-        return invitations.stream().map(goalInvitationMapper::toDto).toList();
+
+        Stream<GoalInvitation> invitationsAfterFilter = filters.stream()
+                .filter(f -> f.isAcceptable(filterDto))
+                .flatMap(f -> f.apply(invitations.stream(), filterDto));
+
+        return invitationsAfterFilter.map(goalInvitationMapper::toDto).toList();
     }
 
     private GoalInvitation findGoalInvitationById(long id) {

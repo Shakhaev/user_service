@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -37,14 +38,14 @@ public class InvitationDtoValidator {
     private void validateUserExists(Long userId, String userType) {
         log.info("Checking existence of {} user, with id: {}", userType, userId);
         if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException(userType + " user with id: " + userId + " does not exist.");
+            throw new EntityNotFoundException(String.format("%s user with id: %s does not exist.", userType, userId));
         }
     }
 
     private void validateGoalExists(Long goalId) {
         if (!goalRepository.existsById(goalId)) {
             log.error("Goal with id: {} does not exist.", goalId);
-            throw new NoSuchElementException("Goal with id: " + goalId + " does not exist.");
+            throw new NoSuchElementException(String.format("Goal with id: %s does not exist.", goalId));
         }
     }
 }

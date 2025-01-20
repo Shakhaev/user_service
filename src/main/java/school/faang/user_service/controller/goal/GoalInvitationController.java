@@ -2,8 +2,6 @@ package school.faang.user_service.controller.goal;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,38 +10,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
-import school.faang.user_service.service.goal.GoalInvitationServiceImpl;
+import school.faang.user_service.service.goal.GoalInvitationService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/goal")
+@RequestMapping("/api/v1/goals")
 @RequiredArgsConstructor
 public class GoalInvitationController {
 
-    private final GoalInvitationServiceImpl goalInvitationServiceImpl;
+    private final GoalInvitationService goalInvitationService;
 
     @PostMapping("/invitation")
-    public ResponseEntity<GoalInvitationDto> createInvitation(@RequestBody GoalInvitationDto invitation) {
-        val invite = goalInvitationServiceImpl.createInvitation(invitation);
-        return ResponseEntity.ok(invite);
+    public GoalInvitationDto createInvitation(@RequestBody GoalInvitationDto invitation) {
+        return goalInvitationService.createInvitation(invitation);
     }
 
     @PutMapping("/accept/{id}")
-    public ResponseEntity<GoalInvitationDto> acceptGoalInvitation(@PathVariable("id") @NotNull Long id) {
-        val accept = goalInvitationServiceImpl.acceptGoalInvitation(id);
-        return ResponseEntity.ok(accept);
+    public GoalInvitationDto acceptGoalInvitation(@PathVariable("id") @NotNull Long id) {
+        return goalInvitationService.acceptGoalInvitation(id);
     }
 
     @PutMapping("/reject/{id}")
-    public ResponseEntity<GoalInvitationDto> rejectGoalInvitation(@PathVariable("id") @NotNull Long id) {
-        val reject = goalInvitationServiceImpl.rejectGoalInvitation(id);
-        return ResponseEntity.ok(reject);
+    public GoalInvitationDto rejectGoalInvitation(@PathVariable("id") @NotNull Long id) {
+        return goalInvitationService.rejectGoalInvitation(id);
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<GoalInvitationDto>> getInvitations(@RequestBody InvitationFilterDto filter) {
-        val invitationFilter = goalInvitationServiceImpl.getInvitations(filter);
-        return ResponseEntity.ok(invitationFilter);
+    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filter) {
+        return goalInvitationService.getInvitations(filter);
     }
 }

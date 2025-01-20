@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class InvitationFilterRequestStatus implements InvitationFilter {
     @Override
     public boolean isAcceptable(InvitationFilterDto filters) {
-        return filters.status()!= null;
+        return filters.status() != null;
     }
 
     @Override
