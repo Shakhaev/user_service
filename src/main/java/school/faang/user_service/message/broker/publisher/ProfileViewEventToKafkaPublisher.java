@@ -6,7 +6,6 @@ import org.aspectj.lang.JoinPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.aspect.EventPublisher;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.message.ProfileViewEventParticipant;
 import school.faang.user_service.dto.user.message.ProfileViewMessage;

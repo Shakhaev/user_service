@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.annotation.event.SendMentorshipRequestAcceptedEvent;
-import school.faang.user_service.annotation.event.SendMentorshipRequestReceived;
+import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
@@ -18,6 +17,8 @@ import java.util.stream.Stream;
 
 import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
+import static school.faang.user_service.enums.publisher.PublisherType.MENTORSHIP_REQUEST_ACCEPTED;
+import static school.faang.user_service.enums.publisher.PublisherType.MENTORSHIP_REQUEST_RECEIVED;
 
 @Slf4j
 @Component
@@ -28,7 +29,7 @@ public class MentorshipRequestService {
     private final List<RequestFilter> requestFilters;
     private final UserDomainService userDomainService;
 
-    @SendMentorshipRequestReceived
+    @PublishEvent(type = MENTORSHIP_REQUEST_RECEIVED)
     @Transactional
     public MentorshipRequest requestMentorship(long requesterId, long receiverId, String description) {
         checker.checkRequestParams(requesterId, receiverId, description);
@@ -48,7 +49,7 @@ public class MentorshipRequestService {
                 .toList();
     }
 
-    @SendMentorshipRequestAcceptedEvent
+    @PublishEvent(type = MENTORSHIP_REQUEST_ACCEPTED)
     @Transactional
     public MentorshipRequest acceptRequest(long id) {
         MentorshipRequest mentorshipRequest = findMentorshipRequestById(id);
@@ -72,10 +73,6 @@ public class MentorshipRequestService {
     }
 
     private MentorshipRequest findMentorshipRequestById(long id) {
-        return mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Request with id {} not found", id);
-                    return new MentorshipRequestNotFoundException(id);
-                });
+        return mentorshipRequestRepository.findById(id).orElseThrow(() -> new MentorshipRequestNotFoundException(id));
     }
 }

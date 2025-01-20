@@ -1,4 +1,4 @@
-package school.faang.user_service.aspect;
+package school.faang.user_service.message.broker.publisher;
 
 import org.aspectj.lang.JoinPoint;
 import school.faang.user_service.enums.publisher.PublisherType;

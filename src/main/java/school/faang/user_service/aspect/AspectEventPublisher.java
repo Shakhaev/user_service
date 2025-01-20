@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.enums.publisher.PublisherType;
+import school.faang.user_service.message.broker.publisher.EventPublisher;
 
 import java.util.List;
 import java.util.Map;
