@@ -136,7 +136,7 @@ public class User {
     private Integer ratingPoints = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RatingHistory> ratingHistories = new ArrayList<>();
+    private List<RatingHistory> ratingHistories;
 
     @Embedded
     @AttributeOverrides({
