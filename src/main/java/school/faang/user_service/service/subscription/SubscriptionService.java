@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
 
     public void followUser(long followerId, long followeeId) {

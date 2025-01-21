@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.subscription.SubscriptionService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
@@ -18,8 +17,7 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
     private final SubscriptionValidator subscriptionValidator;
-    private final UserDto userDto;
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     public void followUser(long followerId, long followeeId) {
         subscriptionValidator.validateFollowUserIds(followerId, followeeId);

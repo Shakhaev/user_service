@@ -5,11 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.filter.UserFilter;
 
@@ -35,9 +33,6 @@ public class SubscriptionServiceTest {
 
     @Mock
     private UserFilter userFilter;
-
-    @Spy
-    private UserMapperImpl userMapper;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -133,7 +128,7 @@ public class SubscriptionServiceTest {
         secondUser.setExperience(5);
 
         List<UserFilter> userFilters = List.of(userFilter);
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, userFilters);
+        subscriptionService = new SubscriptionService(subscriptionRepository, userFilters);
 
     }
 
