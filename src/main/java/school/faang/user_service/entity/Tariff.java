@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.entity.event.Event;
 
 import java.time.LocalDateTime;
 
@@ -34,11 +35,15 @@ public class Tariff {
     @Column(name = "shows", nullable = false)
     private Integer shows;
 
+    @Column(name = "expire_period")
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime expirePeriod;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "expire_period")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime expirePeriod;
+    @OneToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 }
