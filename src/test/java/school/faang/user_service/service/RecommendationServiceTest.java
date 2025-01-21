@@ -25,6 +25,7 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +87,7 @@ public class RecommendationServiceTest {
                 12L, 14L
         )).thenReturn(Optional.of(getRecommendationValidCreatedDate()));
 
-        Mockito.when(skillRepository.findAll()).thenReturn(null);
+        Mockito.when(skillRepository.findAll()).thenReturn(Collections.emptyList());
 
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(getRecommendationDtoWithOffer()));
@@ -143,7 +144,7 @@ public class RecommendationServiceTest {
         Mockito.when(skillRepository.findAll()).thenReturn(getSkillsSystem());
         Mockito.when(skillOfferRepository.findAllOffersOfSkill(15L, 14L))
                 .thenReturn(skillOffers());
-        Mockito.when(guaranteeRepository.findAll()).thenReturn(null);
+        Mockito.when(guaranteeRepository.findAll()).thenReturn(Collections.emptyList());
 
         recommendationService.create(getRecommendationDtoWithOffer());
         Mockito.verify(recommendationRepository, Mockito.times(1))
@@ -189,16 +190,6 @@ public class RecommendationServiceTest {
         Mockito.verify(skillOfferRepository, Mockito.times(1))
                 .deleteAllByRecommendationId(recommendation.getId());
 
-    }
-
-    @Test
-    public void testDeleteRecommendationIdZeroValid() {
-
-        assertThrows(DataValidationException.class,
-                () -> recommendationService.delete(0L));
-
-        Mockito.verify(recommendationRepository, Mockito.times(0))
-                .deleteById(0L);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.service.RecommendationServiceImpl;
+import school.faang.user_service.service.RecommendationService;
 
 @RestController
 @RequestMapping("/api/v1/recommendations")
@@ -25,7 +26,7 @@ import school.faang.user_service.service.RecommendationServiceImpl;
 @RequiredArgsConstructor
 public class RecommendationController {
 
-    private final RecommendationServiceImpl service;
+    private final RecommendationService service;
 
     @PostMapping
     public ResponseEntity<RecommendationDto> giveRecommendation(
@@ -42,7 +43,9 @@ public class RecommendationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecommendation(@PathVariable long id) {
+    public ResponseEntity<Void> deleteRecommendation(
+            @PathVariable
+            @Min(value = 1, message = "The recommendation ID cannot be less than or equal to zero!") long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

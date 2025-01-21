@@ -30,14 +30,15 @@ import java.util.stream.StreamSupport;
 @Service
 @RequiredArgsConstructor
 public class RecommendationServiceImpl implements RecommendationService {
+    private static final int VALID_MONTH = 6;
 
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository guaranteeRepository;
     private final RecommendationMapper recommendationMapper;
-    private static final int VALID_MONTH = 6;
 
+    @Override
     public RecommendationDto create(RecommendationDto recommendation) {
         validateRecommendation(recommendation);
         Long createdRecommendationId = recommendationRepository.create(recommendation.getAuthorId(),
@@ -48,6 +49,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         return recommendation;
     }
 
+    @Override
     public RecommendationDto update(RecommendationDto recommendation) {
         if (recommendation.getId() == null) {
             throw new DataValidationException("RecommendationId cannot be null!");
@@ -60,13 +62,12 @@ public class RecommendationServiceImpl implements RecommendationService {
         return recommendation;
     }
 
+    @Override
     public void delete(long id) {
-        if (id <= 0) {
-            throw new DataValidationException("The recommendation ID cannot be less than or equal to zero!");
-        }
         recommendationRepository.deleteById(id);
     }
 
+    @Override
     public Page<RecommendationDto> getAllUserRecommendations(long receiverId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable);
@@ -76,6 +77,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         return recommendations.map(recommendation -> recommendationMapper.toDto(recommendation));
     }
 
+
+    @Override
     public Page<RecommendationDto> getAllGivenRecommendations(long authorId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recommendation> recommendations = recommendationRepository.findAllByAuthorId(authorId, pageable);
@@ -84,7 +87,6 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
         return recommendations.map(recommendation -> recommendationMapper.toDto(recommendation));
     }
-
 
     private void createSkillOffersByExistSkills(RecommendationDto recommendation) {
         List<SkillOfferDto> skillOffers = recommendation.getSkillOffers();
@@ -130,12 +132,13 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private List<SkillOfferDto> existSkillsInSystem(List<SkillOfferDto> skillOffers) {
         List<Skill> skills = skillRepository.findAll();
-        if (skills == null) {
+        if (skills.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Long> allSkillIds = skills.stream().map(Skill::getId).collect(Collectors.toList());
+
+        List<Long> allSkillIds = skills.stream().map(Skill::getId).toList();
         return skillOffers.stream().filter(skill -> allSkillIds.contains(skill.getSkillId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<Long> createOffers(RecommendationDto recommendation) {
@@ -175,12 +178,12 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     private boolean isNotEmpty(List<SkillOffer> findOffersOfSkill) {
-        return findOffersOfSkill != null && !findOffersOfSkill.isEmpty();
+        return !findOffersOfSkill.isEmpty();
     }
 
     private boolean isGuaranteeExist(Long userId, Long receiverId, Long skillId) {
         Iterable<UserSkillGuarantee> guarantees = guaranteeRepository.findAll();
-        if (guarantees == null) {
+        if (!guarantees.iterator().hasNext()) {
             return false;
         }
         return StreamSupport.stream(guarantees.spliterator(), false)
