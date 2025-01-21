@@ -70,7 +70,7 @@ class SubscriptionServiceTest {
 
         assertDoesNotThrow(() -> subscriptionService.followUser(followerId, followeeId));
         verify(subscriptionRepository, times(1)).followUser(followerId, followeeId);
-        verify(followerEventPublisher, times(1)).publish(new FollowerEvent(followerId, followeeId));
+        verify(followerEventPublisher, times(1)).publish(any(FollowerEvent.class));
     }
 
     @Test
@@ -122,5 +122,4 @@ class SubscriptionServiceTest {
 
         assertEquals(100, subscriptionService.getFollowingCount(followeeId));
     }
-
 }

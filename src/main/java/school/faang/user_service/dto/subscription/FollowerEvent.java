@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FollowerEvent {
-    private Long followerId;
-    private Long followeeId;
     @NotNull
     private long followerUserId;
     private Long targetUserId;
