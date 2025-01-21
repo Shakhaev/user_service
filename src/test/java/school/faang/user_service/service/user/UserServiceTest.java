@@ -15,6 +15,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.data.DataValidationException;
@@ -83,6 +85,7 @@ public class UserServiceTest {
                 .mentors(List.of(secondUser))
                 .mentees(List.of(firstUser))
                 .active(true)
+                .contactPreference(ContactPreference.builder().preference(PreferredContact.EMAIL).build())
                 .build();
         user = thirdUser;
         users = List.of(thirdUser);

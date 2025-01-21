@@ -2,9 +2,10 @@ package school.faang.user_service.service.subscription;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.dto.subscription.FollowerEvent;
-import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.filters.user.UserFilter;
@@ -24,6 +25,7 @@ public class SubscriptionService {
     private final List<UserFilter> userFilters;
     private final FollowerEventPublisher followerEventPublisher;
 
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
             throw new DataValidationException(String.format("Subscribing to yourself. FollowerId = followeeId = %s", followerId));
@@ -43,6 +45,7 @@ public class SubscriptionService {
 
     }
 
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
             throw new DataValidationException(String.format("Unsubscribing to yourself. FollowerId = followeeId = %s", followerId));
@@ -50,6 +53,7 @@ public class SubscriptionService {
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
+    @Transactional
     public List<ShortUserDto> getFollowers(long followeeId, UserFilterDto filterDto) {
         Stream<User> users = subscriptionRepository.findByFolloweeId(followeeId);
 
@@ -60,10 +64,12 @@ public class SubscriptionService {
                 .toList();
     }
 
+    @Transactional
     public long getFollowersCount(long followeeId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
     }
 
+    @Transactional
     public List<ShortUserDto> getFollowing(long followerId, UserFilterDto filterDto) {
         Stream<User> users = subscriptionRepository.findByFollowerId(followerId);
 
@@ -74,6 +80,7 @@ public class SubscriptionService {
                 .toList();
     }
 
+    @Transactional
     public long getFollowingCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }

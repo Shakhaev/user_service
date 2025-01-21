@@ -19,7 +19,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class FollowerEventPublisherTest {
+public class FollowerEventPublisherTest {
+
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
