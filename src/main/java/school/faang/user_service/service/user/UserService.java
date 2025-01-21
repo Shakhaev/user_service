@@ -1,6 +1,8 @@
 package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.DiceBearClient;
@@ -10,11 +12,12 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.AvatarGenerationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.S3UploadException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.service.S3Service;
 import school.faang.user_service.repository.CountryRepository;
+import school.faang.user_service.service.S3Service;
 
 import java.io.ByteArrayInputStream;
 
@@ -22,11 +25,25 @@ import java.io.ByteArrayInputStream;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final DiceBearClient diceBearClient;
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CountryRepository countryRepository;
+
+    public User getUser(Long userId) {
+        if (userId == null) {
+            logger.error("User ID is null");
+            throw new IllegalArgumentException("User ID must not be null");
+        }
+
+        return userRepository.findById(userId).orElseThrow(() -> {
+            logger.warn("User with ID {} not found", userId);
+            return new EntityNotFoundException("User with ID: " + userId + " not found");
+        });
+    }
 
     @Transactional
     public UserProfileDto registerUser(UserRegistrationDto registrationDto) {
@@ -79,15 +96,6 @@ public class UserService {
             return avatarData;
         } catch (Exception e) {
             throw new AvatarGenerationException("Error generating avatar.", e);
-        }
-    }
-
-
-    private byte[] generateDefaultAvatar() {
-        try {
-            return "<svg>...</svg>".getBytes();
-        } catch (Exception e) {
-            throw new AvatarGenerationException("Error generating default avatar.", e);
         }
     }
 
