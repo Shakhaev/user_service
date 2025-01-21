@@ -15,6 +15,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.observer.SkillPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -32,6 +33,7 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final AppConfig appConfig;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final SkillPublisher skillPublisher;
 
     public SkillDto create(CreateSkillDto skillDto) {
         if (skillRepository.existsByTitle(skillDto.title())) {
@@ -40,6 +42,8 @@ public class SkillService {
 
         Skill skill = skillMapper.toEntity(skillDto);
         skill = skillRepository.save(skill);
+
+        skillPublisher.notify(skill);
 
         return skillMapper.toDto(skill);
     }
