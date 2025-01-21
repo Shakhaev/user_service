@@ -13,18 +13,18 @@ import java.util.Optional;
 public class GoalInvitationDtoValidator {
 
     public void validateDto(GoalInvitationDto dto) {
-        isNull(dto.getId(), "ID cannot be null");
-        isNull(dto.getInviterId(), "InviterID cannot be null");
-        isNull(dto.getInvitedUserId(), "InvitedUserID cannot be null");
-        isNull(dto.getGoalId(), "GoalID cannot be null");
-        isNull(dto.getStatus(), "Goal status cannot be null");
+        notNullOrThrow(dto.getId(), "ID cannot be null");
+        notNullOrThrow(dto.getInviterId(), "InviterID cannot be null");
+        notNullOrThrow(dto.getInvitedUserId(), "InvitedUserID cannot be null");
+        notNullOrThrow(dto.getGoalId(), "GoalID cannot be null");
+        notNullOrThrow(dto.getStatus(), "Goal status cannot be null");
 
         if (!isValidRequestStatus(dto.getStatus())) {
             throw new IllegalArgumentException(String.format("Invalid RequestStatus: %s", dto.getStatus()));
         }
     }
 
-    private void isNull(Object o, String message) {
+    private void notNullOrThrow(Object o, String message) {
         Optional.ofNullable(o)
                 .orElseThrow(() -> new IllegalArgumentException(message));
     }

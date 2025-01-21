@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -23,20 +24,22 @@ public class GoalInvitationService {
     private static final int MAX_ACTIVE_GOALS = 3;
 
     private final GoalInvitationRepository goalInvitationRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final List<InvitationFilter> invitationFilters;
 
+    @Transactional
     public GoalInvitation createInvitation(GoalInvitation invitation) {
-        User whoInviter = invitation.getInviter();
+        User inviter = invitation.getInviter();
         User invited = invitation.getInvited();
 
-        checkUsers(whoInviter, invited);
+        checkUsers(inviter, invited);
 
         invitation.setStatus(RequestStatus.PENDING);
         log.info("New invitation to goal {} was created", invitation.getGoal().getTitle());
         return goalInvitationRepository.save(invitation);
     }
 
+    @Transactional
     public GoalInvitation acceptGoalInvitation(Long id) {
         GoalInvitation invitation = isGoalInvitationExists(id);
 
@@ -44,7 +47,7 @@ public class GoalInvitationService {
         List<GoalInvitation> invitedUserGoals = invitedUser.getReceivedGoalInvitations();
 
         if (invitedUserGoals.size() >= MAX_ACTIVE_GOALS) {
-            throw new GoalInvitationException(String.format("User can not has more than %d active goals", MAX_ACTIVE_GOALS));
+            throw new GoalInvitationException(String.format("User cannot has more than %d active goals", MAX_ACTIVE_GOALS));
         }
 
         if (invitedUser.getGoals().contains(invitation.getGoal())) {
@@ -53,17 +56,19 @@ public class GoalInvitationService {
 
         invitation.setStatus(RequestStatus.ACCEPTED);
         invitedUser.getGoals().add(invitation.getGoal());
-        userRepository.save(invitedUser);
+        userService.saveUser(invitedUser);
         log.info("{} accepted invitation to goal {}", invitedUser.getUsername(), invitation.getGoal().getTitle());
         return goalInvitationRepository.save(invitation);
     }
 
+    @Transactional
     public void rejectGoalInvitation(Long id) {
         GoalInvitation invitation = isGoalInvitationExists(id);
         invitation.setStatus(RequestStatus.REJECTED);
         log.info("Invitation to goal {} rejected", invitation.getGoal().getTitle());
     }
 
+    @Transactional
     public List<GoalInvitation> getInvitations(InvitationFilterDto filters) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
@@ -73,25 +78,25 @@ public class GoalInvitationService {
                 .toList();
     }
 
-    private void checkUsers(User whoInviter, User invited) {
-        if (whoInviter == null || invited == null) {
+    private void checkUsers(User inviter, User invited) {
+        if (inviter == null || invited == null) {
             throw new GoalInvitationException("Inviter or invited user not found");
         }
 
         Long invitedId = invited.getId();
-        Long whoInviterId = whoInviter.getId();
+        Long inviterId = inviter.getId();
 
-        if (Objects.equals(invitedId, whoInviterId)) {
+        if (Objects.equals(invitedId, inviterId)) {
             throw new GoalInvitationException("User cannot create invitation for himself");
         }
 
-        if (isUserNotExists(whoInviterId) || isUserNotExists(invitedId)) {
+        if (isUserNotExists(inviterId) || isUserNotExists(invitedId)) {
             throw new GoalInvitationException("Inviter or invited user not found");
         }
     }
 
     private boolean isUserNotExists(Long id) {
-        return !userRepository.existsById(id);
+        return !userService.isUserExistById(id);
     }
 
     private GoalInvitation isGoalInvitationExists(Long id) {

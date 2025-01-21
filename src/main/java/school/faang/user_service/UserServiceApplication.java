@@ -19,9 +19,6 @@ public class UserServiceApplication {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        GoalInvitationDto dto = new GoalInvitationDto(null, null, null, null, null);
-        log.error(dto.toString());
         return objectMapper;
-
     }
 }

@@ -21,4 +21,12 @@ public class UserService {
         log.info("User with id {} found", id);
         return user;
     }
+
+    public boolean isUserExistById(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
 }
