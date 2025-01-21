@@ -29,6 +29,4 @@ public class SkillController {
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
-
-
 }
