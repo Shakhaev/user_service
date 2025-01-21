@@ -146,28 +146,20 @@ public class GoalInvitationServiceTest {
 
         User user1 = User.builder()
                 .id(1L)
-                .username("JohnDoe")
-                .email("john.doe@example.com")
                 .build();
 
         Goal goal1 = Goal.builder()
                 .id(1L)
-                .title("Learn Java")
-                .description("Complete Java basics and OOP concepts")
                 .users(List.of(user1))
                 .build();
 
         Goal goal2 = Goal.builder()
                 .id(2L)
-                .title("Contribute to Open Source")
-                .description("Submit PRs to three open-source projects")
                 .users(List.of(user1))
                 .build();
 
         Goal goal3 = Goal.builder()
                 .id(3L)
-                .title("Master Python")
-                .description("Complete a Python course and build a project")
                 .users(List.of(user1))
                 .build();
 
@@ -187,7 +179,6 @@ public class GoalInvitationServiceTest {
 
         assertThrows(IllegalArgumentException.class, () ->
                 goalInvitationService.acceptGoalInvitation(invitationId));
-
     }
 
 
@@ -233,21 +224,15 @@ public class GoalInvitationServiceTest {
     public void testGetInvitations_Success() {
         Goal goal = Goal.builder()
                 .id(1L)
-                .title("Contribute to Open Source")
-                .description("Find and contribute to three open-source projects")
                 .status(GoalStatus.ACTIVE)
                 .build();
 
         User inviter = User.builder()
                 .id(1L)
-                .username("Alice")
-                .email("alice@example.com")
                 .build();
 
         User invited = User.builder()
                 .id(2L)
-                .username("Bob")
-                .email("bob@example.com")
                 .build();
 
         GoalInvitation invitation1 = GoalInvitation.builder()
@@ -262,7 +247,7 @@ public class GoalInvitationServiceTest {
                 .id(2L)
                 .goal(goal)
                 .inviter(inviter)
-                .invited(User.builder().id(3L).username("Charlie").email("charlie@example.com").build())
+                .invited(invited)
                 .status(RequestStatus.PENDING)
                 .build();
 

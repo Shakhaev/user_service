@@ -14,12 +14,12 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static school.faang.user_service.constants.Constants.MAX_ACTIVE_GOALS_PER_USER;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoalInvitationService {
-    private static final int GOALS_LIMIT = 3;
-
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalService goalService;
     private final UserService userService;
@@ -31,10 +31,12 @@ public class GoalInvitationService {
         Long invitedId = goalInvitation.getInvited().getId();
 
         if (inviterId == null || invitedId == null) {
-            throw new IllegalArgumentException("There is no inviter or invited user");
+            log.error("Inviter or invited user don't exist. Inviterid: {}. InvitedId: {}", inviterId, invitedId);
+            throw new IllegalArgumentException("There is no inviter or invited user. InviterId: " + inviterId + " InvitedId: " + invitedId);
         }
         if (inviterId.equals(invitedId)) {
-            throw new IllegalArgumentException("Inviter and invited user have the same id");
+            log.error("Inviter or invited user don't exist. Inviterid: {}. InvitedId: {}", inviterId, invitedId);
+            throw new IllegalArgumentException("Inviter and invited user have the same id. InviterId: " + inviterId + " InvitedId: " + invitedId);
         }
 
         Goal goal = goalService.getGoalById(goalId);
@@ -48,6 +50,7 @@ public class GoalInvitationService {
 
         GoalInvitation createdInvitation = goalInvitationRepository.save(goalInvitation);
 
+        log.info("created new goal invitation with id: {}", goalInvitation.getId());
         return createdInvitation;
     }
 
@@ -60,10 +63,12 @@ public class GoalInvitationService {
         Goal goal = goalInvitation.getGoal();
         List<User> goalUsers = goal.getUsers();
 
-        if (userGoals.size() >= GOALS_LIMIT) {
-            throw new IllegalArgumentException("User already has limit of goals. Limit is " + GOALS_LIMIT);
+        if (userGoals.size() >= MAX_ACTIVE_GOALS_PER_USER) {
+            log.error("User with id: {} already have more than {} active goals", user.getId(), MAX_ACTIVE_GOALS_PER_USER);
+            throw new IllegalArgumentException("User already has limit of goals. Limit is " + MAX_ACTIVE_GOALS_PER_USER);
         }
         if (goalUsers.contains(user)) {
+            log.error("User with id: {}. Already working on goal with id: {}", user.getId(), goal.getId());
             throw new IllegalArgumentException("User with id = " + user.getId() + " is already working on goal with id = " + goal.getId());
         }
 
@@ -75,6 +80,7 @@ public class GoalInvitationService {
         goalService.updateGoal(goal);
         GoalInvitation updated = goalInvitationRepository.save(goalInvitation);
 
+        log.info("goal invitation with id: {}. Was accepted by user with id: {}", goalInvitation.getId(), user.getId());
         return updated;
     }
 
@@ -86,6 +92,7 @@ public class GoalInvitationService {
 
         GoalInvitation updated = goalInvitationRepository.save(goalInvitation);
 
+        log.info("goal invitation with id: {}. Was rejected by user with id: {}", goalInvitation.getId(), goalInvitation.getInvited().getId());
         return updated;
     }
 
