@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
@@ -56,4 +55,15 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(id));
     }
+
+    @Transactional
+    public UserRegisterResponse register(@Valid UserRegisterRequest request) {
+        if (userRepository.existsByUsername(request.username())){
+            throw new UserAlreadyExistsException("username: " + request.username() + " is busy");
+        }
+
+
+    }
+
+
 }

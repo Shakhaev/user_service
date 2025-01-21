@@ -15,7 +15,6 @@ public class RecommendationController {
     public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
         return recommendationService.create(recommendation);
     }
-
     public RecommendationDto updateRecommendation(RecommendationDto updated) {
         return recommendationService.update(updated);
     }
