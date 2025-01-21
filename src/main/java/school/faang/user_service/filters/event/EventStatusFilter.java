@@ -1,18 +1,20 @@
 package school.faang.user_service.filters.event;
 
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
 
 public class EventStatusFilter implements EventFilter {
 
+
     @Override
-    public boolean isApplicable(EventDto filters) {
+    public boolean isApplicable(EventFilterDto filters) {
         return filters != null;
     }
 
     @Override
-    public boolean filterEntity(Event event, EventDto filters) {
-        return event.getStatus() == filters.getEventStatus();
+    public boolean filterEntity(Event event, EventFilterDto filters) {
+        return filters.getEventStatuses().contains(event.getStatus());
     }
 }

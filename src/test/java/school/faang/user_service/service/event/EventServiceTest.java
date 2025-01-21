@@ -1,32 +1,64 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.filters.event.EventFilter;
+import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.EventService;
+import school.faang.user_service.service.SkillService;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 
+
 public class EventServiceTest {
+
+
     @Mock
     private EventRepository eventRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SkillService skillService;
+
+    @Mock
+    private List<EventFilter> eventFilters;
+
+    @Mock
+    private User user;
+
     @InjectMocks
     private EventService eventService;
+
+
+    @Spy
+    private EventMapper eventMapper;
+
+    @Captor
+    private ArgumentCaptor<EventDto> eventCaptor;
+
+
 
     @BeforeEach
     public  void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
+
 
     @Test
     public void deactivateEventsByUser_updatesStatusAndDeletesEvents() {
@@ -63,7 +95,7 @@ public class EventServiceTest {
 
         List<Event> events = Arrays.asList(event1, event2);
 
-        when(eventRepository.findAllByUserId(userId)).thenReturn(events);
+        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
 
         eventService.deactivateEventsByUser(userId);
 
@@ -75,5 +107,54 @@ public class EventServiceTest {
 
         assert event1.getStatus() == EventStatus.COMPLETED;
         assert event2.getStatus() == EventStatus.COMPLETED;
+    }
+
+    @Test
+    public void testPrepareEventCandidate() {
+
+        EventDto newEventDtoBefore = createNewEventCandidate();
+        eventMapper.toEntityEvent(newEventDtoBefore);
+        verify(eventMapper, times(1)).toEntityEvent(eventCaptor.capture());
+        EventDto newEventDtoAfter = eventCaptor.getValue();
+        assertEquals(newEventDtoBefore, newEventDtoAfter);
+    }
+
+    private EventDto createNewEventCandidate() {
+        return EventDto.builder()
+                .id(1L)
+                .title("title")
+                .ownerId(2L)
+                .relatedSkills(List.of(3L,4L))
+                .build();
+    }
+
+    @Test
+    public void testCreateEvent(){
+
+    }
+
+    @Test
+    public void testUpdateEvent(){
+
+    }
+
+    @Test
+    public void testGetEvent(){
+
+    }
+
+    @Test
+    void testGetParticipatedEvents(){
+
+    }
+
+    @Test
+    void testGetOwnedEvents(){
+
+    }
+
+    @Test
+    void testGetEventsByFilter(){
+
     }
 }

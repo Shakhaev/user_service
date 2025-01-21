@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.service.EventService;
 
 import java.util.List;
 
@@ -20,15 +20,11 @@ public class EventController {
 
 
     public EventDto create(EventDto event) {
-        validationEventDto(event);
         return eventService.create(event);
     }
 
-    public EventDto update (EventDto eventDto, Event event) {
-        validationEventDto(eventDto);
-        eventDto.setId(event.getId());
-
-        return eventService.updateEvent(eventDto);
+    public EventDto update(EventUpdateDto eventDto, long eventId, long userId) {
+        return eventService.updateEvent(eventDto, eventId, userId);
     }
 
     public EventDto getEvent(EventDto event) {
@@ -49,12 +45,5 @@ public class EventController {
 
     public List<Event> getEventsByFilter(EventDto eventDto,EventFilterDto filter,long userId){
         return eventService.getEventsByFilter(eventDto,filter,userId);
-    }
-
-    private void validationEventDto(EventDto event) throws DataValidationException {
-        if (event.getTitle().isBlank() || event.getOwnerId() == null || event.getStartDate() == null) {
-            throw new DataValidationException("Нельзя создать событие с пустыми owner id, " +
-                    "названием, или датой начала");
-        }
     }
 }

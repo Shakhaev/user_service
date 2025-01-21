@@ -1,4 +1,4 @@
-package school.faang.user_service.service.eventsTest;
+package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.service.EventService;
 
 @ExtendWith(MockitoExtension.class)
 public class EventControllerTest {

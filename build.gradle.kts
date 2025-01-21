@@ -74,6 +74,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-core:3.11.2")
+    testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
+    testImplementation("org.powermock:powermock-module-junit4:2.0.9")
+
 }
 
 jsonSchema2Pojo {

@@ -10,16 +10,14 @@ import java.util.List;
 @Data
 public class EventFilterDto {
 
-        private Long id;
-        private String title;
+        private String titlePattern;
+        private String descriptionPattern;
+        private List<EventType> eventTypes;
+        private String locationPattern;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
+        private List<EventStatus> eventStatuses;
         private Long ownerId;
-        private String description;
-        private List<Long> relatedSkills;
-        private String location;
-        private int maxAttendees;
-        private EventType eventType;
-        private EventStatus eventStatus;
+
 
 }
