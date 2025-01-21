@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -34,6 +36,9 @@ public class EventServiceTest {
     @InjectMocks
     private EventService eventService;
 
+    @Captor
+    ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
     @Test
     void createEvent_ShouldNotSaveWhenEventNotValid() {
         prepareValidationThrows();
@@ -59,8 +64,8 @@ public class EventServiceTest {
 
     @Test
     void getEvent_ShouldNotThrowWhenIdExists() {
-        prepareFindingEvent(true);
-        Assertions.assertDoesNotThrow(() -> eventService.getEvent(0L));
+        Event event = prepareFindingEvent(true).get();
+        Assertions.assertEquals(eventMapper.toDto(event), eventService.getEvent(0L));
     }
 
     @Test
@@ -113,10 +118,29 @@ public class EventServiceTest {
 
     @Test
     void updateEvent_ShouldSaveUpdatedEvent() {
-        prepareFindingEvent(true);
-
-        Assertions.assertDoesNotThrow(() -> eventService.updateEvent(new UpdateEventDto()));
+        Event event = prepareFindingEvent(true).get();
+        Mockito.when(eventRepository.save(eventCaptor.capture()))
+                .thenAnswer(invocation -> eventCaptor.getValue());
+        UpdateEventDto updateEventDto = new UpdateEventDto();
+        updateEventDto.setTitle("some new title");
+        updateEventDto.setId(event.getId());
+        event.setTitle(updateEventDto.getTitle());
+        Assertions.assertEquals(eventMapper.toDto(event), eventService.updateEvent(updateEventDto));
         Mockito.verify(eventRepository, Mockito.times(1)).save(Mockito.any(Event.class));
+    }
+
+    @Test
+    void getParticipatedEvents_ShouldReturnEventList() {
+        Event event1 = new Event();
+        Event event2 = new Event();
+        event1.setId(1L);
+        event2.setId(2L);
+
+        Mockito.when(eventRepository.findParticipatedEventsByUserId(Mockito.anyLong()))
+                .thenReturn(List.of(event1, event2));
+
+        Assertions.assertEquals(List.of(eventMapper.toDto(event1), eventMapper.toDto(event2)),
+                eventService.getParticipatedEvents(1L));
     }
 
     private void prepareValidationThrows() {
@@ -124,13 +148,19 @@ public class EventServiceTest {
                 .when(eventValidator).validateEventInfo(Mockito.any(Event.class));
     }
 
-    private void prepareFindingEvent(boolean entityExist) {
+    private Optional<Event> prepareFindingEvent(boolean entityExist) {
         if (entityExist) {
+            Event event = new Event();
+            event.setId(1L);
+            event.setTitle("title");
+            var optional = Optional.of(event);
             Mockito.when(eventRepository.findById(Mockito.anyLong()))
-                    .thenReturn(Optional.of(new Event()));
+                    .thenReturn(optional);
+            return optional;
         } else {
             Mockito.when(eventRepository.findById(Mockito.anyLong()))
                     .thenReturn(Optional.empty());
+            return Optional.empty();
         }
     }
 }
