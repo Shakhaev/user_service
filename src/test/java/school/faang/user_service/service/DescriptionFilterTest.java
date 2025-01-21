@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.service.filter.DescriptionFilter;
-import school.faang.user_service.service.filter.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,7 +13,7 @@ public class DescriptionFilterTest {
 
     @Test
     public void testIsApplicableIfDescriptionPatternIsAbsentThenReturnFalse() {
-        RequestFilterDto filters = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filters = MentorshipRequestFilterDto.builder()
                 .authorPattern("author")
                 .build();
         DescriptionFilter filter = new DescriptionFilter();
@@ -23,7 +23,7 @@ public class DescriptionFilterTest {
 
     @Test
     public void testIsApplicableIfDescriptionPatternIsPresentThenReturnTrue() {
-        RequestFilterDto filters = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filters = MentorshipRequestFilterDto.builder()
                 .descriptionPattern("description")
                 .build();
         DescriptionFilter filter = new DescriptionFilter();
@@ -35,7 +35,7 @@ public class DescriptionFilterTest {
     public void testApplySuccess() {
         DescriptionFilter filter = new DescriptionFilter();
         Stream<MentorshipRequest> mentorshipRequestStream = TestData.getMentorshipRequestsStream();
-        RequestFilterDto filtersDto = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filtersDto = MentorshipRequestFilterDto.builder()
                 .descriptionPattern("descri")
                 .build();
 

@@ -13,7 +13,6 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.contact.Contact;
 
-
 public class TestData {
     public static Stream<MentorshipRequest> getMentorshipRequestsStream(){
         return getListOfRequests().stream();

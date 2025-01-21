@@ -8,9 +8,9 @@ import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.filter.RequestFilter;
-import school.faang.user_service.service.filter.RequestFilterDto;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private static final int MIN_COUNT_OF_MONTHS_BETWEEN_REQUESTS = 3;
-    private final MentorshipRequestRepository repository;
-    private final UserService userService;
+    private final MentorshipRequestRepository mentorshipRequestRepository;
+    private final UserRepository userRepository;
     private final MentorshipRequestMapper mapper;
     private final List<RequestFilter> requestFilters;
 
@@ -34,17 +34,17 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public MentorshipResponseDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         log.info("MentorshipRequestServiceImpl: method #requestMentorship started with data: {}", mentorshipRequestDto);
         validateRequest(mentorshipRequestDto);
-        MentorshipRequest mentorshipRequest = repository.create(
-                mentorshipRequestDto.requesterUserId(),
-                mentorshipRequestDto.receiverUserId(),
+        MentorshipRequest mentorshipRequest = mentorshipRequestRepository.create(
+                mentorshipRequestDto.requester().getUserId(),
+                mentorshipRequestDto.receiver().getUserId(),
                 mentorshipRequestDto.description());
         return mapper.toMentorshipResponseDto(mentorshipRequest);
     }
 
     @Override
-    public List<MentorshipResponseDto> getRequests(RequestFilterDto filters) {
+    public List<MentorshipResponseDto> getRequests(MentorshipRequestFilterDto filters) {
         log.info("MentorshipRequestServiceImpl: method #getRequests started with filters: {}", filters);
-        Stream<MentorshipRequest> mentorshipRequests = repository.findAll().stream();
+        Stream<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll().stream();
 
         for (RequestFilter requestFilter : requestFilters) {
             mentorshipRequests = requestFilter.apply(mentorshipRequests, filters)
@@ -59,7 +59,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public void acceptRequest(long requestId) {
         log.info("MentorshipRequestServiceImpl: method #acceptRequest started with requestId: {}", requestId);
-        MentorshipRequest request = repository.findById(requestId).orElseThrow(
+        MentorshipRequest request = mentorshipRequestRepository.findById(requestId).orElseThrow(
                 () -> new IllegalArgumentException(String.format("Запрос с id: %d отсутствует в базе данных", requestId)));
 
         User receiver = request.getReceiver();
@@ -78,7 +78,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public void rejectRequest(long requestId, RejectionDto rejection) {
         log.info("MentorshipRequestServiceImpl: method #rejectRequest started with requestId: {} and data: {}", requestId, rejection);
-        MentorshipRequest mentorshipRequest = repository.findById(requestId).orElseThrow(
+        MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow(
                 () -> new IllegalArgumentException(String.format("В базе данных отсутствует запрос с id: %d", requestId)));
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.reason());
@@ -86,17 +86,22 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     private void validateRequest(MentorshipRequestDto mentorshipRequestDto) {
         checkRequesterAndReceiverAreNotTheSamePerson(mentorshipRequestDto);
-        UserDto requesterUserDto = userService.findById(mentorshipRequestDto.requesterUserId());
-        UserDto receiverUserDto = userService.findById(mentorshipRequestDto.receiverUserId());
-        MentorshipRequest lastMentorshipRequest = repository.findLatestRequest(
-                requesterUserDto.getUserId(), receiverUserDto.getUserId()).orElse(null);
+        User requester = userRepository.findById(mentorshipRequestDto.requester().getUserId())
+                .orElseThrow(() -> new IllegalArgumentException(String.format("There is no requester with id = %s in database",
+                        mentorshipRequestDto.requester().getUserId()))
+                );
+        User receiver = userRepository.findById(mentorshipRequestDto.receiver().getUserId())
+                .orElseThrow(() -> new IllegalArgumentException(String.format("There is no receiver with id = %s in database",
+                        mentorshipRequestDto.requester().getUserId())));
+        MentorshipRequest lastMentorshipRequest = mentorshipRequestRepository.findLatestRequest(
+                requester.getId(), receiver.getId()).orElse(null);
         if (!Objects.isNull(lastMentorshipRequest)) {
             checkRequestIsNotTooOften(lastMentorshipRequest);
         }
     }
 
     private void checkRequesterAndReceiverAreNotTheSamePerson(MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.requesterUserId().equals(mentorshipRequestDto.receiverUserId())) {
+        if (mentorshipRequestDto.requester().getUserId().equals(mentorshipRequestDto.receiver().getUserId())) {
             throw new IllegalArgumentException("Пользователь не может отправлять запрос сам себе!");
         }
     }

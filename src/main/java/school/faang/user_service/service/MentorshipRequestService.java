@@ -3,7 +3,7 @@ package school.faang.user_service.service;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.service.filter.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface MentorshipRequestService {
      * Метод принимает объект класса RequestFilterDto, представляющий собой набор следующих фильтров:
      * по описанию, по автору запроса, по получателю запроса, по статусу запроса.
      */
-    List<MentorshipResponseDto> getRequests(RequestFilterDto filters);
+    List<MentorshipResponseDto> getRequests(MentorshipRequestFilterDto filters);
 
     /**
      * Метод реализует возможность принять запрос на менторство, пришедший от другого пользователя.

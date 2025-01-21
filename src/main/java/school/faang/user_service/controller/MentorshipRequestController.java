@@ -2,6 +2,7 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.service.filter.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestServiceImpl;
 
 import java.util.List;
@@ -24,18 +25,18 @@ import java.util.Objects;
 public class MentorshipRequestController {
     private final MentorshipRequestServiceImpl service;
 
-    @PostMapping
+    @PostMapping("/requests")
     public MentorshipResponseDto requestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
-        log.info("#requestMentorship: mentorship request has been received from user with id: {}", mentorshipRequestDto.receiverUserId());
+        log.info("#requestMentorship: mentorship request has been received from user with id: {}", mentorshipRequestDto.receiver().getUserId());
         if (Objects.isNull(mentorshipRequestDto.description()) || mentorshipRequestDto.description().isBlank()) {
-            throw new IllegalArgumentException(String.format("Запрос от пользователя с id: %d не содержит описания." +
-                    "Описание запроса не может быть пустым.", mentorshipRequestDto.requesterUserId()));
+            throw new IllegalArgumentException(String.format("Request from user with id: %d does not contain a description." +
+                    "The description cannot be missing or empty.", mentorshipRequestDto.requester().getUserId()));
         }
         return service.requestMentorship(mentorshipRequestDto);
     }
 
-    @PostMapping("/requests")
-    public List<MentorshipResponseDto> getRequests(@RequestBody RequestFilterDto filter) {
+    @GetMapping("/requests")
+    public List<MentorshipResponseDto> getRequests(MentorshipRequestFilterDto filter) {
         log.info("#getRequests: request has been received to receive all mentoring requests that match the filters");
         return service.getRequests(filter);
     }

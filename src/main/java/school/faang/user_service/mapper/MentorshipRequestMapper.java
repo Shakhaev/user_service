@@ -5,21 +5,21 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipResponseDto;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MentorshipRequestMapper {
 
-    @Mapping(source = "requester.id", target = "requesterUserId")
-    @Mapping(source = "receiver.id", target = "receiverUserId")
     MentorshipRequestDto toMentorshipRequestDto(MentorshipRequest entity);
 
-    @Mapping(source = "requester.id", target = "requesterUserId")
-    @Mapping(source = "receiver.id", target = "receiverUserId")
     MentorshipResponseDto toMentorshipResponseDto(MentorshipRequest entity);
 
-    @Mapping(target = "requester", ignore = true)
-    @Mapping(target = "receiver", ignore = true)
     MentorshipRequest toMentorshipRequestEntity(MentorshipRequestDto dto);
 
+    @Mapping(target = "sentMentorshipRequests", ignore = true)
+    UserDto toUserDto(User user);
+
+    User toUserEntity(UserDto userDto);
 }

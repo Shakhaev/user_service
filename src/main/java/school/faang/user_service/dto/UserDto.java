@@ -9,5 +9,9 @@ import java.util.List;
 @Builder
 public class UserDto {
     private Long userId;
+    private String username;
+    private String email;
+    private String password;
+    private boolean active;
     private List<MentorshipRequestDto> sentMentorshipRequests;
 }

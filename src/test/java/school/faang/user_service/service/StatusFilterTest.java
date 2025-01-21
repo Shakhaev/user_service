@@ -3,7 +3,7 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.service.filter.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.service.filter.StatusFilter;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class StatusFilterTest {
 
     @Test
     public void testIsApplicableIfStatusPatternIsAbsentThenReturnFalse() {
-        RequestFilterDto filters = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filters = MentorshipRequestFilterDto.builder()
                 .authorPattern("author")
                 .build();
         StatusFilter filter = new StatusFilter();
@@ -23,7 +23,7 @@ public class StatusFilterTest {
 
     @Test
     public void testIsApplicableIfStatusPatternIsPresentThenReturnTrue() {
-        RequestFilterDto filters = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filters = MentorshipRequestFilterDto.builder()
                 .statusPattern("PENDING")
                 .build();
         StatusFilter filter = new StatusFilter();
@@ -35,7 +35,7 @@ public class StatusFilterTest {
     public void testApplySuccess() {
         StatusFilter filter = new StatusFilter();
         Stream<MentorshipRequest> mentorshipRequestStream = TestData.getMentorshipRequestsStream();
-        RequestFilterDto filtersDto = RequestFilterDto.builder()
+        MentorshipRequestFilterDto filtersDto = MentorshipRequestFilterDto.builder()
                 .statusPattern("PENDING")
                 .build();
 

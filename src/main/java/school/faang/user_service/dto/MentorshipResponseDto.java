@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public record MentorshipResponseDto(
         Long id,
         String description,
-        Long requesterUserId,
-        Long receiverUserId,
+        UserDto requester,
+        UserDto receiver,
         RequestStatus status,
         String rejectionReason,
         LocalDateTime createdAt,
