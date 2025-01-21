@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -14,8 +15,6 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static school.faang.user_service.constants.Constants.MAX_ACTIVE_GOALS_PER_USER;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,6 +23,8 @@ public class GoalInvitationService {
     private final GoalService goalService;
     private final UserService userService;
     private final List<InvitationFilter> invitationFilters;
+    @Value("${goal.max-active-goals-per-user}")
+    private Integer MAX_ACTIVE_GOALS_PER_USER;
 
     public GoalInvitation createInvitation(GoalInvitation goalInvitation) {
         Long goalId = goalInvitation.getGoal().getId();
