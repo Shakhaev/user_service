@@ -9,12 +9,13 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class AvatarService {
-    private static final String DICEBEAR_URL = "https://api.dicebear.com/9.x/adventurer/svg";
+    private static final String DICEBEAR_URL = "https://api.dicebear.com/9.x/adventurer/svg?seed={seed}";
+
     private final Random random = new Random();
     private final ExternalApiService externalApiService;
 
     public Mono<String> getRandomAvatar() {
-        int seed = random.nextInt();
+        int seed = Math.abs(random.nextInt());
         return externalApiService.get(DICEBEAR_URL, String.class, seed);
     }
 }
