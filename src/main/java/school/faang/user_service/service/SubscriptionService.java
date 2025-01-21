@@ -15,6 +15,7 @@ import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.rating.ActionType;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -27,8 +28,7 @@ import java.util.stream.Stream;
 public class SubscriptionService {
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final RatingService ratingService;
-    private final AppConfig appConfig;
+    private final UserEventPublisher userEventPublisher;
     private final UserFollowingMapper userFollowingMapper;
     private final List<UserFilter> filters;
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
@@ -90,12 +90,7 @@ public class SubscriptionService {
         userRepository.save(requestUser);
         userRepository.save(requestedUser);
 
-        ratingService.addRating(
-                u -> "User : " + u.getUsername() + " -> followed user: "  + followerId + " and got rating!",
-                followeeId,
-                appConfig.getPassiveTransaction(),
-                ActionType.PASSIVE
-        );
+        userEventPublisher.publishEvent(ActionType.FOLLOW, followeeId);
 
         logger.info("Succeed of following user!");
     }
@@ -119,12 +114,7 @@ public class SubscriptionService {
         userRepository.save(requestedUser);
         userRepository.save(requestedUser);
 
-        ratingService.addRating(
-                u -> "User : " + u.getUsername() + " -> unfollowed user: "  + followerId + " and got rating!",
-                followeeId,
-                appConfig.getPassiveTransaction(),
-                ActionType.PASSIVE
-        );
+        userEventPublisher.publishEvent(ActionType.UNFOLLOW, followeeId);
 
         logger.info("Succeed of unfollowing user!");
     }

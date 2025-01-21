@@ -8,13 +8,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.config.AppConfig;
 import school.faang.user_service.dto.rating.LeaderTableDto;
-import school.faang.user_service.dto.rating.RatingDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.LeaderTableMapper;
 import school.faang.user_service.rating.ActionType;
-import school.faang.user_service.rating.description.Descriptionable;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.*;
@@ -22,8 +20,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class RatingService {
-    private final ApplicationEventPublisher publisher;
-    private final AppConfig appConfig;
+    private final UserEventPublisher userEventPublisher;
     private final UserRepository userRepository;
     private final LeaderTableMapper leaderTableMapper;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -41,13 +38,7 @@ public class RatingService {
         if (!queueForMessages.isEmpty()) {
             String userId = queueForMessages.poll();
             if (userId != null) {
-                RatingDto ratingDto = RatingDto.builder()
-                        .descriptionable((user) -> "made the success payment" + "made -> " + user.getId())
-                        .points(appConfig.getActiveTransaction())
-                        .actionType(ActionType.ACTIVE)
-                        .id(Integer.parseInt(userId))
-                        .build();
-                addPoints(ratingDto);
+                userEventPublisher.publishEvent(ActionType.PAYMENT_SUCCESS, Integer.parseInt(userId));
             }
         }
     }
@@ -97,27 +88,5 @@ public class RatingService {
         List<User> topUsers = userRepository.findTopByOrderByRatingPointsDesc(LEADERBOARD_LIMIT);
         topUsers.forEach(user -> redisTemplate.opsForZSet()
                 .add(LEADERBOARD_KEY, user.getId(), user.getRatingPoints()));
-    }
-
-    public void addPoints(RatingDto ratingDto) {
-        logger.info("Publishing event -> {}, {}, {}, {}",
-                ratingDto.id(),
-                ratingDto.actionType(),
-                ratingDto.descriptionable(),
-                ratingDto.points());
-
-        publisher.publishEvent(ratingDto);
-    }
-
-    public void addRating(Descriptionable descriptionable, long userId,
-                           int points, ActionType actionType) {
-        RatingDto ratingDto = new RatingDto(
-                descriptionable,
-                userId,
-                points,
-                actionType
-        );
-
-        addPoints(ratingDto);
     }
 }

@@ -1,6 +1,8 @@
 package school.faang.user_service.rating;
 
 public enum ActionType {
-    ACTIVE,
-    PASSIVE
+    FOLLOW,
+    UNFOLLOW,
+    SKILL_ACQUIRE,
+    PAYMENT_SUCCESS
 }

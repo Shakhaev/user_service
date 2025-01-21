@@ -15,6 +15,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.rating.ActionType;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -27,8 +28,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SkillService {
     private final SkillRepository skillRepository;
-    private final RatingService ratingService;
     private final SkillMapper skillMapper;
+    private final UserEventPublisher userEventPublisher;
     private final UserRepository userRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final AppConfig appConfig;
@@ -88,12 +89,7 @@ public class SkillService {
                 userSkillGuaranteeRepository.save(guarantee);
             });
 
-            ratingService.addRating(
-                    u -> "User : " + u.getUsername() + " -> acquired and got rating!",
-                    userId,
-                    appConfig.getActiveTransaction(),
-                    ActionType.ACTIVE
-            );
+            userEventPublisher.publishEvent(ActionType.SKILL_ACQUIRE, userId);
 
             return skillMapper.toDto(skill);
         }
