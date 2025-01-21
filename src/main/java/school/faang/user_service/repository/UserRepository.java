@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -27,4 +28,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUsernameLike(String username);
 
     boolean existsByUsername(String username);
+
+    @Query(nativeQuery = true, value = """
+            SELECT profile_pic_file_id FROM users
+            WHERE id = :userId
+            """)
+    Optional<String> getUserProfileFileId(Long userId);
 }
