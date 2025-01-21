@@ -3,7 +3,7 @@ name: user-service CI
 on:
   pull_request:
     branches:
-      - dev
+      - triton-master-stream8
 
 jobs:
   build:
