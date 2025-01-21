@@ -15,6 +15,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.UserWasNotFoundException;
 import school.faang.user_service.mapper.UserFollowingMapper;
 import school.faang.user_service.mapper.UserFollowingMapperImpl;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -28,13 +29,12 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
-
     @InjectMocks
     private SubscriptionService subscriptionService;
     @Mock
     private UserRepository userRepository;
     @Mock
-    private AppConfig appConfig;
+    private UserEventPublisher userEventPublisher;
     @Mock
     private SubscriptionRepository subscriptionRepository;
     @Mock
