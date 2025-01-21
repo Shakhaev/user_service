@@ -2,6 +2,7 @@ package school.faang.user_service.repository.recommendation;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface SkillOfferRepository extends CrudRepository<SkillOffer, Long> {
             JOIN so.recommendation r
             WHERE so.skill.id = :skillId AND r.receiver.id = :userId
             """)
-    List<SkillOffer> findAllOffersOfSkill(long skillId, long userId);
+    List<SkillOffer> findAllOffersOfSkill(@Param("skillId") long skillId, @Param("userId") long userId);
 
     @Query(value = """
             SELECT so FROM SkillOffer so
