@@ -17,7 +17,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/get-premium-users")
+    @GetMapping("/premium")
     public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
     }
