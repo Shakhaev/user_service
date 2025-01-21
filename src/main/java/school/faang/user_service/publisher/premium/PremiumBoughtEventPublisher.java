@@ -1,4 +1,4 @@
-package school.faang.user_service.publisher.subscription;
+package school.faang.user_service.publisher.premium;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,26 +7,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.subscription.FollowerEvent;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
-public class FollowerEventPublisher {
-
+@Slf4j
+public class PremiumBoughtEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+    @Value("${spring.data.redis.channels.premium-bought-channel}")
+    private String premiumBoughtChannel;
 
-    @Value("${spring.data.redis.channels.follower-event-channel}")
-    private String followersChannel;
-
-    public void publish(FollowerEvent event) {
+    public void publish(PremiumBoughtEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
-            redisTemplate.convertAndSend(followersChannel, json);
+            redisTemplate.convertAndSend(premiumBoughtChannel, json);
         } catch (JsonProcessingException e) {
             log.error("Error converting object {} to JSON: {}", event, e.getMessage());
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

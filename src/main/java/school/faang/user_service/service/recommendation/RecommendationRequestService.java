@@ -1,22 +1,27 @@
 package school.faang.user_service.service.recommendation;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.entity.requeststatus.RequestStatus;
-import school.faang.user_service.entity.user.User;
+import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
+import school.faang.user_service.dto.rejection.RejectionDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.entity.requeststatus.RequestStatus;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.exception.entity.EntityNotFoundException;
+import school.faang.user_service.exception.entity.EntityNotFoundExceptionWithId;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestedEventMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationRequestedEventPublisher;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.validator.recommendation.RecommendationRequestServiceValidator;
 
 import java.util.ArrayList;
@@ -29,10 +34,11 @@ public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestServiceValidator validator;
     private final RecommendationRequestMapper mapper;
-    private final SkillRequestRepository skillRequestRepository;
+    private final SkillRepository skillRepository;
     private final UserRepository userRepository;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
-
+    private final RecommendationRequestedEventMapper requestedEventMapper;
+    private final RecommendationRequestedEventPublisher requestedEventPublisher;
 
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
         log.info("Start creating RecommendationRequest: {}", recommendationRequestDto);
@@ -40,25 +46,31 @@ public class RecommendationRequestService {
         validator.validateSixMonthRequestLimit(recommendationRequestDto);
         validator.validateExistsSkillsInDatabase(recommendationRequestDto);
 
-        RecommendationRequest entityRecommendationRequest = mapper.toEntity(recommendationRequestDto);
-        long idRecommendationRequest = entityRecommendationRequest.getId();
-        List<SkillRequest> entitySkillRequests = recommendationRequestDto.getSkillIds().stream()
-                .map(skillId -> skillRequestRepository.create(idRecommendationRequest, skillId))
-                .toList();
-
         User entityRequester = userRepository.findById(recommendationRequestDto.getRequesterId()).get();
         User entityReceiver = userRepository.findById(recommendationRequestDto.getReceiverId()).get();
 
-        entityRecommendationRequest
-                .setRequester(entityRequester)
-                .setReceiver(entityReceiver);
+        RecommendationRequest entityRecommendationRequest = mapper.toEntity(recommendationRequestDto);
+        entityRecommendationRequest.setRequester(entityRequester)
+                .setReceiver(entityReceiver)
+                .setStatus(RequestStatus.PENDING);
         if (entityRecommendationRequest.getSkills() == null) {
             entityRecommendationRequest.setSkills(new ArrayList<>());
         }
-        entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
-        RecommendationRequest savedEntity = recommendationRequestRepository.save(entityRecommendationRequest);
 
-        log.info("The {} was created in the database", savedEntity);
+        recommendationRequestDto.getSkillIds().stream()
+                .map(skillId -> {
+                    Skill skill = skillRepository.findById(skillId).orElseThrow(EntityNotFoundException::new);
+                    return new SkillRequest()
+                            .setSkill(skill)
+                            .setRequest(entityRecommendationRequest);
+                })
+                .forEach(entityRecommendationRequest::addSkillRequest);
+
+        RecommendationRequest savedEntity = recommendationRequestRepository.save(entityRecommendationRequest);
+        log.info("The recommendation request with id: {} was created in the database", savedEntity.getId());
+
+        RecommendationRequestedEvent requestedEvent = requestedEventMapper.recommendationRequestToEvent(savedEntity);
+        requestedEventPublisher.publish(requestedEvent);
 
         return mapper.toDTO(savedEntity);
     }
@@ -85,7 +97,7 @@ public class RecommendationRequestService {
         log.info("Start processing getRequest for ID: {}", id);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("The RecommendationRequest will not be found in the database", id));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithId("The RecommendationRequest will not be found in the database", id));
         RecommendationRequestDto result = mapper.toDTO(recommendationRequest);
 
         log.info("Completed processing getRequest for ID: {}. Result: {}", id, result);
@@ -97,7 +109,7 @@ public class RecommendationRequestService {
         log.info("Start processing rejectRequest for ID: {} with Rejection: {}", id, rejection);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("The RecommendationRequest will not be found in the database", id));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithId("The RecommendationRequest will not be found in the database", id));
 
         RequestStatus status = recommendationRequest.getStatus();
         if (status != RequestStatus.PENDING) {

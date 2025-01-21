@@ -1,7 +1,8 @@
-package school.faang.user_service.publisher.subscription;
+package school.faang.user_service.publisher.premium;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,53 +10,43 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import school.faang.user_service.dto.subscription.FollowerEvent;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class FollowerEventPublisherTest {
-
+class PremiumBoughtEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
     private ObjectMapper objectMapper;
     @InjectMocks
-    private FollowerEventPublisher publisher;
-    @Value("${spring.data.redis.channels.follower-event-channel.name}")
-    private String followersChannel;
+    private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
+    @Value("${spring.data.redis.channels.premium-bought-channel.name}")
+    private String premiumBoughtChannel;
 
     @Test
     void testSuccessfulPublish() throws JsonProcessingException {
-        FollowerEvent event = prepareEvent();
+        PremiumBoughtEvent event = setEvent();
         when(objectMapper.writeValueAsString(event)).thenReturn("some_json");
-
-        publisher.publish(event);
-
-        verify(redisTemplate).convertAndSend(followersChannel, "some_json");
+        premiumBoughtEventPublisher.publish(event);
+        verify(redisTemplate).convertAndSend(premiumBoughtChannel, "some_json");
     }
 
     @Test
     void testPublishWithJsonProcessingException() throws JsonProcessingException {
-        FollowerEvent event = prepareEvent();
+        PremiumBoughtEvent event = setEvent();
         when(objectMapper.writeValueAsString(event)).thenThrow(JsonProcessingException.class);
-
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> publisher.publish(event));
-
-        assertEquals(RuntimeException.class, exception.getClass());
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> premiumBoughtEventPublisher.publish(event));
+        Assertions.assertEquals(IllegalStateException.class, exception.getClass());
     }
 
-    private FollowerEvent prepareEvent() {
-        return FollowerEvent.builder()
-                .followerUserId(1)
-                .targetUserId(2L)
-                .createdAt(LocalDateTime.now())
-                .build();
+    private PremiumBoughtEvent setEvent() {
+        return new PremiumBoughtEvent(1L, 1L, "Basic", LocalDateTime.now(), LocalDateTime.now());
     }
 }

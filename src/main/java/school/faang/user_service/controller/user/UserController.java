@@ -55,4 +55,9 @@ public class UserController {
     public void importCSVFile(@RequestParam("file") MultipartFile csvFile) throws IOException {
         userService.uploadUsers(csvFile);
     }
+
+    @PostMapping("/{userId}/deactivate")
+    public void deactivate(@NotNull @PathVariable long userId) {
+        userService.deactivateUser(userId);
+    }
 }
