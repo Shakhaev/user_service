@@ -47,8 +47,9 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         Stream<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll().stream();
 
         for (RequestFilter requestFilter : requestFilters) {
-            mentorshipRequests = requestFilter.apply(mentorshipRequests, filters)
-                    .toList().stream();
+            if (requestFilter.isApplicable(filters)) {
+                mentorshipRequests = requestFilter.apply(mentorshipRequests, filters);
+            }
         }
 
         return mentorshipRequests
