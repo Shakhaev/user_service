@@ -93,6 +93,11 @@ public class SubscriptionController {
         return subscriptionService.checkFollowerOfFollowee(followeeId, followerId);
     }
 
+    @GetMapping("/{followeeId}")
+    public List<Long> getFollowersIds(@PathVariable long followeeId){
+        return subscriptionService.getFollowersIds(followeeId);
+    }
+
     private void isFollowerFolloweeIdsEqual(long followerId, long followeeId, String message) {
         if (followerId == followeeId) {
             throw new DataValidationException(message);
