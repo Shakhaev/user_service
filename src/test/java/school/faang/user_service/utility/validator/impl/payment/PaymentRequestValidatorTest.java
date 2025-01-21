@@ -19,7 +19,7 @@ class PaymentRequestValidatorTest {
     void checkRequestValid() {
         PaymentRequest validRequest = PaymentRequest.builder()
                 .paymentNumber(2L)
-                .price(BigDecimal.valueOf(80L))
+                .amount(BigDecimal.valueOf(80L))
                 .currency(Currency.EUR)
                 .build();
 

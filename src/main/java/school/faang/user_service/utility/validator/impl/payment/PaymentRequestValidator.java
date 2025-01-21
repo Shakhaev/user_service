@@ -10,8 +10,8 @@ public class PaymentRequestValidator extends AbstractDataValidator<PaymentReques
     @Override
     public void validate(PaymentRequest data) {
         checkNumberIsPositive(data.paymentNumber(), "Payment number must be greater than 0");
-        checkNotNull(data.price(), "Price cannot be null");
-        checkNumberIsPositive(data.price(), "Price must be greater than 0");
+        checkNotNull(data.amount(), "Price cannot be null");
+        checkNumberIsPositive(data.amount(), "Price must be greater than 0");
         checkEnumValue(data.currency(), Currency.values(), "Invalid Currency type");
     }
 }
