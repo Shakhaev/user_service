@@ -27,7 +27,7 @@ public class PremiumService {
 
     public OrderDto buyPremium(long user_id, PremiumPlan plan, String paymentMethod) {
         if (!userRepository.existsById(user_id)) {
-            throw new DataValidationException("Такой пользователь не существует");
+            throw new EntityNotFoundException("Такой пользователь не существует");
         }
         if (premiumRepository.existsByUserId(user_id)) {
             throw new DataValidationException("Пользователь уже является премиум пользователем");

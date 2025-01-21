@@ -14,7 +14,7 @@ import school.faang.user_service.service.PremiumService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/premium")
+@RequestMapping("/premium")
 public class PremiumController {
     private final PremiumService premiumService;
 
@@ -23,7 +23,7 @@ public class PremiumController {
         return premiumService.buyPremium(dto.userId(), PremiumPlan.fromDays(dto.days()), dto.paymentMethod());
     }
 
-    @PostMapping("activate")
+    @PostMapping("/activation")
     private void activatePremiumForUser(@RequestParam Long orderId) {
         premiumService.activatePremiumForUser(orderId);
     }

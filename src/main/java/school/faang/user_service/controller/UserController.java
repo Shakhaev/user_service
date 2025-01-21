@@ -11,7 +11,7 @@ import school.faang.user_service.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -20,7 +20,7 @@ public class UserController {
         userService.deactivateUser(userId);
     }
 
-    @GetMapping("exist")
+    @GetMapping("/is-user-exists")
     public BooleanResponse isUserExist(@RequestParam(name = "user_id") Long userId) {
         return new BooleanResponse(userService.isUserExist(userId));
     }
