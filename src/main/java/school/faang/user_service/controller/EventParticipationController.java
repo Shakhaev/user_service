@@ -1,10 +1,8 @@
 package school.faang.user_service.controller;
 
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,22 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EventParticipationController {
 
-    public final EventParticipationService eventParticipationService;
+    private final EventParticipationService eventParticipationService;
 
     @PostMapping("/register")
     ResponseEntity<Object> register(@RequestParam long userId, @RequestParam long eventId) {
-        ResponseEntity<Object> response;
-        try {
-            eventParticipationService.registerParticipant(eventId, userId);
-            response = new ResponseEntity<>("success", HttpStatus.CREATED);
-        }
-        catch (ResponseStatusException e) {
-            response = new ResponseEntity<>(e.getReason(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            response = new ResponseEntity<>("something went wrong:(", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+        return eventParticipationService.registerParticipant(eventId, userId);
     }
 
     @PostMapping("/unregister")

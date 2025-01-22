@@ -2,9 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,25 +13,34 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class EventParticipationService {
 
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
 
     @Transactional
-    public void registerParticipant(long eventId, long userId) {
-        boolean isParticipantFound = eventParticipationRepository.findAllParticipantsByEventId(eventId).stream().anyMatch((user) -> user.getId() == userId);
+    public ResponseEntity<Object> registerParticipant(long eventId, long userId) {
+        ResponseEntity<Object> response;
+        boolean isParticipantFound = eventParticipationRepository.findAllParticipantsByEventId(eventId)
+                .stream()
+                .anyMatch(user -> user.getId() == userId);
         if (isParticipantFound) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "participant already exists");
+            response =  new ResponseEntity<>("Participant already exists", HttpStatus.CONFLICT);
         }
         else {
-            eventParticipationRepository.register(eventId, userId);
+            try {
+                eventParticipationRepository.register(eventId, userId);
+                response = new ResponseEntity<>("success", HttpStatus.CREATED);
+            }
+            catch (Exception e) {
+                response = new ResponseEntity<>("something went wrong:(", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
+        return response;
     }
 
     @Transactional
