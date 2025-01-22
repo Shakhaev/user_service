@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -19,8 +20,8 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.GoalInvitationException;
 import school.faang.user_service.filter.goal.InvitationFilter;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.GoalService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,10 @@ public class GoalInvitationServiceTest {
     private GoalInvitationRepository goalInvitationRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Mock
+    private GoalService goalService;
 
     @InjectMocks
     private GoalInvitationService goalInvitationService;
@@ -44,32 +48,47 @@ public class GoalInvitationServiceTest {
     @Test
     public void testCreateInvitationSuccess() {
         GoalInvitation invitation = GoalInvitation.builder()
-                .id(1L)
                 .inviter(User.builder().id(1L).username("InviterUser").build())
                 .invited(User.builder().id(2L).username("InvitedUser").build())
-                .goal(Goal.builder().id(100L).title("Test Goal").build())
+                .goal(Goal.builder().id(3L).title("Test Goal").build())
                 .status(RequestStatus.PENDING)
                 .build();
 
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(userRepository.existsById(2L)).thenReturn(true);
-        when(goalInvitationRepository.save(invitation)).thenReturn(invitation);
+        GoalInvitationDto dto = GoalInvitationDto.builder()
+                .id(1L)
+                .inviterId(1L)
+                .invitedUserId(2L)
+                .goalId(3L)
+                .status(RequestStatus.PENDING)
+                .build();
 
-        GoalInvitation result = goalInvitationService.createInvitation(invitation);
+        when(userService.isUserExistById(1L)).thenReturn(true);
+        when(userService.isUserExistById(2L)).thenReturn(true);
+        when(goalService.getGoal(3L)).thenReturn(invitation.getGoal());
+        when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(invitation);
 
-        assertEquals(RequestStatus.PENDING, result.getStatus());
-        verify(goalInvitationRepository).save(invitation);
+        GoalInvitation result = goalInvitationService.createInvitation(dto);
+
+        assertEquals(result.getInviter(), invitation.getInviter());
+        assertEquals(result.getInvited(), invitation.getInvited());
+        assertEquals(result.getGoal(), invitation.getGoal());
+        assertEquals(RequestStatus.PENDING, invitation.getStatus());
+
+        verify(userService).getUser(1L);
+        verify(userService).getUser(2L);
+        verify(goalService).getGoal(3L);
+        verify(goalInvitationRepository).save(any(GoalInvitation.class));
     }
 
     @Test
     public void testCreateInvitationFailSameUser() {
-        GoalInvitation invitation = GoalInvitation.builder()
-                .inviter(User.builder().id(1L).build())
-                .invited(User.builder().id(1L).build())
+        GoalInvitationDto dto = GoalInvitationDto.builder()
+                .inviterId(1L)
+                .invitedUserId(1L)
                 .build();
 
         GoalInvitationException exception = assertThrows(GoalInvitationException.class,
-                () -> goalInvitationService.createInvitation(invitation));
+                () -> goalInvitationService.createInvitation(dto));
 
         assertEquals("User cannot create invitation for himself", exception.getMessage());
     }
@@ -112,7 +131,7 @@ public class GoalInvitationServiceTest {
         GoalInvitationException exception = assertThrows(GoalInvitationException.class,
                 () -> goalInvitationService.acceptGoalInvitation(1L));
 
-        assertEquals("User can not has more than 3 active goals", exception.getMessage());
+        assertEquals("User cannot has more than 3 active goals", exception.getMessage());
     }
 
     @Test
@@ -144,7 +163,8 @@ public class GoalInvitationServiceTest {
         when(filter2.isApplicable(any())).thenReturn(false);
 
         invitationFilters = List.of(filter1, filter2);
-        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userRepository, invitationFilters);
+        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userService,
+                                                            goalService, invitationFilters);
 
         GoalInvitation invitation1 = GoalInvitation.builder().id(1L).build();
         GoalInvitation invitation2 = GoalInvitation.builder().id(2L).build();
@@ -181,7 +201,8 @@ public class GoalInvitationServiceTest {
         });
 
         invitationFilters = List.of(inviterNameFilter);
-        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userRepository, invitationFilters);
+        goalInvitationService = new GoalInvitationService(goalInvitationRepository, userService,
+                                                             goalService, invitationFilters);
 
         when(goalInvitationRepository.findAll()).thenReturn(invitations);
 
