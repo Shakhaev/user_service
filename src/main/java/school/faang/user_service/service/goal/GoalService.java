@@ -100,7 +100,7 @@ public class GoalService {
             throw new IllegalArgumentException("Пользователь " + userId + " у цели не был найден");
         }
         goal.setUsers(users);
-        if (goal.getUsers().size() < 1) {
+        if (goal.getUsers().isEmpty()) {
             deleteGoal(goal.getId());
         } else {
             goalRepository.save(goal);
