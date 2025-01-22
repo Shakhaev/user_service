@@ -5,17 +5,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
     @Mock
     private EventParticipationRepository eventParticipationRepository;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private EventParticipationService eventParticipationService;
@@ -28,13 +37,13 @@ public class EventParticipationServiceTest {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(List.of());
 
-        eventParticipationService.registerParticipant(eventId,userId);
+        eventParticipationService.registerParticipant(eventId, userId);
 
-        verify(eventParticipationRepository,times(1)).register(eventId,userId);
+        verify(eventParticipationRepository, times(1)).register(eventId, userId);
     }
 
     @Test
-    public void registerParticipant_ParticipantCantBeRegisteredBecauseHeAlreadyRegistered(){
+    public void registerParticipant_ParticipantCantBeRegisteredBecauseHeAlreadyRegistered() {
         long eventId = 1L;
         long userId = 100L;
         User user = new User();
@@ -48,7 +57,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void unregisterParticipant_ParticipantCantBeUnregisteredBecauseThisUserWasntRegistered(){
+    public void unregisterParticipant_ParticipantCantBeUnregisteredBecauseThisUserWasntRegistered() {
         long eventId = 1L;
         long userId = 100L;
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
@@ -59,7 +68,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void unregisterParticipant_ParticipantIsSuccessfulUnregistered(){
+    public void unregisterParticipant_ParticipantIsSuccessfulUnregistered() {
         long eventId = 1L;
         long userId = 100L;
         User user = new User();
@@ -67,24 +76,47 @@ public class EventParticipationServiceTest {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(List.of(user));
 
-        eventParticipationService.unregisterParticipant(eventId,userId);
+        eventParticipationService.unregisterParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).unregister(eventId,userId);
+        verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
     }
 
     @Test
-    public void getParticipant_Successful () {
+    public void getParticipant_Successful() {
         long eventId = 1L;
-        User firstTstUser = new User();
+        User firstTestUser = new User();
+        firstTestUser.setId(1L);
+        firstTestUser.setUsername("username1");
+        firstTestUser.setEmail("email1@example.com");
         User secondTestUser = new User();
-        firstTstUser.setId(100L);
-        secondTestUser.setId(101L);
-        List<User> expectedList = List.of(firstTstUser,secondTestUser);
-        when(eventParticipationService.getParticipant(eventId)).thenReturn(expectedList);
+        secondTestUser.setId(1L);
+        secondTestUser.setUsername("username2");
+        secondTestUser.setEmail("email2@example.com");
+        List<User> users = List.of(firstTestUser, secondTestUser);
+        List<UserDto> expectedList = List.of(
+                new UserDto(1L, "username1", "email1@example.com"),
+                new UserDto(2L, "username2", "email2@example.com")
+        );
 
-        List<User> actualList = eventParticipationService.getParticipant(eventId);
+        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
+        when(userMapper.toDto(users.get(0))).thenReturn(expectedList.get(0));
+        when(userMapper.toDto(users.get(1))).thenReturn(expectedList.get(1));
+
+        List<UserDto> actualList = eventParticipationService.getParticipant(eventId);
 
         assertEquals(expectedList, actualList);
+    }
+
+    @Test
+    public void getParticipantsCount() {
+        long eventId = 1L;
+        int expectedCount = 10;
+        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
+
+        int actualCount = eventParticipationService.getParticipantsCount(eventId);
+
+        assertEquals(expectedCount, actualCount);
+        verify(eventParticipationRepository, times(1)).countParticipants(eventId);
     }
 
 }
