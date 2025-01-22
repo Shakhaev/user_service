@@ -39,3 +39,11 @@ payment-service:
 events:
   domain:
     path: /api/v1
+
+minio:
+  accessKey: user
+  secretKey: password
+  endpoint: http://localhost:9000
+
+dicebear:
+  endpoint: https://api.dicebear.com/9.x/adventurer/svg?seed=Jude
