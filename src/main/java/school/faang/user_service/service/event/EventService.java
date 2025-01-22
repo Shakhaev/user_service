@@ -8,6 +8,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filters.interfaces.EventFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -15,6 +16,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
-
+    private final List<EventFilter> filters;
 
     public EventDto create(EventDto eventDto) {
         User owner = validateOwnerAndSkills(eventDto.ownerId(), eventDto.relatedSkills());
@@ -41,19 +43,17 @@ public class EventService {
         return eventMapper.toDto(event);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
+    public List<EventDto> getEventsByFilter(EventFilterDto filterDto) {
         List<Event> events = eventRepository.findAll();
+        Stream<Event> eventStream = events.stream();
 
-        return events.stream()
-                .filter(event -> filter.title() == null
-                        || event.getTitle().toLowerCase().contains(filter.title().toLowerCase()))
-                .filter(event -> filter.startDate() == null || !event.getStartDate().isBefore(filter.startDate()))
-                .filter(event -> filter.endDate() == null || !event.getEndDate().isAfter(filter.endDate()))
-                .filter(event -> filter.location() == null
-                        || event.getLocation().equalsIgnoreCase(filter.location()))
-                .filter(event -> filter.ownerId() == null || event.getOwner().getId().equals(filter.ownerId()))
-                .map(eventMapper::toDto)
-                .collect(Collectors.toList());
+        for (EventFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
+                eventStream = filter.apply(eventStream, filterDto);
+            }
+        }
+
+        return eventStream.map(eventMapper::toDto).collect(Collectors.toList());
     }
 
     public void deleteEvent(long eventId) {

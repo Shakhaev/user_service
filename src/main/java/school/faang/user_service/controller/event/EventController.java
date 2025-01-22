@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.List;
 
@@ -24,11 +24,12 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final EventValidator eventValidator;
 
-    @GetMapping
-    public ResponseEntity<EventDto> create(@RequestBody EventDto event) {
-        validateEvent(event);
-        EventDto createdEvent = eventService.create(event);
+    @PostMapping
+    public ResponseEntity<EventDto> create(@RequestBody EventDto eventDto) {
+        eventValidator.validate(eventDto);
+        EventDto createdEvent = eventService.create(eventDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
     }
 
@@ -52,7 +53,7 @@ public class EventController {
 
     @PutMapping
     public ResponseEntity<EventDto> updateEvent(@RequestBody EventDto eventDto) {
-        validateEvent(eventDto);
+        eventValidator.validate(eventDto);
         EventDto updatedEvent = eventService.updateEvent(eventDto);
         return ResponseEntity.ok(updatedEvent);
     }
@@ -67,17 +68,5 @@ public class EventController {
     public ResponseEntity<List<EventDto>> getParticipatedEvents(@PathVariable long userId) {
         List<EventDto> participatedEvents = eventService.getParticipatedEvents(userId);
         return ResponseEntity.ok(participatedEvents);
-    }
-
-    private void validateEvent(EventDto event) {
-        if (event.title() == null || event.title().isEmpty()) {
-            throw new DataValidationException("Event title must not be null or empty.");
-        }
-        if (event.startDate() == null) {
-            throw new DataValidationException("Event start date must not be null.");
-        }
-        if (event.ownerId() == null) {
-            throw new DataValidationException("Event must have an owner.");
-        }
     }
 }
