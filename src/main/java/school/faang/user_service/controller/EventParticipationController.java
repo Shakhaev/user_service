@@ -12,7 +12,7 @@ import school.faang.user_service.service.EventParticipationService;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
