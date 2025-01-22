@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ public class UserServiceTest {
     private UserService service;
 
     private User user;
+
     @BeforeEach
     public void init() {
         user = User.builder()
@@ -55,6 +55,7 @@ public class UserServiceTest {
                 ))
                 .build();
     }
+
     @Test
     public void deactivateUser_Success() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));

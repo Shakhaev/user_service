@@ -244,7 +244,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void removeUserFromGoal_1UserSuccess() {
+    void removeUserFromGoal_OneUserSuccess() {
         Goal goal = Goal.builder().id(13L).users(List.of(
                 User.builder().id(1L).build()
         )).build();
