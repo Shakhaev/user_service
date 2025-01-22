@@ -1,20 +1,19 @@
 package school.faang.user_service.controller.recommendation;
 
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestRcvDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
-import school.faang.user_service.service.recommendation.RecommendationRequestServiceImpl;
+import school.faang.user_service.service.recommendation.RecommendationRequestService;
 
 import java.util.List;
 
@@ -24,9 +23,9 @@ import static school.faang.user_service.utils.Constants.API_VERSION_1;
 @AllArgsConstructor
 @RequestMapping(API_VERSION_1 + "/recommendation-request")
 public class RecommendationRequestController {
-    private final RecommendationRequestServiceImpl recommendationRequestService;
+    private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public RecommendationRequestDto requestRecommendation(@RequestBody RecommendationRequestRcvDto requestDto) {
         if (requestDto == null) {
             throw new IllegalArgumentException("requestDto cannot be null");
@@ -37,7 +36,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.createRequest(requestDto);
     }
 
-    @PostMapping("/getbyfilters")
+    @PostMapping("/searchbyfilters")
     public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filters) {
         if (filters == null) {
             throw new IllegalArgumentException("filters cannot be null");
@@ -45,12 +44,12 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequests(filters);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
         return recommendationRequestService.getRequest(id);
     }
 
-    @PostMapping("/reject/{id}")
+    @PatchMapping("/{id}")
     public RecommendationRequestDto rejectRequest(@PathVariable long id, @RequestBody RejectionDto rejectionDto) {
         if (rejectionDto == null) {
             throw new IllegalArgumentException("rejectionDto cannot be null");
