@@ -25,9 +25,6 @@ spring:
       host: localhost
       port: 6379
       channel-topics:
-        mentorship:
-          request_received: mentorship_request_received_topic
-          request_accepted: mentorship_request_accepted_topic
         follower-event:
           name: follower_event_topic
         event-start:
@@ -41,6 +38,9 @@ spring:
       user:
         profile_view: profile_view
         premium_bought: premium_bought
+        mentorship_request:
+          received: mentorship_request_received
+          accepted: mentorship_request_accepted
 
 server:
   port: 8080

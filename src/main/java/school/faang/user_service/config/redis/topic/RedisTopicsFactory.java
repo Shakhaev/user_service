@@ -14,12 +14,6 @@ public class RedisTopicsFactory {
     @Value("${redis.banner.topic}")
     private String userBanTopic;
 
-    @Value("${spring.data.redis.channel-topics.mentorship.request_received}")
-    private String mentorshipRequestReceivedTopicName;
-
-    @Value("${spring.data.redis.channel-topics.mentorship.request_accepted}")
-    private String mentorshipRequestAcceptedTopicName;
-
     @Bean
     public Topic eventStartTopic() {
         return new ChannelTopic(eventStartTopicName);
@@ -28,15 +22,5 @@ public class RedisTopicsFactory {
     @Bean
     public ChannelTopic userBanTopic() {
         return new ChannelTopic(userBanTopic);
-    }
-
-    @Bean
-    public Topic mentorshipRequestReceivedTopicName() {
-        return new ChannelTopic(mentorshipRequestReceivedTopicName);
-    }
-
-    @Bean
-    public Topic mentorshipRequestAcceptedTopicName() {
-        return new ChannelTopic(mentorshipRequestAcceptedTopicName);
     }
 }
