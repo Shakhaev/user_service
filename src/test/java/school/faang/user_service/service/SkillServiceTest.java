@@ -30,7 +30,7 @@ class SkillServiceTest {
     private SkillService skillService;
     private Skill firstSkill;
     private Skill secondSkill;
-
+    private static final long USER_ID = 1L;
 
     @BeforeEach
     void setUp() {
@@ -84,5 +84,13 @@ class SkillServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(skillRepository, never()).findAllByIds(ids);
+    }
+
+    @Test
+    public void testGetUserSkillsById() {
+        when(skillRepository.findAllByUserId(USER_ID)).thenReturn(List.of(new Skill()));
+        skillService.getUserSkills(USER_ID);
+
+        verify(skillRepository, times(1)).findAllByUserId(USER_ID);
     }
 }
