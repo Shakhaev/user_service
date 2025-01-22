@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,12 +24,12 @@ import static org.mockito.Mockito.when;
 public class EventParticipationServiceTest {
     @Mock
     private EventParticipationRepository eventParticipationRepository;
+
     @Mock
-    private UserMapper userMapper;
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @InjectMocks
     private EventParticipationService eventParticipationService;
-
 
     @Test
     public void registerParticipant_SuccessfulRegisteredIfUserIsNotRegisteredBefore() {
@@ -89,23 +90,20 @@ public class EventParticipationServiceTest {
         firstTestUser.setUsername("username1");
         firstTestUser.setEmail("email1@example.com");
         User secondTestUser = new User();
-        secondTestUser.setId(1L);
+        secondTestUser.setId(2L);
         secondTestUser.setUsername("username2");
         secondTestUser.setEmail("email2@example.com");
         List<User> users = List.of(firstTestUser, secondTestUser);
-        List<UserDto> expectedList = List.of(
-                new UserDto(1L, "username1", "email1@example.com"),
-                new UserDto(2L, "username2", "email2@example.com")
-        );
+        List<UserDto> expectedList = users.stream()
+                .map(userMapper::toDto)
+                .toList();
 
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
-        when(userMapper.toDto(users.get(0))).thenReturn(expectedList.get(0));
-        when(userMapper.toDto(users.get(1))).thenReturn(expectedList.get(1));
-
         List<UserDto> actualList = eventParticipationService.getParticipant(eventId);
 
         assertEquals(expectedList, actualList);
     }
+
 
     @Test
     public void getParticipantsCount() {
