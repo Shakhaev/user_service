@@ -1,22 +1,23 @@
 package school.faang.user_service.controller;
 
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
 
-@Component
+@Controller
 public class RecommendationController {
-    private RecommendationService recommendationService() {
-        return null;
-    }
+    RecommendationService recommendationService;
 
     private RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        if(!recommendation.getContent().isEmpty()) {
-            RecommendationService.create(recommendation);  // Как вызывать?
+        if (recommendationDtoIsValid(recommendation)) {
+            return recommendationService.create(recommendation);              // Как вызывать? Solved   //? как-то вернуть  RecommentationDto object without using 'new'.
         } else {
-            throw DataValidationException;
+            throw new DataValidationException("Content is empty");
         }
-        return //? как-то вернуть  RecommentationDto object without using 'new'.
+    }
+
+    private boolean recommendationDtoIsValid(RecommendationDto recommendationDto) {
+        return !recommendationDto.getContent().isEmpty();
     }
 }
