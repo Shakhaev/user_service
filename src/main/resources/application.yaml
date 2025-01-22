@@ -37,8 +37,11 @@ spring:
         mentorship_request:
           received: mentorship_request_received
           accepted: mentorship_request_accepted
+        ban: user_ban
       event:
         start: event_start
+    publishers_group_ids:
+      post_service: post_feed
 
 server:
   port: 8080
