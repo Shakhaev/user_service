@@ -1,6 +1,8 @@
 package school.faang.user_service.service;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -15,36 +17,31 @@ import java.util.List;
 
 @Getter
 @Service
+@AllArgsConstructor
 public class RecommendationService {
     RecommendationRepository recommendationRepository;
     SkillOfferRepository skillOfferRepository;
+    SkillRepository skillRepository;
+
     public RecommendationDto create(RecommendationDto recommendation){
             if(LocalDateTime.now().minusMonths(6).isAfter(recommendation.getCreatedAt())
-            && recommendationsArePresentedInSystem(recommendation.getSkillOffers())) {
-                // ? Как проверить присутствует ли skill в системе (Базе данных)
-                // ? Как создать как-то новую рекомендацию
-                /// Трудность - в подходе Spring стала непонятно, как обращаться объектам классов, как и где их создавать,
-                /// как осуществлять поиск. Это как учить новый язык программирования, который рабтает на других
-                /// правилах взаимодействия и хранения объектов.
+                && recommendationsArePresentedInSystem(recommendation.getSkillOffers())) {
 
-                skillOfferRepository.create(0,0); //??? Как найти и передать skillId and recommendationId
-                // ??? как создать экземпляр класса не использую оператор 'new'?
+                Long newRecommendationId = recommendationRepository.create(recommendation.getAuthorId(),
+                            recommendation.getReceiverId(),
+                            recommendation.getContent());
 
-                // Если skill уже есть - добавить автора гарантом этого скила
-                // проверка на наличие скила у пользователя
-                // Добавление автора рекомендации гарантом к рекомендованному скиллу
-
-                if(/*allchecks are passed*/) {
-                    recommendationRepository.create()
+                List<SkillOfferDto> skillOfferDtos = recommendation.getSkillOffers();
+                for(SkillOfferDto skill : skillOfferDtos) {
+                    skillOfferRepository.create(skill.getSkillId(), newRecommendationId);//??? Как найти и передать skillId and recommendationId. Откуда их брать?
                 }
             }
             return // ??? вернуть как-то RecommendationDto;
     }
 
     private boolean recommendationsArePresentedInSystem(List<SkillOfferDto> skillOfferDtos) {
-        List<SkillOfferDto> skills = //SkillRepository// как вызвать SkillRepository.findSkillsOfferedToUser  ???
         for(SkillOfferDto skill : skillOfferDtos){
-            if(!skills.contains(skill)) {
+            if(!skillRepository.existsByTitle(skill.getTitle())) {
                 return false;
             }
         }
@@ -56,10 +53,8 @@ public class RecommendationService {
     }
 
     private void addAuthorAsGuarantorForSkill(Skill skill) {
-
     }
 
     private void saveSkillOffers() {
-
     }
 }
