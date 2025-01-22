@@ -1,11 +1,14 @@
 package school.faang.user_service.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -21,5 +24,14 @@ public class UserService {
 
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    public List<User> getAllByIds(@NotNull List<Long> userIds) {
+        return userRepository.findAllById(userIds);
+    }
+
+    public User getById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Невозможно получить пользователя"));
     }
 }
