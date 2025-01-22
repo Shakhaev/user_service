@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,13 +46,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createFilterDto;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createRejectDto;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createRequest;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createRequestRcvDto;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createSkill;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createSkillRequest;
-import static school.faang.user_service.service.recommendation.TestDataCreator.createUser;
+import static school.faang.user_service.service.TestData.getSkills;
+import static school.faang.user_service.service.TestData.getUsers;
+import static school.faang.user_service.service.TestData.createFilterDto;
+import static school.faang.user_service.service.TestData.createRejectDto;
+import static school.faang.user_service.service.TestData.createRequest;
+import static school.faang.user_service.service.TestData.createRequestRcvDto;
+import static school.faang.user_service.service.TestData.createSkillRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {
@@ -78,20 +79,19 @@ public class RecommendationRequestServiceTest {
 
     private User requester;
     private User receiver;
-    private Skill skill1;
-    private Skill skill2;
-    private Skill skill3;
+    Skill skill1;
+    Skill skill2;
+    Skill skill3;
     private RecommendationRequest recommendationRequest;
     private SkillRequest skillRequest1;
     private SkillRequest skillRequest2;
     private SkillRequest skillRequest3;
     private RecommendationRequestRcvDto recommendationRequestRcvDto;
     private RejectionDto rejectionDto;
-    private List<RecommendationRequestFilter> filters;
 
     @BeforeEach
     void setUp() {
-        filters = new ArrayList<>(List.of(
+        List<RecommendationRequestFilter> filters = new ArrayList<>(List.of(
                 new RecommendationRequestStatusFilter(),
                 new RecommendationRequestRequesterFilter(),
                 new RecommendationRequestReceiverFilter()));
@@ -104,40 +104,42 @@ public class RecommendationRequestServiceTest {
                 skillRequestRepository,
                 filters);
 
-        requester = createUser(1L, "Requester");
-        receiver = createUser(2L, "Receiver");
-
-        skill1 = createSkill(1L, "Java");
-        skill2 = createSkill(2L, "Kotlin");
-        skill3 = createSkill(3L, "Hibernate");
+        List<User> users = getUsers();
+        requester = users.get(0);
+        receiver = users.get(1);
 
         recommendationRequest = createRequest(1L, requester, receiver, RequestStatus.PENDING);
 
+        Map<String, Skill> skills = getSkills();
+        skill1 = skills.get("Skill 1");
+        skill2 = skills.get("Skill 2");
+        skill3 = skills.get("Skill 3");
         skillRequest1 = createSkillRequest(1L, recommendationRequest, skill1);
         skillRequest2 = createSkillRequest(2L, recommendationRequest, skill2);
         skillRequest3 = createSkillRequest(3L, recommendationRequest, skill3);
 
         recommendationRequestRcvDto = createRequestRcvDto(requester, receiver, recommendationRequest,
-                Arrays.asList(1L, 2L, 3L));
+                Arrays.asList(skill1.getId(), skill2.getId(), skill3.getId()));
 
         rejectionDto = createRejectDto("Can't confirm.");
     }
 
     @Test
     void testCreateRecommendationRequest_Successfully() {
-        when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
+        when(recommendationRequestRepository.findLatestPendingRequest(requester.getId(),
+                receiver.getId())).thenReturn(Optional.empty());
         when(skillRepository.existsById(anyLong())).thenReturn(true);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
+        when(userRepository.findById(receiver.getId())).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
                 .thenAnswer(invocation -> {
                     RecommendationRequest savedRequest = invocation.getArgument(0);
                     savedRequest.setId(1L);
                     return savedRequest;
                 });
-        when(skillRequestRepository.create(1L, 1L)).thenReturn(skillRequest1);
-        when(skillRequestRepository.create(1L, 2L)).thenReturn(skillRequest2);
-        when(skillRequestRepository.create(1L, 3L)).thenReturn(skillRequest3);
+        when(skillRequestRepository.create(1L, skill1.getId())).thenReturn(skillRequest1);
+        when(skillRequestRepository.create(1L, skill2.getId())).thenReturn(skillRequest2);
+        when(skillRequestRepository.create(1L, skill3.getId())).thenReturn(skillRequest3);
 
         RecommendationRequestDto requestFromDB = recommendationRequestService.createRequest(recommendationRequestRcvDto);
 
@@ -158,11 +160,12 @@ public class RecommendationRequestServiceTest {
     @Test
     void testCreateRecommendationRequest_UserRequestHimself() {
         RecommendationRequestRcvDto requestDto = createRequestRcvDto(requester, requester, recommendationRequest,
-                Arrays.asList(1L, 2L, 3L));
+                Arrays.asList(skill1.getId(), skill2.getId(), skill3.getId()));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> recommendationRequestService.createRequest(requestDto));
 
-        assertEquals("The user with id 1 cannot send a request to himself", exception.getMessage());
+        assertEquals(String.format("The user with id %d cannot send a request to himself", requester.getId()),
+                exception.getMessage());
     }
 
     @Test
@@ -183,29 +186,30 @@ public class RecommendationRequestServiceTest {
     @Test
     void testCreateRecommendationRequest_SkillIdNotExist() {
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(2L)).thenReturn(true);
-        when(skillRepository.existsById(3L)).thenReturn(false);
+        when(skillRepository.existsById(skill1.getId())).thenReturn(true);
+        when(skillRepository.existsById(skill2.getId())).thenReturn(true);
+        when(skillRepository.existsById(skill3.getId())).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
-        assertEquals("Skill with id = 3 not exist", exception.getMessage());
+        assertEquals(String.format("Skill with id = %d not exist", skill3.getId()), exception.getMessage());
     }
 
     @Test
     void testCreateRecommendationRequest_UserIdNotExist() {
-        when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L)).thenReturn(Optional.empty());
+        when(recommendationRequestRepository.findLatestPendingRequest(requester.getId(),
+                receiver.getId())).thenReturn(Optional.empty());
         when(skillRepository.existsById(anyLong())).thenReturn(true);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
+        when(userRepository.findById(receiver.getId())).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 recommendationRequestService.createRequest(recommendationRequestRcvDto)
         );
 
-        assertEquals("User with id 2 not found", exception.getMessage());
+        assertEquals(String.format("User with id %d not found", receiver.getId()), exception.getMessage());
     }
 
     @Test
@@ -269,7 +273,8 @@ public class RecommendationRequestServiceTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> recommendationRequestService.rejectRequest(id, rejectionDto));
 
-        assertEquals("The recommendation request id 1 is already rejected", exception.getMessage());
+        assertEquals(String.format("The recommendation request id %d is already rejected",
+                recommendationRequest.getId()), exception.getMessage());
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
         verify(recommendationRequestMapper, never()).toRecommendationRequestDto(any());
