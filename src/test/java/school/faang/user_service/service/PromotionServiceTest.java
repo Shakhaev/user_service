@@ -85,6 +85,7 @@ class PromotionServiceTest {
 
         OrderDto orderDto = mock(OrderDto.class);
         when(orderDto.getPaymentStatus()).thenReturn(PaymentStatus.ERROR);
+        when(orderDto.getServiceType()).thenReturn("promotion");
 
         when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
         when(paymentServiceClient.getOrder(orderId)).thenReturn(orderDto);
@@ -92,7 +93,7 @@ class PromotionServiceTest {
         PaymentFailedException exception = assertThrows(PaymentFailedException.class,
                 () -> promotionService.activatePromotion(orderId, promotionId));
 
-        assertEquals("Оплата не прошла успешно", exception.getMessage());
+        assertEquals("Заказ не оплачен", exception.getMessage());
         verify(promotionRepository, never()).save(any());
     }
 
@@ -119,7 +120,7 @@ class PromotionServiceTest {
         PaymentFailedException exception = assertThrows(PaymentFailedException.class,
                 () -> promotionService.activatePromotion(orderId, promotionId));
 
-        assertEquals("Оплата не прошла успешно", exception.getMessage());
+        assertEquals("Заказ не оплачен", exception.getMessage());
         verify(promotionRepository, never()).save(any());
     }
 
@@ -137,6 +138,7 @@ class PromotionServiceTest {
 
         OrderDto orderDto = mock(OrderDto.class);
         when(orderDto.getPaymentStatus()).thenReturn(PaymentStatus.SUCCESS);
+        when(orderDto.getServiceType()).thenReturn("promotion");
 
         when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
         when(paymentServiceClient.getOrder(orderId)).thenReturn(orderDto);

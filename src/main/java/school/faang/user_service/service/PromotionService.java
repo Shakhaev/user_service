@@ -62,13 +62,15 @@ public class PromotionService {
 
     @Transactional
     public PromotionDto activatePromotion(long orderId, Long promotionId) {
-        OrderDto orderDto =  paymentServiceClient.getOrder(orderId);
-
-        Promotion promotion = findPromotion(promotionId);
-
+        userContext.setUserId(0);
+        OrderDto orderDto = paymentServiceClient.getOrder(orderId);
         if (!orderDto.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
-            throw new PaymentFailedException("Оплата не прошла успешно");
+            throw new PaymentFailedException("Заказ не оплачен");
         }
+        if (!orderDto.getServiceType().equalsIgnoreCase("promotion")) {
+            throw new BusinessException("Тип услуги не корректен");
+        }
+        Promotion promotion = findPromotion(promotionId);
 
         promotion.setActive(true);
         promotion.activate();
