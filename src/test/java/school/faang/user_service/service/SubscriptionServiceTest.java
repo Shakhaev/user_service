@@ -20,22 +20,36 @@ public class SubscriptionServiceTest {
     private SubscriptionRepository repository;
 
     @Test
-    void testReSubscriptionFor() {
+    void testRepeatSubscription() {
         InitialData data = getData(true);
         assertThrows(DataValidationException.class, () -> service.followUser(data.followerId(), data.followeeId()));
     }
 
     @Test
-    void testSubscriptionFor() {
+    void testSubscription() {
         InitialData data = getData(false);
         service.followUser(data.followerId(), data.followeeId());
         verify(repository, times(1)).followUser(data.followerId(), data.followeeId());
     }
 
-    private @NotNull InitialData getData(boolean existsById) {
+    @Test
+    void testUnsubscription() {
+        InitialData data = getData(true);
+        service.unfollowUser(data.followerId(), data.followeeId());
+        verify(repository, times(1)).unfollowUser(data.followerId(), data.followeeId());
+    }
+
+    // протестировать повторную отписку
+    @Test
+    void testRepeatUnsubscription() {
+        InitialData data = getData(false);
+        assertThrows(DataValidationException.class, () -> service.unfollowUser(data.followerId(), data.followeeId()));
+    }
+
+    private @NotNull InitialData getData(boolean isThereSub) {
         long followerId = 1L;
         long followeeId = 2L;
-        when(repository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(existsById);
+        when(repository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(isThereSub);
         return new InitialData(followerId, followeeId);
     }
 

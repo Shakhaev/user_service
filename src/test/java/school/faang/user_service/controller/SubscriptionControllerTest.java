@@ -21,20 +21,34 @@ public class SubscriptionControllerTest {
     private SubscriptionService service;
 
     @Test
-    void testSubForAnotherUser() {
+    void testSubscriptionForAnotherUser() {
         long followerId = 1L;
         long followeeId = 2L;
-
         controller.followUser(followerId, followeeId);
-
         verify(service, times(1)).followUser(followerId, followeeId);
     }
 
     @Test
-    void testSubForYourself() {
+    void testSubscriptionForYourself() {
         long followerId = 1L;
         long followeeId = 1L;
-
         assertThrows(DataValidationException.class, () -> controller.followUser(followerId, followeeId));
+    }
+
+    // протестировать отписку от другого пользователя
+    @Test
+    void testUnsubscribingFromAnotherUser() {
+        long followerId = 1L;
+        long followeeId = 2L;
+        controller.unfollowUser(followerId, followeeId);
+        verify(service, times(1)).unfollowUser(followerId, followeeId);
+    }
+
+    // протестировать отписку от самого себя
+    @Test
+    void testUnsubscribingFromYourself() {
+        long followerId = 1L;
+        long followeeId = 1L;
+        assertThrows(DataValidationException.class, () -> controller.unfollowUser(followerId, followeeId));
     }
 }

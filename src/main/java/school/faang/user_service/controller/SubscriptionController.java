@@ -17,4 +17,12 @@ public class SubscriptionController {
             throw new DataValidationException("Нельзя подписаться на свой аккаунт.");
         }
     }
+
+    public void unfollowUser(long followerId, long followeeId) throws DataValidationException {
+        if (followerId != followeeId) {
+            service.unfollowUser(followerId, followeeId);
+        } else {
+            throw new DataValidationException("Нельзя отписаться от самого себя.");
+        }
+    }
 }
