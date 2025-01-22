@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
-import school.faang.user_service.dto.recommendation.GetAllGivenRecommendationsResponse;
-import school.faang.user_service.dto.recommendation.GetAllUserRecommendationsResponse;
+import school.faang.user_service.dto.recommendation.GetAllRecommendationsResponse;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.service.RecommendationService;
@@ -30,11 +29,11 @@ public class RecommendationController {
         recommendationService.delete(id);
     }
 
-    public List<GetAllUserRecommendationsResponse> getAllUserRecommendations(long receiverId) {
+    public List<GetAllRecommendationsResponse> getAllUserRecommendations(long receiverId) {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    public List<GetAllGivenRecommendationsResponse> getAllGivenRecommendations(long authorId) {
+    public List<GetAllRecommendationsResponse> getAllGivenRecommendations(long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }
 }

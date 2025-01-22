@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
-import school.faang.user_service.dto.recommendation.GetAllGivenRecommendationsResponse;
-import school.faang.user_service.dto.recommendation.GetAllUserRecommendationsResponse;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.GetAllRecommendationsResponse;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.entity.Skill;
@@ -25,11 +23,8 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 
-import java.time.Period;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-
-import static java.time.LocalDateTime.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,31 +40,43 @@ public class RecommendationService {
     private final RecommendationValidator recommendationValidator;
 
     @Transactional
-    public CreateRecommendationResponse create(CreateRecommendationRequest recommendationRequest) {
-        validateRecommendation(recommendationRequest);
+    public CreateRecommendationResponse create(CreateRecommendationRequest createRequest) {
+        recommendationValidator.validateRecommendationContentIsNotEmpty(createRequest);
+        checkLastRecommendationTime(createRequest.getAuthorId(), createRequest.getReceiverId(), createRequest.getCreatedAt());
+        checkSkillsExist(createRequest.getSkillIds());
 
-        Recommendation recommendation = mapRecommendation(recommendationRequest);
-        List<Skill> skills = mapSkills(recommendationRequest.getSkillIds());
+        Recommendation recommendation = recommendationMapper.fromCreateRequest(createRequest);
+        User author = userRepository.getReferenceById(createRequest.getAuthorId());
+        recommendation.setAuthor(author);
+        User receiver = userRepository.getReferenceById(createRequest.getReceiverId());
+        recommendation.setReceiver(receiver);
+        List<Skill> skills = mapSkills(createRequest.getSkillIds());
 
         Long recommendationId = recommendationRepository.create(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
         recommendation.setId(recommendationId);
         saveSkillOffers(recommendation, skills);
 
-        return recommendationMapper.toCreateDto(recommendation);
+        return recommendationMapper.toCreateResponse(recommendation);
     }
 
     @Transactional
-    public UpdateRecommendationResponse update(UpdateRecommendationRequest recommendationRequest) {
-        validateRecommendation(recommendationRequest);
+    public UpdateRecommendationResponse update(UpdateRecommendationRequest updateRequest) {
+        recommendationValidator.validateRecommendationContentIsNotEmpty(updateRequest);
+        checkLastRecommendationTime(updateRequest.getAuthorId(), updateRequest.getReceiverId(), updateRequest.getCreatedAt());
+        checkSkillsExist(updateRequest.getSkillIds());
 
-        Recommendation recommendation = mapRecommendation(recommendationRequest);
-        List<Skill> skills = mapSkills(recommendationRequest.getSkillIds());
+        Recommendation recommendation = recommendationMapper.fromUpdateRequest(updateRequest);
+        User author = userRepository.getReferenceById(updateRequest.getAuthorId());
+        recommendation.setAuthor(author);
+        User receiver = userRepository.getReferenceById(updateRequest.getReceiverId());
+        recommendation.setReceiver(receiver);
+        List<Skill> skills = mapSkills(updateRequest.getSkillIds());
 
         recommendationRepository.update(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
         skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
         saveSkillOffers(recommendation, skills);
 
-        return recommendationMapper.toUpdateDto(recommendation);
+        return recommendationMapper.toUpdateResponse(recommendation);
     }
 
     @Transactional
@@ -79,45 +86,19 @@ public class RecommendationService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetAllUserRecommendationsResponse> getAllUserRecommendations(long receiverId) {
+    public List<GetAllRecommendationsResponse> getAllUserRecommendations(long receiverId) {
         Page<Recommendation> recommendationPage = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
         return recommendationPage.get()
-                .map(recommendationMapper::toGetAllUserDto)
+                .map(recommendationMapper::toGetAllResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<GetAllGivenRecommendationsResponse> getAllGivenRecommendations(long authorId) {
+    public List<GetAllRecommendationsResponse> getAllGivenRecommendations(long authorId) {
         Page<Recommendation> recommendationPage = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
         return recommendationPage.get()
-                .map(recommendationMapper::toGetAllGivenDto)
+                .map(recommendationMapper::toGetAllResponse)
                 .toList();
-    }
-
-    private void validateRecommendation(RecommendationDto recommendationDto) {
-        recommendationValidator.validateRecommendationContentIsNotEmpty(recommendationDto);
-
-        Optional<Recommendation> lastRecommendationOptional =  recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
-        lastRecommendationOptional.ifPresent(recommendationValidator::validateLastRecommendationTime);
-
-        recommendationDto.getSkillOfferIds().forEach(s -> {
-            if (!skillRepository.existsById(s)) {
-                throw new DataValidationException("Skill with ID = " + s + " doesn't exist");
-            }
-        });
-    }
-
-    private Recommendation mapRecommendation(RecommendationDto recommendationDto) {
-        Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
-        User author = userRepository.getReferenceById(recommendationDto.getAuthorId());
-        recommendation.setAuthor(author);
-        User receiver = userRepository.getReferenceById(recommendationDto.getReceiverId());
-        recommendation.setReceiver(receiver);
-        return recommendation;
-    }
-
-    private List<Skill> mapSkills(List<Long> skillIds) {
-        return skillRepository.findAllById(skillIds);
     }
 
     private void saveSkillOffers(Recommendation recommendation, List<Skill> skills) {
@@ -136,5 +117,24 @@ public class RecommendationService {
         } else {
             userSkillGuaranteeRepository.updateGuarantor(recommendation.getReceiver().getId(), skill.getId(), recommendation.getAuthor().getId());
         }
+    }
+
+    private List<Skill> mapSkills(List<Long> skillIds) {
+        return skillRepository.findAllById(skillIds);
+    }
+
+    private void checkLastRecommendationTime(Long authorId, Long receiverId, LocalDateTime createdAt) {
+        recommendationRepository
+                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId)
+                .ifPresent(lastRecommendation ->
+                        recommendationValidator.validateLastRecommendationTime(lastRecommendation, createdAt));
+    }
+
+    private void checkSkillsExist(List<Long> skillIds) {
+        skillIds.forEach(s -> {
+            if (!skillRepository.existsById(s)) {
+                throw new DataValidationException("Skill with ID = " + s + " doesn't exist");
+            }
+        });
     }
 }
