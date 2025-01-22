@@ -13,7 +13,7 @@ import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipResponseDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.MentorshipRequestFilterDto;
-import school.faang.user_service.service.MentorshipRequestServiceImpl;
+import school.faang.user_service.service.impl.MentorshipRequestServiceImpl;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +21,11 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/mentorship")
+@RequestMapping("/api/v1/mentorship/requests")
 public class MentorshipRequestController {
     private final MentorshipRequestServiceImpl service;
 
-    @PostMapping("/requests")
+    @PostMapping
     public MentorshipResponseDto requestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
         log.info("#requestMentorship: mentorship request has been received from user with id: {}", mentorshipRequestDto.receiver().getUserId());
         if (Objects.isNull(mentorshipRequestDto.description()) || mentorshipRequestDto.description().isBlank()) {
@@ -35,19 +35,19 @@ public class MentorshipRequestController {
         return service.requestMentorship(mentorshipRequestDto);
     }
 
-    @GetMapping("/requests")
+    @GetMapping
     public List<MentorshipResponseDto> getRequests(MentorshipRequestFilterDto filter) {
         log.info("#getRequests: request has been received to receive all mentoring requests that match the filters");
         return service.getRequests(filter);
     }
 
-    @PutMapping("/requests/{id}/accept")
+    @PutMapping("/{id}/accept")
     public void acceptRequest(@PathVariable("id") long requestId) {
         log.info("#acceptRequest: request has been received to accept a mentoring request from user with id: {}", requestId);
         service.acceptRequest(requestId);
     }
 
-    @PutMapping("/requests/{id}/reject")
+    @PutMapping("/{id}/reject")
     public void rejectRequest(@PathVariable("id") long requestId, @RequestBody RejectionDto rejection) {
         log.info("#rejectRequest: request has been received to reject a mentoring request from user with id: {}", requestId);
         service.rejectRequest(requestId, rejection);
