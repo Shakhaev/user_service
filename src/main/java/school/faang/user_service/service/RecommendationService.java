@@ -24,6 +24,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -50,6 +51,7 @@ public class RecommendationService {
         recommendation.setAuthor(author);
         User receiver = userRepository.getReferenceById(createRequest.getReceiverId());
         recommendation.setReceiver(receiver);
+        recommendation.setSkillOffers(new ArrayList<>());
         List<Skill> skills = mapSkills(createRequest.getSkillIds());
 
         Long recommendationId = recommendationRepository.create(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
