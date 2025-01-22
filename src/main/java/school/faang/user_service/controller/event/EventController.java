@@ -19,7 +19,7 @@ import school.faang.user_service.validator.event.EventValidator;
 import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("api/events")
 @RequiredArgsConstructor
 public class EventController {
 
