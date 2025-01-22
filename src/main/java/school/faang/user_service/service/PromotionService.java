@@ -55,7 +55,6 @@ public class PromotionService {
                 .isActive(false)
                 .startTime(null)
                 .build();
-        promotion.activate();
         promotionRepository.save(promotion);
 
         return paymentServiceClient.createOrder(createOrderDto);
@@ -72,6 +71,7 @@ public class PromotionService {
         }
 
         promotion.setActive(true);
+        promotion.activate();
 
         promotionRepository.save(promotion);
 
