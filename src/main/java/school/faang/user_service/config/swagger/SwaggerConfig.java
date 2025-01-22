@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
         title = "Микросервис пользователей",
         version = "1.0",
         description = "Микросервис для работы с пользователями, их событиями, а также продвижением"
-))
+    ))
 public class SwaggerConfig {
 }
 
