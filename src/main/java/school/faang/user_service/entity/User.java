@@ -36,10 +36,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "users")
 public class User {
 
