@@ -13,20 +13,20 @@ public class MentorshipController {
     private MentorshipService mentorshipService;
 
     @Autowired
-    private void mentorshipService(MentorshipService mentorshipService) {
+    public void mentorshipService(MentorshipService mentorshipService) {
         this.mentorshipService = mentorshipService;
     }
     @NonNull
-    private List<User> getMentees(long userId) {
+    public List<User> getMentees(long userId) {
         return mentorshipService.getMentees(userId);
     }
-    private List<User> getMentors(long userId) {
+    public List<User> getMentors(long userId) {
         return mentorshipService.getMentors(userId);
     }
-    private void deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee(long menteeId, long mentorId) {
         mentorshipService.deleteMentee(menteeId, mentorId);
     }
-    private void deleteMentor(long menteeId, long mentorId) {
+    public void deleteMentor(long menteeId, long mentorId) {
         mentorshipService.deleteMentor(menteeId, mentorId);
     }
 }
