@@ -4,7 +4,7 @@ on:
 
   pull_request:
     branches:
-      - basilisk8/BJS2-52756-ci-pipeline
+      - basilisk-master-stream8
 
 permissions:
   issues: write
