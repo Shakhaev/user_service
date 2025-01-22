@@ -3,8 +3,10 @@ package school.faang.user_service.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.NonNull;
 
+@Builder
 public record UserDto(
         @NonNull
         Long id,
