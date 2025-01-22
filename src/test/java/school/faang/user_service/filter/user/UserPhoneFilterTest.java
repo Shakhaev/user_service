@@ -19,7 +19,7 @@ class UserPhoneFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenPhonePatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenPhonePatternIsNotNull() {
         filters.setPhonePattern("1234567890");
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserPhoneFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenPhonePatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenPhonePatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersBasedOnPhonePattern() {
+    void applyTest_ShouldFilterUsersBasedOnPhonePattern() {
         filters.setPhonePattern("1234567890");
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserPhoneFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setPhonePattern("1112223333");
 
         user1 = new User();

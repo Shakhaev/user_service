@@ -20,7 +20,7 @@ class UserCountryFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenCountryPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenCountryPatternIsNotNull() {
         filters.setCountryPattern("USA");
 
         boolean result = userFilter.isApplicable(filters);
@@ -29,14 +29,14 @@ class UserCountryFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenCountryPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenCountryPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithMatchingCountry() {
+    void applyTest_ShouldFilterUsersWithMatchingCountry() {
         filters.setCountryPattern("USA");
 
         Country usa = new Country();
@@ -63,7 +63,7 @@ class UserCountryFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setCountryPattern("Germany");
 
         Country usa = new Country();

@@ -19,7 +19,7 @@ class UserCityFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenCityPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenCityPatternIsNotNull() {
         filters.setCityPattern("New York");
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserCityFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenCityPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenCityPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersBasedOnCityPattern() {
+    void applyTest_ShouldFilterUsersBasedOnCityPattern() {
         filters.setCityPattern("New York");
 
         user1 = new User();
@@ -55,7 +55,7 @@ class UserCityFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setCityPattern("San Francisco");
 
         user1 = new User();

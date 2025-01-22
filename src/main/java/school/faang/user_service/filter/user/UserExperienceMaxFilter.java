@@ -15,7 +15,7 @@ public class UserExperienceMaxFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filters) {
-        return users.filter(user -> filters.getExperienceMax()
-                >= user.getExperience());
+        return users.filter(user -> filters.getExperienceMax() >=
+                user.getExperience());
     }
 }

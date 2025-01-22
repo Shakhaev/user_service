@@ -19,7 +19,7 @@ class UserEmailFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenEmailPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenEmailPatternIsNotNull() {
         filters.setEmailPattern("user@example.com");
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserEmailFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenEmailPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenEmailPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithMatchingEmail() {
+    void applyTest_ShouldFilterUsersWithMatchingEmail() {
         filters.setEmailPattern("user@example.com");
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserEmailFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setEmailPattern("nonexistent@example.com");
 
         user1 = new User();
