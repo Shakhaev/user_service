@@ -178,7 +178,7 @@ class GoalServiceTest {
         when(filter.apply(any(), eq(filterDto))).thenAnswer(invocation -> invocation.getArgument(0));
 
         List<GoalFilter> mockFilters = List.of(filter);
-        ReflectionTestUtils.setField(goalService, "filter", mockFilters);
+        ReflectionTestUtils.setField(goalService, "filters", mockFilters);
 
         List<GoalResponse> result = goalService.getGoals(userId, filterDto);
         assertEquals(1, result.size());
