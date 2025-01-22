@@ -40,26 +40,37 @@ public class PromotionService {
             throw new EntityNotFoundException("Пользователь не существует");
         }
 
+        List<Promotion> activePromotions = promotionRepository.findActivePromotionsByUserId(buyPromotionDto.getUserId());
+        if (activePromotions.stream().anyMatch(promotion -> promotion.getPlan().equals(buyPromotionDto.getPlan()))) {
+            throw new BusinessException("У пользователя уже есть промоакция с таким же планом");
+        }
+
         CreateOrderDto createOrderDto = promotionMapper.toCreateOrderDto(buyPromotionDto);
 
-        OrderDto orderDto = paymentServiceClient.createOrder(createOrderDto);
+        Promotion promotion = Promotion.builder()
+                .userId(buyPromotionDto.getUserId())
+                .plan(buyPromotionDto.getPlan())
+                .impressionsLimit(buyPromotionDto.getPlan().getImpressions())
+                .currentImpressions(0)
+                .isActive(false)
+                .startTime(null)
+                .build();
+        promotion.activate();
+        promotionRepository.save(promotion);
 
-        checkPaymentStatus(orderDto);
-
-        return orderDto;
+        return paymentServiceClient.createOrder(createOrderDto);
     }
 
     @Transactional
-    public PromotionDto activatePromotion(Long promotionId, BuyPromotionDto buyPromotionDto) {
+    public PromotionDto activatePromotion(long orderId, Long promotionId) {
+        OrderDto orderDto =  paymentServiceClient.getOrder(orderId);
+
         Promotion promotion = findPromotion(promotionId);
 
-        if (promotion.isActive()) {
-            throw new BusinessException("Промо-акция уже активирована");
+        if (!orderDto.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+            throw new PaymentFailedException("Оплата не прошла успешно");
         }
 
-        PromotionPlan plan = buyPromotionDto.getPlan();
-        promotion.setPlan(plan);
-        promotion.setImpressionsLimit(plan.getImpressions());
         promotion.setActive(true);
 
         promotionRepository.save(promotion);

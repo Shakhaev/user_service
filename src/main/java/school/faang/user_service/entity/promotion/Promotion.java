@@ -20,4 +20,8 @@ public class Promotion {
     public boolean isActive() {
         return currentImpressions < impressionsLimit;
     }
+    public void activate() {
+        this.isActive = true;
+        this.startTime = LocalDateTime.now();
+    }
 }

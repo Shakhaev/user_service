@@ -1,6 +1,5 @@
 package school.faang.user_service.controller;
 
-import jakarta.persistence.criteria.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +21,8 @@ public class PromotionController {
         return promotionService.buyPromotion(buyPromotionDto);
     }
 
-    public PromotionDto activatePromotion(@PathVariable Long promotionId, @RequestBody BuyPromotionDto buyPromotionDto) {
-        return promotionService.activatePromotion(promotionId, buyPromotionDto);
+    public PromotionDto activatePromotion(@PathVariable long orderId, @PathVariable Long promotionId) {
+        return promotionService.activatePromotion(orderId, promotionId);
     }
 
     public List<PromotionDto> getAllPromotionsForUser(@PathVariable Long userId) {
