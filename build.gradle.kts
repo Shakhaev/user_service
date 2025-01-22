@@ -106,12 +106,24 @@ tasks.jacocoTestReport {
         fileTree(it) {
             exclude(listOf(
                 "**/dto/**",
-                "**/entity/**",
-                "**/mapper/**",
-                "com/json/student/**"
+                "**/entity/**"
             ))
         }
     })
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.1".toBigDecimal();
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
