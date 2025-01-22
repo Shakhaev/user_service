@@ -6,15 +6,14 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.InvalidInvitationException;
 import school.faang.user_service.filter.goal.data.InvitationFilter;
-import school.faang.user_service.filter.goal.validation.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.operations.GoalInvitationValidator;
+import school.faang.user_service.service.goal.operations.StatusUpdater;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,53 +24,39 @@ public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper goalInvitationMapper;
-    private final List<GoalFilter> goalFilters = new ArrayList<>();
-    private final List<InvitationFilter> invitationFilters = new ArrayList<>();
+    private final GoalInvitationValidator goalInvitationValidator;
+    private final StatusUpdater statusUpdater;
+    private final List<InvitationFilter> invitationFilters;
 
     @Transactional
-    public void createInvitation(GoalInvitationDto invitationDto) {
+    public GoalInvitationDto createInvitation(GoalInvitationDto invitationDto) {
         GoalInvitation invitation = goalInvitationMapper.toEntity(invitationDto);
 
-        if (invitation.getGoal() == null) {
-            throw new InvalidInvitationException("Goal cannot be null.");
-        }
-
-        Long inviterId = invitationDto.getInviterId();
-        Long invitedUserId = invitationDto.getInvitedUserId();
-
-        if (inviterId.equals(invitedUserId)) {
-            throw new InvalidInvitationException("Inviter and invited user cannot be the same.");
-        }
-
-        validateFilters(invitation.getGoal(), inviterId, invitedUserId);
-
+        goalInvitationValidator.validate(invitationDto, invitation.getGoal());
         invitation.setStatus(RequestStatus.PENDING);
-        goalInvitationRepository.save(invitation);
+
+        GoalInvitation savedInvitation = goalInvitationRepository.save(invitation);
+        return goalInvitationMapper.toDto(savedInvitation);
     }
 
     @Transactional
-    public void acceptGoalInvitation(Long invitationId) {
-        GoalInvitation invitation = goalInvitationRepository.findById(invitationId)
-                .orElseThrow(() -> new InvalidInvitationException("Invitation does not exist."));
+    public GoalInvitationDto acceptGoalInvitation(Long invitationId) {
+        GoalInvitation invitation = findInvitationById(invitationId);
 
-        Long inviterId = invitation.getInviter().getId();
-        Long invitedUserId = invitation.getInvited().getId();
+        goalInvitationValidator.validate(invitation);
+        statusUpdater.updateStatus(invitation, RequestStatus.ACCEPTED);
 
-        validateFilters(invitation.getGoal(), inviterId, invitedUserId);
-
-        invitation.setStatus(RequestStatus.ACCEPTED);
-        goalInvitationRepository.save(invitation);
+        return goalInvitationMapper.toDto(invitation);
     }
 
     @Transactional
-    public void rejectGoalInvitation(Long invitationId) {
-        GoalInvitation invitation = goalInvitationRepository.findById(invitationId)
-                .orElseThrow(() -> new InvalidInvitationException("Invitation does not exist."));
+    public GoalInvitationDto rejectGoalInvitation(Long invitationId) {
+        GoalInvitation invitation = findInvitationById(invitationId);
 
-        validateFilters(invitation.getGoal(), invitation.getInviter().getId(), invitation.getInvited().getId());
+        goalInvitationValidator.validate(invitation);
+        statusUpdater.updateStatus(invitation, RequestStatus.REJECTED);
 
-        invitation.setStatus(RequestStatus.REJECTED);
-        goalInvitationRepository.save(invitation);
+        return goalInvitationMapper.toDto(invitation);
     }
 
     @Transactional
@@ -89,7 +74,8 @@ public class GoalInvitationService {
                 .collect(Collectors.toList());
     }
 
-    private void validateFilters(Goal goal, Long inviterId, Long invitedUserId) {
-        goalFilters.forEach(filter -> filter.apply(goal, inviterId, invitedUserId));
+    private GoalInvitation findInvitationById(Long invitationId) {
+        return goalInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new InvalidInvitationException("Invitation does not exist."));
     }
 }

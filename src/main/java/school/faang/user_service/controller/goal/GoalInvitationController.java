@@ -10,32 +10,33 @@ import school.faang.user_service.service.goal.GoalInvitationService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/goal-invitation")
+@RequestMapping("/goal-invitations")
 @RequiredArgsConstructor
 public class GoalInvitationController {
 
     private final GoalInvitationService goalInvitationService;
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createInvitation(@RequestBody GoalInvitationDto goalInvitationDto) {
-        goalInvitationService.createInvitation(goalInvitationDto);
-        return ResponseEntity.ok("Invitation created successfully");
+    @PostMapping
+    public ResponseEntity<GoalInvitationDto> createInvitation(@RequestBody GoalInvitationDto goalInvitationDto) {
+        GoalInvitationDto createdInvitation = goalInvitationService.createInvitation(goalInvitationDto);
+        return ResponseEntity.ok(createdInvitation);
     }
 
-    @PostMapping("/accept/{invitationId}")
-    public ResponseEntity<String> acceptInvitation(@PathVariable Long invitationId) {
-        goalInvitationService.acceptGoalInvitation(invitationId);
-        return ResponseEntity.ok("Invitation accepted successfully");
+    @PutMapping("/accept/{invitationId}")
+    public ResponseEntity<GoalInvitationDto> acceptGoalInvitation(@PathVariable Long invitationId) {
+        GoalInvitationDto acceptedInvitation = goalInvitationService.acceptGoalInvitation(invitationId);
+        return ResponseEntity.ok(acceptedInvitation);
     }
 
-    @PostMapping("/reject/{invitationId}")
-    public ResponseEntity<String> rejectInvitation(@PathVariable Long invitationId) {
-        goalInvitationService.rejectGoalInvitation(invitationId);
-        return ResponseEntity.ok("Invitation rejected successfully");
+    @PutMapping("/reject/{invitationId}")
+    public ResponseEntity<GoalInvitationDto> rejectGoalInvitation(@PathVariable Long invitationId) {
+        GoalInvitationDto rejectedInvitation = goalInvitationService.rejectGoalInvitation(invitationId);
+        return ResponseEntity.ok(rejectedInvitation);
     }
 
-    @GetMapping("/invitations")
-    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filter) {
-        return goalInvitationService.getInvitations(filter);
+    @GetMapping
+    public ResponseEntity<List<GoalInvitationDto>> getInvitations(@RequestBody InvitationFilterDto filter) {
+        List<GoalInvitationDto> invitations = goalInvitationService.getInvitations(filter);
+        return ResponseEntity.ok(invitations);
     }
 }

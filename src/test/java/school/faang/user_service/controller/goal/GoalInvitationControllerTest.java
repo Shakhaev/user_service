@@ -38,33 +38,69 @@ public class GoalInvitationControllerTest {
         invitationDto.setInvitedUserId(2L);
         invitationDto.setGoalId(3L);
 
-        mockMvc.perform(post("/goal-invitation/create")
+        GoalInvitationDto createdInvitation = new GoalInvitationDto();
+        createdInvitation.setId(1L);
+        createdInvitation.setInviterId(1L);
+        createdInvitation.setInvitedUserId(2L);
+        createdInvitation.setGoalId(3L);
+
+        when(goalInvitationService.createInvitation(invitationDto)).thenReturn(createdInvitation);
+
+        mockMvc.perform(post("/goal-invitations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invitationDto)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Invitation created successfully"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.inviterId").value(1L))
+                .andExpect(jsonPath("$.invitedUserId").value(2L))
+                .andExpect(jsonPath("$.goalId").value(3L));
 
         verify(goalInvitationService, times(1)).createInvitation(invitationDto);
     }
 
     @Test
-    public void testAcceptInvitation() throws Exception {
+    public void testAcceptGoalInvitation() throws Exception {
         Long invitationId = 1L;
 
-        mockMvc.perform(post("/goal-invitation/accept/{invitationId}", invitationId))
+        GoalInvitationDto acceptedInvitation = new GoalInvitationDto();
+        acceptedInvitation.setId(invitationId);
+        acceptedInvitation.setInviterId(1L);
+        acceptedInvitation.setInvitedUserId(2L);
+        acceptedInvitation.setGoalId(3L);
+
+        when(goalInvitationService.acceptGoalInvitation(invitationId)).thenReturn(acceptedInvitation);
+
+        mockMvc.perform(put("/goal-invitations/accept/{invitationId}", invitationId))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Invitation accepted successfully"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.inviterId").value(1L))
+                .andExpect(jsonPath("$.invitedUserId").value(2L))
+                .andExpect(jsonPath("$.goalId").value(3L));
 
         verify(goalInvitationService, times(1)).acceptGoalInvitation(invitationId);
     }
 
     @Test
-    public void testRejectInvitation() throws Exception {
+    public void testRejectGoalInvitation() throws Exception {
         Long invitationId = 1L;
 
-        mockMvc.perform(post("/goal-invitation/reject/{invitationId}", invitationId))
+        GoalInvitationDto rejectedInvitation = new GoalInvitationDto();
+        rejectedInvitation.setId(invitationId);
+        rejectedInvitation.setInviterId(1L);
+        rejectedInvitation.setInvitedUserId(2L);
+        rejectedInvitation.setGoalId(3L);
+
+        when(goalInvitationService.rejectGoalInvitation(invitationId)).thenReturn(rejectedInvitation);
+
+        mockMvc.perform(put("/goal-invitations/reject/{invitationId}", invitationId))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Invitation rejected successfully"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.inviterId").value(1L))
+                .andExpect(jsonPath("$.invitedUserId").value(2L))
+                .andExpect(jsonPath("$.goalId").value(3L));
 
         verify(goalInvitationService, times(1)).rejectGoalInvitation(invitationId);
     }
@@ -74,19 +110,23 @@ public class GoalInvitationControllerTest {
         InvitationFilterDto filterDto = new InvitationFilterDto();
         filterDto.setInviterId(1L);
         filterDto.setInvitedId(2L);
+
         GoalInvitationDto invitationDto = new GoalInvitationDto();
+        invitationDto.setId(1L);
         invitationDto.setInviterId(1L);
         invitationDto.setInvitedUserId(2L);
         invitationDto.setGoalId(3L);
 
         List<GoalInvitationDto> invitations = List.of(invitationDto);
+
         when(goalInvitationService.getInvitations(filterDto)).thenReturn(invitations);
 
-        mockMvc.perform(get("/goal-invitation/invitations")
+        mockMvc.perform(get("/goal-invitations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filterDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].inviterId").value(1L))
                 .andExpect(jsonPath("$[0].invitedUserId").value(2L))
                 .andExpect(jsonPath("$[0].goalId").value(3L));

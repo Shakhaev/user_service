@@ -1,8 +1,9 @@
 package school.faang.user_service.filter.goal;
-/*
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.filter.goal.data.StatusFilter;
 
@@ -21,7 +22,7 @@ class StatusFilterTest extends InvitationFilterTest {
 
     @Test
     void isApplicable_ShouldReturnTrue_WhenStatusIsNotNull() {
-        filters.setStatus("Pending");
+        filters.setStatus(RequestStatus.PENDING);
 
         boolean result = invitationFilter.isApplicable(filters);
 
@@ -37,16 +38,16 @@ class StatusFilterTest extends InvitationFilterTest {
 
     @Test
     void apply_ShouldFilterInvitationsByMatchingStatus() {
-        filters.setStatus("Pending");
+        filters.setStatus(RequestStatus.PENDING);
 
         invitation1 = new GoalInvitation();
-        invitation1.setStatus("Pending");
+        invitation1.setStatus(RequestStatus.PENDING);
 
         invitation2 = new GoalInvitation();
-        invitation2.setStatus("Approved");
+        invitation2.setStatus(RequestStatus.REJECTED);
 
         invitation3 = new GoalInvitation();
-        invitation3.setStatus("Pending");
+        invitation3.setStatus(RequestStatus.PENDING);
 
         Stream<GoalInvitation> input = Stream.of(invitation1, invitation2, invitation3);
         Stream<GoalInvitation> expected = Stream.of(invitation1, invitation3);
@@ -58,13 +59,13 @@ class StatusFilterTest extends InvitationFilterTest {
 
     @Test
     void apply_ShouldReturnEmptyStream_WhenNoInvitationsMatch() {
-        filters.setStatus("Rejected");
+        filters.setStatus(RequestStatus.REJECTED);
 
         invitation1 = new GoalInvitation();
-        invitation1.setStatus("Pending");
+        invitation1.setStatus(RequestStatus.PENDING);
 
         invitation2 = new GoalInvitation();
-        invitation2.setStatus("Approved");
+        invitation2.setStatus(RequestStatus.ACCEPTED);
 
         Stream<GoalInvitation> input = Stream.of(invitation1, invitation2);
 
@@ -73,4 +74,3 @@ class StatusFilterTest extends InvitationFilterTest {
         assertTrue(result.isEmpty());
     }
 }
- */
