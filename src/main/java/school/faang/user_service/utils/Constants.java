@@ -4,5 +4,5 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Constants {
-    public final static String API_VERSION_1 = "/api/v1";
+    public static final String API_VERSION_1 = "/api/v1";
 }

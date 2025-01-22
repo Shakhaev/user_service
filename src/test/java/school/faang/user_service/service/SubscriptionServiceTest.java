@@ -57,7 +57,8 @@ public class SubscriptionServiceTest {
     void testFollowUserByHimself() {
         Mockito.when(subscriptionRepositoryMock.existsByFollowerIdAndFolloweeId(followerId, followerId))
                 .thenThrow(new DataValidationException("!!"));
-        Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
+        Assert.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId,
+                followerId));
     }
 
     @Test

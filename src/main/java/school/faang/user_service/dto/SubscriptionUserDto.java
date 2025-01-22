@@ -3,7 +3,7 @@ package school.faang.user_service.dto;
 import lombok.Builder;
 
 @Builder
-public record SubscriptionUserDto (
+public record SubscriptionUserDto(
         Long id,
         String username,
         String email
