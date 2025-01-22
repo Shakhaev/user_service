@@ -1,16 +1,22 @@
 package school.faang.user_service.service.user;
 
 import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.*;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.avatar.AvatarFeignClient;
 
 import java.io.ByteArrayInputStream;
@@ -26,18 +32,40 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AvatarServiceImpl implements AvatarService {
     private static final String AVATAR_BUCKET_NAME = "avatars";
+    private static final String DEFAULT_AVATAR = "default-avatar.png";
+
     private final MinioClient minioClient;
     private final AvatarFeignClient avatarFeignClient;
 
-
+    @SneakyThrows
+    @Transactional
     @Override
-    public ByteArrayResource generateAvatar(String seed, int size) {
-        return avatarFeignClient.getAvatar(seed, size);
+    public ByteArrayResource getAvatarFromDiceBear(String seed, int size) {
+        try {
+            return avatarFeignClient.getAvatar(seed, size);
+        } catch (Exception e) {
+            return getDefaultAvatar();
+        }
     }
 
     @SneakyThrows
+    @Transactional
     @Override
-    public void uploadAvatar(ByteArrayResource file, String uuid) {
+    public String uploadAvatar(ByteArrayResource file) {
+        checkBucketExists();
+        return uploadToMinio(file);
+    }
+
+    private ByteArrayResource getDefaultAvatar() throws ErrorResponseException, InsufficientDataException, InternalException, InvalidKeyException, InvalidResponseException, IOException, NoSuchAlgorithmException, ServerException, XmlParserException {
+        InputStream object = minioClient.getObject(GetObjectArgs.builder()
+                .bucket(AVATAR_BUCKET_NAME)
+                .object(DEFAULT_AVATAR)
+                .build());
+        byte[] bytes = object.readAllBytes();
+        return new ByteArrayResource(bytes);
+    }
+
+    private void checkBucketExists() throws ErrorResponseException, InsufficientDataException, InternalException, InvalidKeyException, InvalidResponseException, IOException, NoSuchAlgorithmException, ServerException, XmlParserException {
         boolean isBucketExists = minioClient.bucketExists(BucketExistsArgs.builder()
                 .bucket(AVATAR_BUCKET_NAME)
                 .build());
@@ -46,10 +74,11 @@ public class AvatarServiceImpl implements AvatarService {
                     .bucket(AVATAR_BUCKET_NAME)
                     .build());
         }
-        uploadToMinio(file, uuid);
     }
 
-    private void uploadToMinio(ByteArrayResource avatar, String avatarId) throws ErrorResponseException, InsufficientDataException, InternalException, InvalidKeyException, InvalidResponseException, NoSuchAlgorithmException, ServerException, XmlParserException {
+    @SneakyThrows
+    private String uploadToMinio(ByteArrayResource avatar) {
+        String avatarId = UUID.randomUUID().toString();
         try {
             byte[] stream = toByteArray(avatar.getInputStream());
             minioClient.putObject(PutObjectArgs.builder()
@@ -60,6 +89,7 @@ public class AvatarServiceImpl implements AvatarService {
         } catch (IOException e) {
             throw new RuntimeException();
         }
+        return avatarId;
     }
 
     private static byte[] toByteArray(InputStream stream) throws IOException {
@@ -74,38 +104,5 @@ public class AvatarServiceImpl implements AvatarService {
             }
             return baos.toByteArray();
         }
-    }
-
-    @SneakyThrows
-    @Override
-    public void uploadAvatar(MultipartFile file) {
-        boolean isBucketExists = minioClient.bucketExists(BucketExistsArgs.builder()
-                .bucket(AVATAR_BUCKET_NAME)
-                .build());
-        if (!isBucketExists) {
-            minioClient.makeBucket(MakeBucketArgs.builder()
-                    .bucket(AVATAR_BUCKET_NAME)
-                    .build());
-        }
-        minioClient.putObject(PutObjectArgs.builder()
-                .bucket(AVATAR_BUCKET_NAME)
-                .object(getFileName(file))
-                .stream(file.getInputStream(), file.getSize(), -1)
-                .build());
-    }
-
-    private String getFileName(MultipartFile file) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String fileExtension = getFileExtension(file);
-        return stringBuilder.append(UUID.randomUUID())
-                .append(fileExtension)
-                .toString();
-    }
-
-    private String getFileExtension(MultipartFile file) {
-        if (file.getOriginalFilename() != null && file.getOriginalFilename().isEmpty()) {
-            return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-        }
-        throw new IllegalArgumentException("Filename is required");
     }
 }

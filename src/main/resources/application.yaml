@@ -40,6 +40,10 @@ events:
   domain:
     path: /api/v1
 
+users:
+  domain:
+    path: /api/v1
+
 minio:
   accessKey: user
   secretKey: password

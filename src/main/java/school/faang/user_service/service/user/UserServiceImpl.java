@@ -1,10 +1,14 @@
 package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.user.UserRegisterDto;
+import school.faang.user_service.dto.user.UserResponseRegisterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.mapper.user.UserRegisterMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.UUID;
@@ -16,32 +20,36 @@ public class UserServiceImpl implements UserService {
     private static final int SMALL_AVATAR_SIZE = 32;
 
     private final UserRepository userRepository;
+    private final UserRegisterMapper userRegisterMapper;
     private final AvatarService avatarService;
 
     @Override
-    public void saveRandomAvatar(long userId) {
-        //get generated avatars: big and small (with one uuid)
-        String randomId = UUID.randomUUID().toString();
-        ByteArrayResource avatar = avatarService.generateAvatar(randomId, AVATAR_SIZE);
-        ByteArrayResource smallAvatar = avatarService.generateAvatar(randomId, SMALL_AVATAR_SIZE);
-        // save to db with different id
-        UserProfilePic userProfilePic = savePicToDb(userId);
-        //save to minio with db ids (*id*.png)
-        avatarService.uploadAvatar(avatar, userProfilePic.getFileId());
-        avatarService.uploadAvatar(smallAvatar, userProfilePic.getSmallFileId());
+    public UserResponseRegisterDto registerUser(UserRegisterDto dto) {
+        User user = userRegisterMapper.toEntity(dto);
+        Pair<String, String> avatars = saveAvatarsToMinio(user);
+        User savedUser = saveAvatarsIdsToDb(user, avatars);
+        return userRegisterMapper.toDto(userRepository.save(savedUser));
     }
 
-    private UserProfilePic savePicToDb(long userId) {
-        String picId = UUID.randomUUID().toString();
+    @Override
+    public Pair<String, String> saveAvatarsToMinio(User user) {
+        String randomId = UUID.randomUUID().toString();
+        ByteArrayResource avatar = avatarService.getAvatarFromDiceBear(randomId, AVATAR_SIZE);
+        ByteArrayResource smallAvatar = avatarService.getAvatarFromDiceBear(randomId, SMALL_AVATAR_SIZE);
+
+        String avatarId = avatarService.uploadAvatar(avatar);
+        String avatarSmallId = avatarService.uploadAvatar(smallAvatar);
+
+        return Pair.of(avatarId, avatarSmallId);
+    }
+
+    private User saveAvatarsIdsToDb(User user, Pair<String, String> avatars) {
         UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setFileId(picId);
-        userProfilePic.setSmallFileId(picId + "-small");
+        userProfilePic.setFileId(avatars.getLeft());
+        userProfilePic.setSmallFileId(avatars.getRight());
 
-        User user = userRepository.findById(userId).orElseThrow();
         user.setUserProfilePic(userProfilePic);
-        userRepository.save(user);
-
-        return userProfilePic;
+        return userRepository.save(user);
     }
 }
 

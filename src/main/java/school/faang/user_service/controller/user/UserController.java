@@ -1,18 +1,23 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.user.UserRegisterDto;
+import school.faang.user_service.dto.user.UserResponseRegisterDto;
 import school.faang.user_service.service.user.UserService;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("${users.domain.path}/users")
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/user/avatar/{id}")
-    public void uploadAvatar(@PathVariable("id") long userId) {
-        userService.saveRandomAvatar(userId);
+    @PostMapping
+    public UserResponseRegisterDto registerUser(@RequestBody @Valid UserRegisterDto dto) {
+        return userService.registerUser(dto);
     }
 }
