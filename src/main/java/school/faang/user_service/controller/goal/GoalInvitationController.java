@@ -1,6 +1,8 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
@@ -18,10 +20,8 @@ public class GoalInvitationController {
     private final GoalInvitationMapper goalInvitationMapper;
     private final GoalInvitationDtoValidator validator;
 
-    public GoalInvitationDto createInvitation(GoalInvitationDto dto) {
-        validator.validateDto(dto);
-        GoalInvitation entity = goalInvitationMapper.toEntity(dto);
-        GoalInvitation result = goalInvitationService.createInvitation(entity);
+    public GoalInvitationDto createInvitation(@RequestBody @Valid GoalInvitationDto dto) {
+        GoalInvitation result = goalInvitationService.createInvitation(dto);
         return goalInvitationMapper.toDto(result);
     }
 
@@ -34,7 +34,7 @@ public class GoalInvitationController {
         goalInvitationService.rejectGoalInvitation(id);
     }
 
-    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
+    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filters) {
         List<GoalInvitation> filteredInvitations = goalInvitationService.getInvitations(filters);
         return goalInvitationMapper.toDtoList(filteredInvitations);
     }

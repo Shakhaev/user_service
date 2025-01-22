@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.GoalInvitationException;
 import school.faang.user_service.filter.goal.InvitationFilter;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,16 +26,22 @@ public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
     private final UserService userService;
+    private final GoalService goalService;
     private final List<InvitationFilter> invitationFilters;
 
     @Transactional
-    public GoalInvitation createInvitation(GoalInvitation invitation) {
-        User inviter = invitation.getInviter();
-        User invited = invitation.getInvited();
+    public GoalInvitation createInvitation(GoalInvitationDto dto) {
+        Long inviterId = dto.getInviterId();
+        Long invitedId = dto.getInvitedUserId();
 
-        checkUsers(inviter, invited);
+        checkUsers(inviterId, invitedId);
 
-        invitation.setStatus(RequestStatus.PENDING);
+        GoalInvitation invitation = GoalInvitation.builder()
+                .inviter(userService.getUser(inviterId))
+                .invited(userService.getUser(invitedId))
+                .goal(goalService.getGoal(dto.getGoalId()))
+                .status(RequestStatus.PENDING)
+                .build();
         log.info("New invitation to goal {} was created", invitation.getGoal().getTitle());
         return goalInvitationRepository.save(invitation);
     }
@@ -78,14 +85,7 @@ public class GoalInvitationService {
                 .toList();
     }
 
-    private void checkUsers(User inviter, User invited) {
-        if (inviter == null || invited == null) {
-            throw new GoalInvitationException("Inviter or invited user not found");
-        }
-
-        Long invitedId = invited.getId();
-        Long inviterId = inviter.getId();
-
+    private void checkUsers(Long inviterId, Long invitedId) {
         if (Objects.equals(invitedId, inviterId)) {
             throw new GoalInvitationException("User cannot create invitation for himself");
         }

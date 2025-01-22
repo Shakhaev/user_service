@@ -133,7 +133,7 @@ public class GoalService {
         return userService.getUser(userId);
     }
 
-    private Goal getGoal(Long goalId) {
+    public Goal getGoal(Long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
     }
