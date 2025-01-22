@@ -9,7 +9,6 @@ import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.service.GoalInvitationService;
-import school.faang.user_service.validator.goal.GoalInvitationDtoValidator;
 
 import java.util.List;
 
@@ -18,7 +17,6 @@ import java.util.List;
 public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
     private final GoalInvitationMapper goalInvitationMapper;
-    private final GoalInvitationDtoValidator validator;
 
     public GoalInvitationDto createInvitation(@RequestBody @Valid GoalInvitationDto dto) {
         GoalInvitation result = goalInvitationService.createInvitation(dto);
