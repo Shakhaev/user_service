@@ -12,7 +12,7 @@ import school.faang.user_service.service.PremiumService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/premium")
+@RequestMapping("${user-service.api-version}/premium")
 public class PremiumController {
     private final PremiumService premiumService;
     private final UserContext userContext;
