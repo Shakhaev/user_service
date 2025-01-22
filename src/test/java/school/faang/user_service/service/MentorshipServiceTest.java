@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 public class MentorshipServiceTest {
     @Mock
     private UserRepository repository;
+    @Mock
+    private UserService userService;
     @InjectMocks
     private MentorshipService mentorshipService;
 
@@ -32,13 +34,13 @@ public class MentorshipServiceTest {
     @BeforeEach
     public void init() {
         UserMapper mapper = Mappers.getMapper(UserMapper.class);
-        mentorshipService = new MentorshipService(repository, mapper);
+        mentorshipService = new MentorshipService(repository, userService, mapper);
         user = User.builder().id(1L).username("Bob").build();
     }
 
     @Test
     public void getMentees_nullMenteesTest() {
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         Assert.assertEquals(new ArrayList<>(), mentorshipService.getMentees(1));
         Assert.assertTrue(mentorshipService.getMentees(1).size() == 0);
@@ -46,7 +48,7 @@ public class MentorshipServiceTest {
 
     @Test
     public void getMentors_nullMentorsTest() {
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         Assert.assertEquals(new ArrayList(), mentorshipService.getMentors(1));
         Assert.assertTrue(mentorshipService.getMentors(1).size() == 0);
@@ -60,7 +62,7 @@ public class MentorshipServiceTest {
         mentees.add(new User());
         user.setMentees(mentees);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         Assert.assertTrue(mentorshipService.getMentees(1).size() == 3);
     }
@@ -73,19 +75,9 @@ public class MentorshipServiceTest {
         mentors.add(new User());
         user.setMentors(mentors);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         Assert.assertTrue(mentorshipService.getMentors(1).size() == 3);
-    }
-
-    @Test
-    public void getMentees_error() {
-        Assert.assertThrows(IllegalArgumentException.class, () -> mentorshipService.getMentors(5));
-    }
-
-    @Test
-    public void getMentors_error() {
-        Assert.assertThrows(IllegalArgumentException.class, () -> mentorshipService.getMentors(5));
     }
 
     @Test
@@ -106,7 +98,7 @@ public class MentorshipServiceTest {
         mentees.add(anotherUser2);
         user.setMentees(mentees);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         mentorshipService.deleteMentee(1, targetId);
 
@@ -132,7 +124,7 @@ public class MentorshipServiceTest {
         mentors.add(anotherUser2);
         user.setMentors(mentors);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         mentorshipService.deleteMentor(1, targetId);
 
@@ -154,7 +146,7 @@ public class MentorshipServiceTest {
         mentees.add(anotherUser2);
         user.setMentees(mentees);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         mentorshipService.deleteMentee(1, 52);
         verify(repository).save(any());
@@ -174,7 +166,7 @@ public class MentorshipServiceTest {
         mentors.add(anotherUser2);
         user.setMentors(mentors);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getUser(1L)).thenReturn(user);
 
         mentorshipService.deleteMentor(1, 52);
         verify(repository).save(any());

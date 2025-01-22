@@ -9,6 +9,7 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponse;
 import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.SkillNotFoundException;
@@ -19,6 +20,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +91,20 @@ public class GoalService {
         return goalRepository.findByParent(goalId)
                 .map(g -> goalMapper.toResponse(g))
                 .toList();
+    }
+
+    @Transactional
+    public void removeUserFromGoal(Goal goal, long userId) {
+        List<User> users = new ArrayList<>(goal.getUsers());
+        if (!users.removeIf(user -> user.getId() == userId)) {
+            throw new IllegalArgumentException("Пользователь " + userId + " у цели не был найден");
+        }
+        goal.setUsers(users);
+        if (goal.getUsers().isEmpty()) {
+            deleteGoal(goal.getId());
+        } else {
+            goalRepository.save(goal);
+        }
     }
 
     private Goal getGoalById(Long goalId) {

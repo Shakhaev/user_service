@@ -1,9 +1,11 @@
 package school.faang.user_service.service.goal;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -14,6 +16,7 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponse;
 import school.faang.user_service.dto.goal.UpdateGoalRequest;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.SkillNotFoundException;
 import school.faang.user_service.exception.UserGoalLimitExceededException;
@@ -24,6 +27,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -220,5 +224,47 @@ class GoalServiceTest {
         when(goalRepository.findById(30L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> goalService.getSubtasksGoal(30L));
+    }
+
+    @Test
+    void removeUserFromGoal_MoreThan1UsersSuccess() {
+        Goal goal = Goal.builder().id(13L).users(List.of(
+                User.builder().id(1L).build(),
+                User.builder().id(2L).build(),
+                User.builder().id(3L).build(),
+                User.builder().id(4L).build()
+        )).build();
+
+        goalService.removeUserFromGoal(goal, 1L);
+
+        ArgumentCaptor<Goal> goalCaptor = ArgumentCaptor.forClass(Goal.class);
+        verify(goalRepository).save(goalCaptor.capture());
+
+        Assertions.assertEquals(goalCaptor.getValue().getId(), goal.getId());
+    }
+
+    @Test
+    void removeUserFromGoal_OneUserSuccess() {
+        Goal goal = Goal.builder().id(13L).users(List.of(
+                User.builder().id(1L).build()
+        )).build();
+
+        when(goalRepository.findById(13L)).thenReturn(Optional.of(goal));
+
+        goalService.removeUserFromGoal(goal, 1L);
+
+        ArgumentCaptor<Goal> goalCaptor = ArgumentCaptor.forClass(Goal.class);
+        verify(goalRepository).delete(goalCaptor.capture());
+
+        Assertions.assertEquals(goalCaptor.getValue().getId(), goal.getId());
+    }
+
+    @Test
+    void removeUserFromGoal_UserNotFound() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            goalService.removeUserFromGoal(
+                    Goal.builder().users(Collections.emptyList()).build(),
+                    1L);
+        });
     }
 }
