@@ -6,18 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.MentorshipService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
-public class MentorshipService {
+public class MentorshipServiceImpl implements MentorshipService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    public MentorshipService(UserRepository userRepository) {
+    public void MentorshipService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public MentorshipServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
