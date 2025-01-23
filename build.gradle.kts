@@ -15,6 +15,16 @@ jacoco {
     toolVersion = "0.8.7"
 }
 
+checkstyle {
+    toolVersion = "10.12.1"
+}
+
+tasks.withType<JavaCompile> {
+    options.isIncremental = true
+    sourceCompatibility = JavaVersion.VERSION_17.toString()
+    targetCompatibility = JavaVersion.VERSION_17.toString()
+}
+
 group = "faang.school"
 version = "1.0"
 
