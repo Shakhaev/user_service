@@ -8,7 +8,7 @@ import school.faang.user_service.dto.user.UserResponseRegisterDto;
 import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserRegisterMapper {
+public interface UserMapper {
 
     @Mapping(source = "countryId", target = "country.id")
     User toEntity(UserRegisterDto userRegisterDto);

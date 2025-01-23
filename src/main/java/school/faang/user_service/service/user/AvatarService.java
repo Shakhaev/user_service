@@ -1,11 +1,10 @@
 package school.faang.user_service.service.user;
 
-import org.springframework.core.io.ByteArrayResource;
+import org.apache.commons.lang3.tuple.Pair;
+import school.faang.user_service.entity.User;
 
 public interface AvatarService {
 
-    ByteArrayResource getAvatarFromDiceBear(String seed, int size);
-
-    String uploadAvatar(ByteArrayResource file);
+    Pair<String, String> saveAvatarsToMinio(User user);
 
 }
