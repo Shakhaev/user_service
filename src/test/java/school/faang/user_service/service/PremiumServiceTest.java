@@ -9,14 +9,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.client.PaymentServiceClient;
-import school.faang.user_service.constant.PaymentStatus;
-import school.faang.user_service.constant.PremiumPeriod;
+import school.faang.user_service.common.PaymentStatus;
+import school.faang.user_service.common.PremiumPeriod;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PremiumDto;
 import school.faang.user_service.dto.res.PaymentResponse;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.exception.PremiumBadRequestException;
+import school.faang.user_service.exception.PremiumInvalidDataException;
 import school.faang.user_service.exception.PremiumNotFoundException;
 import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.repository.UserRepository;
@@ -112,7 +112,7 @@ public class PremiumServiceTest {
     void buyPremium_AlreadyPremiumUser_ThrowsException() {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(premiumRepository.existsByUserId(TEST_USER_ID)).thenReturn(USER_IS_ALREADY_PREMIUM_FLAG);
-        assertThrows(PremiumBadRequestException.class,
+        assertThrows(PremiumInvalidDataException.class,
                 () -> premiumService.buyPremium(TEST_USER_ID, premiumPeriod));
     }
 
@@ -132,7 +132,7 @@ public class PremiumServiceTest {
         when(premiumRepository.existsByUserId(TEST_USER_ID)).thenReturn(false);
         when(paymentServiceClient.sendPayment(any())).thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
 
-        assertThrows(PremiumBadRequestException.class,
+        assertThrows(PremiumInvalidDataException.class,
                 () -> premiumService.buyPremium(TEST_USER_ID, premiumPeriod));
     }
 

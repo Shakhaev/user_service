@@ -1,7 +1,7 @@
 package school.faang.user_service.dto.res;
 
-import school.faang.user_service.constant.Currency;
-import school.faang.user_service.constant.PaymentStatus;
+import school.faang.user_service.common.Currency;
+import school.faang.user_service.common.PaymentStatus;
 
 import java.math.BigDecimal;
 

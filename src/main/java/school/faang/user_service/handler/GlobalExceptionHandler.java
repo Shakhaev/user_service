@@ -8,9 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import school.faang.user_service.constant.Currency;
+import school.faang.user_service.common.Currency;
 import school.faang.user_service.dto.ErrorResponse;
-import school.faang.user_service.exception.PremiumBadRequestException;
+import school.faang.user_service.exception.PremiumInvalidDataException;
 import school.faang.user_service.exception.PremiumNotFoundException;
 
 import java.util.Arrays;
@@ -61,9 +61,9 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler(PremiumBadRequestException.class)
+    @ExceptionHandler(PremiumInvalidDataException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlePremiumBadRequestException(PremiumBadRequestException e) {
+    public ErrorResponse handlePremiumBadRequestException(PremiumInvalidDataException e) {
         return new ErrorResponse(e.getMessage());
     }
 

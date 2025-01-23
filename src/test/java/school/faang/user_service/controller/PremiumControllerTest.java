@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.common.PremiumPeriod;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.constant.PremiumPeriod;
 import school.faang.user_service.dto.PremiumDto;
-import school.faang.user_service.exception.PremiumBadRequestException;
+import school.faang.user_service.exception.PremiumInvalidDataException;
 import school.faang.user_service.service.PremiumService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +49,7 @@ public class PremiumControllerTest {
     @Test
     void buyPremium_InvalidDays_ThrowsException() {
         assertThrows(
-                PremiumBadRequestException.class,
+                PremiumInvalidDataException.class,
                 () -> premiumController.buyPremium(INVALID_PREMIUM_PERIOD_DAYS)
         );
 

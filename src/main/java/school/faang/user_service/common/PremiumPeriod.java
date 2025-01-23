@@ -1,12 +1,12 @@
-package school.faang.user_service.constant;
+package school.faang.user_service.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import school.faang.user_service.exception.PremiumBadRequestException;
+import school.faang.user_service.exception.PremiumInvalidDataException;
 
 import java.math.BigDecimal;
 
-import static school.faang.user_service.constant.Currency.USD;
+import static school.faang.user_service.common.Currency.USD;
 
 @Getter
 @AllArgsConstructor
@@ -25,6 +25,6 @@ public enum PremiumPeriod {
                 return premiumPeriod;
             }
         }
-        throw new PremiumBadRequestException("No PremiumPeriod by requestedDays");
+        throw new PremiumInvalidDataException(String.format("No PremiumPeriod by days: %d", requestedDays));
     }
 }
