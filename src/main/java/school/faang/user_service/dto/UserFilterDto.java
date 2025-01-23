@@ -1,11 +1,11 @@
 package school.faang.user_service.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 
-@Data
-public class UserFilterDto {
-    private String username;
-    private String email;
-    private String city;
-    private Boolean active;
+@Builder
+public record UserFilterDto(String namePattern, String aboutPattern, String emailPattern, String contactPattern,
+                            String countryPattern, String cityPattern, String phonePattern, String skillPattern,
+                            @Positive int experienceMin, @Positive int experienceMax, @Positive int page,
+                            @Positive int pageSize) {
 }

@@ -1,23 +1,7 @@
 package school.faang.user_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDto {
-    private Long id;
-    private String username;
-    private String email;
-    private String phone;
-    private String aboutMe;
-    private String city;
-    private String countryName;
-    private boolean active;
-    private boolean premium;
-    private String profilePicUrl;
+public record UserDto(@Positive @NotNull Long id, @NotNull String username, @NotNull String email) {
 }
