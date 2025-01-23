@@ -1,11 +1,13 @@
 package school.faang.user_service.service.filter.realisation;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.service.filter.UserFilter;
 
 import java.util.stream.Stream;
 
+@Component
 public class ExperienceFilter implements UserFilter {
     @Override
     public boolean isAcceptable(UserFilterDto userFilterDto) {
