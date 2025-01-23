@@ -8,5 +8,6 @@ import school.faang.user_service.entity.User;
 public interface UserMapper {
     User toEntity(UserDto dto);
 
+
     UserDto toDto(User entity);
 }

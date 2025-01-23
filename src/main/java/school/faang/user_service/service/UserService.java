@@ -12,7 +12,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -25,23 +24,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
-        Stream<User> users = userRepository.findPremiumUsers();
-        var filterUser = filterUser(users, filterDto)
+        List<User> users = userRepository.findPremiumUsers().toList();
+        return userFilters.stream()
+                .filter(filter -> filter.isAcceptable(filterDto))
+                .flatMap(filter -> filter.accept(users.stream(), filterDto))
                 .map(userMapper::toDto)
                 .toList();
-
-        log.info("Found {} premium users", filterUser);
-
-        return filterUser;
     }
 
-    private Stream<User> filterUser(Stream<User> users, UserFilterDto filterDto) {
-        for (UserFilter filter : userFilters) {
-            if (filter.isAcceptable(filterDto)) {
-                users = filter.accept(users, filterDto);
-            }
-        }
-        return users;
-    }
 
 }
