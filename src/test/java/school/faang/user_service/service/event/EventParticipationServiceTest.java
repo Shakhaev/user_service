@@ -5,11 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.event.RegisterParticipantDto;
+import school.faang.user_service.dto.event.RegisterParticipantRequest;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,7 +20,7 @@ class EventParticipationServiceTest {
     private EventParticipationRepository eventParticipationRepository;
 
     @Mock
-    private RegisterParticipantDto registerParticipantDto;
+    private RegisterParticipantRequest registerParticipantRequest;
 
     @BeforeEach
     void setUp() {
@@ -29,7 +28,7 @@ class EventParticipationServiceTest {
     }
 
     @Captor
-    private ArgumentCaptor<RegisterParticipantDto> registerParticipantCaptor;
+    private ArgumentCaptor<RegisterParticipantRequest> registerParticipantCaptor;
 
     @Test
     void eventValidationExist() {
