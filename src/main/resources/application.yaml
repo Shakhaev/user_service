@@ -50,4 +50,4 @@ minio:
   endpoint: http://localhost:9000
 
 dicebear:
-  endpoint: https://api.dicebear.com/9.x/adventurer/svg?seed=Jude
+  endpoint: https://api.dicebear.com

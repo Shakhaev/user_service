@@ -5,7 +5,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "avatarClient", url = "https://api.dicebear.com")
+@FeignClient(name = "avatarClient", url = "${dicebear.endpoint}")
 public interface AvatarFeignClient {
 
     @GetMapping(value = "/9.x/adventurer/png", params = {"seed", "size"})
