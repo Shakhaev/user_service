@@ -72,6 +72,7 @@ public class RecommendationService {
         recommendation.setAuthor(author);
         User receiver = userRepository.getReferenceById(updateRequest.getReceiverId());
         recommendation.setReceiver(receiver);
+        recommendation.setSkillOffers(new ArrayList<>());
         List<Skill> skills = mapSkills(updateRequest.getSkillIds());
 
         recommendationRepository.update(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());

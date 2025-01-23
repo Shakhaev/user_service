@@ -12,10 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.CreateRecommendationResponse;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
@@ -27,11 +27,9 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
@@ -131,8 +129,80 @@ public class RecommendationServiceTest {
         assertEquals(1L, createResponse.getSkillOfferIds().get(0));
         assertEquals(2L, createResponse.getSkillOfferIds().get(1));
         assertEquals(createRequest.getCreatedAt(), createResponse.getCreatedAt());
-
     }
 
+    @Test
+    public void update_ShouldThrowDataValidationExceptionWhenSkillDoesNotExist() {
+        UpdateRecommendationRequest updateRequest = new UpdateRecommendationRequest();
+        updateRequest.setAuthorId(1L);
+        updateRequest.setReceiverId(2L);
+        updateRequest.setContent("content");
+        updateRequest.setSkillIds(List.of(1L, 7L));
+        updateRequest.setCreatedAt(LocalDateTime.now());
 
+        when(skillRepository.existsById(1L)).thenReturn(true);
+        when(skillRepository.existsById(7L)).thenReturn(false);
+
+        assertThrows(DataValidationException.class, () -> recommendationService.update(updateRequest));
+    }
+
+    @Test
+    public void update_ShouldUpdateRecommendationSuccessfully() {
+        UpdateRecommendationRequest updateRequest = new UpdateRecommendationRequest();
+        updateRequest.setId(1L);
+        updateRequest.setAuthorId(1L);
+        updateRequest.setReceiverId(2L);
+        updateRequest.setContent("updated content");
+        updateRequest.setSkillIds(List.of(1L, 2L));
+        updateRequest.setCreatedAt(LocalDateTime.of(2024, 12, 20, 15, 0));
+
+        when(skillRepository.existsById(1L)).thenReturn(true);
+        when(skillRepository.existsById(2L)).thenReturn(true);
+
+        User author = new User();
+        User receiver = new User();
+        author.setId(1L);
+        receiver.setId(2L);
+
+        when(userRepository.getReferenceById(1L)).thenReturn(author);
+        when(userRepository.getReferenceById(2L)).thenReturn(receiver);
+
+        Skill firstSkill = new Skill();
+        Skill secondSkill = new Skill();
+        firstSkill.setId(1L);
+        secondSkill.setId(2L);
+
+        when(skillRepository.findAllById(updateRequest.getSkillIds())).thenReturn(List.of(firstSkill, secondSkill));
+
+        when(skillOfferRepository.create(firstSkill.getId(), 1L)).thenReturn(3L);
+        when(skillOfferRepository.create(secondSkill.getId(), 1L)).thenReturn(4L);
+
+        SkillOffer firstSkillOffer = new SkillOffer();
+        SkillOffer secondSkillOffer = new SkillOffer();
+        firstSkillOffer.setId(3L);
+        secondSkillOffer.setId(4L);
+
+        when(skillOfferRepository.findById(3L)).thenReturn(Optional.of(firstSkillOffer));
+        when(skillOfferRepository.findById(4L)).thenReturn(Optional.of(secondSkillOffer));
+
+        when(userSkillGuaranteeRepository.findByUserIdAndSkillId(receiver.getId(), firstSkill.getId())).thenReturn(new UserSkillGuarantee());
+        when(userSkillGuaranteeRepository.findByUserIdAndSkillId(receiver.getId(), secondSkill.getId())).thenReturn(new UserSkillGuarantee());
+
+        UpdateRecommendationResponse updateResponse = recommendationService.update(updateRequest);
+
+        verify(recommendationRepository, times(1)).update(author.getId(), receiver.getId(), updateRequest.getContent());
+        verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(updateRequest.getId());
+        verify(skillOfferRepository, times(1)).create(firstSkill.getId(), updateRequest.getId());
+        verify(skillOfferRepository, times(1)).create(secondSkill.getId(), updateRequest.getId());
+        verify(userSkillGuaranteeRepository, times(1)).updateGuarantor(receiver.getId(), firstSkill.getId(), author.getId());
+        verify(userSkillGuaranteeRepository, times(1)).updateGuarantor(receiver.getId(), secondSkill.getId(), author.getId());
+
+        assertEquals(1L, updateResponse.getId());
+        assertEquals(1L, updateResponse.getAuthorId());
+        assertEquals(2L, updateResponse.getReceiverId());
+        assertEquals("updated content", updateResponse.getContent());
+        assertEquals(3L, updateResponse.getSkillOfferIds().get(0));
+        assertEquals(4L, updateResponse.getSkillOfferIds().get(1));
+        assertEquals(updateRequest.getCreatedAt(), updateResponse.getCreatedAt());
+    }
 }
