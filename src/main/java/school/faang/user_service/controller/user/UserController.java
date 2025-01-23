@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNFDto;
 import school.faang.user_service.dto.user.UserResponseCsvDto;
 import school.faang.user_service.service.user.UserService;
 
@@ -36,6 +37,11 @@ public class UserController {
     @GetMapping("/users/subscribers/{userId}")
     public List<UserDto> getUserSubscribers(@PathVariable long userId) {
         return userService.getUserSubscribers(userId);
+    }
+
+    @GetMapping("/users/followers/{userId}")
+    public List<UserNFDto> getUserFollowers(@PathVariable long userId) {
+        return userService.getUserFollowers(userId);
     }
 
     @PostMapping("/CSV")

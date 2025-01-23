@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.json.student.PersonSchemaForUser;
 import io.micrometer.common.util.StringUtils;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +17,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.analyticsevent.SearchAppearanceEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNFDto;
 import school.faang.user_service.dto.user.UserResponseCsvDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.ErrorMessage;
@@ -268,5 +267,11 @@ public class UserService {
     public void notificationUserWasViewed(UserProfileEvent userProfileEvent) {
         userViewProfilePublisher.publish(userProfileEvent);
         log.info("UserProfileEvent was send.");
+    }
+
+    public List<UserNFDto> getUserFollowers(long userId) {
+        return userRepository.findUserSubsribers(userId).stream()
+                .map(userMapper::entityToDto)
+                .toList();
     }
 }

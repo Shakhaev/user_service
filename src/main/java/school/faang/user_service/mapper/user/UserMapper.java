@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserNFDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 
@@ -30,4 +31,7 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "country.title", source = "country")
     UserDto personToUserDto(PersonSchemaForUser person);
+
+    @Mapping(source = "contactPreference.preference", target = "preference")
+    UserNFDto entityToDto(User user);
 }
