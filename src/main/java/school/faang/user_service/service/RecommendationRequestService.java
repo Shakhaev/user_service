@@ -3,11 +3,13 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.RecommendationRejectionDto;
+import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.response.RecommendationResponseDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
+import school.faang.user_service.filter.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -27,7 +29,7 @@ public class RecommendationRequestService {
     private final List<RecommendationRequestFilter> requestFilters;
 
     @Transactional
-    public RecommendationRequestDto createRecommendationRequest(RecommendationRequestDto recommendationRequestDto) {
+    public RecommendationResponseDto createRecommendationRequest(RecommendationRequestDto recommendationRequestDto) {
         RecommendationRequest recommendationRequest = mapper.toEntity(recommendationRequestDto);
 
         long requesterId = recommendationRequestDto.getRequesterId();
@@ -38,17 +40,17 @@ public class RecommendationRequestService {
         validator.checkRequestWithinSixMonthsExist(requesterId, receiverId);
         validator.checkAllSkillsExist(skillIds);
 
-        recommendationRequest = recommendationRequestRepository.create(requesterId, receiverId,
+        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.create(requesterId, receiverId,
                 recommendationRequest.getMessage());
-        long requestId = recommendationRequest.getId();
+        long requestId = savedRecommendationRequest.getId();
 
         skillIds.forEach(skillId -> skillRequestRepository.create(requestId, skillId));
 
-        return mapper.toDto(recommendationRequest);
+        return mapper.toDto(savedRecommendationRequest);
     }
 
     @Transactional(readOnly = true)
-    public List<RecommendationRequestDto> getRecommendationRequests(RecommendationRequestFilterDto filters) {
+    public List<RecommendationResponseDto> getRecommendationRequests(RecommendationRequestFilterDto filters) {
         Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
         for (RecommendationRequestFilter requestFilter : requestFilters) {
             if (requestFilter.isApplicable(filters)) {
@@ -61,21 +63,22 @@ public class RecommendationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public RecommendationRequestDto getRecommendationRequest(long id) {
-        Optional<RecommendationRequest> request = recommendationRequestRepository.findById(id);
+    public RecommendationResponseDto getRecommendationRequest(long recommendationRequestId) {
+        Optional<RecommendationRequest> request = recommendationRequestRepository.findById(recommendationRequestId);
         validator.checkRecommendationRequestExists(request);
 
         return mapper.toDto(request.get());
     }
 
     @Transactional
-    public RecommendationRequestDto rejectRecommendationRequest(long id, RejectionDto rejection) {
-        Optional<RecommendationRequest> request = recommendationRequestRepository.findById(id);
+    public RecommendationResponseDto rejectRecommendationRequest(long recommendationRequestId, RecommendationRejectionDto rejection) {
+        Optional<RecommendationRequest> request = recommendationRequestRepository.findById(recommendationRequestId);
         validator.checkRecommendationRequestExists(request);
 
         RecommendationRequest recommendationRequest = request.get();
         validator.validateRecommendationRequestStatus(recommendationRequest);
 
+        recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.getReason());
         recommendationRequestRepository.save(recommendationRequest);
 

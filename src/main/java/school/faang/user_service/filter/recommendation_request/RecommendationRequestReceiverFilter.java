@@ -1,4 +1,4 @@
-package school.faang.user_service.filter.recommendation;
+package school.faang.user_service.filter.recommendation_request;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
@@ -17,6 +17,6 @@ public class RecommendationRequestReceiverFilter implements RecommendationReques
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests,
                                                RecommendationRequestFilterDto filters) {
         return recommendationRequests.filter(request ->
-                request.getReceiver().getUsername().equals(filters.getReceiverPattern()));
+                request.getReceiver().getUsername().contains(filters.getReceiverPattern()));
     }
 }
