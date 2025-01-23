@@ -40,8 +40,8 @@ public class RecommendationRequestService {
         validator.checkRequestWithinSixMonthsExist(requesterId, receiverId);
         validator.checkAllSkillsExist(skillIds);
 
-        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.create(requesterId, receiverId,
-                recommendationRequest.getMessage());
+        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.
+                create(requesterId, receiverId, recommendationRequest.getMessage());
         long requestId = savedRecommendationRequest.getId();
 
         skillIds.forEach(skillId -> skillRequestRepository.create(requestId, skillId));
@@ -71,7 +71,8 @@ public class RecommendationRequestService {
     }
 
     @Transactional
-    public RecommendationResponseDto rejectRecommendationRequest(long recommendationRequestId, RecommendationRejectionDto rejection) {
+    public RecommendationResponseDto rejectRecommendationRequest(long recommendationRequestId,
+                                                                 RecommendationRejectionDto rejection) {
         Optional<RecommendationRequest> request = recommendationRequestRepository.findById(recommendationRequestId);
         validator.checkRecommendationRequestExists(request);
 

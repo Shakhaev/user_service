@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -128,7 +127,8 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
 
-        RecommendationResponseDto actual = recommendationRequestService.getRecommendationRequest(1L);
+        RecommendationResponseDto actual = recommendationRequestService.
+                getRecommendationRequest(1L);
         assertEquals(expected, actual);
     }
 

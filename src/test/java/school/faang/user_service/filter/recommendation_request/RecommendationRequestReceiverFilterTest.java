@@ -20,14 +20,14 @@ public class RecommendationRequestReceiverFilterTest extends RecommendationReque
     }
 
     @Test
-    void testIsApplicable_ShouldReturnTrue_WhenReceiverPatternIsNotNull() {
+    void testIsApplicable_ShouldReturnTrueWhenReceiverPatternIsNotNull() {
         filters.setReceiverPattern("receiver");
         boolean isApplicable = filter.isApplicable(filters);
         assertTrue(isApplicable);
     }
 
     @Test
-    void testIssApplicable_ShouldReturnFalse_WhenReceiverPatternIsNull() {
+    void testIssApplicable_ShouldReturnFalseWhenReceiverPatternIsNull() {
         boolean isApplicable = filter.isApplicable(filters);
         assertFalse(isApplicable);
     }
@@ -53,7 +53,7 @@ public class RecommendationRequestReceiverFilterTest extends RecommendationReque
     }
 
     @Test
-    void testApply_ShouldReturnEmptyStream_WhenNoRequestsMatch() {
+    void testApply_ShouldReturnEmptyStreamWhenNoRequestsMatch() {
         filters.setReceiverPattern("user");
 
         request1 = new RecommendationRequest();

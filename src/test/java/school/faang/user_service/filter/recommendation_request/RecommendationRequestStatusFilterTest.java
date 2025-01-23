@@ -20,14 +20,14 @@ public class RecommendationRequestStatusFilterTest extends RecommendationRequest
     }
 
     @Test
-    void testIsApplicable_ShouldReturnTrue_WhenStatusIsNotNull() {
+    void testIsApplicable_ShouldReturnTrueWhenStatusIsNotNull() {
         filters.setStatus(RequestStatus.ACCEPTED);
         boolean isApplicable = filter.isApplicable(filters);
         assertTrue(isApplicable);
     }
 
     @Test
-    void testIssApplicable_ShouldReturnFalse_WhenStatusIsNull() {
+    void testIssApplicable_ShouldReturnFalseWhenStatusIsNull() {
         boolean isApplicable = filter.isApplicable(filters);
         assertFalse(isApplicable);
     }
@@ -53,7 +53,7 @@ public class RecommendationRequestStatusFilterTest extends RecommendationRequest
     }
 
     @Test
-    void testApply_ShouldReturnEmptyStream_WhenNoRequestsMatch() {
+    void testApply_ShouldReturnEmptyStreamWhenNoRequestsMatch() {
         filters.setStatus(RequestStatus.ACCEPTED);
 
         request1 = new RecommendationRequest();

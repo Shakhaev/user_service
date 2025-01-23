@@ -61,13 +61,16 @@ class RecommendationRequestValidatorTest {
 
     @Test
     void testCheckRequestWithinSixMonthsExist_ShouldThrowException_WhenRequestExists() {
-        when(recommendationRequestRepository.existsRequestWithinSixMonths(1L, 2L)).thenReturn(true);
-        assertThrows(DataValidationException.class, () -> validator.checkRequestWithinSixMonthsExist(1L, 2L));
+        when(recommendationRequestRepository.existsRequestWithinSixMonths(1L, 2L))
+                .thenReturn(true);
+        assertThrows(DataValidationException.class, () ->
+                validator.checkRequestWithinSixMonthsExist(1L, 2L));
     }
 
     @Test
     void testCheckRequestWithinSixMonthsExist_Success() {
-        when(recommendationRequestRepository.existsRequestWithinSixMonths(3L, 4L)).thenReturn(false);
+        when(recommendationRequestRepository.existsRequestWithinSixMonths(3L, 4L))
+                .thenReturn(false);
         assertDoesNotThrow(() -> validator.checkRequestWithinSixMonthsExist(3L, 4L));
     }
 

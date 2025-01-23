@@ -21,14 +21,14 @@ public class RecommendationRequestSkillFilterTest extends RecommendationRequestF
     }
 
     @Test
-    void testIsApplicable_ShouldReturnTrue_WhenSkillPatternIsNotNull() {
+    void testIsApplicable_ShouldReturnTrueWhenSkillPatternIsNotNull() {
         filters.setSkillPattern("Spring");
         boolean isApplicable = filter.isApplicable(filters);
         assertTrue(isApplicable);
     }
 
     @Test
-    void testIssApplicable_ShouldReturnFalse_WhenSkillPatternIsNull() {
+    void testIssApplicable_ShouldReturnFalseWhenSkillPatternIsNull() {
         boolean isApplicable = filter.isApplicable(filters);
         assertFalse(isApplicable);
     }
@@ -60,7 +60,7 @@ public class RecommendationRequestSkillFilterTest extends RecommendationRequestF
     }
 
     @Test
-    void testApply_ShouldReturnEmptyStream_WhenNoRequestsMatch() {
+    void testApply_ShouldReturnEmptyStreamWhenNoRequestsMatch() {
         filters.setSkillPattern("C#");
 
         SkillRequest skill1 = new SkillRequest();
