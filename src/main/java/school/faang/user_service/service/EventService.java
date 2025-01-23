@@ -11,10 +11,12 @@ import school.faang.user_service.dto.promotion.EventPromotionRequest;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.util.ConverterUtil;
+import school.faang.user_service.validator.UserValidator;
+
+import java.util.List;
 
 import static school.faang.user_service.config.KafkaConstants.EVENT_KEY;
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +26,9 @@ public class EventService {
     private final EventRepository eventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ConverterUtil converterUtil;
-    private final UserService userService;
     private final PromotionServiceClient promotionServiceClient;
     private final EventMapper eventMapper;
+    private final UserValidator userValidator;
 
     @Transactional
     public void removeEvent(Long eventId) {
@@ -35,7 +37,7 @@ public class EventService {
 
     public void eventPromotion(EventPromotionRequest request) {
         validateEvent(request.eventId());
-        userService.findById(request.userId());
+        userValidator.validateUser(request.userId());
 
         String message = converterUtil.convertToJson(request);
         kafkaTemplate.send(PAYMENT_PROMOTION_TOPIC, EVENT_KEY, message);
