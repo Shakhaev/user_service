@@ -20,7 +20,7 @@ class UserContactFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenContactPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenContactPatternIsNotNull() {
         filters.setContactPattern("111");
 
         boolean result = userFilter.isApplicable(filters);
@@ -29,14 +29,14 @@ class UserContactFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenContactPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenContactPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithMatchingContact() {
+    void applyTest_ShouldFilterUsersWithMatchingContact() {
         filters.setContactPattern("111");
 
         user1 = new User();
@@ -63,7 +63,7 @@ class UserContactFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setContactPattern("000");
 
         user1 = new User();

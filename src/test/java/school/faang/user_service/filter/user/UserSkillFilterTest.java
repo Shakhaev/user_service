@@ -20,7 +20,7 @@ class UserSkillFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenSkillPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenSkillPatternIsNotNull() {
         filters.setSkillPattern("Java");
 
         boolean result = userFilter.isApplicable(filters);
@@ -29,14 +29,14 @@ class UserSkillFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenSkillPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenSkillPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersBasedOnSkillPattern() {
+    void applyTest_ShouldFilterUsersBasedOnSkillPattern() {
         filters.setSkillPattern("Java");
 
         Skill skill1 = new Skill();
@@ -63,7 +63,7 @@ class UserSkillFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setSkillPattern("Ruby");
 
         Skill skill1 = new Skill();

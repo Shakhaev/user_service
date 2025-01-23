@@ -19,7 +19,7 @@ class UserPageFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenPageAndPageSizeAreNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenPageAndPageSizeAreNotNull() {
         filters.setPage(2);
         filters.setPageSize(3);
 
@@ -29,7 +29,7 @@ class UserPageFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenPageIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenPageIsNull() {
         filters.setPageSize(3);
 
         boolean result = userFilter.isApplicable(filters);
@@ -38,7 +38,7 @@ class UserPageFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenPageSizeIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenPageSizeIsNull() {
         filters.setPage(2);
 
         boolean result = userFilter.isApplicable(filters);
@@ -47,7 +47,7 @@ class UserPageFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnCorrectPageOfUsers() {
+    void applyTest_ShouldReturnCorrectPageOfUsers() {
         filters.setPage(2);
         filters.setPageSize(2);
 
@@ -72,7 +72,7 @@ class UserPageFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenPageOutOfBounds() {
+    void applyTest_ShouldReturnEmptyStreamWhenPageOutOfBounds() {
         filters.setPage(2);
         filters.setPageSize(2);
 

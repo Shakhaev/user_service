@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 public class UserPageFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.getPage() != null
-                && filters.getPageSize() != null;
+        return filters.getPage() != null &&
+                filters.getPageSize() != null;
     }
 
     @Override

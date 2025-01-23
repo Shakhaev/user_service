@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    checkstyle
     jacoco
 }
 
@@ -100,6 +101,17 @@ kotlin {
     jvmToolchain(17)
 }
 
+val exclusions = listOf(
+    "**/entity/**",
+    "**/com/json/**",
+    "**/client/**",
+    "**/config/**",
+    "**/dto/**",
+    "**/mapper/**",
+    "**/controller/**",
+    "**/UserServiceApplication.*"
+)
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     outputs.upToDateWhen { false }
@@ -110,19 +122,7 @@ tasks.jacocoTestReport {
         html.required.set(true)
     }
 
-    classDirectories.setFrom(
-        files(
-            fileTree("build/classes/java/main")
-                .exclude("**/entity/**")
-                .exclude("**/com/json/**")
-                .exclude("**/client/**")
-                .exclude("**/config/**")
-                .exclude("**/dto/**")
-                .exclude("**/mapper/**")
-                .exclude("**/controller/**")
-                .exclude("**/UserServiceApplication.*")
-        )
-    )
+    classDirectories.setFrom(files(fileTree("build/classes/java/main").exclude(exclusions)))
 
     doLast {
         val reportDir = file("${buildDir}/reports/jacoco/test/html")
@@ -138,6 +138,9 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
+
+    classDirectories.setFrom(files(fileTree("build/classes/java/main").exclude(exclusions)))
+
     violationRules {
         rule {
             limit {
@@ -145,4 +148,26 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+checkstyle {
+    toolVersion = "10.17.0"
+    configFile =
+        file("${project.rootDir}/src/main/java/school/faang/user_service/config/checkstyle/checkstyle.xml")
+    checkstyle.enableExternalDtdLoad.set(true)
+}
+
+tasks.checkstyleMain {
+    source = fileTree("${project.rootDir}/src/main/java")
+    include("**/*.java")
+    exclude("**/resources/**")
+
+    classpath = files()
+}
+
+tasks.checkstyleTest {
+    source = fileTree("${project.rootDir}/src/test")
+    include("**/*.java")
+
+    classpath = files()
 }
