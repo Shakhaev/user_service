@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 public class MentorshipRequestDto {
-    @NotNull
-    @Positive
     private Long id;
 
     @NotNull

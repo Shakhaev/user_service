@@ -13,37 +13,33 @@ import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.filter.RequestFilter;
+import school.faang.user_service.validator.MentorshipRequestValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class MentorshipRequestService {
-    private final static String SELF_REQUEST = "Requester and receiver are the same";
     private final static String USER_NOT_EXIST = "User does not exist in the database";
     private final static String REQUEST_NOT_EXIST = "Request does not exist in the database";
-    private final static String ALREADY_MENTOR = "The receiver is already a mentor for the requester";
-    private final static String TOO_EARLY = "А request can be made at three months";
-
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
+    private final MentorshipRequestValidator mentorshipRequestValidator;
     private final UserRepository userRepository;
     private final List<RequestFilter> requestFilters;
-
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         Long requesterId = mentorshipRequestDto.getRequesterId();
         Long receiverId = mentorshipRequestDto.getReceiverId();
 
-        if (requesterId.equals(receiverId)) {
-            throw new RuntimeException(SELF_REQUEST);
-        }
-
         MentorshipRequest mentorshipRequest = mentorshipRequestMapper.toEntity(mentorshipRequestDto);
+
+        mentorshipRequestValidator.validateRequest(mentorshipRequest);
+
+
         mentorshipRequest.setRequester(userRepository
                 .findById(requesterId)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_EXIST))
@@ -52,14 +48,6 @@ public class MentorshipRequestService {
                 .findById(receiverId)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_EXIST))
         );
-
-        mentorshipRequestRepository
-                .findLatestRequest(requesterId, receiverId)
-                .map(request -> request.getCreatedAt().plusMonths(3))
-                .filter(creationDate -> LocalDateTime.now().isBefore(creationDate))
-                .ifPresent(creationDate -> {
-                    throw new RuntimeException(TOO_EARLY);
-                });
 
         return mentorshipRequestMapper.toDto(mentorshipRequestRepository
                 .create(
@@ -70,7 +58,7 @@ public class MentorshipRequestService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
         Stream<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll().stream();
         return mentorshipRequestMapper.toDto(
@@ -86,27 +74,29 @@ public class MentorshipRequestService {
 
     @Transactional
     public void acceptRequest(long id) {
-        MentorshipRequest mentorshipRequest = mentorshipRequestRepository
-                .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(REQUEST_NOT_EXIST));
+        MentorshipRequest mentorshipRequest = getRequestById(id);
 
-        mentorshipRequest.getRequester().getMentors().stream()
-                .filter(user -> user.equals(mentorshipRequest.getReceiver())).findFirst()
-                .ifPresent(user -> {
-                    throw new RuntimeException(ALREADY_MENTOR);
-                });
+        mentorshipRequestValidator.validateRequest(mentorshipRequest);
 
         mentorshipRequest.getRequester().getMentors().add(mentorshipRequest.getReceiver());
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
+
+        mentorshipRequestRepository.save(mentorshipRequest);
     }
 
     @Transactional
     public void rejectRequest(long id, RejectionDto rejection) {
-        MentorshipRequest mentorshipRequest = mentorshipRequestRepository
-                .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(REQUEST_NOT_EXIST));
+        MentorshipRequest mentorshipRequest = getRequestById(id);
 
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.getReason());
+
+        mentorshipRequestRepository.save(mentorshipRequest);
+    }
+
+    private MentorshipRequest getRequestById(long id) {
+        return mentorshipRequestRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(REQUEST_NOT_EXIST));
     }
 }

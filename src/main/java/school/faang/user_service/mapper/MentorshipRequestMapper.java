@@ -12,18 +12,14 @@ import java.util.List;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface MentorshipRequestMapper {
 
-    @Mapping(target = "requesterId", expression = "java(userToId(mentorshipRequest.getRequester()))")
-    @Mapping(target = "receiverId", expression = "java(userToId(mentorshipRequest.getReceiver()))")
+    @Mapping(target = "requesterId", source = "mentorshipRequest.requester.id")
+    @Mapping(target = "receiverId", source = "mentorshipRequest.receiver.id")
     MentorshipRequestDto toDto(MentorshipRequest mentorshipRequest);
 
 
     MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
 
-    @Mapping(target = "requesterId", expression = "java(userToId(mentorshipRequest.getRequester()))")
-    @Mapping(target = "receiverId", expression = "java(userToId(mentorshipRequest.getReceiver()))")
+    @Mapping(target = "requesterId", source = "mentorshipRequest.requester.id")
+    @Mapping(target = "receiverId", source = "mentorshipRequest.receiver.id")
     List<MentorshipRequestDto> toDto(List<MentorshipRequest> mentorshipRequests);
-
-    default Long userToId(User user) {
-        return user.getId();
-    }
 }
