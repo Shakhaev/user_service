@@ -15,12 +15,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
-    private final UserRepository repository;
-    private final UserService service;
+    private final UserRepository userRepository;
     private final UserMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<UserDto> getMentees(long id) {
-        User mentor = service.getUser(id);
+        User mentor = getUser(id);
         if (!CollectionUtils.isEmpty(mentor.getMentees())) {
             return mentor.getMentees().stream().map(mapper::toDto).toList();
         } else {
@@ -28,8 +28,9 @@ public class MentorshipService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> getMentors(long id) {
-        User mentee = service.getUser(id);
+        User mentee = getUser(id);
         if (!CollectionUtils.isEmpty(mentee.getMentors())) {
             return mentee.getMentors().stream().map(mapper::toDto).toList();
         } else {
@@ -39,25 +40,25 @@ public class MentorshipService {
 
     @Transactional
     public void deleteMentee(long mentorId, long menteeId) {
-        User mentor = service.getUser(mentorId);
+        User mentor = getUser(mentorId);
         mentor.setMentees(
                 mentor.getMentees().stream().filter(mentee -> mentee.getId() != menteeId).toList()
         );
-        repository.save(mentor);
+        userRepository.save(mentor);
     }
 
     @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
-        User mentee = service.getUser(menteeId);
+        User mentee = getUser(menteeId);
         mentee.setMentors(
                 mentee.getMentors().stream().filter(mentor -> mentor.getId() != mentorId).toList()
         );
-        repository.save(mentee);
+        userRepository.save(mentee);
     }
 
     @Transactional
     public void removeMentorship(long mentorId) {
-        User mentor = service.getUser(mentorId);
+        User mentor = getUser(mentorId);
         mentor.getMentees().forEach(mentee -> {
             deleteMentor(mentee.getId(), mentorId);
             mentee.setGoals(mentee.getGoals().stream().map(goal -> {
@@ -66,9 +67,14 @@ public class MentorshipService {
                 }
                 return goal;
             }).toList());
-            repository.save(mentee);
+            userRepository.save(mentee);
         });
         mentor.setMentees(Collections.emptyList());
-        repository.save(mentor);
+        userRepository.save(mentor);
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("Не удалось получить пользователя с id " + id));
     }
 }
