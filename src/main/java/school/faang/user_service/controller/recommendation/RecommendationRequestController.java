@@ -25,7 +25,7 @@ import static school.faang.user_service.utils.Constants.API_VERSION_1;
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping()
+    @PostMapping
     public RecommendationRequestDto requestRecommendation(@RequestBody RecommendationRequestRcvDto requestDto) {
         if (requestDto == null) {
             throw new IllegalArgumentException("requestDto cannot be null");
@@ -36,7 +36,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.createRequest(requestDto);
     }
 
-    @PostMapping("/searchbyfilters")
+    @PostMapping("/search")
     public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filters) {
         if (filters == null) {
             throw new IllegalArgumentException("filters cannot be null");
