@@ -122,8 +122,6 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testRequestMentorshipWithTooFrequentRequestFailed() {
-        long requesterId = 1L;
-        long receiverId = 2L;
         MentorshipRequest latestMentorshipRequest = new MentorshipRequest();
         latestMentorshipRequest.setId(1L);
         latestMentorshipRequest.setCreatedAt(LocalDateTime.now().minusDays(89));
@@ -135,9 +133,11 @@ public class MentorshipRequestServiceTest {
                 .description("some description")
                 .build();
 
+        long requesterId = 1L;
         User requesterUser = User.builder()
                 .id(requesterId)
                 .build();
+        long receiverId = 2L;
         User receiverUser = User.builder()
                 .id(receiverId)
                 .build();
