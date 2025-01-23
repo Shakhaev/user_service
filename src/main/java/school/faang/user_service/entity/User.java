@@ -95,6 +95,7 @@ public class User {
     @ManyToMany(mappedBy = "followers")
     private List<User> followees;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
