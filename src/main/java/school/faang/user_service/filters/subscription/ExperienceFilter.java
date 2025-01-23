@@ -14,7 +14,7 @@ public class ExperienceFilter implements UserFilter {
 
     @Override
     public Stream<User> accept(Stream<User> users, UserFilterDto userFilterDto) {
-        return users.filter(user -> userFilterDto.experienceMin() <= user.getExperience() &&
-                userFilterDto.experienceMax() >= user.getExperience());
+        return users.filter(user -> userFilterDto.experienceMin() <= user.getExperience()
+                && userFilterDto.experienceMax() >= user.getExperience());
     }
 }

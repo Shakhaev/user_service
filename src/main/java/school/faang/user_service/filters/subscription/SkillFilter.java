@@ -14,9 +14,9 @@ public class SkillFilter implements UserFilter {
 
     @Override
     public Stream<User> accept(Stream<User> users, UserFilterDto userFilterDto) {
-        return users.filter(user -> userFilterDto.skillPattern() == null ||
-                user.getSkills().stream()
-                        .allMatch(skill -> matchesPattern(userFilterDto.skillPattern(), skill.getTitle())));
+        return users.filter(user -> userFilterDto.skillPattern() == null
+                || user.getSkills().stream()
+                .allMatch(skill -> matchesPattern(userFilterDto.skillPattern(), skill.getTitle())));
     }
 
     private boolean matchesPattern(String pattern, String value) {

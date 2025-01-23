@@ -8,6 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    id("checkstyle")
 }
 
 jacoco {
