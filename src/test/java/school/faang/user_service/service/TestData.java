@@ -1,17 +1,24 @@
 package school.faang.user_service.service;
 
+import school.faang.user_service.dto.RecommendationRequestRcvDto;
+import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class TestData {
     public static Stream<MentorshipRequest> getMentorshipRequestsStream(){
@@ -145,7 +152,7 @@ public class TestData {
         return users;
     }
 
-    private static Map<String, Country> getCountries() {
+    public static Map<String, Country> getCountries() {
         Map<String, Country> countryMap = new HashMap<>();
         Country countryRussia = Country.builder().id(1).title("Russia").build();
         Country countryUsa = Country.builder().id(2).title("USA").build();
@@ -156,7 +163,7 @@ public class TestData {
         return countryMap;
     }
 
-    private static Map<String, Skill> getSkills() {
+    public static Map<String, Skill> getSkills() {
         Map<String, Skill> skillMap = new HashMap<>();
         Skill skill1 = Skill.builder().id(1).title("Skill 1").build();
         Skill skill2 = Skill.builder().id(2).title("Skill 2").build();
@@ -167,7 +174,7 @@ public class TestData {
         return skillMap;
     }
 
-    private static Map<String, Contact> getContacts() {
+    public static Map<String, Contact> getContacts() {
         Map<String, Contact> contactMap = new HashMap<>();
         Contact contact1 = Contact.builder().contact("Contact 1").build();
         Contact contact2 = Contact.builder().contact("Contact 2").build();
@@ -176,5 +183,50 @@ public class TestData {
         contactMap.put("Contact 2", contact2);
         contactMap.put("Contact 3", contact3);
         return contactMap;
+    }
+
+    public static SkillRequest createSkillRequest(long id, RecommendationRequest recommendationRequest, Skill skill) {
+        return SkillRequest.builder()
+                .id(id)
+                .request(recommendationRequest)
+                .skill(skill)
+                .build();
+    }
+
+    public static RecommendationRequestRcvDto createRequestRcvDto(User requester,
+                                                                  User receiver,
+                                                                  RecommendationRequest request,
+                                                                  List<Long> skillIdsList) {
+        return RecommendationRequestRcvDto.builder()
+                .message(request.getMessage())
+                .skillIds(skillIdsList)
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .build();
+    }
+
+    public static RecommendationRequest createRequest(Long id, User requester, User receiver, RequestStatus status) {
+        return RecommendationRequest.builder()
+                .id(id)
+                .requester(requester)
+                .receiver(receiver)
+                .status(status)
+                .createdAt(LocalDateTime.now())
+                .message("Please confirm my skills")
+                .build();
+    }
+
+    public static RejectionDto createRejectDto(String reason) {
+        return RejectionDto.builder()
+                .reason(reason)
+                .build();
+    }
+
+    public static RequestFilterDto createFilterDto(RequestStatus status, Long requesterId, Long receiverId) {
+        return RequestFilterDto.builder()
+                .status(status)
+                .requesterId(requesterId)
+                .receiverId(receiverId)
+                .build();
     }
 }
