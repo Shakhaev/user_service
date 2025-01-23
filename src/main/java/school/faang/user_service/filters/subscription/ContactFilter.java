@@ -14,9 +14,9 @@ public class ContactFilter implements UserFilter {
 
     @Override
     public Stream<User> accept(Stream<User> users, UserFilterDto userFilterDto) {
-        return users.filter((user -> userFilterDto.contactPattern() == null ||
-                user.getContacts().stream()
-                        .allMatch(contact -> matchesPattern(userFilterDto.contactPattern(), contact.getContact()))));
+        return users.filter((user -> userFilterDto.contactPattern() == null
+                || user.getContacts().stream()
+                .allMatch(contact -> matchesPattern(userFilterDto.contactPattern(), contact.getContact()))));
     }
 
     private boolean matchesPattern(String pattern, String value) {

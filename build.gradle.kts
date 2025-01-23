@@ -8,7 +8,10 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
-    id("checkstyle")
+}
+
+jacoco {
+    toolVersion = "0.8.7"
 }
 
 group = "faang.school"
@@ -34,7 +37,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
@@ -48,7 +50,6 @@ dependencies {
      * Amazon S3
      */
     implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
-    implementation("io.minio:minio:8.5.17")
 
     /**
      * Utils & Logging
@@ -93,36 +94,7 @@ tasks.withType<Test> {
     testLogging.showStandardStreams = true
 }
 
-tasks.bootJar {
-    archiveFileName.set("service.jar")
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-checkstyle {
-    toolVersion = "10.17.0"
-    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
-    checkstyle.enableExternalDtdLoad.set(true)
-}
-
-tasks.checkstyleMain {
-    source = fileTree("${project.rootDir}/src/main/java")
-    include("**/*.java")
-    exclude("**/resources/**")
-    classpath = files()
-}
-
-tasks.checkstyleTest {
-    source = fileTree("${project.rootDir}/src/test")
-    include("**/*.java")
-    classpath = files()
-}
-
-jacoco {
-    toolVersion = "0.8.7"
-}
+val test by tasks.getting(Test::class) { }
 
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
@@ -133,6 +105,14 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+tasks.bootJar {
+    archiveFileName.set("service.jar")
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 tasks.withType<JacocoReport> {
@@ -148,11 +128,6 @@ tasks.withType<JacocoReport> {
         }
     }
     classDirectories.setFrom(filteredClassDirectories)
-    reports {
-        xml.isEnabled = false
-        csv.isEnabled = false
-        html.isEnabled = true
-    }
 }
 
 tasks {
