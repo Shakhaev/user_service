@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
+
 import org.springframework.kafka.core.KafkaTemplate;
 
 @Service
@@ -76,6 +77,16 @@ public class UserService {
         userRepository.save(user);
 
         mentorshipService.removeMentorship(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
+        List<User> users = userRepository.findPremiumUsers().toList();
+        return userFilters.stream()
+                .filter(filter -> filter.isAcceptable(filterDto))
+                .flatMap(filter -> filter.accept(users.stream(), filterDto))
+                .map(userMapper::toDto)
+                .toList();
     }
 
     public void userPromotion(UserPromotionRequest userPromotionRequest) {
@@ -130,4 +141,6 @@ public class UserService {
             throw new MinioSaveException("Minio error save file" + e.getMessage());
         }
     }
+
+
 }

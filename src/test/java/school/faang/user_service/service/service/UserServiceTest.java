@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +28,7 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Spy
+    @Mock
     private UserMapper mapper;
 
     @InjectMocks
@@ -38,7 +38,7 @@ class UserServiceTest {
     @DisplayName("get-premium-user | service")
     void testGetPremiumUsers() {
 
-        UserService userService = new UserService(userRepository, mapper, List.of(new CityFilter()));
+        userService = new UserService(userRepository, mapper, List.of(new CityFilter()));
 
         Premium premium1 = Premium.builder()
                 .startDate(LocalDateTime.now())
@@ -67,6 +67,9 @@ class UserServiceTest {
                 .build();
 
         when(userRepository.findPremiumUsers()).thenReturn(Stream.of(user1, user2));
+
+        when(mapper.toDto(any(User.class))).thenReturn(new UserDto(1L, "user1", "user1@example.com"));
+
 
         UserFilterDto filterDto = UserFilterDto.builder().cityPattern("Tashkent").build();
 
