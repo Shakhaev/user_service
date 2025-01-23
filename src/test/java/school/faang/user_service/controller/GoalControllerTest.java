@@ -22,9 +22,16 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class GoalControllerTest {
@@ -141,5 +148,19 @@ class GoalControllerTest {
                 .createdAt(LocalDateTime.of(2024, 12, 1, 10, 0))
                 .updatedAt(LocalDateTime.of(2024, 12, 1, 12, 0))
                 .build();
+    }
+
+    @Test
+    void testCompleteGoalAndPublishEvent() throws Exception {
+        long userId = 1L;
+        long goalId = 1L;
+
+        doNothing().when(goalService).completeGoalAndPublishEvent(goalId, userId);
+
+        mockMvc.perform(put("/goals/{goalId}/completion?userId={userId}", goalId, userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(goalService, times(1)).completeGoalAndPublishEvent(goalId, userId);
     }
 }

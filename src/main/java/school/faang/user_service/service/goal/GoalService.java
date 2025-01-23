@@ -12,8 +12,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.event.GoalCompletedEvent;
+import school.faang.user_service.event.OutboxEvent;
+import school.faang.user_service.exception.GoalAlreadyCompletedException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.outbox.OutboxEventProcessor;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
+
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
@@ -39,11 +43,28 @@ public class GoalService {
     private final GoalValidator goalValidation;
     private final OutboxEventProcessor outboxEventProcessor;
     private final Helper helper;
+    private final GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     public Goal findGoalById(Long id) {
         return goalRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Goal not found by id: %s", id)));
     }
+
+    public void completeGoalAndPublishEvent(long goalId, long userId) {
+        Goal entity = goalRepository.findByUserIdAndGoalId(goalId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Goal with id %s not found for user %s", goalId, userId)));
+
+        if (entity.getStatus() == GoalStatus.COMPLETED) {
+            throw new GoalAlreadyCompletedException("Goal already completed");
+        }
+
+        entity.setStatus(GoalStatus.COMPLETED);
+        goalRepository.save(entity);
+        goalCompletedEventPublisher.publish(new GoalCompletedEvent(goalId, userId, LocalDateTime.now()));
+    }
+
+
 
     public GoalDto createGoal(Long userId, GoalDto goal) {
         goalValidation.validateGoalRequest(userId, goal, true);

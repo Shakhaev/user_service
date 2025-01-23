@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GoalDto {
     private Long id;
+    private Long userId;
     private String title;
     private String description;
     private Long parentGoalId;

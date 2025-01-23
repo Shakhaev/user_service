@@ -23,9 +23,10 @@ spring:
       channel:
         subscription-channel: subscription_channel
         recommendation-channel: recommendation_channel
-        goal-completed: goal_completed_channel
+        goal-channel: goal_channel
         user-ban-channel: user_ban_channel
         mentorship-request: mentorship_request_channel
+
 
   retry:
     maxAttempts: 3
@@ -42,11 +43,16 @@ logging:
   level:
     root: info
 
+storage:
+  type: minio
+  bucketName: corpbucket
+
 minio:
   url: http://localhost:9000
-  accessKey: LbtJkdBst2Fzh9PQWMbn
-  secretKey: ZQsUFl0ToSUn8U6xH6dAoBnpWruKS0kvkiAvsVXN
+  accessKey: user
+  secretKey: password
   bucketName: avatars
+  region:
   publicPolicy: |
     {
       "Version": "2012-10-17",
@@ -60,6 +66,11 @@ minio:
       ]
     }
 
+aws:
+  accessKey:
+  secretKey:
+  region:
+
 project-service:
   host: localhost
   port: 8082
@@ -67,6 +78,7 @@ project-service:
 payment-service:
   host: http://localhost
   port: 9080
+
 
 cron:
   expressions:
@@ -77,6 +89,7 @@ cron:
 batch:
   size:
     eventBatch: 50
+
 
 myapp:
   schedule:

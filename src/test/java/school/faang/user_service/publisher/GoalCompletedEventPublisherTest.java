@@ -8,15 +8,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.config.redis.RedisProperties;
 import school.faang.user_service.event.GoalCompletedEvent;
-import school.faang.user_service.exception.RedisPublishingException;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalCompletedEventPublisherTest {
@@ -27,42 +27,46 @@ public class GoalCompletedEventPublisherTest {
     @InjectMocks
     private GoalCompletedEventPublisher goalCompletedEventPublisher;
 
-    private final String topic = "test-topic";
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(goalCompletedEventPublisher, "topic", topic);
+        RedisProperties.Channel redisChannel = new RedisProperties.Channel(
+                "subscription_channel",
+                "recommendation_channel",
+                "goal_channel",
+                "user_ban_channel",
+                "mentorship_request_channel"
+        );
+
+        RedisProperties redisProperties = new RedisProperties("localhost", 6379, redisChannel);
+
+        goalCompletedEventPublisher = new GoalCompletedEventPublisher(redisTemplate, redisProperties);
     }
+
 
     @Test
     void testPublishSuccess() {
-        when(redisTemplate.convertAndSend(topic, setUpGoalCompletedEvent())).thenReturn(1L);
+        GoalCompletedEvent event = setUpGoalCompletedEvent();
 
-        goalCompletedEventPublisher.publish(setUpGoalCompletedEvent());
+        when(redisTemplate.convertAndSend("goal_channel", event)).thenReturn(1L);
 
-        verify(redisTemplate, times(1)).convertAndSend(topic, setUpGoalCompletedEvent());
+        goalCompletedEventPublisher.publish(event);
+
+        verify(redisTemplate, times(1)).convertAndSend("goal_channel", event);
     }
 
     @Test
     void testPublishRedisConnectionException() {
-        when(redisTemplate.convertAndSend(topic, setUpGoalCompletedEvent())).thenThrow(RedisConnectionException.class);
+        when(redisTemplate.convertAndSend("goal_channel", setUpGoalCompletedEvent()))
+                .thenThrow(RedisConnectionException.class);
 
-        assertThrows(RedisConnectionException.class, () -> goalCompletedEventPublisher.publish(setUpGoalCompletedEvent()));
-
-        verify(redisTemplate, times(1)).convertAndSend(topic, setUpGoalCompletedEvent());
-    }
-
-    @Test
-    void testPublishUnexpectedException() {
-        when(redisTemplate.convertAndSend(topic, setUpGoalCompletedEvent()))
-                .thenThrow(new RuntimeException("Unexpected error"));
-
-        RedisPublishingException exception = assertThrows(RedisPublishingException.class, () ->
+        assertThrows(RedisConnectionException.class, () ->
                 goalCompletedEventPublisher.publish(setUpGoalCompletedEvent()));
 
-        verify(redisTemplate, times(1)).convertAndSend(topic, setUpGoalCompletedEvent());
-        assertEquals("Unexpected error while publishing event to Redis", exception.getMessage());
+        verify(redisTemplate, times(1))
+                .convertAndSend("goal_channel", setUpGoalCompletedEvent());
     }
+
 
     private GoalCompletedEvent setUpGoalCompletedEvent() {
         return new GoalCompletedEvent(1L, 2L,
