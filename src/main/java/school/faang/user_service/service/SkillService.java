@@ -11,7 +11,6 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class SkillService {
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
-    
+
     @Transactional
     public SkillDto create(SkillDto skill) {
         validateSkill(skill);
@@ -33,7 +32,7 @@ public class SkillService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<SkillDto> getUserSkills(long userId) {
         return skillRepository.findAllByUserId(userId).stream()
                 .map(skillMapper::toDto)

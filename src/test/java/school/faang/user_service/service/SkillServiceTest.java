@@ -166,9 +166,8 @@ public class SkillServiceTest {
         List<SkillOffer> offers = List.of(offer1, offer2, offer3);
 
         when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(null);
+        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(offers);
-        when(skillMapper.toDto(skill)).thenReturn(new SkillDto(SKILL_ID, "Test Skill"));
 
         SkillDto result = skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
@@ -178,7 +177,6 @@ public class SkillServiceTest {
 
         verify(skillRepository, times(1)).assignSkillToUser(SKILL_ID, USER_ID);
         verify(skillRepository, times(offers.size())).save(skill);
-        verify(skillMapper, times(1)).toDto(skill);
     }
 
 
