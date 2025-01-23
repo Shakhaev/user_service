@@ -113,6 +113,7 @@ public class UserService {
         if (userRepository.existsByUsername(request.username())) {
             throw new UserAlreadyExistsException("username: " + request.username() + " is busy");
         }
+    }
 
         String avatar = avatarService.getRandomAvatar().block();
         String avatarId = UUID.randomUUID().toString();
