@@ -54,7 +54,8 @@ public class MentorshipRequestServiceTest {
         filters = List.of(authorFilterMock, descriptionFilterMock, receiverFilterMock, statusFilterMock);
 
         mentorshipRequestService =
-                new MentorshipRequestServiceImpl(mentorshipRequestRepositoryMock, userRepositoryMock, mentorshipRequestMapperSpy, filters);
+                new MentorshipRequestServiceImpl(mentorshipRequestRepositoryMock, userRepositoryMock,
+                        mentorshipRequestMapperSpy, filters);
         user1 = UserDto.builder()
                 .userId(1L)
                 .build();
@@ -127,7 +128,8 @@ public class MentorshipRequestServiceTest {
         latestMentorshipRequest.setId(1L);
         latestMentorshipRequest.setCreatedAt(LocalDateTime.now().minusDays(89));
 
-        MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
+        MentorshipRequestDto requestDto;
+        requestDto = MentorshipRequestDto.builder()
                 .requester(user1)
                 .receiver(user2)
                 .description("some description")

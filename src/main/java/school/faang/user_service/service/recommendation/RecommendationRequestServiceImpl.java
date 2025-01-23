@@ -83,12 +83,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private void validateRequestForReject(RecommendationRequest request) {
         long id = request.getId();
         if (RequestStatus.ACCEPTED.equals(request.getStatus())) {
-                throw new IllegalArgumentException(String
-                        .format("The recommendation request id %d is already accepted", id));
+            throw new IllegalArgumentException(
+                    String.format("The recommendation request id %d is already accepted", id));
         }
         if (RequestStatus.REJECTED.equals(request.getStatus())) {
-                throw new IllegalArgumentException(String
-                        .format("The recommendation request id %d is already rejected", id));
+            throw new IllegalArgumentException(
+                    String.format("The recommendation request id %d is already rejected", id));
         }
     }
 

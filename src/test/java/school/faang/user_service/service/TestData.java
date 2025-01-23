@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class TestData {
-    public static Stream<MentorshipRequest> getMentorshipRequestsStream(){
+    public static Stream<MentorshipRequest> getMentorshipRequestsStream() {
         return getListOfRequests().stream();
     }
 
