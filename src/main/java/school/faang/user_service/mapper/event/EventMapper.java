@@ -6,46 +6,49 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.event.EventRequestDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventRequestDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.mapper.skill.SkillMapper;
 
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface EventMapper {
+public abstract class EventMapper {
+    private SkillMapper skillMapper;
 
-    @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Autowired
+    public void setSkillMapper(SkillMapper skillMapper) {
+        this.skillMapper = skillMapper;
+    }
+
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(source = "eventType", target = "type")
     @Mapping(source = "eventStatus", target = "status")
-    Event toEntity(EventRequestDto dto);
+    public abstract Event toEventEntity(EventRequestDto dto);
 
-    @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "owner.id", target = "ownerId")
-    @Mapping(source = "relatedSkills", target = "relatedSkillsIds", qualifiedByName = "map")
+    @Mapping(source = "relatedSkills", target = "relatedSkillsDto", qualifiedByName = "mapToRelatedSkillsDto")
     @Mapping(source = "type", target = "eventType")
     @Mapping(source = "status", target = "eventStatus")
-    EventDto toDto(Event entity);
+    public abstract EventDto toEventDto(Event entity);
 
-    @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(source = "eventType", target = "type")
     @Mapping(source = "eventStatus", target = "status")
-    void update(EventRequestDto dto, @MappingTarget Event entity);
+    public abstract void update(EventRequestDto dto, @MappingTarget Event entity);
 
-    @Named("map")
-    default List<Long> map(List<Skill> skills) {
-        return skills == null ? null : skills.stream()
-                .map(Skill::getId)
+    @Named("mapToRelatedSkillsDto")
+    protected List<SkillDto> mapToRelatedSkillsDto(List<Skill> relatedSkills) {
+        return relatedSkills == null ? null : relatedSkills.stream()
+                .map(skillMapper::toSkillDto)
                 .toList();
     }
 }

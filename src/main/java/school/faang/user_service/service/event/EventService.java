@@ -11,9 +11,9 @@ public interface EventService {
 
     EventDto getEvent(Long id);
 
-    EventDto create(EventRequestDto eventData);
+    EventDto createEvent(EventRequestDto eventData);
 
-    EventDto update(EventRequestDto eventData, Long id);
+    EventDto updateEvent(EventRequestDto eventData, Long id);
 
     void deleteEvent(Long id);
 

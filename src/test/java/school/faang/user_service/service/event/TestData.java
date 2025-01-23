@@ -22,7 +22,7 @@ public class TestData {
         return Event.builder()
                 .id(id)
                 .title(title)
-                .startDate(LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .startDate(LocalDateTime.parse(date))
                 .maxAttendees(maxAttendees)
                 .build();
     }
@@ -30,7 +30,7 @@ public class TestData {
     public static EventRequestDto createEventRequestDto(String title, String date, Long id) {
         return EventRequestDto.builder()
                 .title(title)
-                .startDate(date)
+                .startDate(LocalDateTime.parse(date))
                 .ownerId(id)
                 .build();
     }
@@ -46,7 +46,7 @@ public class TestData {
     public static EventFilterDto createEventFilterDto(String charSequence, String date, int attendees) {
         return EventFilterDto.builder()
                 .titleContains(charSequence)
-                .startDateLaterThan(date)
+                .startDateLaterThan(LocalDateTime.parse(date))
                 .maxAttendeesLessThan(attendees)
                 .build();
     }

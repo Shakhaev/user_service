@@ -1,18 +1,20 @@
 package school.faang.user_service.dto.event;
 
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record EventDto(
         Long id,
         String title,
-        String startDate,
-        String endDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         Long ownerId,
         String description,
-        List<Long> relatedSkillsIds,
+        List<SkillDto> relatedSkillsDto,
         String location,
         int maxAttendees,
         EventType eventType,

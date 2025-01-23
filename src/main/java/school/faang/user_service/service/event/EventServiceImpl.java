@@ -1,7 +1,7 @@
 package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventRequestDto;
 import school.faang.user_service.dto.event.EventDto;
@@ -10,7 +10,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ResourceNotFoundException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -19,8 +19,8 @@ import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -30,102 +30,94 @@ public class EventServiceImpl implements EventService {
     private final SkillRepository skillRepository;
     private final List<EventFilter> filters;
 
+    @Override
     public List<EventDto> getEventsByFilter(EventFilterDto filter) {
-        return eventRepository.findAll().stream()
-                .filter(event -> filter == null || isEventMatchingFilter(event, filter))
-                .map(eventMapper::toDto)
+        Stream<Event> events = eventRepository.findAll().stream();
+
+        return filters.stream()
+                .filter(eventFilter -> eventFilter.isApplicable(filter))
+                .reduce(events, (subtotal, eventFilter) -> eventFilter.apply(filter, subtotal),
+                        (s1, s2) -> s1)
+                .map(eventMapper::toEventDto)
                 .toList();
     }
 
+    @Override
     public EventDto getEvent(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> logAndThrowResourceNotFoundException("Event", id));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " was not found"));
 
-        return eventMapper.toDto(event);
+        return eventMapper.toEventDto(event);
     }
 
-    public EventDto create(EventRequestDto eventData) {
-        Event event = eventMapper.toEntity(eventData);
+    @Override
+    public EventDto createEvent(EventRequestDto eventDto) {
+        Event event = eventMapper.toEventEntity(eventDto);
 
-        long ownerId = eventData.ownerId();
+        long ownerId = eventDto.ownerId();
         event.setOwner(userRepository.findById(ownerId)
-                .orElseThrow(() -> logAndThrowResourceNotFoundException("User", ownerId)));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + ownerId + " was not found")));
 
-        List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-        if (!relatedSkills.isEmpty()) {
-            validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
-        }
+        List<Skill> relatedSkills = getAndValidateRelatedSkills(eventDto.relatedSkillsIds(), event.getOwner());
         event.setRelatedSkills(relatedSkills);
 
         eventRepository.save(event);
-        return eventMapper.toDto(event);
+        return eventMapper.toEventDto(event);
     }
 
-    public EventDto update(EventRequestDto eventData, Long id) {
-        long ownerId = eventData.ownerId();
+    @Override
+    public EventDto updateEvent(EventRequestDto eventDto, Long id) {
+        long ownerId = eventDto.ownerId();
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> logAndThrowResourceNotFoundException("Event", id));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " was not found"));
         validateOwner(ownerId, event);
 
-        eventMapper.update(eventData, event);
+        eventMapper.update(eventDto, event);
 
-        if (eventData.relatedSkillsIds() != null) {
-            List<Skill> relatedSkills = getRelatedSkills(eventData.relatedSkillsIds());
-            validateOwnerHaveRelatedSkills(event.getOwner(), relatedSkills);
-            event.getRelatedSkills().clear();
-            event.getRelatedSkills().addAll(relatedSkills);
-        }
+        List<Skill> relatedSkills = getAndValidateRelatedSkills(eventDto.relatedSkillsIds(), event.getOwner());
+        event.getRelatedSkills().clear();
+        event.getRelatedSkills().addAll(relatedSkills);
 
         eventRepository.save(event);
-        return eventMapper.toDto(event);
+        return eventMapper.toEventDto(event);
     }
 
+    @Override
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
     }
 
+    @Override
     public List<EventDto> getOwnedEvents(Long userId) {
         return eventRepository.findAllByUserId(userId).stream()
-                .map(eventMapper::toDto)
+                .map(eventMapper::toEventDto)
                 .toList();
     }
 
+    @Override
     public List<EventDto> getParticipatedEvents(Long userId) {
         return eventRepository.findParticipatedEventsByUserId(userId).stream()
-                .map(eventMapper::toDto)
+                .map(eventMapper::toEventDto)
                 .toList();
     }
 
-    private boolean isEventMatchingFilter(Event event, EventFilterDto filter) {
-        return filters.stream()
-                .filter(eventFilter -> eventFilter.isApplicable(filter))
-                .allMatch(eventFilter -> eventFilter.test(filter, event));
-    }
-
-    private ResourceNotFoundException logAndThrowResourceNotFoundException(String entityName, Long id) {
-        log.error("{} with id {} was not found", entityName, id);
-        return new ResourceNotFoundException(entityName + " with id " + id + " was not found");
-    }
-
-    private List<Skill> getRelatedSkills(List<Long> relatedSkillsIds) {
-        return relatedSkillsIds == null ? new ArrayList<>() : skillRepository.findAllById(relatedSkillsIds);
-    }
-
-    private void validateOwnerHaveRelatedSkills(User owner, List<Skill> relatedSkills) {
+    private List<Skill> getAndValidateRelatedSkills(List<Long> relatedSkillsIds, User owner) {
+        List<Skill> relatedSkills = relatedSkillsIds == null ? new ArrayList<>()
+                : skillRepository.findAllById(relatedSkillsIds);
         List<Skill> ownerSkills = owner.getSkills();
+
         for (var skill : relatedSkills) {
             if (!ownerSkills.contains(skill)) {
-                log.error("User with id {} doesn't have enough skills to be the event owner", owner.getId());
                 throw new DataValidationException("User with id " + owner.getId()
                         + " doesn't have enough skills to be the event owner");
             }
         }
+
+        return relatedSkills;
     }
 
     private void validateOwner(long ownerId, Event event) {
         if (ownerId != event.getOwner().getId()) {
-            log.error("User with id {} can't update event with id {}, because he is not this event owner",
-                    ownerId, event.getId());
             throw new DataValidationException("User with id " + ownerId + " can't update event with id "
                     + event.getId() + ", because he is not this event owner");
         }

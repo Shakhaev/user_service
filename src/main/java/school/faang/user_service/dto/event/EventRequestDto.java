@@ -6,6 +6,7 @@ import lombok.Builder;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -14,9 +15,9 @@ public record EventRequestDto(
         String title,
 
         @NotNull
-        String startDate,
+        LocalDateTime startDate,
 
-        String endDate,
+        LocalDateTime endDate,
 
         @NotNull
         Long ownerId,
