@@ -18,10 +18,11 @@ import school.faang.user_service.service.UserService;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
+    private final UserService userService;
 
     public void deactivateUser(Long userId) {
-        service.deactivateUser(userId);
-    private final UserService userService;
+        userService.deactivateUser(userId);
+    }
 
     @PostMapping("/user/register")
     public UserRegisterResponse register(@Valid @RequestBody UserRegisterRequest request) {

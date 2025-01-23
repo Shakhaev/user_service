@@ -7,9 +7,23 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.external.AvatarService;
+import school.faang.user_service.service.external.MinioStorageService;
+import school.faang.user_service.service.goal.GoalService;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,16 +32,13 @@ public class UserService {
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
-
-    @Transactional(readOnly = true)
-    public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("Не удалось получить пользователя с id " + id));
-    }
+    private final AvatarService avatarService;
+    private final MinioStorageService minioStorageService;
+    private final UserMapper userMapper;
 
     @Transactional
     public void deactivateUser(Long userId) {
-        User user = getUser(userId);
+        User user = findById(userId);
 
         List<Goal> goals = user.getGoals();
         goals.forEach(goal -> goalService.removeUserFromGoal(goal, userId));
