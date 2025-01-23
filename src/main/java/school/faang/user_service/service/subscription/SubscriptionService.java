@@ -104,4 +104,10 @@ public class SubscriptionService {
         log.info("Getting followers ids for user with id {}", followeeId);
         return followersIds;
     }
+
+    public List<Long> getFolloweesIds(long userId) {
+        List<Long> foloweesIds = subscriptionRepository.findFolloweesIdsByFollowerId(userId);
+        log.info("Found {} followees ids, for user with id: {}", foloweesIds.size(), userId);
+        return foloweesIds;
+    }
 }
