@@ -19,7 +19,7 @@ class UserExperienceMinFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenExperienceMinIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenExperienceMinIsNotNull() {
         filters.setExperienceMin(2);
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserExperienceMinFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenExperienceMinIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenExperienceMinIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithExperienceGreaterThanOrEqualToMin() {
+    void applyTest_ShouldFilterUsersWithExperienceGreaterThanOrEqualToMin() {
         filters.setExperienceMin(5);
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserExperienceMinFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setExperienceMin(8);
 
         user1 = new User();

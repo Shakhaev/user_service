@@ -19,7 +19,7 @@ class UserNameFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenNamePatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenNamePatternIsNotNull() {
         filters.setNamePattern("JohnDoe");
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserNameFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenNamePatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenNamePatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersBasedOnNamePattern() {
+    void applyTest_ShouldFilterUsersBasedOnNamePattern() {
         filters.setNamePattern("JohnDoe");
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserNameFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setNamePattern("NotFound");
 
         user1 = new User();

@@ -19,7 +19,7 @@ class UserExperienceMaxFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenExperienceMaxIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenExperienceMaxIsNotNull() {
         filters.setExperienceMax(5);
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserExperienceMaxFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenExperienceMaxIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenExperienceMaxIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithExperienceLessThanOrEqualToMax() {
+    void applyTest_ShouldFilterUsersWithExperienceLessThanOrEqualToMax() {
         filters.setExperienceMax(5);
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserExperienceMaxFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setExperienceMax(2);
 
         user1 = new User();
