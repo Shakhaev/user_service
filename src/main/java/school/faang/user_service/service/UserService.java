@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.client.PromotionServiceClient;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.UserRegisterRequest;
