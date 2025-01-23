@@ -1,6 +1,9 @@
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.kotlin.dsl.*
+
 plugins {
-    java
-    jacoco
+    id("java")
+    id("jacoco")
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
@@ -88,15 +91,43 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging.showStandardStreams = true
 }
 
-val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+val test by tasks.getting(Test::class) { }
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.6.toBigDecimal()
+            }
+        }
+    }
+}
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.withType<JacocoReport> {
+    val filteredClassDirectories = classDirectories.files.map { dir ->
+        project.fileTree(dir) {
+            exclude(
+                "school/faang/user_service/client",
+                "school/faang/user_service/config",
+                "school/faang/user_service/controller",
+                "school/faang/user_service/dto",
+                "school/faang/user_service/mapper"
+            )
+        }
+    }
+    classDirectories.setFrom(filteredClassDirectories)
 }
 
 tasks {
