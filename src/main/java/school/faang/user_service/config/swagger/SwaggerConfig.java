@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(info = @Info(
-        title = "Микросервис пользователей",
+        title = "Микросервис постов",
         version = "1.0",
         description = "Микросервис для работы с постами, рекламой!"
     ))
