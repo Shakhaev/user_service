@@ -3,19 +3,20 @@ package school.faang.user_service.service.external;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import school.faang.user_service.config.AppConfig;
 
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class AvatarService {
-    private static final String DICEBEAR_URL = "https://api.dicebear.com/9.x/adventurer/svg?seed={seed}";
 
     private final Random random = new Random();
     private final ExternalApiService externalApiService;
+    private final AppConfig appConfig;
 
     public Mono<String> getRandomAvatar() {
         int seed = Math.abs(random.nextInt());
-        return externalApiService.get(DICEBEAR_URL, String.class, seed);
+        return externalApiService.get(appConfig.getDICEBEAR_URL(), String.class, seed);
     }
 }

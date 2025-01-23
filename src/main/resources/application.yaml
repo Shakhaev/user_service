@@ -1,6 +1,7 @@
 app:
   config:
     min_skill_offers: 3
+    dicebear_url: "${DICEBEAR_URL: https://api.dicebear.com/9.x/adventurer/svg?seed={seed}}"
 
 spring:
 
