@@ -23,6 +23,7 @@ import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.TestData;
 
 import java.util.ArrayList;
 import java.util.List;
