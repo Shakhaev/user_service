@@ -9,4 +9,7 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
     @Value("${app.config.min_skill_offers:3}")
     private int minSkillOffers;
+
+    @Value("${app.config.dicebear_url}")
+    private String dicebearUrl;
 }

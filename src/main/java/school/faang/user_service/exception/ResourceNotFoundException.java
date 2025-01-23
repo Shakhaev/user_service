@@ -21,4 +21,8 @@ public class ResourceNotFoundException extends RuntimeException {
     public static ResourceNotFoundException recommendationNotFoundException(long id) {
         return new ResourceNotFoundException("Recommendation with id %s not found".formatted(id));
     }
+
+    public static ResourceNotFoundException userAvatarNotFoundException(long userId) {
+        return new ResourceNotFoundException("UserAvatar with userId %s not found".formatted(userId));
+    }
 }
