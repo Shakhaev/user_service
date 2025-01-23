@@ -15,7 +15,6 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class RequestValidation {
 
     private static final int SIX_MONTH_RECOMMENDATION_LIMIT = 6;
@@ -27,7 +26,7 @@ public class RequestValidation {
     public List<Skill> validateRequest(RecommendationRequestDto dto) {
 
         if (dto == null) {
-            throw new IllegalArgumentException("Recommendation request cannot be null.");
+            throw new BusinessException("Запрос не может быть Null");
         }
 
         if (dto.getMessage() == null || dto.getMessage().isBlank()) {
