@@ -16,10 +16,9 @@ public interface MentorshipRequestMapper {
     @Mapping(target = "receiverId", source = "mentorshipRequest.receiver.id")
     MentorshipRequestDto toDto(MentorshipRequest mentorshipRequest);
 
-
-    MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
-
     @Mapping(target = "requesterId", source = "mentorshipRequest.requester.id")
     @Mapping(target = "receiverId", source = "mentorshipRequest.receiver.id")
     List<MentorshipRequestDto> toDto(List<MentorshipRequest> mentorshipRequests);
+
+    MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
 }

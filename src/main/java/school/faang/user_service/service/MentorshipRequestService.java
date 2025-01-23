@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class MentorshipRequestService {
-    private final static String USER_NOT_EXIST = "User does not exist in the database";
-    private final static String REQUEST_NOT_EXIST = "Request does not exist in the database";
+    private static final String USER_NOT_EXIST = "User does not exist in the database";
+    private static final String REQUEST_NOT_EXIST = "Request does not exist in the database";
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
