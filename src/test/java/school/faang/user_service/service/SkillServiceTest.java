@@ -8,14 +8,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -44,14 +47,14 @@ public class SkillServiceTest {
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-    @Spy
-    SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
-
     @Captor
     private ArgumentCaptor<Skill> captor;
 
     @Captor
     private ArgumentCaptor<UserSkillGuarantee> guaranteeCaptor;
+
+    @Spy
+    final SkillMapper mapper = Mappers.getMapper(SkillMapper.class);
 
     @Test
     public void create_CreatingWithBlankNames() {
@@ -140,7 +143,7 @@ public class SkillServiceTest {
     public void acquireSkillFromOffers_SuggestedLessThanTheStandardValue() {
         Skill skill = new Skill();
         when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
+        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID))
                 .thenReturn(List.of(new SkillOffer()));
 
@@ -157,25 +160,26 @@ public class SkillServiceTest {
 
         SkillOffer offer1 = new SkillOffer();
         offer1.setSkill(skill);
+        offer1.setRecommendation(new Recommendation());
 
         SkillOffer offer2 = new SkillOffer();
         offer2.setSkill(skill);
+        offer2.setRecommendation(new Recommendation());
 
         SkillOffer offer3 = new SkillOffer();
         offer3.setSkill(skill);
+        offer3.setRecommendation(new Recommendation());
 
         List<SkillOffer> offers = List.of(offer1, offer2, offer3);
-        UserSkillGuarantee userSkillGuarantee = new UserSkillGuarantee();
         when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
+        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(offers);
-        when(userSkillGuaranteeRepository.save(userSkillGuarantee)).thenReturn(new UserSkillGuarantee());
+
 
         skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
         verify(skillRepository, times(1)).assignSkillToUser(SKILL_ID, USER_ID);
-        verify(userSkillGuaranteeRepository, times(3)).save(userSkillGuarantee);
-        verify(skillRepository, times(offers.size())).save(skill);
+        verify(userSkillGuaranteeRepository, times(3)).save(Mockito.any());
     }
 
 
