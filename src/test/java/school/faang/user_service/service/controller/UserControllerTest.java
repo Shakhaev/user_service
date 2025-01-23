@@ -7,14 +7,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.controller.UserController;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.UserService;
 
 import java.util.Collections;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserControllerTest {
 
@@ -25,7 +26,7 @@ class UserControllerTest {
 
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
-        UserDto userDto = new UserDto(1L, "user1", "user1@example.com", "1234567890", "About me text", "City1", "Country1", true, true, "profilePicUrl");
+        UserDto userDto = new UserDto(1L, "user1", "user1@example.com");
 
         when(mockService.getPremiumUsers(any())).thenReturn(Collections.singletonList(userDto));
 

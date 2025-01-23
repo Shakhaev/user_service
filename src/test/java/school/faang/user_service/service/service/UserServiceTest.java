@@ -1,11 +1,18 @@
 package school.faang.user_service.service.service;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.filters.subscription.CityFilter;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
 
@@ -13,15 +20,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    @Mock
+    private UserRepository userRepository;
+    @Spy
+    private UserMapper mapper;
+
+    @InjectMocks
+    private UserService userService;
+
     @Test
+    @DisplayName("get-premium-user | service")
     void testGetPremiumUsers() {
-        UserRepository mockRepo = Mockito.mock(UserRepository.class);
-        UserService service = new UserService(mockRepo);
+
+        UserService userService = new UserService(userRepository, mapper, List.of(new CityFilter()));
 
         Premium premium1 = Premium.builder()
                 .startDate(LocalDateTime.now())
@@ -37,7 +54,7 @@ class UserServiceTest {
                 .id(1L)
                 .username("user1")
                 .email("user1@example.com")
-                .city("City1")
+                .city("Tashkent")
                 .premium(premium1)
                 .build();
 
@@ -45,18 +62,19 @@ class UserServiceTest {
                 .id(2L)
                 .username("user2")
                 .email("user2@example.com")
-                .city("City2")
+                .city("Dubai")
                 .premium(premium2)
                 .build();
 
-        when(mockRepo.findPremiumUsers()).thenReturn(Stream.of(user1, user2));
+        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(user1, user2));
 
-        UserFilterDto filter = new UserFilterDto();
-        filter.setCity("City1");
+        UserFilterDto filterDto = UserFilterDto.builder().cityPattern("Tashkent").build();
 
-        List<UserDto> result = service.getPremiumUsers(filter);
+        List<UserDto> result = userService.getPremiumUsers(filterDto);
+
+        String username = result.get(0).username();
 
         assertEquals(1, result.size());
-        assertEquals("user1", result.get(0).getUsername());
+        assertEquals("user1", username);
     }
 }
