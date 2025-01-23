@@ -111,6 +111,9 @@ tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
     violationRules {
         rule {
+            element = "CLASS"
+            includes = listOf("school.faang.user_service.service.*")
+
             limit {
                 minimum = 0.6.toBigDecimal()
             }
