@@ -4,6 +4,7 @@ import org.gradle.kotlin.dsl.*
 plugins {
     id("java")
     id("jacoco")
+    id("checkstyle")
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
