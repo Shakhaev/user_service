@@ -11,5 +11,5 @@ public class AppConfig {
     private int minSkillOffers;
 
     @Value("${app.config.dicebear_url}")
-    private String DICEBEAR_URL;
+    private String dicebearUrl;
 }

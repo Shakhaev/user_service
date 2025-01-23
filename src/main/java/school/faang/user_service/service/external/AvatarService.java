@@ -17,6 +17,6 @@ public class AvatarService {
 
     public Mono<String> getRandomAvatar() {
         int seed = Math.abs(random.nextInt());
-        return externalApiService.get(appConfig.getDICEBEAR_URL(), String.class, seed);
+        return externalApiService.get(appConfig.getDicebearUrl(), String.class, seed);
     }
 }
