@@ -6,24 +6,23 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PromotionServiceClient;
-import school.faang.user_service.dto.promotion.UserPromotionRequest;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
+import school.faang.user_service.dto.promotion.UserPromotionRequest;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
-import school.faang.user_service.client.PromotionServiceClient;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.exception.UserAlreadyExistsException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.external.AvatarService;
 import school.faang.user_service.service.external.MinioStorageService;
 import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.util.ConverterUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -48,7 +47,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final AvatarService avatarService;
     private final MinioStorageService minioStorageService;
-    private final UserMapper userMapper;
 
     public User findById(long id) {
         return userRepository.findById(id)
