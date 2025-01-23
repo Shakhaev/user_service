@@ -33,7 +33,7 @@ class RecommendationRequestValidatorTest {
     private RecommendationRequestValidator validator;
 
     @Test
-    void testCheckUsersExist_ShouldThrowException_WhenRequesterDoesNotExist() {
+    void testCheckUsersExist_ShouldThrowExceptionWhenRequesterDoesNotExist() {
         when(userRepository.findById(0L)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
@@ -42,7 +42,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testCheckUsersExist_ShouldThrowException_WhenReceiverDoesNotExist() {
+    void testCheckUsersExist_ShouldThrowExceptionWhenReceiverDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
         when(userRepository.findById(0L)).thenReturn(Optional.empty());
 
@@ -60,7 +60,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testCheckRequestWithinSixMonthsExist_ShouldThrowException_WhenRequestExists() {
+    void testCheckRequestWithinSixMonthsExist_ShouldThrowExceptionWhenRequestExists() {
         when(recommendationRequestRepository.existsRequestWithinSixMonths(1L, 2L))
                 .thenReturn(true);
         assertThrows(DataValidationException.class, () ->
@@ -75,7 +75,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testCheckAllSkillsExist_ShouldThrowException_WhenNotAllSkillsExist() {
+    void testCheckAllSkillsExist_ShouldThrowExceptionWhenNotAllSkillsExist() {
         when(skillRepository.existsById(1L)).thenReturn(false);
         assertThrows(DataValidationException.class, () -> validator.checkAllSkillsExist(List.of(1L, 2L, 3L)));
     }
@@ -87,7 +87,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testValidateRecommendationRequestStatus_ShouldThrowException_WhenStatusIsAccepted() {
+    void testValidateRecommendationRequestStatus_ShouldThrowExceptionWhenStatusIsAccepted() {
         RecommendationRequest request = RecommendationRequest.builder().status(RequestStatus.ACCEPTED).build();
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> validator.validateRecommendationRequestStatus(request));
@@ -96,7 +96,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testValidateRecommendationRequestStatus_ShouldThrowException_WhenStatusIsRejected() {
+    void testValidateRecommendationRequestStatus_ShouldThrowExceptionWhenStatusIsRejected() {
         RecommendationRequest request = RecommendationRequest.builder().status(RequestStatus.REJECTED).build();
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> validator.validateRecommendationRequestStatus(request));
@@ -110,7 +110,7 @@ class RecommendationRequestValidatorTest {
     }
 
     @Test
-    void testCheckRecommendationRequestExists_ShouldThrowException_WhenRequestDoesNotExist() {
+    void testCheckRecommendationRequestExists_ShouldThrowExceptionWhenRequestDoesNotExist() {
         Optional<RecommendationRequest> request = Optional.empty();
         assertThrows(DataValidationException.class, () -> validator.checkRecommendationRequestExists(request));
     }

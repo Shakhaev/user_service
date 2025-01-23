@@ -75,16 +75,10 @@ public class EventServiceTest {
         List<EventFilter> eventFilters = List.of(filter1, filter2);
         eventService = new EventService(eventRepository, eventValidator, eventMapper, eventFilters);
 
-        var filterDto = new EventFilterDto();
-
         Event correctEvent1 = new Event();
         Event correctEvent2 = new Event();
         Event wrongEvent = new Event();
         var eventList = List.of(correctEvent1, correctEvent2, wrongEvent);
-
-        var expectedRes = Stream.of(correctEvent1, correctEvent2)
-                .map(eventMapper::toDto)
-                .toList();
 
         Mockito.when(eventRepository.findAll()).thenReturn(eventList);
         Mockito.when(filter2.isApplicable(Mockito.any()))
@@ -95,6 +89,12 @@ public class EventServiceTest {
                 .thenReturn(Stream.of(correctEvent1, correctEvent2, wrongEvent));
         Mockito.when(filter2.apply(Mockito.any(), Mockito.any()))
                 .thenReturn(Stream.of(correctEvent1, correctEvent2));
+
+        var filterDto = new EventFilterDto();
+
+        var expectedRes = Stream.of(correctEvent1, correctEvent2)
+                .map(eventMapper::toDto)
+                .toList();
 
         Assertions.assertEquals(expectedRes, eventService.getEventsByFilter(filterDto));
     }

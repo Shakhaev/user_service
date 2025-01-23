@@ -27,8 +27,8 @@ public class RecommendationRequestValidator {
 
     public boolean checkRequestWithinSixMonthsExist(long requesterId, long receiverId) {
         if (recommendationRequestRepository.existsRequestWithinSixMonths(requesterId, receiverId)) {
-            throw new DataValidationException("You've already requested recommendation for this user "
-                    + "in the last 6 months");
+            throw new DataValidationException("You've already requested recommendation for this user " +
+                    "in the last 6 months");
         }
         return true;
     }

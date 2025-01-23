@@ -37,7 +37,8 @@ class EventValidatorTest {
         createEventDto.setOwnerId(1L);
         createEventDto.setRelatedSkillsIds(List.of(2L, 3L));
 
-        Assertions.assertThrows(DataValidationException.class, () -> eventValidator.validateCreatorSkills(createEventDto));
+        Assertions.assertThrows(DataValidationException.class, () ->
+                eventValidator.validateCreatorSkills(createEventDto));
     }
 
     @Test
@@ -51,11 +52,11 @@ class EventValidatorTest {
         Mockito.when(skillService.findSkillsByUserId(Mockito.anyLong()))
                 .thenReturn(List.of(skill, skill2, skill1));
 
-        CreateEventDto CreateEventDto = new CreateEventDto();
-        CreateEventDto.setOwnerId(1L);
-        CreateEventDto.setRelatedSkillsIds(List.of(1L, 2L));
+        CreateEventDto createEventDto = new CreateEventDto();
+        createEventDto.setOwnerId(1L);
+        createEventDto.setRelatedSkillsIds(List.of(1L, 2L));
 
-        Assertions.assertDoesNotThrow(() -> eventValidator.validateCreatorSkills(CreateEventDto));
+        Assertions.assertDoesNotThrow(() -> eventValidator.validateCreatorSkills(createEventDto));
     }
 
     @Test

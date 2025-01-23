@@ -2,8 +2,8 @@ package school.faang.user_service.filter;
 
 import java.util.stream.Stream;
 
-public interface Filter<Entity, FilterDto> {
-    boolean isApplicable(FilterDto filters);
+public interface Filter<E, F> {
+    boolean isApplicable(F filters);
 
-    Stream<Entity> apply(Stream<Entity> entities, FilterDto filters);
+    Stream<E> apply(Stream<E> entities, F filters);
 }

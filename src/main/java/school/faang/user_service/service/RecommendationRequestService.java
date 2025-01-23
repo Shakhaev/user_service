@@ -40,8 +40,8 @@ public class RecommendationRequestService {
         validator.checkRequestWithinSixMonthsExist(requesterId, receiverId);
         validator.checkAllSkillsExist(skillIds);
 
-        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.
-                create(requesterId, receiverId, recommendationRequest.getMessage());
+        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository
+                .create(requesterId, receiverId, recommendationRequest.getMessage());
         long requestId = savedRecommendationRequest.getId();
 
         skillIds.forEach(skillId -> skillRequestRepository.create(requestId, skillId));

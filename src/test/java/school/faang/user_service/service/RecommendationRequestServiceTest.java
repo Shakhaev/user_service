@@ -127,8 +127,8 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
 
-        RecommendationResponseDto actual = recommendationRequestService.
-                getRecommendationRequest(1L);
+        RecommendationResponseDto actual = recommendationRequestService
+                .getRecommendationRequest(1L);
         assertEquals(expected, actual);
     }
 
