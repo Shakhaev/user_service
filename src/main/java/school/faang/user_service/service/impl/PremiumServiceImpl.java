@@ -1,7 +1,6 @@
 package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.common.PaymentStatus;
@@ -9,7 +8,7 @@ import school.faang.user_service.common.PremiumPeriod;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PremiumDto;
-import school.faang.user_service.dto.res.PaymentResponse;
+import school.faang.user_service.dto.response.PaymentResponse;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.PremiumInvalidDataException;
@@ -40,7 +39,8 @@ public class PremiumServiceImpl implements PremiumService {
         PaymentRequest paymentRequest = createPaymentRequest(premiumPeriod);
         PaymentResponse paymentResponse = sendPaymentRequest(paymentRequest);
 
-        if (paymentResponse.status().equals(PaymentStatus.SUCCESS)) {
+        if (paymentResponse.status()
+                .equals(PaymentStatus.SUCCESS)) {
             Premium premium = savePremium(premiumPeriod, user);
             return premiumMapper.toDto(premium);
         }
@@ -58,18 +58,16 @@ public class PremiumServiceImpl implements PremiumService {
 
     private PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
         return PaymentRequest.builder()
-                .paymentNumber(Instant.now().toEpochMilli())
+                .paymentNumber(Instant.now()
+                        .toEpochMilli())
                 .amount(premiumPeriod.getPrice())
                 .currency(premiumPeriod.getCurrency())
                 .build();
     }
 
     private PaymentResponse sendPaymentRequest(PaymentRequest paymentRequest) {
-        ResponseEntity<PaymentResponse> response = paymentServiceClient.sendPayment(paymentRequest);
-        if (response == null || response.getBody() == null) {
-            throw new PremiumInvalidDataException("Payment service returned null response");
-        }
-        return response.getBody();
+        return paymentServiceClient.sendPayment(paymentRequest)
+                .getBody();
     }
 
     private Premium savePremium(PremiumPeriod premiumPeriod, User user) {

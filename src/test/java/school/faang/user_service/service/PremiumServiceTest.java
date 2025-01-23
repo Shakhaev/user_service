@@ -11,9 +11,10 @@ import org.springframework.http.ResponseEntity;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.common.PaymentStatus;
 import school.faang.user_service.common.PremiumPeriod;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PremiumDto;
-import school.faang.user_service.dto.res.PaymentResponse;
+import school.faang.user_service.dto.response.PaymentResponse;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.PremiumInvalidDataException;
@@ -28,18 +29,18 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PremiumServiceTest {
-    private final static Integer VALID_PREMIUM_PERIOD_DAYS = 30;
-    private final static Long TEST_USER_ID = 1L;
-    private final static Boolean USER_IS_ALREADY_PREMIUM_FLAG = true;
-    private final static Boolean USER_IS_NOT_PREMIUM_FLAG = false;
+    private static final Integer VALID_PREMIUM_PERIOD_DAYS = 30;
+    private static final Long TEST_USER_ID = 1L;
+    private static final Boolean USER_IS_ALREADY_PREMIUM_FLAG = true;
+    private static final Boolean USER_IS_NOT_PREMIUM_FLAG = false;
 
     @Mock
     private PaymentServiceClient paymentServiceClient;
+
     @Mock
     private PremiumRepository premiumRepository;
 
@@ -52,8 +53,12 @@ public class PremiumServiceTest {
     @InjectMocks
     private PremiumServiceImpl premiumService;
 
+    @Mock
+    private UserContext userContext;
+
     @Captor
     private ArgumentCaptor<PaymentRequest> paymentRequestCaptor;
+
     @Captor
     private ArgumentCaptor<Premium> premiumCaptor;
 
@@ -69,7 +74,6 @@ public class PremiumServiceTest {
                 .build();
         premiumPeriod = PremiumPeriod.fromDays(VALID_PREMIUM_PERIOD_DAYS);
 
-
         LocalDateTime now = LocalDateTime.now();
         testPremium = Premium.builder()
                 .user(testUser)
@@ -78,16 +82,16 @@ public class PremiumServiceTest {
                 .build();
     }
 
-
     @Test
     void buyPremium_ValidRequest_Success() {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(premiumRepository.existsByUserId(TEST_USER_ID)).thenReturn(USER_IS_NOT_PREMIUM_FLAG);
         when(paymentServiceClient.sendPayment(any(PaymentRequest.class)))
-                .thenReturn(getPatmentResponseEntity());
+                .thenReturn(getPaymentResponseEntity());
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
+        when(userContext.getUserId()).thenReturn(TEST_USER_ID);
 
-        PremiumDto result = premiumService.buyPremium(TEST_USER_ID, premiumPeriod);
+        PremiumDto result = premiumService.buyPremium(VALID_PREMIUM_PERIOD_DAYS);
 
         assertNotNull(result);
         assertEquals(TEST_USER_ID, result.getUserId());
@@ -108,35 +112,51 @@ public class PremiumServiceTest {
         assertNotNull(capturedPremium.getEndDate());
     }
 
+
     @Test
     void buyPremium_AlreadyPremiumUser_ThrowsException() {
-        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(premiumRepository.existsByUserId(TEST_USER_ID)).thenReturn(USER_IS_ALREADY_PREMIUM_FLAG);
-        assertThrows(PremiumInvalidDataException.class,
-                () -> premiumService.buyPremium(TEST_USER_ID, premiumPeriod));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(premiumRepository.existsByUserId(anyLong())).thenReturn(USER_IS_ALREADY_PREMIUM_FLAG);
+
+        assertThrows(
+                PremiumInvalidDataException.class,
+                () -> premiumService.buyPremium(VALID_PREMIUM_PERIOD_DAYS)
+        );
+
+        verify(userRepository).findById(anyLong());
+        verify(premiumRepository).existsByUserId(anyLong());
     }
 
     @Test
     void buyPremium_NoUserFound_ThrowsException() {
-        when(userRepository.findById(TEST_USER_ID))
-                .thenReturn(Optional.empty());
-        assertThrows(PremiumNotFoundException.class,
-                () -> premiumService.buyPremium(TEST_USER_ID, premiumPeriod));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(
+                PremiumNotFoundException.class,
+                () -> premiumService.buyPremium(VALID_PREMIUM_PERIOD_DAYS)
+        );
+
+        verify(userRepository).findById(anyLong());
+        verifyNoInteractions(premiumRepository);
     }
 
     @Test
-    void buyPremium_NullResponse_ThrowsException() {
-        PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(VALID_PREMIUM_PERIOD_DAYS);
-
-        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(premiumRepository.existsByUserId(TEST_USER_ID)).thenReturn(false);
+    void buyPremium_NullPaymentResponse_ThrowsException() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(premiumRepository.existsByUserId(anyLong())).thenReturn(USER_IS_NOT_PREMIUM_FLAG);
         when(paymentServiceClient.sendPayment(any())).thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
 
-        assertThrows(PremiumInvalidDataException.class,
-                () -> premiumService.buyPremium(TEST_USER_ID, premiumPeriod));
+        assertThrows(
+                PremiumInvalidDataException.class,
+                () -> premiumService.buyPremium(VALID_PREMIUM_PERIOD_DAYS)
+        );
+
+        verify(userRepository).findById(anyLong());
+        verify(premiumRepository).existsByUserId(anyLong());
+        verify(paymentServiceClient).sendPayment(any());
     }
 
-    private @NotNull ResponseEntity<PaymentResponse> getPatmentResponseEntity() {
+    private @NotNull ResponseEntity<PaymentResponse> getPaymentResponseEntity() {
         return ResponseEntity.ok(new PaymentResponse(
                 PaymentStatus.SUCCESS,
                 1,

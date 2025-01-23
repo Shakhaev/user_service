@@ -17,7 +17,6 @@ public class PremiumController {
 
     @PutMapping(value = "/buy/{days}")
     public PremiumDto buyPremium(@Positive(message = "Days must be positive") @PathVariable Integer days) {
-
         return premiumService.buyPremium(days);
     }
 }

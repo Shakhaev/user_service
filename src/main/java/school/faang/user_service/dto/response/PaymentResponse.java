@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.res;
+package school.faang.user_service.dto.response;
 
 import school.faang.user_service.common.Currency;
 import school.faang.user_service.common.PaymentStatus;
