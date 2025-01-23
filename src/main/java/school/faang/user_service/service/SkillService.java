@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -27,9 +28,9 @@ public class SkillService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     @Transactional
-    public SkillDto create(SkillDto skill) {
+    public SkillDto create(CreateSkillDto skill) {
         validateSkill(skill);
-        Skill skillToSave = skillMapper.toEntity(skill);
+        Skill skillToSave = skillMapper.toSkillEntityFromCreateDto(skill);
 
         return skillMapper.toDto(skillRepository.save(skillToSave));
 
@@ -41,7 +42,8 @@ public class SkillService {
                 .map(skillMapper::toDto)
                 .toList();
     }
-    @Transactional
+
+    @Transactional(readOnly = true)
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         return skillRepository.findSkillsOfferedToUser(userId).stream()
                 .map(skillMapper::toCandidateDto)
@@ -75,7 +77,7 @@ public class SkillService {
         return skillMapper.toDto(skill);
     }
 
-    private void validateSkill(SkillDto skillDto) {
+    private void validateSkill(CreateSkillDto skillDto) {
         if (skillDto.getTitle().isBlank()) {
             throw new DataValidationException("The skill name cannot be empty!");
         }

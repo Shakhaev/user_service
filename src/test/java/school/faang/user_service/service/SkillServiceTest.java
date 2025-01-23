@@ -3,7 +3,6 @@ package school.faang.user_service.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -11,13 +10,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -47,32 +45,32 @@ public class SkillServiceTest {
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
+    @Spy
+    private SkillMapperImpl skillMapper;
+
     @Captor
     private ArgumentCaptor<Skill> captor;
 
-    @Captor
-    private ArgumentCaptor<UserSkillGuarantee> guaranteeCaptor;
-
-    @Spy
-    final SkillMapper mapper = Mappers.getMapper(SkillMapper.class);
+    private final long SKILL_ID = 1L;
+    private final long USER_ID = 1L;
 
     @Test
     public void create_CreatingWithBlankNames() {
-        SkillDto skillDto = new SkillDto(1L, " ");
+        CreateSkillDto skillDto = new CreateSkillDto(" ");
 
         assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 
     @Test
     public void create_CreatingWithExistTitle() {
-        SkillDto skillDto = prepareData(true);
+        CreateSkillDto skillDto = prepareData(true);
 
         assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 
     @Test
     public void create_CreateSkill() {
-        SkillDto skillDto = prepareData(false);
+        CreateSkillDto skillDto = prepareData(false);
 
         skillService.create(skillDto);
 
@@ -115,8 +113,6 @@ public class SkillServiceTest {
         assertNull(userSkill);
     }
 
-    private final long SKILL_ID = 1L;
-    private final long USER_ID = 1L;
 
     @Test
     public void acquireSkillFromOffers_SkillNotFound() {
@@ -183,8 +179,8 @@ public class SkillServiceTest {
     }
 
 
-    private SkillDto prepareData(boolean existTitle) {
-        SkillDto skillDto = new SkillDto();
+    private CreateSkillDto prepareData(boolean existTitle) {
+        CreateSkillDto skillDto = new CreateSkillDto();
         skillDto.setTitle("Java");
         when(skillRepository.existsByTitle(skillDto.getTitle())).thenReturn(existTitle);
         return skillDto;
