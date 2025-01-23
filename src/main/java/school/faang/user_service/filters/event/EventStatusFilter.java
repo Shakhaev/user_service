@@ -10,11 +10,11 @@ public class EventStatusFilter implements EventFilter {
 
     @Override
     public boolean isApplicable(EventFilterDto filters) {
-        return filters != null;
+        return !filters.getEventStatuses().isEmpty();
     }
 
     @Override
-    public boolean filterEntity(Event event, EventFilterDto filters) {
-        return filters.getEventStatuses().contains(event.getStatus());
+    public boolean filterEntity(EventDto event, EventFilterDto filters) {
+        return filters.getEventStatuses().contains(event.getEventStatus());
     }
 }

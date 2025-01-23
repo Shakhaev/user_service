@@ -1,8 +1,7 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
@@ -11,7 +10,7 @@ import school.faang.user_service.service.EventService;
 
 import java.util.List;
 
-@Component
+@Controller
 @RequiredArgsConstructor
 public class EventController {
 
@@ -39,11 +38,11 @@ public class EventController {
         return eventService.getParticipatedEvents(userId);
     }
 
-    public List<Event> getOwnedEvents(EventDto event){
+    public List<EventDto> getOwnedEvents(EventDto event){
         return eventService.getOwnedEvents(event.getOwnerId());
     }
 
-    public List<Event> getEventsByFilter(EventDto eventDto,EventFilterDto filter,long userId){
-        return eventService.getEventsByFilter(eventDto,filter,userId);
+    public List<EventDto> getEventsByFilter(EventFilterDto filter){
+        return eventService.getEventsByFilter(filter);
     }
 }

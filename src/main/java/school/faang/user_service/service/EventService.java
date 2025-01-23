@@ -47,18 +47,17 @@ public class EventService {
     public EventDto updateEvent(EventUpdateDto eventDto, long eventId, long userId) {
         Event event = eventRepository.getById(eventId);
         User owner = event.getOwner();
-        if (!eventDto.getRelatedSkills().isEmpty()) {
+        if (!eventDto.getRelatedSkillIds().isEmpty()) {
             validateEventRelatedSkills(
-                    eventDto.getRelatedSkills(),
+                    eventDto.getRelatedSkillIds(),
                     getSkillsIds(owner.getSkills())
             );
-            event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkills()));
+            event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkillIds()));
         }
         if (eventDto.getOwnerId() != null) {
             if (event.getOwner().getId() != userId) {
                 throw new BusinessException("Основателя может сменить только основатель");
             }
-            event.setOwner(getUser(eventDto.getOwnerId()));
         }
         eventMapper.updateEntityFromDto(event,eventDto);
         eventRepository.save(event);
@@ -83,12 +82,15 @@ public class EventService {
         return eventRepository.findParticipatedEventsByUserId(userId);
     }
 
-    public List<Event> getOwnedEvents(Long ownerId) {
-        return eventRepository.findAllByUserId(ownerId);
+    public List<EventDto> getOwnedEvents(Long ownerId) {
+        return eventRepository.findAllByUserId(ownerId).stream()
+                .map(eventMapper::toDto)
+                .toList();
     }
 
-    public List<Event> getEventsByFilter(EventDto eventDto, EventFilterDto filterDto, long userId) {
-        Stream<Event> events = eventRepository.findAll().stream();
+    public List<EventDto> getEventsByFilter(EventFilterDto filterDto) {
+        Stream<EventDto> events = eventRepository.findAll().stream()
+                .map(eventMapper::toDto);
         for (EventFilter filter : eventFilters) {
             events = filter.apply(events, filterDto);
         }
@@ -120,7 +122,7 @@ public class EventService {
     private void validateEventRelatedSkills(List<Long> relatedSkills, List<Long> ownerSkillsIds) {
         for (Long skillId : relatedSkills) {
             if (!ownerSkillsIds.contains(skillId)) {
-                throw new BusinessException("Пользователь не найден с навыком " + skillId);
+                throw new BusinessException("Пользователь не обладает скилами" + skillId + " для создания события");
             }
         }
     }

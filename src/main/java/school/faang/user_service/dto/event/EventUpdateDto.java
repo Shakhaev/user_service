@@ -14,7 +14,7 @@ public class EventUpdateDto {
     private LocalDateTime endDate;
     private Long ownerId;
     private String description;
-    private List<Long> relatedSkills;
+    private List<Long> relatedSkillIds;
     private String location;
     private int maxAttendees;
     private EventType eventType;

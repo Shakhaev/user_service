@@ -6,5 +6,5 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filters.Filter;
 
 
-public interface EventFilter extends Filter<Event,EventFilterDto> {
+public interface EventFilter extends Filter<EventDto,EventFilterDto> {
 }

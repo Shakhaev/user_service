@@ -9,12 +9,12 @@ public class EventTypeFilter implements EventFilter {
 
     @Override
     public boolean isApplicable(EventFilterDto filters) {
-        return filters != null;
+        return !filters.getEventTypes().isEmpty();
 
     }
 
     @Override
-    public boolean filterEntity(Event event, EventFilterDto filters) {
-        return filters.getEventTypes().contains(event.getType());
+    public boolean filterEntity(EventDto event, EventFilterDto filters) {
+        return filters.getEventTypes().contains(event.getEventType());
     }
 }

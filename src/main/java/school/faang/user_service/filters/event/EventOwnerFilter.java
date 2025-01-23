@@ -2,18 +2,17 @@ package school.faang.user_service.filters.event;
 
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.entity.event.Event;
 
 import java.util.Objects;
 
-public class OwnerFilter implements EventFilter{
+public class EventOwnerFilter implements EventFilter{
     @Override
     public boolean isApplicable(EventFilterDto filters) {
-        return filters != null;
+        return filters.getOwnerId() != null;
     }
 
     @Override
-    public boolean filterEntity(Event event, EventFilterDto filters) {
-       return event.getOwner().getId() == filters.getOwnerId();
+    public boolean filterEntity(EventDto event, EventFilterDto filters) {
+       return Objects.equals(event.getOwnerId(), filters.getOwnerId());
     }
 }

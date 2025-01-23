@@ -4,19 +4,18 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.entity.event.Event;
 
 
 @Component
-public class TitleFilterPattern implements EventFilter {
+public class EventTitleFilter implements EventFilter {
 
     @Override
     public boolean isApplicable(EventFilterDto filters) {
-        return filters != null;
+        return !filters.getTitlePattern().isEmpty();
     }
 
     @Override
-    public boolean filterEntity(Event event, EventFilterDto filters) {
+    public boolean filterEntity(EventDto event, EventFilterDto filters) {
         return event.getTitle().contains(filters.getTitlePattern());
     }
 }
