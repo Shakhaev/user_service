@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class S3ServiceTest {
@@ -23,11 +22,9 @@ class S3ServiceTest {
     @InjectMocks
     private S3Service s3Service;
 
-    private String bucketName = "test-bucket";
-    private String fileKey = "test-file.svg";
     private InputStream fileContent;
-    private long contentLength = 1000L;
-    private String contentType = "image/svg+xml";
+    private final long contentLength = 1000L;
+    private final String contentType = "image/svg+xml";
 
     @BeforeEach
     void setUp() {
@@ -40,9 +37,10 @@ class S3ServiceTest {
         when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
                 .thenReturn(PutObjectResponse.builder().build());
 
-        s3Service.uploadFile(fileKey, fileContent, contentLength, contentType);
+        String fileKey = s3Service.uploadFile(fileContent, contentLength, contentType);
 
         verify(s3Client, times(1)).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+        assertNotNull(fileKey);
     }
 
     @Test
@@ -52,7 +50,7 @@ class S3ServiceTest {
 
         when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(mockStream);
 
-        Optional<InputStream> result = s3Service.downloadFile(fileKey);
+        Optional<InputStream> result = s3Service.downloadFile("test-file.svg");
 
         assertTrue(result.isPresent());
         verify(s3Client, times(1)).getObject(any(GetObjectRequest.class));
@@ -62,7 +60,7 @@ class S3ServiceTest {
     void shouldReturnEmptyWhenFileNotFound() {
         when(s3Client.getObject(any(GetObjectRequest.class))).thenThrow(NoSuchKeyException.class);
 
-        Optional<InputStream> result = s3Service.downloadFile(fileKey);
+        Optional<InputStream> result = s3Service.downloadFile("test-file.svg");
 
         assertFalse(result.isPresent());
     }
@@ -71,7 +69,7 @@ class S3ServiceTest {
     void shouldDeleteFileSuccessfully() {
         when(s3Client.deleteObject(any(DeleteObjectRequest.class))).thenReturn(DeleteObjectResponse.builder().build());
 
-        s3Service.deleteFile(fileKey);
+        s3Service.deleteFile("test-file.svg");
 
         verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
     }
@@ -80,28 +78,20 @@ class S3ServiceTest {
     void shouldThrowRuntimeExceptionWhenUploadFails() {
         doThrow(new RuntimeException("Upload failed")).when(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
 
-        assertThrows(RuntimeException.class, () -> s3Service.uploadFile(fileKey, fileContent, contentLength, contentType));
+        assertThrows(RuntimeException.class, () -> s3Service.uploadFile(fileContent, contentLength, contentType));
     }
 
     @Test
     void shouldThrowRuntimeExceptionWhenDownloadFails() {
         doThrow(new RuntimeException("Download failed")).when(s3Client).getObject(any(GetObjectRequest.class));
 
-        assertThrows(RuntimeException.class, () -> s3Service.downloadFile(fileKey));
+        assertThrows(RuntimeException.class, () -> s3Service.downloadFile("test-file.svg"));
     }
 
     @Test
     void shouldThrowRuntimeExceptionWhenDeleteFails() {
         doThrow(new RuntimeException("Delete failed")).when(s3Client).deleteObject(any(DeleteObjectRequest.class));
 
-        assertThrows(RuntimeException.class, () -> s3Service.deleteFile(fileKey));
-    }
-
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
+        assertThrows(RuntimeException.class, () -> s3Service.deleteFile("test-file.svg"));
     }
 }

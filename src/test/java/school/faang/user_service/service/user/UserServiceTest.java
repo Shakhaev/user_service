@@ -15,6 +15,7 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.S3Service;
+import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -55,7 +56,7 @@ class UserServiceTest {
         ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(avatarData);
         when(diceBearClient.generateAvatar(anyString())).thenReturn(responseEntity);
 
-        doNothing().when(s3Service).uploadFile(anyString(), any(), anyLong(), anyString());
+        when(s3Service.uploadFile(any(InputStream.class), eq(Long.valueOf(avatarData.length)), eq("image/svg+xml"))).thenReturn("avatar-file-id");
 
         User user = new User();
         when(userMapper.userRegistrationDtoToUser(registrationDto)).thenReturn(user);
@@ -65,7 +66,8 @@ class UserServiceTest {
 
         assertNotNull(result);
         verify(userRepository, times(1)).save(user);
-        verify(s3Service, times(1)).uploadFile(anyString(), any(), anyLong(), anyString());
+        verify(s3Service, times(1)).uploadFile(any(InputStream.class), eq(Long.valueOf(avatarData.length)), eq("image/svg+xml"));
+
     }
 
     @Test
@@ -74,7 +76,6 @@ class UserServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> userService.registerUser(registrationDto));
     }
-
 
     @Test
     void shouldThrowAvatarGenerationExceptionWhenAvatarGenerationFails() {
@@ -90,7 +91,6 @@ class UserServiceTest {
         assertEquals("Error generating avatar.", exception.getMessage());
     }
 
-
     @Test
     void shouldThrowS3UploadExceptionWhenS3UploadFails() {
         when(countryRepository.findById(1L)).thenReturn(java.util.Optional.of(country));
@@ -99,7 +99,7 @@ class UserServiceTest {
         ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(avatarData);
         when(diceBearClient.generateAvatar(anyString())).thenReturn(responseEntity);
 
-        doThrow(new S3UploadException("Upload failed")).when(s3Service).uploadFile(anyString(), any(), anyLong(), anyString());
+        doThrow(new S3UploadException("Upload failed")).when(s3Service).uploadFile(any(InputStream.class), anyLong(), anyString());
 
         User user = new User();
         when(userMapper.userRegistrationDtoToUser(registrationDto)).thenReturn(user);

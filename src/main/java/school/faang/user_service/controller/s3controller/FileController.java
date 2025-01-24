@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.service.S3Service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/files")
@@ -19,9 +20,9 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        String key = file.getOriginalFilename();
-        s3Service.uploadFile(key, file.getInputStream(), file.getSize(), file.getContentType());
-        return ResponseEntity.ok("File uploaded successfully with key: " + key);
+        String uniqueKey = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+        s3Service.uploadFile(file.getInputStream(), file.getSize(), file.getContentType());
+        return ResponseEntity.ok("File uploaded successfully with key: " + uniqueKey);
     }
 
     @GetMapping("/download/{key}")

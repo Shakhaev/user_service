@@ -20,6 +20,7 @@ import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.service.S3Service;
 
 import java.io.ByteArrayInputStream;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -100,10 +101,9 @@ public class UserService {
     }
 
     private String uploadAvatarToS3(byte[] avatarData, String seed) {
-        String avatarFileName = (seed != null ? seed : "default-seed") + "-avatar.svg";
+        String uniqueFileName = (seed != null ? seed : "default-seed") + "-" + UUID.randomUUID() + "-avatar.svg";
         try {
-            s3Service.uploadFile(avatarFileName, new ByteArrayInputStream(avatarData), avatarData.length, "image/svg+xml");
-            return avatarFileName;
+            return s3Service.uploadFile(new ByteArrayInputStream(avatarData), avatarData.length, "image/svg+xml");
         } catch (Exception e) {
             throw new S3UploadException("Error uploading avatar to S3.", e);
         }

@@ -15,10 +15,7 @@ public class UserController {
 
     @PostMapping("/register")
     public UserProfileDto registerUser(@RequestBody UserRegistrationDto registrationDto,
-                                       @RequestHeader(value = "x-user-id", required = false) String userId) {
-        if (userId == null || userId.isEmpty()) {
-            throw new IllegalArgumentException("User ID is missing. Please make sure 'x-user-id' header is included in the request.");
-        }
+                                       @RequestHeader(value = "x-user-id") String userId) {
         return userService.registerUser(registrationDto);
     }
 }
