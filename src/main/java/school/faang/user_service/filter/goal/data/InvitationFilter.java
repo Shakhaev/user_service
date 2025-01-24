@@ -7,5 +7,6 @@ import java.util.stream.Stream;
 
 public interface InvitationFilter {
     boolean isApplicable(InvitationFilterDto filter);
+
     Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterDto filter);
 }

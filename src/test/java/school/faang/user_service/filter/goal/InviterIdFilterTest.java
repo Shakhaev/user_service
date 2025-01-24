@@ -21,7 +21,7 @@ class InviterIdFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenIdIsNotNull() {
+    void isApplicable_ShouldReturnTrueWhenIdIsNotNull() {
         filters.setInviterId(1L);
 
         boolean result = invitationFilter.isApplicable(filters);
@@ -30,7 +30,7 @@ class InviterIdFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenIdIsNull() {
+    void isApplicable_ShouldReturnFalseWhenIdIsNull() {
         boolean result = invitationFilter.isApplicable(filters);
 
         assertFalse(result);
@@ -64,7 +64,7 @@ class InviterIdFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoInvitationsMatch() {
+    void apply_ShouldReturnEmptyStreamWhenNoInvitationsMatch() {
         filters.setInviterId(3L);
 
         invitation1 = new GoalInvitation();

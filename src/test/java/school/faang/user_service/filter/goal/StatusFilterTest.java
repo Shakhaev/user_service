@@ -21,7 +21,7 @@ class StatusFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenStatusIsNotNull() {
+    void isApplicable_ShouldReturnTrueWhenStatusIsNotNull() {
         filters.setStatus(RequestStatus.PENDING);
 
         boolean result = invitationFilter.isApplicable(filters);
@@ -30,7 +30,7 @@ class StatusFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenStatusIsNull() {
+    void isApplicable_ShouldReturnFalseWhenStatusIsNull() {
         boolean result = invitationFilter.isApplicable(filters);
 
         assertFalse(result);
@@ -58,7 +58,7 @@ class StatusFilterTest extends InvitationFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoInvitationsMatch() {
+    void apply_ShouldReturnEmptyStreamWhenNoInvitationsMatch() {
         filters.setStatus(RequestStatus.REJECTED);
 
         invitation1 = new GoalInvitation();

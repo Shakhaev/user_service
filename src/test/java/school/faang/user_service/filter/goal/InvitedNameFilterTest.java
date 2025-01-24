@@ -24,7 +24,7 @@ class InvitedNameFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenNamePatternIsNotNull() {
+    void isApplicable_ShouldReturnTrueWhenNamePatternIsNotNull() {
         filters.setInvitedNamePattern("John");
 
         boolean result = invitedNameFilter.isApplicable(filters);
@@ -33,7 +33,7 @@ class InvitedNameFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenNamePatternIsNull() {
+    void isApplicable_ShouldReturnFalseWhenNamePatternIsNull() {
         filters.setInvitedNamePattern(null);
 
         boolean result = invitedNameFilter.isApplicable(filters);
@@ -69,7 +69,7 @@ class InvitedNameFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoInvitationsMatch() {
+    void apply_ShouldReturnEmptyStreamWhenNoInvitationsMatch() {
         filters.setInvitedNamePattern("Nonexistent");
 
         GoalInvitation invitation1 = new GoalInvitation();
