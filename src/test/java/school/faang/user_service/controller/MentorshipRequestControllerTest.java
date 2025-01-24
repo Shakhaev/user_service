@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class MentorshipRequestControllerTest {
@@ -44,15 +43,6 @@ public class MentorshipRequestControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(requestDto, response.getBody());
         verify(mentorshipRequestService, times(1)).requestMentorship(requestDto);
-    }
-
-    @Test
-    void requestMentorship_EmptyDescription_ThrowsIllegalArgumentException() {
-        MentorshipRequestDto requestDto = new MentorshipRequestDto();
-        requestDto.setDescription("");
-
-        assertThrows(IllegalArgumentException.class, () -> mentorshipRequestController.requestMentorship(requestDto));
-        verify(mentorshipRequestService, never()).requestMentorship(any());
     }
 
     @Test

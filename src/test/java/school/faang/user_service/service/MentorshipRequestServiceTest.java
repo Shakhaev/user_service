@@ -13,6 +13,7 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -42,7 +43,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void requestMentorship_RequesterOrReceiverIsNull_ThrowsIllegalArgumentException() {
+    void requestMentorship_RequesterOrReceiverIsNull_ThrowsBusinessException() {
         MentorshipRequestDto requestDto = new MentorshipRequestDto();
         requestDto.setRequesterId(1L);
         requestDto.setReceiverId(2L);
@@ -50,8 +51,8 @@ public class MentorshipRequestServiceTest {
         when(userRepository.existsById(1L)).thenReturn(false);
         when(userRepository.existsById(2L)).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BusinessException exception = assertThrows(
+                BusinessException.class,
                 () -> mentorshipRequestService.requestMentorship(requestDto)
         );
 
@@ -91,7 +92,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void requestMentorship_LastRequestWithinThreeMonths_ThrowsIllegalArgumentException() {
+    void requestMentorship_LastRequestWithinThreeMonths_ThrowsBusinessException() {
 
         MentorshipRequestDto requestDto = new MentorshipRequestDto();
         requestDto.setRequesterId(1L);
@@ -107,8 +108,8 @@ public class MentorshipRequestServiceTest {
         when(mentorshipRequestRepository.findLatestRequest(1L, 2L))
                 .thenReturn(Optional.of(latestRequest));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BusinessException exception = assertThrows(
+                BusinessException.class,
                 () -> mentorshipRequestService.requestMentorship(requestDto)
         );
 
@@ -118,7 +119,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void acceptRequest_UserAlreadyMentor_ThrowsIllegalArgumentException() {
+    void acceptRequest_UserAlreadyMentor_ThrowsBusinessException() {
 
         long requestId = 1L;
 
@@ -140,8 +141,8 @@ public class MentorshipRequestServiceTest {
         when(mentorshipRequestRepository.findById(requestId))
                 .thenReturn(Optional.of(request));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BusinessException exception = assertThrows(
+                BusinessException.class,
                 () -> mentorshipRequestService.acceptRequest(requestId)
         );
 
@@ -380,7 +381,7 @@ public class MentorshipRequestServiceTest {
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
             mentorshipRequestService.acceptRequest(requestId);
         });
 
@@ -422,7 +423,7 @@ public class MentorshipRequestServiceTest {
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
             mentorshipRequestService.acceptRequest(requestId);
         });
 
@@ -466,7 +467,7 @@ public class MentorshipRequestServiceTest {
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
             mentorshipRequestService.acceptRequest(requestId);
         });
 

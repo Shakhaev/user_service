@@ -9,6 +9,7 @@ import school.faang.user_service.dto.mentorshipRequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -28,10 +29,10 @@ public class MentorshipRequestService {
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         if (!userRepository.existsById(mentorshipRequestDto.getRequesterId()) ||
                 !userRepository.existsById(mentorshipRequestDto.getReceiverId())) {
-            throw new IllegalArgumentException("Один из пользователей не существует.");
+            throw new BusinessException("Один из пользователей не существует.");
         }
         if (mentorshipRequestDto.getRequesterId().equals(mentorshipRequestDto.getReceiverId())) {
-            throw new IllegalArgumentException("Нельзя отправить запрос самому себе.");
+            throw new BusinessException("Нельзя отправить запрос самому себе.");
         }
         Optional<MentorshipRequest> latestRequest =
                 mentorshipRequestRepository.findLatestRequest(mentorshipRequestDto.getRequesterId(),
@@ -43,12 +44,12 @@ public class MentorshipRequestService {
             LocalDateTime threeMonthsAgo = currentDate.minusMonths(3);
 
             if (!requestDate.isBefore(threeMonthsAgo)) {
-                throw new IllegalArgumentException("Нельзя отправлять запрос чаще чем раз в три месяца.");
+                throw new BusinessException("Нельзя отправлять запрос чаще чем раз в три месяца.");
             }
         }
         MentorshipRequest entity = mapper.toEntity(mentorshipRequestDto);
         if (entity.getRequester() == null || entity.getReceiver() == null) {
-            throw new IllegalArgumentException("Отправитель или получатель запроса не указан.");
+            throw new BusinessException("Отправитель или получатель запроса не указан.");
         }
         mentorshipRequestRepository.save(entity);
         return mapper.toDto(entity);
@@ -74,15 +75,15 @@ public class MentorshipRequestService {
     @Transactional
     public void acceptRequest(long id) {
         MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Запрос на менторство не найден."));
+                .orElseThrow(() -> new BusinessException("Запрос на менторство не найден."));
 
         if (request.getStatus() == RequestStatus.ACCEPTED) {
-            throw new IllegalArgumentException("Запрос уже принят.");
+            throw new BusinessException("Запрос уже принят.");
         }
         User requester = request.getRequester();
         User receiver = request.getReceiver();
         if (requester.getMentors().contains(receiver)) {
-            throw new IllegalArgumentException("Пользователь уже является вашим ментором.");
+            throw new BusinessException("Пользователь уже является вашим ментором.");
         }
         requester.getMentors().add(receiver);
         userRepository.save(requester);

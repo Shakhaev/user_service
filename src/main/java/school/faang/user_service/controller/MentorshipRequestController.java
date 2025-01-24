@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,21 +13,18 @@ import school.faang.user_service.service.MentorshipRequestService;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/mentorship")
 @RequiredArgsConstructor
 public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
-    @PostMapping
-    public ResponseEntity<MentorshipRequestDto> requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.getDescription() == null || mentorshipRequestDto.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Описание запроса на менторство не может быть пустым.");
-        }
+    @PostMapping("/api/mentorship/requests")
+    public ResponseEntity<MentorshipRequestDto> requestMentorship(@Valid @RequestBody MentorshipRequestDto mentorshipRequestDto) {
         MentorshipRequestDto response = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/api/mentorship/filters")
     public ResponseEntity<List<MentorshipRequestDto>> getRequests(
             @RequestParam(required = false) String description,
             @RequestParam(required = false) Long requesterId,
@@ -45,16 +43,16 @@ public class MentorshipRequestController {
         return ResponseEntity.ok(requests);
     }
 
-    @PostMapping()
+    @PutMapping("/api/mentorship/{id}/accept")
     public ResponseEntity<String> acceptRequest(@PathVariable long id) {
         mentorshipRequestService.acceptRequest(id);
         return ResponseEntity.ok("Запрос на менторство успешно принят.");
     }
 
-    @PostMapping()
+    @PutMapping("/api/mentorship/{id}/reject")
     public ResponseEntity<String> rejectRequest(
             @PathVariable long id,
-            @RequestBody RejectionDto rejection
+            @Valid @RequestBody RejectionDto rejection
     ) {
         mentorshipRequestService.rejectRequest(id, rejection);
         return ResponseEntity.ok("Запрос на менторство успешно отклонен.");
