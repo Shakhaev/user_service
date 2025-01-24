@@ -1,10 +1,28 @@
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.kotlin.dsl.*
+
 plugins {
-    java
+    id("java")
+    id("jacoco")
+    id("checkstyle")
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
-    id("checkstyle")
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+checkstyle {
+    toolVersion = "10.12.1"
+}
+
+tasks.withType<JavaCompile> {
+    options.isIncremental = true
+    sourceCompatibility = JavaVersion.VERSION_17.toString()
+    targetCompatibility = JavaVersion.VERSION_17.toString()
 }
 
 group = "faang.school"
@@ -88,15 +106,65 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging.showStandardStreams = true
 }
 
-val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+val test by tasks.getting(Test::class) { }
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            element = "CLASS"
+            includes = listOf("school.faang.user_service.service.*")
+            excludes = listOf("school.faang.user_service.service.goal.filter.*",
+                "school.faang.user_service.service.external.*",
+                "school.faang.user_service.service.SkillRequestService",
+                "school.faang.user_service.service.EventService",
+                "school.faang.user_service.service.filter.*",
+                "school.faang.user_service.service.recommendation.RecommendationRequestFilter")
+            limit {
+                minimum = 0.4.toBigDecimal()
+            }
+        }
+    }
+}
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.withType<JacocoReport> {
+    val filteredClassDirectories = classDirectories.files.map { dir ->
+        project.fileTree(dir) {
+            exclude(
+                "school/faang/user_service/client",
+                "school/faang/user_service/config",
+                "school/faang/user_service/controller",
+                "school/faang/user_service/dto",
+                "school/faang/user_service/mapper"
+            )
+        }
+    }
+    classDirectories.setFrom(filteredClassDirectories)
+}
+
+tasks {
+    val jacocoCustomTestReport by creating(JacocoReport::class) {
+        reports {
+            xml.isEnabled = false
+            csv.isEnabled = false
+            html.isEnabled = true
+        }
+    }
+
+    withType<Test> {
+        finalizedBy(jacocoCustomTestReport)
+    }
 }
 
 checkstyle {
