@@ -22,7 +22,7 @@ public class SkillController {
     private final SkillService service;
 
     @PostMapping("/create")
-    public SkillDto create(@RequestBody SkillDto skillDto) throws DataValidationException {
+    public SkillDto create(@RequestBody SkillDto skillDto) {
         if (skillDto.getTitle().isBlank()) {
             throw new DataValidationException("Title can not be empty and null");
         }
@@ -40,7 +40,7 @@ public class SkillController {
     }
 
     @PostMapping("/acquire")
-    public SkillDto acquireSkillFromOffered(@RequestParam long skillId, @RequestParam long userId) throws DataValidationException {
+    public SkillDto acquireSkillFromOffered(@RequestParam long skillId, @RequestParam long userId) {
         return service.acquireSkillFromOffer(skillId, userId);
     }
 }

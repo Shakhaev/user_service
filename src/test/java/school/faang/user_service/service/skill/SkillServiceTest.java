@@ -1,3 +1,5 @@
+package school.faang.user_service.service.skill;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
