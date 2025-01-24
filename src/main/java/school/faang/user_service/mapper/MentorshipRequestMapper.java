@@ -9,11 +9,11 @@ import school.faang.user_service.entity.MentorshipRequest;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MentorshipRequestMapper {
 
-    @Mapping(source = "receiver.id", target = "receiverId")
-    @Mapping(source = "requester.id", target = "requesterId")
+    @Mapping(source = "receiver.id", target = "receiverId", ignore = true)
+    @Mapping(source = "requester.id", target = "requesterId", ignore = true)
     MentorshipRequestDto toDto(MentorshipRequest mentorshipRequest);
 
-    @Mapping(source = "receiverId", target = "receiver.id")
-    @Mapping(source = "requesterId", target = "requester.id")
+    @Mapping(source = "receiverId", target = "receiver.id", ignore = true)
+    @Mapping(source = "requesterId", target = "requester.id", ignore = true)
     MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
 }
