@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,16 +67,21 @@ public class SkillService {
         return skills;
     }
 
+    @Transactional
     public Skill create(Skill skill) {
         skillValidator.validateSkill(skill);
 
         return skillRepository.save(skill);
     }
+
+    @Transactional
     public List<Skill> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skills;
     }
+
+    @Transactional
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
         return skills
@@ -89,6 +95,8 @@ public class SkillService {
                 })
                 .toList();
     }
+
+    @Transactional
     public Skill acquireSkillFromOffers(long skillId, long userId) {
         Skill skill = getSkillById(skillId);
         User user = skillValidator.getUserById(userId);
@@ -105,11 +113,13 @@ public class SkillService {
         log.info("Updated the list of skill guarantors {} of the user {}", skill.getTitle(), user.getUsername());
         return skill;
     }
+
     private Skill getSkillById(long skillId) {
         return skillRepository.findById(skillId)
                 .orElseThrow(() -> new NoSuchElementException(String
                         .format("Skill with ID %d not found", skillId)));
     }
+
     private List<UserSkillGuarantee> userSkillGuaranteesSet(List<SkillOffer> skillOffers, long skillId, long userId) {
 
         List<UserSkillGuarantee> userSkillGuarantees = skillOffers
