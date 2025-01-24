@@ -67,9 +67,9 @@ public class SubscriptionService {
         return filterOnlyLimitsSkips(followersOfUser, userFilterDto);
     }
 
-    public void followUser(FollowingFeatureDto followingFeatureDTO) {
-        long followerId = followingFeatureDTO.followerId();
-        long followeeId = followingFeatureDTO.followeeId();
+    public void followUser(FollowingFeatureDto followingFeatureDto) {
+        long followerId = followingFeatureDto.followerId();
+        long followeeId = followingFeatureDto.followeeId();
 
         logger.info("Trying to follow to user! : {} -> {}", followerId, followeeId);
         checkIfOneUser(followerId, followeeId);
@@ -95,9 +95,9 @@ public class SubscriptionService {
         logger.info("Succeed of following user!");
     }
 
-    public void unfollowUser(FollowingFeatureDto followingFeatureDTO) {
-        long followerId = followingFeatureDTO.followerId();
-        long followeeId = followingFeatureDTO.followeeId();
+    public void unfollowUser(FollowingFeatureDto followingFeatureDto) {
+        long followerId = followingFeatureDto.followerId();
+        long followeeId = followingFeatureDto.followeeId();
 
         logger.info("Trying to unfollow to user! : {} -> {}", followerId, followeeId);
         checkIfOneUser(followerId, followeeId);

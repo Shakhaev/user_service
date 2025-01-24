@@ -15,4 +15,7 @@ public class AppConfig {
 
     @Value("${app.config.passive_transaction:2}")
     private int passiveTransaction;
+
+    @Value("${app.config.dicebear_url}")
+    private String dicebearUrl;
 }

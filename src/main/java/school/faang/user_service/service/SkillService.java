@@ -13,6 +13,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.rating.publisher.UserEventPublisher;
@@ -95,5 +96,10 @@ public class SkillService {
         }
 
         throw new IllegalArgumentException("Не хватает рекомендаций. Минимальное количество: " + appConfig.getMinSkillOffers());
+    }
+
+    public Skill findById(long id) {
+        return skillRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::skillNotFoundException);
     }
 }
