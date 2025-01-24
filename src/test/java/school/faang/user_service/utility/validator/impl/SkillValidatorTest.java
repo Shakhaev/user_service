@@ -93,7 +93,6 @@ public class SkillValidatorTest {
     @Test
     void validateSkillOffers_validOffers_doesNotThrowException() {
         List<SkillOffer> offers = Arrays.asList(new SkillOffer(), new SkillOffer(), new SkillOffer());
-        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill));
         assertDoesNotThrow(() -> skillValidator.validateSkillOffers(offers, 1L, 1L));
     }
 
@@ -103,7 +102,7 @@ public class SkillValidatorTest {
         when(skillRepository.findById(1L)).thenReturn(Optional.of(skill));
         MinSkillOffersException exception = assertThrows(MinSkillOffersException.class,
                 () -> skillValidator.validateSkillOffers(offers, 1L, 1L));
-        assertEquals(" Test Skill skill not assigned, 3 is needed instead of 2", exception.getMessage());
+        assertEquals(" Java skill not assigned, 3 is needed instead of 2", exception.getMessage());
     }
 
     @Test
@@ -122,8 +121,6 @@ public class SkillValidatorTest {
 
     @Test
     void existingSkillIsPresent_skillDoesNotExist_doesNotThrowException() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill));
         assertDoesNotThrow(() -> skillValidator.existingSkillIsPresent(Optional.empty(), 1L, 1L));
     }
 
@@ -133,6 +130,6 @@ public class SkillValidatorTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         MinSkillOffersException exception = assertThrows(MinSkillOffersException.class, () -> skillValidator.existingSkillIsPresent(Optional.of(skill), 1L, 1L));
-        assertEquals("The assignment of the skill was rejected because the skill Test Skill  already exists in the user testuser", exception.getMessage());
+        assertEquals("The assignment of the skill was rejected because the skill Java  already exists in the user Alex", exception.getMessage());
     }
 }
