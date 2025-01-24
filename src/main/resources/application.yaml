@@ -21,6 +21,14 @@ spring:
       port: 6379
       host: localhost
 
+feign:
+  client:
+    config:
+      payment-service:
+        connectTimeout: 1000 # Таймаут на установление соединения (мс)
+        readTimeout: 1000   # Таймаут на чтение ответа (мс)
+        loggerLevel: FULL    # Уровень логирования запросов (NONE, BASIC, HEADERS, FULL)
+
 server:
   port: 8080
 
@@ -38,6 +46,14 @@ payment-service:
 
 user-service:
   api-version: /api/v1
+  available-tariffs:
+    super-user:
+      shows: 100
+      days: 1
+      price: 100
+      currency: 'USD'
+      priority: 1
+
   recommendation-request:
     min-month: 6
     

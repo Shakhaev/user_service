@@ -35,9 +35,15 @@ public class Tariff {
     @Column(name = "shows", nullable = false)
     private Integer shows;
 
+    @Column(name = "priority", nullable = false)
+    private Integer priority;
+
     @Column(name = "expire_period")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime expirePeriod;
+
+    @Column(name = "payment_id")
+    private Long paymentId;
 
     @OneToOne
     @JoinColumn(name = "user_id")

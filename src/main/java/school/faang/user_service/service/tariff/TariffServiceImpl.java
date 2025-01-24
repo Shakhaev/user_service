@@ -1,0 +1,76 @@
+package school.faang.user_service.service.tariff;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.client.payment.PaymentRequest;
+import school.faang.user_service.client.payment.PaymentResponse;
+import school.faang.user_service.client.payment.PaymentServiceFeignClient;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.PaymentStatus;
+import school.faang.user_service.dto.TariffDto;
+import school.faang.user_service.entity.Tariff;
+import school.faang.user_service.exceptions.PaymentException;
+import school.faang.user_service.mapper.TariffMapper;
+import school.faang.user_service.properties.UserServiceProperties;
+import school.faang.user_service.repository.TariffRepository;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Random;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class TariffServiceImpl implements TariffService {
+    private final UserServiceProperties userServiceProperties;
+    private final PaymentServiceFeignClient paymentServiceFeignClient;
+    private final TariffRepository tariffRepository;
+    private final TariffMapper tariffMapper;
+    private final UserContext userContext;
+
+    @Override
+    public Tariff buyTariff(TariffDto tariffDto, Long userId) {
+        if (!userServiceProperties.getListAvailableTariffDtos().contains(tariffDto)) {
+            String message = "Tariff " + tariffDto + " not found";
+            log.error(message);
+            throw new EntityNotFoundException(message);
+        }
+
+        UserServiceProperties.TariffProperties properties = userServiceProperties
+                .getAvailableTariffs()
+                .get(tariffDto.getPlan());
+
+        sendPayment(tariffDto, properties.getPrice(), properties.getCurrency(), userId);
+
+        tariffDto.setExpirePeriod(LocalDateTime.now().plusDays(properties.getDays()));
+        return tariffRepository.save(tariffMapper.toEntity(tariffDto));
+    }
+
+    private void sendPayment(@NonNull TariffDto tariffDto, BigDecimal amount, String currency, Long userId) {
+        log.info("Start sendPayment, amount: {}, currency: {}", amount, currency);
+        if (tariffDto.getUserId() == null) {
+            throw new IllegalArgumentException("User id is null");
+        }
+
+        userContext.setUserId(userId);
+        PaymentResponse response;
+        try {
+            response = paymentServiceFeignClient.sendPayment(
+                    new PaymentRequest(
+                    new Random().nextLong(),
+                    amount,
+                    currency));
+        } catch (Exception e) {
+            throw new PaymentException(e.getMessage());
+        }
+
+        if (response == null || !response.status().equals(PaymentStatus.SUCCESS)) {
+            throw new PaymentException("Payment failed, response: " + response);
+        }
+        tariffDto.setPaymentId(response.id());
+        log.info("Payment successfully sent, paymentId: {}", tariffDto.getPaymentId());
+    }
+}

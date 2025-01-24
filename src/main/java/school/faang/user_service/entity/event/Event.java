@@ -93,6 +93,7 @@ public class Event {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "event")
+    @OneToOne
+    @JoinColumn(name = "tariff_id")
     private Tariff tariff;
 }
