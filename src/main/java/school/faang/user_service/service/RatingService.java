@@ -3,9 +3,10 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.rating.LeaderTableDto;
@@ -14,6 +15,7 @@ import school.faang.user_service.mapper.LeaderTableMapper;
 import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.UserRepository;
+import static school.faang.user_service.config.kafka.KafkaTopics.PAYMENT_PROMOTION_TOPIC;
 
 import java.util.*;
 
@@ -22,6 +24,7 @@ import java.util.*;
 public class RatingService {
     private final UserEventPublisher userEventPublisher;
     private final UserRepository userRepository;
+    private final KafkaUtils kafkaUtils;
     private final LeaderTableMapper leaderTableMapper;
     private final RedisTemplate<String, Object> redisTemplate;
     private final Queue<String> queueForMessages = new LinkedList<>();
@@ -30,7 +33,10 @@ public class RatingService {
     private static final String LEADERBOARD_KEY = "leaderboard";
     private static final int LEADERBOARD_LIMIT = 50;
 
-    @KafkaListener(topics = "success_payment", groupId = "user-service-group")
+    @Value("${spring.kafka.consumer.group-id}")
+    private String consumerGroupId;
+
+    @KafkaListener(topics = PAYMENT_PROMOTION_TOPIC, groupId = "#{@ratingService.consumerGroupId}")
     public void successTransactionListener(String userIdStr) {
         logger.info("Made the success payment!");
         queueForMessages.add(userIdStr);
