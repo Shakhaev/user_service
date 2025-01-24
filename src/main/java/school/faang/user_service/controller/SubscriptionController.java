@@ -11,18 +11,10 @@ public class SubscriptionController {
     private final SubscriptionService service;
 
     public void followUser(long followerId, long followeeId) throws DataValidationException {
-        if (followerId != followeeId) {
-            service.followUser(followerId, followeeId);
-        } else {
-            throw new DataValidationException("Нельзя подписаться на свой аккаунт.");
-        }
+        service.followUser(followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) throws DataValidationException {
-        if (followerId != followeeId) {
-            service.unfollowUser(followerId, followeeId);
-        } else {
-            throw new DataValidationException("Нельзя отписаться от самого себя.");
-        }
+        service.unfollowUser(followerId, followeeId);
     }
 }
