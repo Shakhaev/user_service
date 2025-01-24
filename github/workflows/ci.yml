@@ -3,10 +3,10 @@ name: CI pipeline for user_service (unicorn-steam8)
 on:
   pull_request:
     branches:
-      - unicorn-stream8
+      - unicorn-master-stream8
   push:
     branches:
-      - unicorn-stream8
+      - unicorn-master-stream8
 
 jobs:
   build:
