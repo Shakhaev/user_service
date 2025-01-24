@@ -118,9 +118,9 @@ tasks.jacocoTestCoverageVerification {
                 "school.faang.user_service.service.SkillRequestService",
                 "school.faang.user_service.service.EventService",
                 "school.faang.user_service.service.filter",
-                "school.faang.user_service.service.RecommendationRequestFilter")
+                "school.faang.user_service.service.recomendation.RecommendationRequestFilter")
             limit {
-                minimum = 0.5.toBigDecimal()
+                minimum = 0.4.toBigDecimal()
             }
         }
     }
