@@ -34,20 +34,20 @@ class RecommendationRequestValidatorTest {
 
     @Test
     void testCheckUsersExist_ShouldThrowExceptionWhenRequesterDoesNotExist() {
-        when(userRepository.findById(0L)).thenReturn(Optional.empty());
+        when(userRepository.findById(5L)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> validator.checkUsersExist(0L, 1L));
+                () -> validator.checkUsersExist(5L, 1L));
         assertEquals("Requester not found", exception.getMessage());
     }
 
     @Test
     void testCheckUsersExist_ShouldThrowExceptionWhenReceiverDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
-        when(userRepository.findById(0L)).thenReturn(Optional.empty());
+        when(userRepository.findById(5L)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> validator.checkUsersExist(1L, 0L));
+                () -> validator.checkUsersExist(1L, 5L));
         assertEquals("Receiver not found", exception.getMessage());
     }
 
