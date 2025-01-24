@@ -54,7 +54,8 @@ public class MentorshipRequestServiceTest {
         filters = List.of(authorFilterMock, descriptionFilterMock, receiverFilterMock, statusFilterMock);
 
         mentorshipRequestService =
-                new MentorshipRequestServiceImpl(mentorshipRequestRepositoryMock, userRepositoryMock, mentorshipRequestMapperSpy, filters);
+                new MentorshipRequestServiceImpl(mentorshipRequestRepositoryMock, userRepositoryMock,
+                        mentorshipRequestMapperSpy, filters);
         user1 = UserDto.builder()
                 .userId(1L)
                 .build();
@@ -121,21 +122,22 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testRequestMentorshipWithTooFrequentRequestFailed() {
-        long requesterId = 1L;
-        long receiverId = 2L;
         MentorshipRequest latestMentorshipRequest = new MentorshipRequest();
         latestMentorshipRequest.setId(1L);
         latestMentorshipRequest.setCreatedAt(LocalDateTime.now().minusDays(89));
 
-        MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
+        MentorshipRequestDto requestDto;
+        requestDto = MentorshipRequestDto.builder()
                 .requester(user1)
                 .receiver(user2)
                 .description("some description")
                 .build();
 
+        long requesterId = 1L;
         User requesterUser = User.builder()
                 .id(requesterId)
                 .build();
+        long receiverId = 2L;
         User receiverUser = User.builder()
                 .id(receiverId)
                 .build();

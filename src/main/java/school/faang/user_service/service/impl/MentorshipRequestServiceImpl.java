@@ -62,7 +62,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public void acceptRequest(long requestId) {
         log.info("MentorshipRequestServiceImpl: method #acceptRequest started with requestId: {}", requestId);
         MentorshipRequest request = mentorshipRequestRepository.findById(requestId).orElseThrow(
-                () -> new IllegalArgumentException(String.format("Запрос с id: %d отсутствует в базе данных", requestId)));
+                () -> new IllegalArgumentException(String.format("Запрос с id: %d отсутствует в базе данных",
+                        requestId)));
 
         User receiver = request.getReceiver();
         User requester = request.getRequester();
@@ -79,9 +80,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     @Override
     public void rejectRequest(long requestId, RejectionDto rejection) {
-        log.info("MentorshipRequestServiceImpl: method #rejectRequest started with requestId: {} and data: {}", requestId, rejection);
+        log.info("MentorshipRequestServiceImpl: method #rejectRequest started with requestId: {} and data: {}",
+                requestId, rejection);
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow(
-                () -> new IllegalArgumentException(String.format("В базе данных отсутствует запрос с id: %d", requestId)));
+                () -> new IllegalArgumentException(String.format("В базе данных отсутствует запрос с id: %d",
+                        requestId)));
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.reason());
     }
@@ -89,11 +92,13 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private void validateRequest(MentorshipRequestDto mentorshipRequestDto) {
         checkRequesterAndReceiverAreNotTheSamePerson(mentorshipRequestDto);
         User requester = userRepository.findById(mentorshipRequestDto.requester().getUserId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("There is no requester with id = %s in database",
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("There is no requester with id = %s in database",
                         mentorshipRequestDto.requester().getUserId()))
                 );
         User receiver = userRepository.findById(mentorshipRequestDto.receiver().getUserId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("There is no receiver with id = %s in database",
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("There is no receiver with id = %s in database",
                         mentorshipRequestDto.requester().getUserId())));
         MentorshipRequest lastMentorshipRequest = mentorshipRequestRepository.findLatestRequest(
                 requester.getId(), receiver.getId()).orElse(null);
@@ -113,8 +118,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         if (lastMentorshipRequest.getCreatedAt().isAfter(
                 LocalDateTime.now().minusMonths(MIN_COUNT_OF_MONTHS_BETWEEN_REQUESTS))) {
             throw new IllegalArgumentException(
-                    String.format("Запрос на менторство не может быть чаще чем раз в 3 месяца. " +
-                            "Последний запрос был %s", lastMentorshipRequest.getCreatedAt()));
+                    String.format("Запрос на менторство не может быть чаще чем раз в 3 месяца. "
+                            + "Последний запрос был %s", lastMentorshipRequest.getCreatedAt()));
         }
     }
 }

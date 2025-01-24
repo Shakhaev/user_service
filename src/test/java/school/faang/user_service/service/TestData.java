@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class TestData {
-    public static Stream<MentorshipRequest> getMentorshipRequestsStream(){
+    public static Stream<MentorshipRequest> getMentorshipRequestsStream() {
         return getListOfRequests().stream();
     }
 
@@ -80,7 +80,7 @@ public class TestData {
                 .build();
 
         return List.of(request1, request2, request3, request4, request5);
-}
+    }
 
     public static List<User> getUsers() {
         List<User> users = new ArrayList<>();

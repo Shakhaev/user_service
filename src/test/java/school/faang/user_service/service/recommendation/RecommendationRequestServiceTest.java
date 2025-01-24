@@ -141,20 +141,21 @@ public class RecommendationRequestServiceTest {
         when(skillRequestRepository.create(1L, skill2.getId())).thenReturn(skillRequest2);
         when(skillRequestRepository.create(1L, skill3.getId())).thenReturn(skillRequest3);
 
-        RecommendationRequestDto requestFromDB = recommendationRequestService.createRequest(recommendationRequestRcvDto);
+        RecommendationRequestDto requestFromDb;
+        requestFromDb = recommendationRequestService.createRequest(recommendationRequestRcvDto);
 
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository, skillRepository);
         verify(recommendationRequestRepository, Mockito.times(1))
                 .save(recommendationRequestCaptor.capture());
         assertEquals(recommendationRequestRcvDto.message(), recommendationRequestCaptor.getValue().getMessage());
 
-        assertNotNull(requestFromDB);
-        assertEquals(1L, requestFromDB.id());
-        assertEquals(recommendationRequestRcvDto.requesterId(), requestFromDB.requesterId());
-        assertEquals(recommendationRequestRcvDto.receiverId(), requestFromDB.receiverId());
-        assertEquals(recommendationRequestRcvDto.message(), requestFromDB.message());
-        assertEquals(RequestStatus.PENDING, requestFromDB.status());
-        assertEquals(recommendationRequestRcvDto.skillIds(), requestFromDB.skillIds());
+        assertNotNull(requestFromDb);
+        assertEquals(1L, requestFromDb.id());
+        assertEquals(recommendationRequestRcvDto.requesterId(), requestFromDb.requesterId());
+        assertEquals(recommendationRequestRcvDto.receiverId(), requestFromDb.receiverId());
+        assertEquals(recommendationRequestRcvDto.message(), requestFromDb.message());
+        assertEquals(RequestStatus.PENDING, requestFromDb.status());
+        assertEquals(recommendationRequestRcvDto.skillIds(), requestFromDb.skillIds());
     }
 
     @Test
