@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +59,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         return recommendationRequestFilters.stream()
                 .filter(filter -> filter.isApplicable(dto))
                 .flatMap(filter -> filter.apply(recommendationRequests.stream(), dto))
+                .collect(Collectors.toSet()).stream()
                 .map(recommendationRequestMapper::toDto)
                 .toList();
     }
