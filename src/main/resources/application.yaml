@@ -35,3 +35,7 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+config:
+  value:
+    MIN_SKILL_OFFERS: 3

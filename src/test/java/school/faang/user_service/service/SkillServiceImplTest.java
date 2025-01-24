@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.CreateSkillDto;
+import school.faang.user_service.dto.skill.ResponseSkillDto;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class SkillServiceTest {
+public class SkillServiceImplTest {
     @Mock
     private SkillRepository skillRepository;
 
@@ -39,47 +40,52 @@ public class SkillServiceTest {
     @Captor
     private ArgumentCaptor<Skill> captor;
 
-    @Captor
-    private ArgumentCaptor<Long> captorLong;
-
     @InjectMocks
-    private SkillService skillService;
-
-    SkillDto skillDto;
-
-    @BeforeEach
-    public void init() {
-        skillDto = new SkillDto();
-        skillDto.setId(1L);
-        skillDto.setTitle("John");
-    }
+    private SkillServiceImpl skillService;
 
     @Test
-    public void testSkillIsSaved() {
+    public void testCreateSuccess() {
+        CreateSkillDto skillDto = new CreateSkillDto(1L, "John");
         Mockito.when(skillRepository.save(any(Skill.class))).thenReturn(new Skill());
         skillService.create(skillDto);
         verify(skillRepository, times(1)).save(captor.capture());
         Skill skill = captor.getValue();
-        assertEquals(skillDto.getTitle(), skill.getTitle());
+        assertEquals(skillDto.title(), skill.getTitle());
     }
 
     @Test
     @DisplayName("Testing return DataValidationException")
-    public void testSkillIsNotSaved() {
-        Mockito.when(skillRepository.save(any(Skill.class))).thenThrow(new DataValidationException("DataValidationException!!!"));
+    public void testCreateTitleIsExistsFailed() {
+        CreateSkillDto skillDto = new CreateSkillDto(1L, "John");
 
+        Mockito.when(skillRepository.existsByTitle(skillDto.title()))
+                .thenThrow(new DataValidationException("DataValidationException!!!"));
         Assert.assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 
     @Test
     @DisplayName("get skills from Repo")
-    public void testSkillsFromRepo() {
-        Mockito.when(skillRepository.findAllByUserId(any(Long.class))).thenReturn(new ArrayList<>());
-        List<SkillDto> skillDtoList = skillService.getUserSkills(any(Long.class));
-        /*verify(skillRepository, times(1)).findAllByUserId((Long) captorLong.capture());
-        SkillDto skill = captorLong.getValue();
-        assertEquals(skillDtoList, skillService.getUserSkills(skill).);*/
+    public void testGetUserSkillsSuccess() {
+        List<ResponseSkillDto> responseSkillDtos= new ArrayList<>();
+        List<ResponseSkillDto> result = skillService.getUserSkills(1L);
 
-
+        assertEquals(responseSkillDtos,result);
     }
+
+    @Test
+    @DisplayName("Get offered skills for user")
+    public void testGetOfferedSkills() {
+        List<SkillCandidateDto> skillCandidateDtos = new ArrayList<>();
+        List<SkillCandidateDto> result = skillService.getOfferedSkills(1L);
+
+        assertEquals(skillCandidateDtos,result);
+    }
+
+    @Test
+    public void testAcquireSkillFromOffersSkillNotFoundFailed () {
+        Mockito.when(skillRepository.findById(1L))
+                .thenThrow(new DataValidationException("DataValidationException!!!"));
+        Assert.assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(1L, 1L));
+    }
+
 }

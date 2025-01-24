@@ -1,39 +1,41 @@
 package school.faang.user_service.controller;
 
-import lombok.Data;
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import school.faang.user_service.dto.skill.ResponseSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.SkillServiceImpl;
 
 import java.util.List;
 
-@Controller
-@Data
+@AllArgsConstructor
 public class SkillController {
-    private final SkillService skillService;
+    private final SkillServiceImpl skillService;
 
-    public SkillDto create(SkillDto skill) throws DataValidationException {
+    public ResponseSkillDto create(CreateSkillDto skill) {
         validateSkill(skill);
         return skillService.create(skill);
     }
 
-    public void validateSkill(SkillDto skill) throws DataValidationException {
-        if (skill.getTitle() == null || skill.getTitle().isBlank()) {
-            throw new DataValidationException("Title can't be empty or null!");
-        }
-    }
+    public List<ResponseSkillDto> getUserSkills(long userId) {
 
-    public List<SkillDto> getUserSkills(long userId) {
         return skillService.getUserSkills(userId);
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
+
         return skillService.getOfferedSkills(userId);
     }
 
-    SkillDto acquireSkillFromOffers(long skillId, long userId) {
+    public ResponseSkillDto acquireSkillFromOffers(long skillId, long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
+    }
+
+    private void validateSkill(CreateSkillDto skill) throws DataValidationException {
+        if (StringUtils.isBlank(skill.title())) {
+            throw new DataValidationException("Title can't be empty or null!");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,9 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.CreateSkillDto;
+import school.faang.user_service.dto.skill.ResponseSkillDto;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.SkillServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,56 +25,59 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(MockitoExtension.class)
 public class SkillControllerTest {
     @Mock
-    private SkillService skillService;
+    private SkillServiceImpl skillService;
 
     @InjectMocks
     private SkillController skillController;
 
-    SkillDto skill = new SkillDto();
+   // CreateSkillDto createSkill = new CreateSkillDto();
+    ResponseSkillDto responseSkill = new ResponseSkillDto();
 
     @Test
     @DisplayName("Check for empty title")
     public void testEmptyTitleIsValid() throws DataValidationException{
-        skill.setId(1L);
-        skill.setTitle("   ");
+        CreateSkillDto createSkill = new CreateSkillDto(1L, "     ");
 
-        assertThrows(DataValidationException.class, () -> skillController.create(skill));
+        assertThrows(DataValidationException.class, () -> skillController.create(createSkill));
     }
 
     @Test
     @DisplayName("Check for null title")
     public void testNullTitleIsValid() {
-        assertThrows(DataValidationException.class, () -> skillController.create(skill));
+        CreateSkillDto createSkill = new CreateSkillDto(1L, null);
+        assertThrows(DataValidationException.class, () -> skillController.create(createSkill));
     }
 
     @Test
     @DisplayName("Check title is valid")
     public void testTitleIsValid() {
-        skill.setId(1L);
-        skill.setTitle("Java");
-        Mockito.when(skillService.create(any(SkillDto.class))).thenReturn(skill);
-        SkillDto result = skillController.create(skill);
+        CreateSkillDto createSkill = new CreateSkillDto(1L, "Java");
+        responseSkill.setId(1L);
+        responseSkill.setTitle("Java");
 
-        assertEquals(skill.getTitle(), result.getTitle());
+        Mockito.when(skillService.create(any(CreateSkillDto.class))).thenReturn(responseSkill);
+        ResponseSkillDto result = skillController.create(createSkill);
+
+        Assertions.assertEquals(createSkill.title(), result.getTitle());
     }
 
     @Test
     @DisplayName("get skills by id - find")
     public void testListSkillsById() {
-        SkillDto skill1 = new SkillDto();
+        ResponseSkillDto skill1 = new ResponseSkillDto();
         skill1.setId(1L);
         skill1.setTitle("Java");
 
-        SkillDto skill2 = new SkillDto();
+        ResponseSkillDto skill2 = new ResponseSkillDto();
         skill2.setId(2L);
         skill2.setTitle("Spring");
 
-        List<SkillDto> skills = new ArrayList<>();
+        List<ResponseSkillDto> skills = new ArrayList<>();
         skills.add(skill1);
         skills.add(skill2);
 
-        Mockito.when(skillService.getUserSkills(1L)).thenReturn((List<SkillDto>) List.of(skill1,skill2));
-        List<SkillDto> skillDtos = skillController.getUserSkills(1l);
+        Mockito.when(skillService.getUserSkills(1L)).thenReturn(List.of(skill1,skill2));
+        List<ResponseSkillDto> skillDtos = skillController.getUserSkills(1L);
 
         assertEquals(skills, skillDtos);
     }
@@ -79,11 +85,33 @@ public class SkillControllerTest {
     @Test
     @DisplayName("get skills by id - not find")
     public void testEmptyListSkillsById() {
-        List<SkillDto> skills = new ArrayList<>();
+        List<CreateSkillDto> skills = new ArrayList<>();
         Mockito.when(skillService.getUserSkills(1L)).thenReturn(new ArrayList<>());
-        List<SkillDto> skillDtos = skillController.getUserSkills(1l);
+        List<ResponseSkillDto> skillDtos = skillController.getUserSkills(1L);
 
         assertEquals(skills, skillDtos);
+    }
+
+    @Test
+    @DisplayName("Get Offered Skills - success")
+    public void testGetOfferedSkillsByIdsuccess() {
+        List<SkillCandidateDto> skillCandidateDtos = new ArrayList<>();
+
+        Mockito.when(skillService.getOfferedSkills(1L)).thenReturn(new ArrayList<>());
+        List<SkillCandidateDto> skillCandidateDtoReturns = skillController.getOfferedSkills(1L);
+
+        assertEquals(skillCandidateDtos, skillCandidateDtoReturns);
+    }
+
+    @Test
+    @DisplayName("Acquire Skill From Offers - success")
+    public void testAcquireSkillFromOffersSuccess() {
+        ResponseSkillDto responseSkillDto = new ResponseSkillDto();
+
+        Mockito.when(skillService.acquireSkillFromOffers(1L,2L)).thenReturn(new ResponseSkillDto());
+        ResponseSkillDto skillDto = skillController.acquireSkillFromOffers(1L, 2L);
+
+        assertEquals(responseSkillDto, skillDto);
     }
 
 }
