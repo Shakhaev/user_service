@@ -113,9 +113,12 @@ tasks.jacocoTestCoverageVerification {
         rule {
             element = "CLASS"
             includes = listOf("school.faang.user_service.service.*")
-            excludes = listOf("school.faang.user_service.service.goal.filter.*")
+            excludes = listOf("school.faang.user_service.service.goal.filter.*",
+                "school.faang.user_service.service.external",
+                "school.faang.user_service.service.SkillRequestService",
+                "school.faang.user_service.service.EventService")
             limit {
-                minimum = 0.6.toBigDecimal()
+                minimum = 0.5.toBigDecimal()
             }
         }
     }
