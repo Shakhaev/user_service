@@ -24,7 +24,6 @@ import java.util.*;
 public class RatingService {
     private final UserEventPublisher userEventPublisher;
     private final UserRepository userRepository;
-    private final KafkaUtils kafkaUtils;
     private final LeaderTableMapper leaderTableMapper;
     private final RedisTemplate<String, Object> redisTemplate;
     private final Queue<String> queueForMessages = new LinkedList<>();
