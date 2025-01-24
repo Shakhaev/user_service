@@ -1,0 +1,33 @@
+name: CI pipeline for user_service (unicorn8 team)
+
+on:
+  pull_request:
+    branches:
+      - feature/pipeline-BJS2-52782
+  push:
+      - feature/pipeline-BJS2-52782
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Check code style
+        run: ./gradlew checkstyle
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test
+
+
