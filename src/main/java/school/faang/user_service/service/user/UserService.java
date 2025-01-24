@@ -163,7 +163,7 @@ public class UserService {
     }
 
     public List<UserResponseCsvDto> readingUsersFromCsv(MultipartFile file) {
-        List<PersonSchemaForUser> persons = null;
+        List<PersonSchemaForUser> persons;
         try {
             InputStream inputStream = file.getInputStream();
             persons = parsingCsv(inputStream);
@@ -271,7 +271,16 @@ public class UserService {
 
     public List<UserNFDto> getUserFollowers(long userId) {
         return userRepository.findUserSubsribers(userId).stream()
-                .map(userMapper::entityToDto)
+                .map(userMapper::entityToNFDto)
                 .toList();
+    }
+
+    public UserNFDto getUserNFDtoByID(long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId));
+        }
+        publishSearchAppearanceEvent(userId);
+        return userMapper.entityToNFDto(optionalUser.get());
     }
 }

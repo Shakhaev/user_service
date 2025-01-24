@@ -24,6 +24,11 @@ public class UserController {
         return userService.getUserDtoByID(userId);
     }
 
+    @GetMapping("/users/{userId}/nf")
+    public UserNFDto getUserNF(@PathVariable long userId) {
+        return userService.getUserNFDtoByID(userId);
+    }
+
     @PostMapping("/users")
     List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
         return userService.getUsersByIds(ids);
@@ -39,7 +44,7 @@ public class UserController {
         return userService.getUserSubscribers(userId);
     }
 
-    @GetMapping("/users/followers/{userId}")
+    @GetMapping("/users/followers/{userId}/nf")
     public List<UserNFDto> getUserFollowers(@PathVariable long userId) {
         return userService.getUserFollowers(userId);
     }

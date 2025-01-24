@@ -33,5 +33,5 @@ public interface UserMapper {
     UserDto personToUserDto(PersonSchemaForUser person);
 
     @Mapping(source = "contactPreference.preference", target = "preference")
-    UserNFDto entityToDto(User user);
+    UserNFDto entityToNFDto(User user);
 }
