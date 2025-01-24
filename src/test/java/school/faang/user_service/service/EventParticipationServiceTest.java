@@ -1,8 +1,6 @@
 package school.faang.user_service.service;
 
 
-
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -60,6 +58,7 @@ public class EventParticipationServiceTest {
         verify(eventParticipationRepository, never()).register(eventId, userId);
     }
 
+
     @Test
     public void testRegistrationUser() {
         long eventId = 1L;
@@ -73,6 +72,7 @@ public class EventParticipationServiceTest {
                 .register(eventId, userId);
     }
 
+
     @Test
     public void testUnregisterWithUnregisteredUser() {
         long eventId = 1L;
@@ -84,6 +84,7 @@ public class EventParticipationServiceTest {
                 eventParticipationService.unregisterParticipant(eventId, userId)
         );
     }
+
 
     @Test
     public void testUnregisterUser() {
@@ -98,9 +99,8 @@ public class EventParticipationServiceTest {
         eventParticipationService.unregisterParticipant(eventId, userID);
 
         verify(eventParticipationRepository, times(1)).unregister(eventId, userID);
-
-
     }
+
 
     @Test
     public void testGetParticipantUsers() {
@@ -139,6 +139,7 @@ public class EventParticipationServiceTest {
 
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
     }
+
 
     @Test
     public void testGetParticipantsCount() {

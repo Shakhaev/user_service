@@ -57,9 +57,11 @@ public class EventParticipationService {
                 .collect(Collectors.toList());
     }
 
+
     public int getParticipantsCount(long eventId) {
         return eventParticipationRepository.countParticipants(eventId);
     }
+
 
     private boolean isParticipantnRegistred(long eventId, long userId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId)

@@ -10,6 +10,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class EventParticipationController {
+
     private final EventParticipationService eventParticipationService;
 
     public void registerParticipant(long userId, long eventId) {
