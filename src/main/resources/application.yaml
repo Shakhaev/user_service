@@ -29,6 +29,23 @@ spring:
             url: http://${payment-service.host}:${payment-service.port}
             connect-timeout: 3000
             read-timeout: 2000
+  web:
+    locale: en_US
+
+minio:
+  s3:
+    endpoint: http://localhost:9000
+    region: us-east-1
+    accessKey: user
+    secretKey: password
+
+dicebear:
+  connectionTimeoutSeconds: 10
+  readTimeoutSeconds: 10
+  apiUrl: https://api.dicebear.com/9.x
+
+avatar:
+  bucketName: user-avatars
 
 server:
   port: 8080
