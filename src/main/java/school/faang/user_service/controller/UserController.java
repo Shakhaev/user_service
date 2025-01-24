@@ -11,7 +11,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
 
     public List<UserDto> getPremiumUsers(UserFilterDto filter) {
         return userService.getPremiumUsers(filter);

@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private List<UserFilter> users;
-    private UserMapper userMapper;
+    private final List<UserFilter> users;
+    private final UserMapper userMapper;
 
     public void isUserExists(long userId) {
         if (!userRepository.existsById(userId)) {
