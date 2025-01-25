@@ -30,8 +30,7 @@ public class EventController {
         return eventService.getEvent(event.getId());
     }
 
-    public String deleteEvent(EventDto event) {
-        return eventService.deleteEvent(event.getId());
+    public void deleteEvent(EventDto event) {
     }
 
     public List<Event> getParticipatedEvents(long userId) {

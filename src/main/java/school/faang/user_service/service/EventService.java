@@ -12,6 +12,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -70,12 +71,11 @@ public class EventService {
     }
 
     @Transactional
-    public String deleteEvent(Long eventId) {
+    public void deleteEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new DataValidationException("Event with id " + eventId + " not found");
+            throw new EntityNotFoundException("Event with id " + eventId + " not found");
         }
         eventRepository.deleteById(eventId);
-        return "Event with id " + eventId + " deleted";
     }
 
     public List<Event> getParticipatedEvents(long userId) {
@@ -110,7 +110,7 @@ public class EventService {
 
     private User getUser(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("Пользователь не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
 
     private List<Long> getSkillsIds(List<Skill> skills) {
