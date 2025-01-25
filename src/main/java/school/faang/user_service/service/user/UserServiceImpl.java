@@ -63,10 +63,8 @@ public class UserServiceImpl implements UserService {
         }
 
         return users.stream()
-                .map(user -> {
-                    tariffService.decrementShows(user.getTariff());
-                    return userMapper.toDto(user);
-                })
+                .peek(user -> tariffService.decrementShows(user.getTariff()))
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 

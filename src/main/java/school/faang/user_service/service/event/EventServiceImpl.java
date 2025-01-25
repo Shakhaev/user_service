@@ -5,11 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.TariffDto;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilter;
 import school.faang.user_service.entity.Tariff;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.TariffMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.tariff.TariffService;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -19,6 +24,8 @@ public class EventServiceImpl implements EventService {
     private final TariffService tariffService;
     private final EventRepository eventRepository;
     private final TariffMapper tariffMapper;
+    private final List<EventFilter> eventFilters;
+    private final EventMapper eventMapper;
 
     @Override
     public Event findEventById(Long id) {
@@ -36,5 +43,21 @@ public class EventServiceImpl implements EventService {
         eventRepository.save(event);
 
         return tariffMapper.toDto(tariff);
+    }
+
+    @Override
+    public List<EventDto> findEventByFilter(EventDto filter, Integer limit, Integer offset) {
+        List<Event> events = eventRepository.findAllOrderByTariffAndLimit(limit, offset);
+
+        for (EventFilter eventFilter : eventFilters) {
+            if (eventFilter.isApplicable(filter)) {
+                events = eventFilter.apply(events, filter);
+            }
+        }
+
+        return events.stream()
+                .peek(event -> tariffService.decrementShows(event.getTariff()))
+                .map(eventMapper::toDto)
+                .toList();
     }
 }

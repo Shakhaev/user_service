@@ -59,7 +59,6 @@ user-service:
       price: 75
       currency: 'USD'
       priority: 2
-
   recommendation-request:
     min-month: 6
     
