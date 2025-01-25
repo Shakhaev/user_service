@@ -6,21 +6,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.constant.ErrorMessages;
 import school.faang.user_service.constant.TestConst;
 import school.faang.user_service.dto.user.UserExtendedFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.validation.DataValidationException;
+import school.faang.user_service.exception.user.AlreadySubscribedToUserException;
+import school.faang.user_service.exception.user.SubscribeOrUnsubscribeToSelfException;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserFilter;
 import school.faang.user_service.util.users.UserTestUtil;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -68,12 +67,10 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testFollowUser_failSubscribeUserTriedToSubscribeToSelf() {
-        DataValidationException exception = assertThrows(
-                DataValidationException.class,
-                () -> subscriptionService.followUser(followerId, followerId)
-        );
+        assertThatThrownBy(() -> subscriptionService.followUser(followerId, followerId))
+                .isInstanceOf(SubscribeOrUnsubscribeToSelfException.class)
+                .hasMessageContaining(new SubscribeOrUnsubscribeToSelfException().getMessage());
 
-        assertTrue(ErrorMessages.CANNOT_SUBSCRIBE_OR_UNSUBSCRIBE_TO_SELF.equals(exception.getMessage()));
         verify(subscriptionRepository, never()).followUser(followerId, followeeId);
     }
 
@@ -81,12 +78,10 @@ public class SubscriptionServiceTest {
     public void testFollowUser_failSubscribeTriedToSubscribeTwiceToUser() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
 
-        DataValidationException exception = assertThrows(
-                DataValidationException.class,
-                () -> subscriptionService.followUser(followerId, followeeId)
-        );
+        assertThatThrownBy(() -> subscriptionService.followUser(followerId, followeeId))
+                .isInstanceOf(AlreadySubscribedToUserException.class)
+                .hasMessageContaining(new AlreadySubscribedToUserException(followeeId).getMessage());
 
-        assertTrue(ErrorMessages.ALREADY_SUBSCRIBE.equals(exception.getMessage()));
         verify(subscriptionRepository, never()).followUser(followerId, followeeId);
     }
 
@@ -100,12 +95,10 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testUnfollowUser_failUnsubscribeUserTriedToUnsubscribeToSelf() {
-        DataValidationException exception = assertThrows(
-                DataValidationException.class,
-                () -> subscriptionService.unfollowUser(followerId, followerId)
-        );
+        assertThatThrownBy(() -> subscriptionService.unfollowUser(followerId, followerId))
+                .isInstanceOf(SubscribeOrUnsubscribeToSelfException.class)
+                .hasMessageContaining(new SubscribeOrUnsubscribeToSelfException().getMessage());
 
-        assertTrue(ErrorMessages.CANNOT_SUBSCRIBE_OR_UNSUBSCRIBE_TO_SELF.equals(exception.getMessage()));
         verify(subscriptionRepository, never()).unfollowUser(followerId, followeeId);
     }
 
