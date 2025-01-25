@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.ShortUserWithAvatarDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
@@ -19,6 +20,7 @@ import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.data.DataValidationException;
+import school.faang.user_service.mapper.user.ShortUserWithAvatarMapper;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
@@ -52,6 +54,7 @@ public class UserService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
     private final MentorshipService mentorshipService;
+    private final ShortUserWithAvatarMapper shortUserWithAvatarMapper;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -118,6 +121,12 @@ public class UserService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("user not found!"));
         return userMapper.toDto(user);
+    }
+
+    public ShortUserWithAvatarDto getShortUserWithAvatarById(long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataValidationException("user not found!"));
+        return shortUserWithAvatarMapper.toDto(user);
     }
 
     public List<UserDto> getUserDtosByIds(List<Long> userIds) {

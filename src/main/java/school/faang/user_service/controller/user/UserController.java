@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.user.ShortUserWithAvatarDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.service.user.UserService;
@@ -34,15 +35,19 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUserDtoById(userId));
     }
 
+    @GetMapping("with-avatar/{userId}")
+    public ResponseEntity<ShortUserWithAvatarDto> getUserWithAvatar(@NotNull @PathVariable long userId) {
+        return ResponseEntity.ok().body(userService.getShortUserWithAvatarById(userId));
+    }
+
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<Long> userIds) {
         return ResponseEntity.ok().body(userService.getUserDtosByIds(userIds));
     }
 
-    @GetMapping("/random_avatar")
+    @PostMapping("random_avatar")
     public String generateRandomAvatar() {
         return userService.generateRandomAvatar();
-
     }
 
     @PutMapping("update-users-rank")
