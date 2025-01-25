@@ -11,10 +11,8 @@ import school.faang.user_service.dto.recommendation.GetAllRecommendationsRespons
 import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;

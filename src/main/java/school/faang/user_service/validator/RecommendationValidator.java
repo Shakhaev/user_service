@@ -35,11 +35,11 @@ public class RecommendationValidator {
             throw new DataValidationException("Skill doesn't exist");
     }
 
-    public boolean checkRecommendationContentIsNotEmpty(Recommendation recommendation) {
+    private boolean checkRecommendationContentIsNotEmpty(Recommendation recommendation) {
         return !recommendation.getContent().isBlank();
     }
 
-    public boolean checkLastRecommendationTime(Recommendation recommendation) {
+    private boolean checkLastRecommendationTime(Recommendation recommendation) {
         Optional<Recommendation> lastRecommendation =
                 recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendation.getAuthor().getId(),

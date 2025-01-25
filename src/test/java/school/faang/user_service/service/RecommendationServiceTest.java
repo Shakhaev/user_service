@@ -16,6 +16,7 @@ import school.faang.user_service.dto.recommendation.UpdateRecommendationResponse
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
@@ -59,34 +60,19 @@ public class RecommendationServiceTest {
     private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
 
     @Captor
-    private ArgumentCaptor<UserSkillGuarantee> captor;
-
-    @Test
-    public void create_ShouldThrowDataValidationExceptionWhenSkillDoesNotExist() {
-        CreateRecommendationRequest createRequest = new CreateRecommendationRequest();
-        createRequest.setAuthorId(1L);
-        createRequest.setReceiverId(2L);
-        createRequest.setContent("content");
-        createRequest.setSkillIds(List.of(1L, 7L));
-        createRequest.setCreatedAt(LocalDateTime.now());
-
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(7L)).thenReturn(false);
-
-        assertThrows(DataValidationException.class, () -> recommendationService.create(createRequest));
-    }
+    private ArgumentCaptor<UserSkillGuarantee> guaranteeCaptor;
+    @Captor
+    private ArgumentCaptor<Recommendation> recommendationCaptor;
 
     @Test
     public void create_ShouldCreateRecommendationSuccessfully() {
-        CreateRecommendationRequest createRequest = new CreateRecommendationRequest();
-        createRequest.setAuthorId(1L);
-        createRequest.setReceiverId(2L);
-        createRequest.setContent("content");
-        createRequest.setSkillIds(List.of(1L, 2L));
-        createRequest.setCreatedAt(LocalDateTime.now());
-
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(2L)).thenReturn(true);
+        CreateRecommendationRequest createRequest = CreateRecommendationRequest.builder()
+                .authorId(1L)
+                .receiverId(2L)
+                .content("content")
+                .skillIds(List.of(1L, 2L))
+                .createdAt(LocalDateTime.now())
+                .build();
 
         User author = new User();
         User receiver = new User();
@@ -95,6 +81,7 @@ public class RecommendationServiceTest {
 
         when(userRepository.getReferenceById(1L)).thenReturn(author);
         when(userRepository.getReferenceById(2L)).thenReturn(receiver);
+        when(recommendationRepository.create(author.getId(), receiver.getId(), createRequest.getContent())).thenReturn(1L);
 
         Skill firstSkill = new Skill();
         Skill secondSkill = new Skill();
@@ -102,8 +89,6 @@ public class RecommendationServiceTest {
         secondSkill.setId(2L);
 
         when(skillRepository.findAllById(createRequest.getSkillIds())).thenReturn(List.of(firstSkill, secondSkill));
-
-        when(recommendationRepository.create(author.getId(), receiver.getId(), createRequest.getContent())).thenReturn(1L);
         when(skillOfferRepository.create(firstSkill.getId(), 1L)).thenReturn(1L);
         when(skillOfferRepository.create(secondSkill.getId(), 1L)).thenReturn(2L);
 
@@ -117,10 +102,15 @@ public class RecommendationServiceTest {
 
         CreateRecommendationResponse createResponse = recommendationService.create(createRequest);
 
+        verify(recommendationValidator, times(1)).validateRecommendation(recommendationCaptor.capture());
+        verify(recommendationValidator, times(1)).validateOfferedSkills(createRequest.getSkillIds());
+
         verify(recommendationRepository, times(1)).create(author.getId(), receiver.getId(), createRequest.getContent());
-        verify(userSkillGuaranteeRepository, times(2)).save(captor.capture());
+
         verify(skillOfferRepository, times(1)).create(firstSkill.getId(), 1L);
         verify(skillOfferRepository, times(1)).create(secondSkill.getId(), 1L);
+
+        verify(userSkillGuaranteeRepository, times(2)).save(guaranteeCaptor.capture());
 
         assertEquals(1L, createResponse.getId());
         assertEquals(1L, createResponse.getAuthorId());
@@ -132,32 +122,15 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void update_ShouldThrowDataValidationExceptionWhenSkillDoesNotExist() {
-        UpdateRecommendationRequest updateRequest = new UpdateRecommendationRequest();
-        updateRequest.setAuthorId(1L);
-        updateRequest.setReceiverId(2L);
-        updateRequest.setContent("content");
-        updateRequest.setSkillIds(List.of(1L, 7L));
-        updateRequest.setCreatedAt(LocalDateTime.now());
-
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(7L)).thenReturn(false);
-
-        assertThrows(DataValidationException.class, () -> recommendationService.update(updateRequest));
-    }
-
-    @Test
     public void update_ShouldUpdateRecommendationSuccessfully() {
-        UpdateRecommendationRequest updateRequest = new UpdateRecommendationRequest();
-        updateRequest.setId(1L);
-        updateRequest.setAuthorId(1L);
-        updateRequest.setReceiverId(2L);
-        updateRequest.setContent("updated content");
-        updateRequest.setSkillIds(List.of(1L, 2L));
-        updateRequest.setCreatedAt(LocalDateTime.of(2024, 12, 20, 15, 0));
-
-        when(skillRepository.existsById(1L)).thenReturn(true);
-        when(skillRepository.existsById(2L)).thenReturn(true);
+        UpdateRecommendationRequest updateRequest = UpdateRecommendationRequest.builder()
+                .id(1L)
+                .authorId(1L)
+                .receiverId(2L)
+                .content("updated content")
+                .skillIds(List.of(1L, 2L))
+                .createdAt(LocalDateTime.of(2024, 12, 20, 15, 0))
+                .build();
 
         User author = new User();
         User receiver = new User();
@@ -190,10 +163,16 @@ public class RecommendationServiceTest {
 
         UpdateRecommendationResponse updateResponse = recommendationService.update(updateRequest);
 
+        verify(recommendationValidator, times(1)).validateRecommendation(recommendationCaptor.capture());
+        verify(recommendationValidator, times(1)).validateOfferedSkills(updateRequest.getSkillIds());
+
         verify(recommendationRepository, times(1)).update(author.getId(), receiver.getId(), updateRequest.getContent());
+
         verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(updateRequest.getId());
+
         verify(skillOfferRepository, times(1)).create(firstSkill.getId(), updateRequest.getId());
         verify(skillOfferRepository, times(1)).create(secondSkill.getId(), updateRequest.getId());
+
         verify(userSkillGuaranteeRepository, times(1)).updateGuarantor(receiver.getId(), firstSkill.getId(), author.getId());
         verify(userSkillGuaranteeRepository, times(1)).updateGuarantor(receiver.getId(), secondSkill.getId(), author.getId());
 
