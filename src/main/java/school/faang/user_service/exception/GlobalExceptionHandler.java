@@ -19,4 +19,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new MessageDto(false, e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PaymentPayException.class)
+    public ResponseEntity<MessageDto> handlePremiumAlreadyExistsException(PaymentPayException e) {
+        return new ResponseEntity<>(new MessageDto(false, e.getMessage(), HttpStatus.BAD_REQUEST.value()), HttpStatus.BAD_REQUEST);
+    }
 }

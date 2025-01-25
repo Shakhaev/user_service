@@ -10,6 +10,7 @@ import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.enums.PaymentStatus;
 import school.faang.user_service.enums.PremiumPeriod;
+import school.faang.user_service.exception.PaymentPayException;
 import school.faang.user_service.exception.PaymentServiceException;
 import school.faang.user_service.exception.PremiumAlreadyExistsException;
 import school.faang.user_service.mapper.PremiumMapper;
@@ -47,7 +48,7 @@ public class PremiumService {
         try {
             PaymentResponse paymentResponse = paymentServiceClient.processPayment(paymentRequest);
             if (paymentResponse.status() != PaymentStatus.SUCCESS) {
-                throw new PaymentServiceException("Payment failed.");
+                throw new PaymentPayException("Payment failed.");
             }
 
             Premium premium = Premium.builder()
@@ -58,7 +59,7 @@ public class PremiumService {
 
             premiumRepository.save(premium);
             return premiumMapper.toDto(premium);
-        } catch (Exception e) {
+        } catch (PaymentServiceException e) {
             throw new PaymentServiceException("Payment service not working.");
         }
     }
