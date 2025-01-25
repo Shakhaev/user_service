@@ -33,4 +33,8 @@ public class SubscriptionController {
     public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
         return service.getFollowing(followeeId, filter);
     }
+
+    public void getFollowingCount(long followerId) {
+        service.getFollowingCount(followerId);
+    }
 }
