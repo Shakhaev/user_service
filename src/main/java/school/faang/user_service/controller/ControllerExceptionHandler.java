@@ -72,7 +72,7 @@ public class ControllerExceptionHandler {
         return new ErrorResponse(errorMessage);
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleRuntimeException(RuntimeException e) {
         return new ErrorResponse(e.getMessage());
@@ -96,7 +96,7 @@ public class ControllerExceptionHandler {
         return new ErrorResponse(e.getMessage());
     }
     @ExceptionHandler(ServiceNotAvailableException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServiceNotAvailableException(ServiceNotAvailableException e) {
         return new ErrorResponse(e.getMessage());
     }

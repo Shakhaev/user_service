@@ -32,15 +32,13 @@ public class PremiumServiceImpl implements PremiumService {
 
     @Override
     public PremiumDto buyPremium(Integer days) {
-        Long userId = userContext.getUserId();
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(days);
 
-        User user = validateAndGetUser(userId);
+        User user = validateAndGetUser(userContext.getUserId());
         PaymentRequest paymentRequest = createPaymentRequest(premiumPeriod);
         PaymentResponse paymentResponse = sendPaymentRequest(paymentRequest);
 
-        if (paymentResponse.status()
-                .equals(PaymentStatus.SUCCESS)) {
+        if (paymentResponse.status().equals(PaymentStatus.SUCCESS)) {
             Premium premium = savePremium(premiumPeriod, user);
             return premiumMapper.toDto(premium);
         }
@@ -58,16 +56,14 @@ public class PremiumServiceImpl implements PremiumService {
 
     private PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
         return PaymentRequest.builder()
-                .paymentNumber(Instant.now()
-                        .toEpochMilli())
+                .paymentNumber(Instant.now().toEpochMilli())
                 .amount(premiumPeriod.getPrice())
                 .currency(premiumPeriod.getCurrency())
                 .build();
     }
 
     private PaymentResponse sendPaymentRequest(PaymentRequest paymentRequest) {
-        return paymentServiceClient.sendPayment(paymentRequest)
-                .getBody();
+        return paymentServiceClient.sendPayment(paymentRequest).getBody();
     }
 
     private Premium savePremium(PremiumPeriod premiumPeriod, User user) {
