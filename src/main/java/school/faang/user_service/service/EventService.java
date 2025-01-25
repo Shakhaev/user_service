@@ -36,9 +36,9 @@ public class EventService {
     @Transactional
     public EventDto create(EventDto eventDto) throws DataValidationException {
         Event event = eventMapper.toEntityEvent(eventDto);
-        User owner = getUser(eventDto.getOwnerId());
+        User owner = userRepository.getUser(eventDto.getOwnerId());
         event.setOwner(owner);
-        validateEventRelatedSkills(eventDto.getRelatedSkills(), getSkillsIds(owner.getSkills()));
+        validateEventRelatedSkills(eventDto.getRelatedSkills(), skillService.getSkillsIds(owner.getSkills()));
         event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkills()));
         event = eventRepository.save(event);
         return eventMapper.toDto(event);
@@ -51,7 +51,7 @@ public class EventService {
         if (!eventDto.getRelatedSkillIds().isEmpty()) {
             validateEventRelatedSkills(
                     eventDto.getRelatedSkillIds(),
-                    getSkillsIds(owner.getSkills())
+                    skillService.getSkillsIds(owner.getSkills())
             );
             event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkillIds()));
         }
@@ -108,16 +108,6 @@ public class EventService {
         });
     }
 
-    private User getUser(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
-    }
-
-    private List<Long> getSkillsIds(List<Skill> skills) {
-        return skills.stream()
-                .map(Skill::getId)
-                .toList();
-    }
 
     private void validateEventRelatedSkills(List<Long> relatedSkills, List<Long> ownerSkillsIds) {
         for (Long skillId : relatedSkills) {

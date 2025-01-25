@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.*;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.*;
 
 public class EventServiceTest {
 
+    User user1 = User.builder().id(1L).username("Mary").email("user@gmail.com").build();
+    User user2 = User.builder().id(2L).username("John").email("admin@gmail.com").build();
+
 
     @Mock
     private EventRepository eventRepository;
@@ -38,8 +42,6 @@ public class EventServiceTest {
     @Mock
     private List<EventFilter> eventFilters;
 
-    @Mock
-    private User user;
 
     @InjectMocks
     private EventService eventService;
@@ -47,6 +49,8 @@ public class EventServiceTest {
 
     @Spy
     private EventMapper eventMapper;
+
+
 
     @Captor
     private ArgumentCaptor<EventDto> eventCaptor;
@@ -130,7 +134,18 @@ public class EventServiceTest {
 
     @Test
     public void testCreateEvent(){
+        EventDto eventDtoBefore = createNewEventCandidate();
+        Event event = eventMapper.toEntityEvent(eventDtoBefore);
+        when(userRepository.getUser(eventDtoBefore.getOwnerId())).thenReturn(user1);
+        event.setOwner(user1);
+        mockValidateEventRelatedSkills();
 
+
+    }
+
+    private void mockValidateEventRelatedSkills(){
+        List<Skill.SkillBuilder> relatedSkills = List.of(Skill.builder().id(1L), Skill.builder().id(2L));
+        when(relatedSkills.isEmpty()).thenReturn(false);
     }
 
     @Test
@@ -141,20 +156,21 @@ public class EventServiceTest {
     @Test
     public void testGetEvent(){
 
-    }
-
-    @Test
-    void testGetParticipatedEvents(){
 
     }
 
     @Test
-    void testGetOwnedEvents(){
+    public void testGetParticipatedEvents(){
 
     }
 
     @Test
-    void testGetEventsByFilter(){
+    public void testGetOwnedEvents(){
+
+    }
+
+    @Test
+    public void testGetEventsByFilter(){
 
     }
 }

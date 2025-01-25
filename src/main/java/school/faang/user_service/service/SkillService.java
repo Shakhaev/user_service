@@ -113,4 +113,10 @@ public class SkillService {
     public List<Skill> getAllSkills(List<Long> relatedSkills) {
         return skillRepository.findAllById(relatedSkills);
     }
+
+    public List<Long> getSkillsIds(List<Skill> skills) {
+        return skills.stream()
+                .map(Skill::getId)
+                .toList();
+    }
 }
