@@ -27,8 +27,6 @@ spring:
       channel-topics:
         follower-event:
           name: follower_event_topic
-        event-start:
-          name: event_start_topic
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -41,6 +39,8 @@ spring:
         mentorship_request:
           received: mentorship_request_received
           accepted: mentorship_request_accepted
+      event:
+        start: event_start
 
 server:
   port: 8080

@@ -23,5 +23,5 @@ public interface EventService {
 
     void deleteEvent(Long eventId);
 
-    void startEventsFromPeriod(LocalDateTime from, LocalDateTime to);
+    List<Event> startEventsFromPeriod(LocalDateTime from, LocalDateTime to);
 }

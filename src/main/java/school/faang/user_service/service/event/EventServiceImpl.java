@@ -5,14 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.annotation.publisher.PublishEvent;
 import school.faang.user_service.dto.event.EventFilters;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.event.exceptions.EventNotFoundException;
 import school.faang.user_service.exception.event.exceptions.InsufficientSkillsException;
-import school.faang.user_service.redis.event.EventStartEvent;
-import school.faang.user_service.redis.publisher.EventStartEventPublisher;
 import school.faang.user_service.service.event.filters.EventFilter;
 import school.faang.user_service.service.user.UserDomainService;
 
@@ -23,12 +22,12 @@ import java.util.Optional;
 
 import static school.faang.user_service.entity.event.EventStatus.IN_PROGRESS;
 import static school.faang.user_service.entity.event.EventStatus.PLANNED;
+import static school.faang.user_service.enums.publisher.PublisherType.EVENT_START;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
 public class EventServiceImpl implements EventService {
-    private final EventStartEventPublisher eventStartEventPublisher;
     private final EventDomainService eventDomainService;
     private final UserDomainService userDomainService;
     private final List<EventFilter> eventFilters;
@@ -122,17 +121,14 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @PublishEvent(type = EVENT_START)
     @Override
     @Transactional
-    public void startEventsFromPeriod(LocalDateTime from, LocalDateTime to) {
+    public List<Event> startEventsFromPeriod(LocalDateTime from, LocalDateTime to) {
         List<Event> events = eventDomainService.findAllByStatusAndStartDateBetween(PLANNED, from, to);
 
-        events.stream()
-                .map(this::mapToEventStartEvent)
-                .forEach(eventStartEventPublisher::publish);
-
         events.forEach(event -> event.setStatus(IN_PROGRESS));
-        eventDomainService.saveAll(events);
+        return eventDomainService.saveAll(events);
     }
 
     private void validateUserSkills(Event event) {
@@ -148,18 +144,5 @@ public class EventServiceImpl implements EventService {
 
     private User loadUserById(Long id) {
         return userDomainService.findById(id);
-    }
-
-    private EventStartEvent mapToEventStartEvent(Event event) {
-        EventStartEvent eventStartEvent = new EventStartEvent();
-
-        eventStartEvent.setId(event.getId());
-        eventStartEvent.setTitle(event.getTitle());
-        List<Long> attendeeIds = event.getAttendees().stream()
-                .map(User::getId)
-                .toList();
-        eventStartEvent.setAttendeeIds(attendeeIds);
-
-        return eventStartEvent;
     }
 }
