@@ -16,14 +16,8 @@ public class UserValidation {
     }
 
     public void validateUserId(Long userId) {
-        if (userId == null || userId == 0) {
-            throw new UserValidationException("userId is null and userId is 0");
-        }
-    }
-
-    public void validateUserIdExist(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new UserValidationException("user wasn't found");
+        if (userId == null || userId >= 0) {
+            throw new UserValidationException("Id пользователя Null или меньше либо равно 0");
         }
     }
 }

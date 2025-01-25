@@ -20,9 +20,9 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
+    private static final int ACCOUNT_DEACTIVATION_PERIOD_DAYS=90;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final GoalRepository goalRepository;
@@ -56,24 +56,22 @@ public class UserService {
 
     public void deleteInactiveUsers() {
         userRepository.findAll().stream()
-                .filter(user -> !user.isActive())
-                .filter(user -> user.getUpdatedAt().plusDays(90).isBefore(LocalDateTime.now()))
+                .filter(user -> !user.isActive() && user.getUpdatedAt().plusDays(ACCOUNT_DEACTIVATION_PERIOD_DAYS).isBefore(LocalDateTime.now()))
                 .forEach(userRepository::delete);
     }
 
     private void removeEvents(Long userId) {
-        userValidation.validateUserIdExist(userId);
+        isUserExists(userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!user.getOwnedEvents().isEmpty()) {
-            user.getOwnedEvents().forEach(event -> {
-                event.setStatus(EventStatus.CANCELED);
-                eventRepository.save(event);
-            });
+            user.getOwnedEvents().forEach(event ->
+                event.setStatus(EventStatus.CANCELED));
+                eventRepository.saveAll(user.getOwnedEvents());
         }
     }
 
     private void removeGoals(Long userId) {
-        userValidation.validateUserIdExist(userId);
+        isUserExists(userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!user.getGoals().isEmpty()) {
             user.getGoals().forEach(goal -> {
