@@ -143,4 +143,10 @@ public class UserService {
             throw new MinioSaveException("Minio error save file" + e.getMessage());
         }
     }
+
+    public User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
+    }
+
 }
