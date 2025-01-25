@@ -107,4 +107,8 @@ public class SubscriptionService {
         dto.setEmail(user.getEmail());
         return dto;
     }
+
+    public int getFollowersCount(long followeeId) {
+        return repository.findFollowersAmountByFolloweeId(followeeId);
+    }
 }
