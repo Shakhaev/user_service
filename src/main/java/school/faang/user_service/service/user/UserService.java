@@ -124,8 +124,10 @@ public class UserService {
     }
 
     public ShortUserWithAvatarDto getShortUserWithAvatarById(long userId) {
+        log.info("Getting short user with avatar by id {}", userId);
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("user not found!"));
+        log.info("Retrieved short user with avatar {}", user);
         return shortUserWithAvatarMapper.toDto(user);
     }
 
