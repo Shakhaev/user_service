@@ -27,7 +27,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.buyEventTariff(request.tariffDto(), request.id()));
     }
 
-    @PostMapping("/tariffs")
+    @GetMapping("/tariffs")
     public List<TariffDto> getAvailableTariffs() {
         return userServiceProperties.getListAvailableTariffDtos();
     }
