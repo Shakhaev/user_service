@@ -1,10 +1,8 @@
 package school.faang.user_service.controller.mentorship;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.MentorshipService;
 
@@ -13,21 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class MentorshipServiceImpl implements MentorshipService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    public void MentorshipService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public MentorshipServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    @NonNull
-    public List<User> getMentees(long userId) {
+    public List<User> getMentees(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
 
@@ -37,8 +26,7 @@ public class MentorshipServiceImpl implements MentorshipService {
         return userMentees;
     }
 
-    @NonNull
-    public List<User> getMentors(long userId) {
+    public List<User> getMentors(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
 
@@ -48,14 +36,14 @@ public class MentorshipServiceImpl implements MentorshipService {
         return userMentors;
     }
 
-    public void deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee(Long menteeId, Long mentorId) {
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new EntityNotFoundException("Mentor with id " + mentorId + " not found"));
 
         mentor.getMentees().removeIf(menteeToRemove -> menteeToRemove.getId().equals(menteeId));
     }
 
-    public void deleteMentor(long menteeId, long mentorId) {
+    public void deleteMentor(Long menteeId, Long mentorId) {
         User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new EntityNotFoundException("Mentee with id " + menteeId + " not found"));
 
