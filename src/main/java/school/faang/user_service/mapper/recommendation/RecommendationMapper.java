@@ -16,12 +16,12 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RecommendationMapper {
-    @Mapping(target="id", ignore = true)
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "receiver", ignore = true)
     Recommendation fromCreateRequest(CreateRecommendationRequest createRequest);
 
-    @Mapping(target="id", source="id")
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "receiver", ignore = true)
     Recommendation fromUpdateRequest(UpdateRecommendationRequest updateRequest);

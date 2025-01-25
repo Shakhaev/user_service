@@ -1,14 +1,11 @@
 package school.faang.user_service.validator;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
@@ -37,14 +34,16 @@ public class RecommendationValidatorTest {
     public void validateRecommendation_ShouldThrowDataValidationExceptionWhenContentIsEmpty() {
         Recommendation recommendation = new Recommendation();
         recommendation.setContent("");
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateRecommendation(recommendation));
+        assertThrows(DataValidationException.class, () ->
+                recommendationValidator.validateRecommendation(recommendation));
     }
 
     @Test
     public void validateRecommendation_ShouldThrowDataValidationExceptionWhenContentIsBlank() {
         Recommendation recommendation = new Recommendation();
         recommendation.setContent("   ");
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateRecommendation(recommendation));
+        assertThrows(DataValidationException.class, () ->
+                recommendationValidator.validateRecommendation(recommendation));
     }
 
     @Test
@@ -67,7 +66,8 @@ public class RecommendationValidatorTest {
                 recommendation.getAuthor().getId(),
                 recommendation.getReceiver().getId())).thenReturn(Optional.of(lastRecommendation));
 
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateRecommendation(recommendation));
+        assertThrows(DataValidationException.class, () ->
+                recommendationValidator.validateRecommendation(recommendation));
     }
 
     @Test

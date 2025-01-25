@@ -2,7 +2,6 @@ package school.faang.user_service.dto.recommendation;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.List;

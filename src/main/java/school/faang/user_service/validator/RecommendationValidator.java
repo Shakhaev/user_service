@@ -23,16 +23,20 @@ public class RecommendationValidator {
     private final SkillRepository skillRepository;
 
     public void validateRecommendation(Recommendation recommendation) {
-        if (!checkRecommendationContentIsNotEmpty(recommendation))
+        if (!checkRecommendationContentIsNotEmpty(recommendation)) {
             throw new DataValidationException("Recommendation content is empty");
+        }
 
-        if (!checkLastRecommendationTime(recommendation))
-            throw new DataValidationException("The author can make a recommendation to the user no earlier than 6 months after the last recommendation");
+        if (!checkLastRecommendationTime(recommendation)) {
+            throw new DataValidationException("The author can make a recommendation to the user " +
+                    "no earlier than 6 months after the last recommendation");
+            }
     }
 
     public void validateOfferedSkills(List<Long> skillIds) {
-        if (!checkSkillsExist(skillIds))
+        if (!checkSkillsExist(skillIds)) {
             throw new DataValidationException("Skill doesn't exist");
+        }
     }
 
     private boolean checkRecommendationContentIsNotEmpty(Recommendation recommendation) {

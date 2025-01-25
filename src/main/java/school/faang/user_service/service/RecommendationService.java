@@ -21,7 +21,6 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,11 @@ public class RecommendationService {
         recommendationValidator.validateRecommendation(recommendation);
         recommendationValidator.validateOfferedSkills(createRequest.getSkillIds());
 
-        Long recommendationId = recommendationRepository.create(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
+        Long recommendationId = recommendationRepository.create(
+                recommendation.getAuthor().getId(),
+                recommendation.getReceiver().getId(),
+                recommendation.getContent());
+
         recommendation.setId(recommendationId);
 
         saveSkillOffers(recommendation, createRequest.getSkillIds());
@@ -64,7 +67,10 @@ public class RecommendationService {
         recommendationValidator.validateRecommendation(recommendation);
         recommendationValidator.validateOfferedSkills(updateRequest.getSkillIds());
 
-        recommendationRepository.update(recommendation.getAuthor().getId(), recommendation.getReceiver().getId(), recommendation.getContent());
+        recommendationRepository.update(
+                recommendation.getAuthor().getId(),
+                recommendation.getReceiver().getId(),
+                recommendation.getContent());
 
         skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
 
@@ -81,7 +87,9 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<GetAllRecommendationsResponse> getAllUserRecommendations(long receiverId) {
-        Page<Recommendation> recommendationPage = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
+        Page<Recommendation> recommendationPage = recommendationRepository.
+                findAllByReceiverId(receiverId, Pageable.unpaged());
+
         return recommendationPage.get()
                 .map(recommendationMapper::toGetAllResponse)
                 .toList();
@@ -89,7 +97,9 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<GetAllRecommendationsResponse> getAllGivenRecommendations(long authorId) {
-        Page<Recommendation> recommendationPage = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
+        Page<Recommendation> recommendationPage = recommendationRepository.
+                findAllByAuthorId(authorId, Pageable.unpaged());
+
         return recommendationPage.get()
                 .map(recommendationMapper::toGetAllResponse)
                 .toList();
@@ -107,12 +117,21 @@ public class RecommendationService {
     }
 
     private void addGuarantee(Recommendation recommendation, Skill skill) {
-        UserSkillGuarantee guarantee = userSkillGuaranteeRepository.findByUserIdAndSkillId(recommendation.getReceiver().getId(), skill.getId());
+        UserSkillGuarantee guarantee = userSkillGuaranteeRepository.
+                findByUserIdAndSkillId(recommendation.getReceiver().getId(), skill.getId());
         if (guarantee == null) {
-            UserSkillGuarantee newGuarantee = new UserSkillGuarantee(null, recommendation.getReceiver(), skill, recommendation.getAuthor());
+            UserSkillGuarantee newGuarantee = new UserSkillGuarantee(
+                    null,
+                    recommendation.getReceiver(),
+                    skill,
+                    recommendation.getAuthor());
+
             userSkillGuaranteeRepository.save(newGuarantee);
         } else {
-            userSkillGuaranteeRepository.updateGuarantor(recommendation.getReceiver().getId(), skill.getId(), recommendation.getAuthor().getId());
+            userSkillGuaranteeRepository.updateGuarantor(
+                    recommendation.getReceiver().getId(),
+                    skill.getId(),
+                    recommendation.getAuthor().getId());
         }
     }
 }
