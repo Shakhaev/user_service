@@ -2,19 +2,14 @@ package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
-
-import static java.time.LocalDateTime.now;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +25,7 @@ public class RecommendationValidator {
         if (!checkLastRecommendationTime(recommendation)) {
             throw new DataValidationException("The author can make a recommendation to the user " +
                     "no earlier than 6 months after the last recommendation");
-            }
+        }
     }
 
     public void validateOfferedSkills(List<Long> skillIds) {
@@ -63,8 +58,9 @@ public class RecommendationValidator {
 
     private boolean checkSkillsExist(List<Long> skillIds) {
         for (Long skillId : skillIds) {
-            if (!skillRepository.existsById(skillId))
+            if (!skillRepository.existsById(skillId)) {
                 return false;
+            }
         }
         return true;
     }

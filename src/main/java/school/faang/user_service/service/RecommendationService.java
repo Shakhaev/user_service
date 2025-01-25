@@ -87,8 +87,8 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<GetAllRecommendationsResponse> getAllUserRecommendations(long receiverId) {
-        Page<Recommendation> recommendationPage = recommendationRepository.
-                findAllByReceiverId(receiverId, Pageable.unpaged());
+        Page<Recommendation> recommendationPage = recommendationRepository
+                .findAllByReceiverId(receiverId, Pageable.unpaged());
 
         return recommendationPage.get()
                 .map(recommendationMapper::toGetAllResponse)
@@ -97,8 +97,8 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<GetAllRecommendationsResponse> getAllGivenRecommendations(long authorId) {
-        Page<Recommendation> recommendationPage = recommendationRepository.
-                findAllByAuthorId(authorId, Pageable.unpaged());
+        Page<Recommendation> recommendationPage = recommendationRepository
+                .findAllByAuthorId(authorId, Pageable.unpaged());
 
         return recommendationPage.get()
                 .map(recommendationMapper::toGetAllResponse)
@@ -117,8 +117,9 @@ public class RecommendationService {
     }
 
     private void addGuarantee(Recommendation recommendation, Skill skill) {
-        UserSkillGuarantee guarantee = userSkillGuaranteeRepository.
-                findByUserIdAndSkillId(recommendation.getReceiver().getId(), skill.getId());
+        UserSkillGuarantee guarantee = userSkillGuaranteeRepository
+                .findByUserIdAndSkillId(recommendation.getReceiver().getId(), skill.getId());
+
         if (guarantee == null) {
             UserSkillGuarantee newGuarantee = new UserSkillGuarantee(
                     null,
