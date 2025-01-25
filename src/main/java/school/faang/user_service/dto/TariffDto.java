@@ -21,6 +21,8 @@ public class TariffDto {
     private Integer shows;
     private Integer priority;
     @EqualsAndHashCode.Exclude
+    private Boolean isActive;
+    @EqualsAndHashCode.Exclude
     private LocalDateTime expirePeriod;
     @EqualsAndHashCode.Exclude
     private Long userId;

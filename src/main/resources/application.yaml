@@ -53,6 +53,12 @@ user-service:
       price: 100
       currency: 'USD'
       priority: 1
+    priority-user:
+      shows: 50
+      days: 1
+      price: 75
+      currency: 'USD'
+      priority: 2
 
   recommendation-request:
     min-month: 6

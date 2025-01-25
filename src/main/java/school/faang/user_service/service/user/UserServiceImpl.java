@@ -4,13 +4,20 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.TariffDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilter;
 import school.faang.user_service.entity.Tariff;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.BusinessException;
 import school.faang.user_service.mapper.TariffMapper;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.tariff.TariffService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,6 +27,8 @@ public class UserServiceImpl implements UserService {
     private final TariffService tariffService;
     private final UserRepository userRepository;
     private final TariffMapper tariffMapper;
+    private final UserMapper userMapper;
+    private final List<UserFilter> userFilters;
 
     @Override
     public User findById(Long userId) {
@@ -30,8 +39,8 @@ public class UserServiceImpl implements UserService {
     public TariffDto buyUserTariff(TariffDto tariffDto, Long userId) {
         log.info("Start buy user tariff, userId: {}", userId);
         User user = findById(userId);
-        if (user.getTariff() != null) {
-            throw new BusinessException("User already has tariff");
+        if (user.getTariff() != null && user.getTariff().getIsActive()) {
+            throw new BusinessException("User already has active tariff");
         }
 
         tariffDto.setUserId(userId);
@@ -41,4 +50,24 @@ public class UserServiceImpl implements UserService {
 
         return tariffMapper.toDto(tariff);
     }
+
+    @Override
+    @Transactional
+    public List<UserDto> findUsersByFilter(UserDto filter, Integer limit, Integer offset) {
+        List<User> users = userRepository.findAllOrderByTariffAndLimit(limit, offset);
+
+        for (UserFilter userFilter : userFilters) {
+            if (userFilter.isApplicable(filter)) {
+                users = userFilter.apply(users, filter);
+            }
+        }
+
+        return users.stream()
+                .map(user -> {
+                    tariffService.decrementShows(user.getTariff());
+                    return userMapper.toDto(user);
+                })
+                .collect(Collectors.toList());
+    }
+
 }

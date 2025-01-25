@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.BuyTariffRequest;
 import school.faang.user_service.dto.TariffDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.properties.UserServiceProperties;
 import school.faang.user_service.service.user.UserService;
 
@@ -29,5 +30,10 @@ public class UserController {
     @GetMapping("/tariffs")
     public List<TariffDto> getAvailableTariffs() {
         return userServiceProperties.getListAvailableTariffDtos();
+    }
+
+    @GetMapping("/users")
+    public List<UserDto> getUsers(@RequestBody GetUserRequest request) {
+        return userService.findUsersByFilter(request.getFilter(), request.getLimit(), request.getOffset());
     }
 }

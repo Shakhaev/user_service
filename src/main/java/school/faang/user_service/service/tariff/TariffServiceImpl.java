@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceFeignClient;
@@ -32,6 +33,7 @@ public class TariffServiceImpl implements TariffService {
     private final UserContext userContext;
 
     @Override
+    @Transactional
     public Tariff buyTariff(TariffDto tariffDto, Long userId) {
         if (!userServiceProperties.getListAvailableTariffDtos().contains(tariffDto)) {
             String message = "Tariff " + tariffDto + " not found";
@@ -46,7 +48,27 @@ public class TariffServiceImpl implements TariffService {
         sendPayment(tariffDto, properties.getPrice(), properties.getCurrency(), userId);
 
         tariffDto.setExpirePeriod(LocalDateTime.now().plusDays(properties.getDays()));
+        tariffDto.setIsActive(true);
         return tariffRepository.save(tariffMapper.toEntity(tariffDto));
+    }
+
+    @Override
+    public void decrementShows(Tariff tariff) {
+        if (tariff == null || !tariffRepository.existsById(tariff.getId())) {
+            return;
+        }
+
+        if (tariff.getShows() != null
+                && tariff.getShows() > 0
+                && tariff.getPriority() != null) {
+            tariff.setShows(tariff.getShows() - 1);
+
+            if (tariff.getShows() == 0) {
+                tariff.setIsActive(false);
+            }
+        }
+
+        tariffRepository.save(tariff);
     }
 
     private void sendPayment(@NonNull TariffDto tariffDto, BigDecimal amount, String currency, Long userId) {
