@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class EventService {
 
