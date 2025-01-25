@@ -111,4 +111,12 @@ public class SubscriptionService {
     public int getFollowersCount(long followeeId) {
         return repository.findFollowersAmountByFolloweeId(followeeId);
     }
+
+    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+        Stream<User> following = repository.findByFolloweeId(followeeId);
+
+        return filterUsers(following, filter)
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 }
