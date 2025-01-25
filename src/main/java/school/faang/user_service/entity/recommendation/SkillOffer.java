@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.Skill;
 
 @Data
@@ -18,6 +19,7 @@ import school.faang.user_service.entity.Skill;
 @NoArgsConstructor
 @Builder
 @Entity
+@Component
 @Table(name = "skill_offer")
 public class SkillOffer {
 
