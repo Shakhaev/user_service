@@ -10,5 +10,5 @@ public interface UserMapper {
 
     UserDto toRecommendationRequestDto (User user);
 
-    User toRecommendationRequestEntity(UserDto userDto);
+    //User toRecommendationRequestEntity(UserDto userDto);
 }

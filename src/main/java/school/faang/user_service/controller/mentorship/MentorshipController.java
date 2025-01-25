@@ -1,37 +1,33 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.mentorship;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.MentorshipService;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-
-        private Logger log;
-
-    @NonNull
-    public List<User> getMentees(Long userId) {
+    public List<UserDto> getMentees(Long userId) {
         if (userId == null) {
             throwError("User ID is missing. Cannot search mentees.");
         }
-        List<User> users= mentorshipService.getMentees(userId);
+        List<UserDto> users= mentorshipService.getMentees(userId);
         log.info("Found {} mentees.", users.size());
         return users;
     }
 
-    public List<User> getMentors(Long userId) {
+    public List<UserDto> getMentors(Long userId) {
         if (userId == null) {
             throwError("User ID is missing. Cannot search mentors.");
         }
-        List<User> users= mentorshipService.getMentees(userId);
+        List<UserDto> users= mentorshipService.getMentors(userId);
         log.info("Found {} mentors.", users.size());
         return users;
     }
@@ -53,9 +49,5 @@ public class MentorshipController {
     private void throwError(String errorMessage) {
         log.error(errorMessage);
         throw new IllegalArgumentException(errorMessage);
-    }
-
-    public void setLog(Logger log) {
-        this.log = log;
     }
 }

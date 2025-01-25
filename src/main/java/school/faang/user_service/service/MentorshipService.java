@@ -1,12 +1,12 @@
 package school.faang.user_service.service;
 
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.UserDto;
 
 import java.util.List;
 
 public interface MentorshipService {
-    List<User> getMentors(Long userId);
-    List<User> getMentees(Long userId);
+    List<UserDto> getMentors(Long userId);
+    List<UserDto> getMentees(Long userId);
     void deleteMentee(Long menteeId, Long mentorId);
     void deleteMentor(Long menteeId, Long mentorId);
 }

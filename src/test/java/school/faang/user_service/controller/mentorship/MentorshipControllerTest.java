@@ -3,7 +3,6 @@ package school.faang.user_service.controller.mentorship;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import school.faang.user_service.controller.MentorshipController;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 public class MentorshipControllerTest {
