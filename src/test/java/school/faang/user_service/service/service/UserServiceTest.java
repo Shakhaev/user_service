@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filters.subscription.CityFilter;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,8 +28,8 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private UserMapper mapper;
+    @Spy
+    private UserMapperImpl mapper;
 
     @InjectMocks
     private UserService userService;
@@ -67,9 +67,6 @@ class UserServiceTest {
                 .build();
 
         when(userRepository.findPremiumUsers()).thenReturn(Stream.of(user1, user2));
-
-        when(mapper.toDto(any(User.class))).thenReturn(new UserDto(1L, "user1", "user1@example.com"));
-
 
         UserFilterDto filterDto = UserFilterDto.builder().cityPattern("Tashkent").build();
 

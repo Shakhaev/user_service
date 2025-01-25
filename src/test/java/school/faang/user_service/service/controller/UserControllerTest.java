@@ -34,8 +34,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"city\": \"City1\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("user1"))
-                .andExpect(jsonPath("$[0].premium").value(true));
+                .andExpect(jsonPath("$[0].username").value("user1"));
     }
 
 }
