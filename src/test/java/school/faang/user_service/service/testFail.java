@@ -8,7 +8,7 @@ public class testFail {
 
     @Test
     void shouldBefail() {
-        String t1 = "kk";
+        String t1 = "ax";
         String k2 = "hh";
         assertEquals(t1, k2);
     }
