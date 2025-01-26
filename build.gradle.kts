@@ -87,23 +87,16 @@ tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
 
-val includes = arrayOf(
-    "school/faang/user_service/controller/**",
-    "school/faang/user_service/filters/**",
-    "school/faang/user_service/mapper/**",
-    "school/faang/user_service/service/**"
-)
+val includedDirectories = fileTree("build/classes/java/main") {
+    include("school/faang/user_service/controller/**")
+    include("school/faang/user_service/service/**")
+}
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
 
-    classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                include(includes)
-            }
-        })
-    )
+    classDirectories.setFrom(includedDirectories)
+
 }
 
 tasks.jacocoTestCoverageVerification {
@@ -114,13 +107,7 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
-    classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                include(includes)
-            }
-        })
-    )
+    classDirectories.setFrom(includedDirectories)
 }
 
 tasks.named("check") {
