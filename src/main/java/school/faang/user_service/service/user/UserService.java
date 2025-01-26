@@ -32,6 +32,7 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -269,10 +270,10 @@ public class UserService {
         log.info("UserProfileEvent was send.");
     }
 
-    public List<UserNFDto> getUserFollowers(long userId) {
-        return userRepository.findUserSubsribers(userId).stream()
-                .map(userMapper::entityToNFDto)
-                .toList();
+    public List<Long> getUserFollowers(long userId) {
+        List<Long> followers = userRepository.findFollowersByFollowee(userId);
+        log.info("Getting user followers: {}", followers);
+        return followers;
     }
 
     public UserNFDto getUserNFDtoByID(long userId) {

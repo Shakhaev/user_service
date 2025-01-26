@@ -35,5 +35,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     List<User> findUserSubsribers(long userId);
 
+    @Query(nativeQuery = true, value = """
+            SELECT s.follower_id FROM subscription s WHERE s.followee_id = :userId
+            """)
+    List<Long> findFollowersByFollowee(long userId);
+
     boolean existsByEmail(String email);
 }

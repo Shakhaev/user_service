@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/users/followers/{userId}/nf")
-    public List<UserNFDto> getUserFollowers(@PathVariable long userId) {
+    public List<Long> getUserFollowers(@PathVariable long userId) {
         return userService.getUserFollowers(userId);
     }
 
