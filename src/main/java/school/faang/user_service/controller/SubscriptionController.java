@@ -1,6 +1,9 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -27,7 +30,8 @@ public class SubscriptionController {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followerId, UserFilterDto filterDto) {
+    @GetMapping("/getFollowers")
+    public List<UserDto> getFollowers(@RequestParam long followerId, @RequestBody UserFilterDto filterDto) {
         List<User> users = subscriptionService.getFollowers(followerId, filterDto);
         List<UserDto> userDtos = userMapper.toDtoList(users);
         userDtoValidator.validate(userDtos);
