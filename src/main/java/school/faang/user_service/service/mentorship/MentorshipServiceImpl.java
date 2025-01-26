@@ -33,10 +33,10 @@ public class MentorshipServiceImpl {
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
-        User mentor = userRepository.getUserById(mentorId);
+        Optional<User> mentor = userRepository.findById(mentorId);
 
-        if (mentor != null) {
-            mentor.setMentees(
+        if (mentor.isPresent()) {
+            mentor.get().setMentees(
                     mentorshipRepository.findMenteesById(mentorId).stream()
                             .filter(mentee -> mentee.getId() != menteeId)
                             .toList()
@@ -45,10 +45,10 @@ public class MentorshipServiceImpl {
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        User mentee = userRepository.getUserById(menteeId);
+        Optional<User> mentee = userRepository.findById(menteeId);
 
-        if (mentee != null) {
-            mentee.setMentors(
+        if (mentee.isPresent()) {
+            mentee.get().setMentors(
                     mentorshipRepository.findMentorsById(mentorId).stream()
                             .filter(mentor -> mentor.getId() != mentorId)
                             .toList()

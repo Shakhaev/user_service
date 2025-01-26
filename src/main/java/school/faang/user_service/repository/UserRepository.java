@@ -26,6 +26,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByUsernameLike(String username);
 
-    User getUserById(long id);
-
 }
