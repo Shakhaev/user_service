@@ -32,8 +32,13 @@ public class PremiumService {
         if (premiumRepository.existsByUserId(user_id)) {
             throw new DataValidationException("Пользователь уже является премиум пользователем");
         }
-        CreateOrderDto dto = new CreateOrderDto("premium", plan.toString(), paymentMethod);
-        userContext.setUserId(user_id);
+        CreateOrderDto dto = new CreateOrderDto(
+                "premium",
+                plan.toString(),
+                paymentMethod,
+                user_id
+        );
+
         return paymentServiceClient.createOrder(dto);
     }
 
