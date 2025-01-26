@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.event.participant.EventParticipationDto;
+import school.faang.user_service.dto.event.participant.UserParticipationDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.event.RegisterParticipantMapper;
+import school.faang.user_service.mapper.event.partcipation.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
@@ -17,19 +17,49 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-    private final RegisterParticipantMapper registerParticipantMapper;
+    private final UserMapper userMapper;
 
-    @Transactional
-    public void registerParticipation(long userId, long eventId) {
-        List<UserDto> participant = registerParticipantMapper.toDtoList(eventParticipationRepository.findAllParticipantsByEventId(eventId));
+    public List<UserParticipationDto> getPartcipantList (long eventId) {
+        return userMapper.toDtoList(eventParticipationRepository.findAllParticipantsByEventId(eventId));
+    }
 
-        eventParticipationRepository.register(userId, eventId);
+    public boolean checkUserRegistration(long eventId, long userId) {
+        return getPartcipantList(eventId).stream().anyMatch(user -> user.id() == userId);
     }
 
     @Transactional
-    public void unregisterParticipation(long userId, long eventId) {
-        List<UserDto> participant = registerParticipantMapper.toDtoList(eventParticipationRepository.findAllParticipantsByEventId(eventId));
+    public void registerParticipation(EventParticipationDto dtoEventId, UserParticipationDto dtoUserId) throws DataValidationException {
+        if (checkUserRegistration(dtoEventId.id(), dtoUserId.id())) {
+            throw new DataValidationException("User already registered");
+        }
+        eventParticipationRepository.register(dtoEventId.id(), dtoUserId.id());
+    }
 
-        eventParticipationRepository.unregister(userId, eventId);
+    @Transactional
+    public void unregisterParticipation(EventParticipationDto dtoEventId, UserParticipationDto dtoUserId) throws DataValidationException {
+        if (!checkUserRegistration(dtoEventId.id(), dtoUserId.id())) {
+            throw new DataValidationException("User was not registered for this event");
+        }
+        eventParticipationRepository.unregister(dtoEventId.id(), dtoUserId.id());
+    }
+
+
+
+    @Transactional
+    public int getParticipantCount(EventParticipationDto dtoEventId) throws DataValidationException {
+        List<UserParticipationDto> reg = userMapper.toDtoList(eventParticipationRepository.findAllParticipantsByEventId(dtoEventId.id()));
+        if (reg.isEmpty()) {
+            return 0;
+        }
+        return reg.size();
+    }
+
+
+    @Transactional
+    public List<UserParticipationDto> getParticipant(EventParticipationDto eventId) throws DataValidationException {
+        if (getParticipantCount(eventId) > 0) {
+            throw new DataValidationException("Users list is empty");
+        }
+        return getPartcipantList(eventId.id());
     }
 }

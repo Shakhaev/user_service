@@ -2,43 +2,55 @@ package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
 
-
 import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.dto.event.participant.RegisterParticipantDto;
+
+import school.faang.user_service.dto.event.participant.EventParticipationDto;
+import school.faang.user_service.dto.event.participant.UserParticipationDto;
 import school.faang.user_service.service.event.EventParticipationService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/participation")
+@RequestMapping("/api/participation")
 @RequiredArgsConstructor
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
-    private  RegisterParticipantDto registerParticipantDto;
 
-//    private RegisterParticipantDto  validateParticipant(RegisterParticipantDto registerParticipantDto) {
-//        long eventId = registerParticipantDto.getEventId();
-//        long userId = registerParticipantDto.getUserId();
-//
-//        return registerParticipantDto.getEventId() == eventId && registerParticipantDto.getUserId() == userId ? registerParticipantDto : null;
-//    }
+    public void notNull(UserParticipationDto userId, EventParticipationDto eventId) {
+        if (userId == null || eventId == null) {
+            throw new IllegalArgumentException("userId and eventId cannot be null");
+        }
+    }
 
-    @PostMapping("/{userId}/{eventId}")
-    public void registerParticipant(@RequestParam RegisterParticipantDto registerParticipantDto) {
-        long userId = registerParticipantDto.getUserId();
-        long eventId = registerParticipantDto.getEventId();
+    public void notNullId(EventParticipationDto eventId) {
+        if (eventId == null) {
+            throw new IllegalArgumentException("eventId cannot be null");
+        }
+    }
 
+    @PostMapping("/register/{userId}/{eventId}")
+    public void registerParticipant(@RequestBody UserParticipationDto userId,
+                                    @RequestBody EventParticipationDto eventId) {
+        notNull(userId, eventId);
         eventParticipationService.registerParticipation(eventId, userId);
     }
 
-    @DeleteMapping("/{userId}/{eventId}")
-    public void unregisterParticipant(@RequestParam RegisterParticipantDto registerParticipantDto) {
-        long userId = registerParticipantDto.getUserId();
-        long eventId = registerParticipantDto.getEventId();
-
+    @DeleteMapping("/unregister/{userId}/{eventId}")
+    public void unregisterParticipant(@RequestBody UserParticipationDto userId,
+                                      @RequestBody EventParticipationDto eventId) {
+        notNull(userId, eventId);
         eventParticipationService.unregisterParticipation(eventId, userId);
     }
 
+    @GetMapping("/participant/list/{eventId}")
+    public List<UserParticipationDto> getParticipant(@RequestBody EventParticipationDto eventId) {
+        notNullId(eventId);
+        return eventParticipationService.getParticipant(eventId);
+    }
 
-    public void getParticipant(@PathVariable long userId, @PathVariable long eventId) {
-        
+    @GetMapping("/participant/{eventId}")
+    public int getParticipantCount(@RequestBody EventParticipationDto eventId) {
+        notNullId(eventId);
+        return eventParticipationService.getParticipantCount(eventId);
     }
 }
