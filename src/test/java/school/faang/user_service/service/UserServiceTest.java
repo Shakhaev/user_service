@@ -3,19 +3,24 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filters.user.UserFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import school.faang.user_service.service.profilePicture.AvatarService;
+import school.faang.user_service.service.profilePicture.RandomAvatarService;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -23,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UserServiceTest {
+
     private UserRepository userRepository;
 
     private GoalService goalService;
@@ -39,6 +45,14 @@ public class UserServiceTest {
 
     private User user;
 
+    private PasswordEncoder passwordEncoder;
+
+    private AvatarService avatarService;
+
+    private RandomAvatarService randomAvatarService;
+
+    private CountryRepository countryRepository;
+
     @BeforeEach
     public void init() {
         userRepository = mock(UserRepository.class);
@@ -47,16 +61,26 @@ public class UserServiceTest {
         mentorshipService = mock(MentorshipService.class);
         filter = List.of(mock(UserFilter.class));
         userMapperImpl = spy(UserMapperImpl.class);
+        passwordEncoder = mock(PasswordEncoder.class);
+        avatarService = mock(AvatarService.class);
+        randomAvatarService = mock(RandomAvatarService.class);
+        countryRepository = mock(CountryRepository.class);
+
         userService = new UserService(
                 userRepository,
                 goalService,
                 eventService,
                 mentorshipService,
                 filter,
-                userMapperImpl
+                userMapperImpl,
+                passwordEncoder,
+                avatarService,
+                randomAvatarService,
+                countryRepository
         );
 
-        user = User.builder()
+
+    user = User.builder()
                 .id(1L)
                 .username("Mark")
                 .city("Moscow")
