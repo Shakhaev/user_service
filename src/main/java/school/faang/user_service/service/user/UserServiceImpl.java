@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.controller.user.GetUserRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilter;
@@ -53,12 +54,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public List<UserDto> findUsersByFilter(UserDto filter, Integer limit, Integer offset) {
-        List<User> users = userRepository.findAllOrderByTariffAndLimit(limit, offset);
+    public List<UserDto> findUsersByFilter(GetUserRequest request) {
+        List<User> users = userRepository.findAllOrderByTariffAndLimit(request.getLimit(), request.getOffset());
 
         for (UserFilter userFilter : userFilters) {
-            if (userFilter.isApplicable(filter)) {
-                users = userFilter.apply(users, filter);
+            if (userFilter.isApplicable(request.getFilter())) {
+                users = userFilter.apply(users, request.getFilter());
             }
         }
 

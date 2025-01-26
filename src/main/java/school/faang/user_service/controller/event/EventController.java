@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.BuyTariffRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.properties.UserServiceProperties;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("${user-service.api-version}/event")
 public class EventController {
-    private final UserServiceProperties userServiceProperties;
     private final EventService eventService;
 
     @PostMapping("/buy-tariff")
@@ -27,13 +25,8 @@ public class EventController {
         return ResponseEntity.ok(eventService.buyEventTariff(request.tariffDto(), request.id()));
     }
 
-    @GetMapping("/tariffs")
-    public List<TariffDto> getAvailableTariffs() {
-        return userServiceProperties.getListAvailableTariffDtos();
-    }
-
     @GetMapping("/events")
-    public List<EventDto> getUsers(@RequestBody GetEventRequest request) {
-        return eventService.findEventByFilter(request.getFilter(), request.getLimit(), request.getOffset());
+    public List<EventDto> getEvents(@RequestBody GetEventRequest request) {
+        return eventService.findEventByFilter(request);
     }
 }

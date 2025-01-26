@@ -3,8 +3,8 @@ package school.faang.user_service.service.recommendation;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
 import school.faang.user_service.dto.SkillRequestDto;
+import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.request.filter.RecommendationRequestFilter;
 import school.faang.user_service.dto.recommendation.request.filter.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +55,13 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     public List<RecommendationRequestDto> getRequestByFilter(RecommendationRequestFilterDto dto) {
         List<RecommendationRequest> recommendationRequests = recommendationRequestRepository.findAll();
 
-        return recommendationRequestFilters.stream()
-                .filter(filter -> filter.isApplicable(dto))
-                .flatMap(filter -> filter.apply(recommendationRequests.stream(), dto))
-                .collect(Collectors.toSet()).stream()
+        for (RecommendationRequestFilter recommendationRequestFilter : recommendationRequestFilters) {
+            if (recommendationRequestFilter.isApplicable(dto)) {
+                recommendationRequests = recommendationRequestFilter.apply(recommendationRequests, dto);
+            }
+        }
+
+        return recommendationRequests.stream()
                 .map(recommendationRequestMapper::toDto)
                 .toList();
     }

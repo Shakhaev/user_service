@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.controller.event.GetEventRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilter;
@@ -46,12 +47,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> findEventByFilter(EventDto filter, Integer limit, Integer offset) {
-        List<Event> events = eventRepository.findAllOrderByTariffAndLimit(limit, offset);
+    public List<EventDto> findEventByFilter(GetEventRequest request) {
+        List<Event> events = eventRepository.findAllOrderByTariffAndLimit(request.getLimit(), request.getOffset());
 
         for (EventFilter eventFilter : eventFilters) {
-            if (eventFilter.isApplicable(filter)) {
-                events = eventFilter.apply(events, filter);
+            if (eventFilter.isApplicable(request.getFilter())) {
+                events = eventFilter.apply(events, request.getFilter());
             }
         }
 

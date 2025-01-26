@@ -25,9 +25,9 @@ feign:
   client:
     config:
       payment-service:
-        connectTimeout: 1000 # Таймаут на установление соединения (мс)
-        readTimeout: 1000   # Таймаут на чтение ответа (мс)
-        loggerLevel: FULL    # Уровень логирования запросов (NONE, BASIC, HEADERS, FULL)
+        connectTimeout: 1000
+        readTimeout: 1000
+        loggerLevel: FULL
 
 server:
   port: 8080
