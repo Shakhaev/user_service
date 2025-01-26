@@ -11,7 +11,7 @@ import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.UserWasNotFoundException;
 import school.faang.user_service.service.goal.filter.filterI.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
