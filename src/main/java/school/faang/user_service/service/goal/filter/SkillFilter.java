@@ -1,8 +1,8 @@
-package school.faang.user_service.filters.subscription;
+package school.faang.user_service.service.goal.filter;
 
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filters.interfaces.UserFilter;
+import school.faang.user_service.service.goal.filter.filterI.UserFilter;
 
 import java.util.stream.Stream;
 
