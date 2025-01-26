@@ -25,9 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class SkillServiceImplTest {
@@ -37,20 +34,18 @@ public class SkillServiceImplTest {
     @Spy
     private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
 
-    @Captor
-    private ArgumentCaptor<Skill> captor;
-
     @InjectMocks
     private SkillServiceImpl skillService;
 
     @Test
     public void testCreateSuccess() {
         CreateSkillDto skillDto = new CreateSkillDto(1L, "John");
-        Mockito.when(skillRepository.save(any(Skill.class))).thenReturn(new Skill());
-        skillService.create(skillDto);
-        verify(skillRepository, times(1)).save(captor.capture());
-        Skill skill = captor.getValue();
-        assertEquals(skillDto.title(), skill.getTitle());
+        Skill skill = skillMapper.toSkillEntity(skillDto);
+
+        Mockito.when(skillRepository.save(skill)).thenReturn(skill);
+        ResponseSkillDto result = skillService.create(skillDto);
+
+        assertEquals(skillDto.title(), result.title());
     }
 
     @Test

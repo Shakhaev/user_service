@@ -38,4 +38,8 @@ payment-service:
 
 config:
   value:
-    MIN_SKILL_OFFERS: 3
+    min:
+      skill:
+        offers: 3
+
+

@@ -19,23 +19,20 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SkillServiceImpl {
-    @Value("${config.value.MIN_SKILL_OFFERS}")
-    private int MIN_SKILL_OFFERS;
+public class SkillServiceImpl implements SkillService{
+    @Value("${config.value.min.skill.offers}")
+    private int minSkillOffers;
 
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-
-
-    public ResponseSkillDto create(CreateSkillDto skill) throws DataValidationException {
+    public ResponseSkillDto create(CreateSkillDto skill) {
         if (skillRepository.existsByTitle(skill.title())) {
             throw new DataValidationException("The skill = " + skill.title() + " already exists!");
         }
@@ -64,12 +61,11 @@ public class SkillServiceImpl {
 
     public ResponseSkillDto acquireSkillFromOffers(long skillId, long userId) {
 
-        Optional<Skill> optSkill = skillRepository.findById(skillId);
-        optSkill.orElseThrow(() -> new DataValidationException("Skill with id = " + skillId + " not found"));
-        Skill skill = optSkill.get();
+        Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new DataValidationException("Skill with id = " + skillId + " not found"));
 
         if (skill.getUsers().stream().anyMatch(user -> user.getId().equals(userId))) {
-            return null;
+            return skillMapper.toSkillDto(skill);
         }
 
         User userToAddGuarantee = userRepository.findById(userId).orElse(null);
@@ -77,11 +73,12 @@ public class SkillServiceImpl {
 
         List<UserSkillGuarantee> userSkillGuarantees = skill.getGuarantees();
 
-        if (skillOffers.size() >= MIN_SKILL_OFFERS) {
+        if (skillOffers.size() >= minSkillOffers) {
             skillRepository.assignSkillToUser(skillId, userId);
 
             skillOffers.forEach(skillOffer -> {
-                User guarantorUser = userRepository.findById(skillOffer.getId()).orElse(null);
+                User guarantorUser = userRepository.findById(skillOffer.getRecommendation().getAuthor().getId())
+                        .orElse(null);
                 UserSkillGuarantee guarantee = new UserSkillGuarantee();
                 guarantee.setUser(userToAddGuarantee);
                 guarantee.setSkill(skill);

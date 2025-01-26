@@ -6,13 +6,13 @@ import school.faang.user_service.dto.skill.ResponseSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SkillServiceImpl;
+import school.faang.user_service.service.SkillService;
 
 import java.util.List;
 
 @AllArgsConstructor
 public class SkillController {
-    private final SkillServiceImpl skillService;
+    private final SkillService skillService;
 
     public ResponseSkillDto create(CreateSkillDto skill) {
         validateSkill(skill);

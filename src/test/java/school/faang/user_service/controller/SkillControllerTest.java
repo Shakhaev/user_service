@@ -31,7 +31,7 @@ public class SkillControllerTest {
     private SkillController skillController;
 
    // CreateSkillDto createSkill = new CreateSkillDto();
-    ResponseSkillDto responseSkill = new ResponseSkillDto();
+    // = new ResponseSkillDto();
 
     @Test
     @DisplayName("Check for empty title")
@@ -52,25 +52,20 @@ public class SkillControllerTest {
     @DisplayName("Check title is valid")
     public void testTitleIsValid() {
         CreateSkillDto createSkill = new CreateSkillDto(1L, "Java");
-        responseSkill.setId(1L);
-        responseSkill.setTitle("Java");
+        ResponseSkillDto responseSkill = new ResponseSkillDto(1L, "Java");
 
         Mockito.when(skillService.create(any(CreateSkillDto.class))).thenReturn(responseSkill);
         ResponseSkillDto result = skillController.create(createSkill);
 
-        Assertions.assertEquals(createSkill.title(), result.getTitle());
+        Assertions.assertEquals(createSkill.title(), result.title());
     }
 
     @Test
     @DisplayName("get skills by id - find")
     public void testListSkillsById() {
-        ResponseSkillDto skill1 = new ResponseSkillDto();
-        skill1.setId(1L);
-        skill1.setTitle("Java");
+        ResponseSkillDto skill1 = new ResponseSkillDto(1L, "Java");
+        ResponseSkillDto skill2 = new ResponseSkillDto(2L, "Spring");
 
-        ResponseSkillDto skill2 = new ResponseSkillDto();
-        skill2.setId(2L);
-        skill2.setTitle("Spring");
 
         List<ResponseSkillDto> skills = new ArrayList<>();
         skills.add(skill1);
@@ -106,9 +101,9 @@ public class SkillControllerTest {
     @Test
     @DisplayName("Acquire Skill From Offers - success")
     public void testAcquireSkillFromOffersSuccess() {
-        ResponseSkillDto responseSkillDto = new ResponseSkillDto();
+        ResponseSkillDto responseSkillDto = new ResponseSkillDto(1L, "Spring");
 
-        Mockito.when(skillService.acquireSkillFromOffers(1L,2L)).thenReturn(new ResponseSkillDto());
+        Mockito.when(skillService.acquireSkillFromOffers(1L,2L)).thenReturn(new ResponseSkillDto(1L, "Spring"));
         ResponseSkillDto skillDto = skillController.acquireSkillFromOffers(1L, 2L);
 
         assertEquals(responseSkillDto, skillDto);
