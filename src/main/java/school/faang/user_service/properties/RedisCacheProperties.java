@@ -12,10 +12,6 @@ import org.springframework.stereotype.Component;
 public class RedisCacheProperties {
 
     private int globalMinutesTtl;
-    private int feedsHoursTtl;
-    private String feedsCacheName;
-    private int postsHoursTtl;
-    private String postsCacheName;
     private int usersHoursTtl;
     private String usersCacheName;
 }

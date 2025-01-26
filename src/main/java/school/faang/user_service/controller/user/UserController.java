@@ -32,6 +32,7 @@ import school.faang.user_service.dto.user.UserProfilePicDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.user_cache.UserCacheDto;
 import school.faang.user_service.mapper.user.UserProfilePicMapper;
 import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.user.UserService;
@@ -177,6 +178,16 @@ public class UserController {
     public UserDto getUserProfile(
             @PathVariable @Min(1) Long userId) {
         return userService.getUser(userId);
+    }
+
+    @GetMapping("/active/{userId}")
+    public boolean getUserActiveStatus(@PathVariable Long userId) {
+        return userService.isUserActive(userId);
+    }
+
+    @PostMapping("users/caches")
+    List<UserCacheDto> getUsersCachesByIds(@RequestBody List<Long> usersIds) {
+        return userService.getUsersCachesDtos(usersIds);
     }
 
 }

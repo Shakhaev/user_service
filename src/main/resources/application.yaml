@@ -40,17 +40,13 @@ spring:
     cache:
       type: redis
       global-minutes-ttl: 10
-      feeds-hours-ttl: 24
-      feeds-cache-name: feeds
-      posts-hours-ttl: 24
-      posts-cache-name: posts
       users-hours-ttl: 24
       users-cache-name: users
 
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
     consumer:
-      group-id: news-feed-user-service-group
+      group-id: news-feed-group-1
       auto-offset-reset: earliest
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -61,12 +57,6 @@ spring:
       post-topic-name: cache-user
       post-replications-count: 1
       post-partitions-count: 3
-#      like-topic-name: like
-#      like-replications-count: 1
-#      like-partitions-count: 5
-#      comment-topic-name: comment
-#      comment-replications-count: 1
-#      comment-partitions-count: 5
 
   servlet:
     multipart:
