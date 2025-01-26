@@ -1,13 +1,18 @@
 package school.faang.user_service.service.goal;
 
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationDtoOut;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 
 import java.util.List;
 
 public interface GoalInvitationService {
-    GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto);
-    GoalInvitationDto acceptGoalInvitation(long id);
-    GoalInvitationDto rejectGoalInvitation(long id);
-    List<GoalInvitationDto> getInvitations(InvitationFilterDto filter);
+
+    GoalInvitationDtoOut createInvitation(GoalInvitationDto goalInvitationDto);
+
+    GoalInvitationDtoOut acceptGoalInvitation(long id);
+
+    GoalInvitationDtoOut rejectGoalInvitation(long id);
+
+    List<GoalInvitationDtoOut> getInvitations(InvitationFilterDto filter);
 }

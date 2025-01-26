@@ -1,20 +1,23 @@
 package school.faang.user_service.service.goal;
 
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationDtoOut;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.goal.filter.invitation.InvitationFilter;
 import school.faang.user_service.service.goal.filter.invitation.InvitationFilterIdInvited;
@@ -24,7 +27,6 @@ import school.faang.user_service.service.goal.filter.invitation.InvitationFilter
 import school.faang.user_service.validator.goal.InvitationDtoValidator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,10 +53,8 @@ public class GoalInvitationServiceTest {
     @Mock
     private InvitationDtoValidator invitationDtoValidator;
 
-    private GoalInvitationDto goalInvitationDtoReject;
+    private GoalInvitationDtoOut goalInvitationDtoReject;
     private GoalInvitation goalInvitationReject;
-
-    private List<InvitationFilter> filters;
 
     @BeforeEach
     public void setUp() {
@@ -65,9 +65,10 @@ public class GoalInvitationServiceTest {
         Goal goal = new Goal();
         goalInvitationReject.setGoal(goal);
         goalInvitationDtoReject =
-                new GoalInvitationDto(null, null, null, null, RequestStatus.REJECTED);
+                new GoalInvitationDtoOut(null, null, null, null, RequestStatus.REJECTED);
 
-        filters = new ArrayList<>();
+
+        List<InvitationFilter> filters = new ArrayList<>();
         filters.add(new InvitationFilterIdInvited());
         filters.add(new InvitationFilterIdInviter());
         filters.add(new InvitationFilterNameInvited());
@@ -77,26 +78,25 @@ public class GoalInvitationServiceTest {
                 goalInvitationMapper, null, filters);
     }
 
-
     @Test
     public void testCreateInvitation() {
         GoalInvitationDto goalInvitationDto = new GoalInvitationDto(null, null, null, null, null);
         GoalInvitation goalInvitation = new GoalInvitation();
         GoalInvitation savedInvitation = new GoalInvitation();
-        GoalInvitationDto savedDto = new GoalInvitationDto(null, null, null, null, null);
+        GoalInvitationDtoOut savedDto = new GoalInvitationDtoOut(null, null, null, null, null);
 
-        when(goalInvitationMapper.toEntity(goalInvitationDto)).thenReturn(goalInvitation);
+        when(goalInvitationMapper.toGoalInvitationEntity(goalInvitationDto)).thenReturn(goalInvitation);
         when(goalInvitationRepository.save(goalInvitation)).thenReturn(savedInvitation);
-        when(goalInvitationMapper.toDto(savedInvitation)).thenReturn(savedDto);
+        when(goalInvitationMapper.toGoalInvitationDtoOut(savedInvitation)).thenReturn(savedDto);
 
-        GoalInvitationDto result = goalInvitationService.createInvitation(goalInvitationDto);
+        GoalInvitationDtoOut result = goalInvitationService.createInvitation(goalInvitationDto);
 
         assertEquals(savedDto, result);
 
         verify(invitationDtoValidator, times(1)).validate(goalInvitationDto);
-        verify(goalInvitationMapper, times(1)).toEntity(goalInvitationDto);
+        verify(goalInvitationMapper, times(1)).toGoalInvitationEntity(goalInvitationDto);
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
-        verify(goalInvitationMapper, times(1)).toDto(savedInvitation);
+        verify(goalInvitationMapper, times(1)).toGoalInvitationDtoOut(savedInvitation);
     }
 
     @Test
@@ -117,14 +117,13 @@ public class GoalInvitationServiceTest {
         verifyNoInteractions(goalInvitationMapper);
     }
 
-
     @Test
     public void testRejectGoalInvitationSuccess() {
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(goalInvitationReject));
         when(goalInvitationRepository.save(goalInvitationReject)).thenReturn(goalInvitationReject);
-        when(goalInvitationMapper.toDto(goalInvitationReject)).thenReturn(goalInvitationDtoReject);
+        when(goalInvitationMapper.toGoalInvitationDtoOut(goalInvitationReject)).thenReturn(goalInvitationDtoReject);
 
-        GoalInvitationDto result = goalInvitationService.rejectGoalInvitation(1L);
+        GoalInvitationDtoOut result = goalInvitationService.rejectGoalInvitation(1L);
 
         assertNotNull(result);
         assertEquals(RequestStatus.REJECTED, result.status());
@@ -148,26 +147,85 @@ public class GoalInvitationServiceTest {
         verifyNoInteractions(goalInvitationMapper);
     }
 
+    @Test
+    void testGetInvitationsWithFiltersApplied() {
+        long idInviter1 = 1L;
+        long idInviter2 = 3L;
+        long idInvited1 = 2L;
+
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setInviter(getUser(idInviter1));
+        invitation1.setInvited(getUser(idInvited1));
+
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setInviter(getUser(idInviter1));
+        invitation2.setInvited(getUser(idInvited1));
+
+        GoalInvitation invitation3 = new GoalInvitation();
+        invitation3.setInviter(getUser(idInviter2));
+        invitation3.setInvited(getUser(idInvited1));
+
+        List<GoalInvitation> invitations = List.of(invitation1, invitation2, invitation3);
+        Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
+
+        InvitationFilterDto filterDto = new InvitationFilterDto(null, null, idInviter1, idInvited1, null);
+        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+
+        Assertions.assertEquals(2, result.size());
+    }
 
     @Test
-    void getInvitationsShouldMapGoalInvitationToDto() {
-        GoalInvitation goalInvitation = new GoalInvitation();
+    void testGetInvitationsWithFiltersAppliedSingleEntry() {
+
+        long idInviter1 = 1L;
+        long idInviter2 = 3L;
+        long idInvited1 = 2L;
+
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setInviter(getUser(idInviter1));
+        invitation1.setInvited(getUser(idInvited1));
+
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setInviter(getUser(idInviter2));
+        invitation2.setInvited(getUser(idInvited1));
+
+        List<GoalInvitation> invitations = List.of(invitation1, invitation2);
+        Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
+
+        InvitationFilterDto filterDto = new InvitationFilterDto(null, null, idInviter1, idInvited1, null);
+        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+
+        Assertions.assertEquals(1, result.size());
+    }
+
+    @Test
+    void testGetInvitationsWithNoApplicableFilters() {
+
+        long idInviter1 = 1L;
+        long idInviter2 = 3L;
+        long idInvited1 = 2L;
+
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setInviter(getUser(idInviter1));
+        invitation1.setInvited(getUser(idInvited1));
+
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setInviter(getUser(idInviter2));
+        invitation2.setInvited(getUser(idInvited1));
+
+        List<GoalInvitation> invitations = List.of(invitation1, invitation2);
+        Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
+
+        InvitationFilterDto filterDto = new InvitationFilterDto(null, null, null, null, null);
+        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @NotNull
+    private static User getUser(long id) {
         User user1 = new User();
-        user1.setId(1L);
-        User user2 = new User();
-        user2.setId(2L);
-
-        goalInvitation.setInvited(user1);
-        goalInvitation.setInviter(user2);
-
-        when(goalInvitationRepository.findAll()).thenReturn(Collections.singletonList(goalInvitation));
-
-        InvitationFilterDto invitationFilterDto = new InvitationFilterDto(null,null,
-                null,1L,null);
-
-        List<GoalInvitationDto> result = goalInvitationService.getInvitations(invitationFilterDto);
-
-        assertNotNull(result, "Expected a non-null result.");
-        assertEquals(1, result.size(), "Expected exactly one goal invitation DTO.");
+        user1.setId(id);
+        return user1;
     }
 }

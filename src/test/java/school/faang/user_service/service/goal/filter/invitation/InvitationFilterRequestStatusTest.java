@@ -9,7 +9,8 @@ import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
 
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,15 +42,14 @@ class InvitationFilterRequestStatusTest {
         assertFalse(invitationFilterRequestStatus.isAcceptable(filters));
     }
 
-
     @Test
     void testApplyFilterWork() {
         filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 
-        Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
-        Stream<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
-        assertEquals(1, streamApplyFilter.toList().size());
+        List<GoalInvitation> streamGoalInvitation =  Collections.singletonList(goalInvitation);
+        List<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
+        assertEquals(1, streamApplyFilter.size());
     }
 
     @Test
@@ -57,16 +57,15 @@ class InvitationFilterRequestStatusTest {
         filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.REJECTED);
 
-        Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
-        Stream<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
-        assertEquals(0, streamApplyFilter.toList().size());
+        List<GoalInvitation> streamGoalInvitation =  Collections.singletonList(goalInvitation);
+        List<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
+        assertEquals(0, streamApplyFilter.size());
     }
-
 
     @Test
     void testApplyFilterInvitationIsNull() {
-        Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
-        Stream<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
-        assertEquals(0, streamApplyFilter.toList().size());
+        List<GoalInvitation> streamGoalInvitation = Collections.singletonList(goalInvitation);
+        List<GoalInvitation> streamApplyFilter = invitationFilterRequestStatus.apply(streamGoalInvitation, filters);
+        assertEquals(0, streamApplyFilter.size());
     }
 }

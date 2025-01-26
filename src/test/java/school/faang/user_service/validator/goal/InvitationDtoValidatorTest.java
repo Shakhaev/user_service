@@ -55,12 +55,13 @@ public class InvitationDtoValidatorTest {
 
     @Test
     void testValidateUserDoesNotInviteHimselfShouldThrowExceptionWhenUserInvitesHimself() {
-        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 1L, 1L, null);
+        validGoalInvitationDto = new GoalInvitationDto(1L, 1L, 1L, 1L, null);
 
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> invitationDtoValidator.validate(validGoalInvitationDto));
 
-        assertEquals("The user cannot invite himself!", exception.getMessage());
+        assertEquals(String.format("The user cannot invite himself! Invited user id: %s",
+                validGoalInvitationDto.invitedUserId()), exception.getMessage());
     }
 
     @Test

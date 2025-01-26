@@ -28,15 +28,13 @@ public class InvitationDtoValidator {
     }
 
     private void validateUserDoesNotInviteHimself(GoalInvitationDto goalInviteDto) {
-        log.info("Check that the user: {}, does not invite himself: {}", goalInviteDto.invitedUserId(),
-                goalInviteDto.inviterId());
         if (goalInviteDto.invitedUserId().equals(goalInviteDto.inviterId())) {
-            throw new DataValidationException("The user cannot invite himself!");
+            throw new DataValidationException(String.format("The user cannot invite himself! Invited user id: %s",
+                    goalInviteDto.invitedUserId()));
         }
     }
 
     private void validateUserExists(Long userId, String userType) {
-        log.info("Checking existence of {} user, with id: {}", userType, userId);
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException(String.format("%s user with id: %s does not exist.", userType, userId));
         }
@@ -44,7 +42,6 @@ public class InvitationDtoValidator {
 
     private void validateGoalExists(Long goalId) {
         if (!goalRepository.existsById(goalId)) {
-            log.error("Goal with id: {} does not exist.", goalId);
             throw new NoSuchElementException(String.format("Goal with id: %s does not exist.", goalId));
         }
     }
