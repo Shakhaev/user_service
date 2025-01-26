@@ -1,16 +1,21 @@
 package school.faang.user_service.dto.recommendation;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
+@Data
+@AllArgsConstructor
+@Component
 public class RecommendationDto {
-    private Long id;
-    private Long authorId;
-    private Long receiverId;
-    private String content;
-    private List<SkillOfferDto> skillOffers;
-    private LocalDateTime createdAt;
+    private final Long id;
+    private final Long authorId;
+    private final Long receiverId;
+    private final String content;
+    private final List<SkillOfferDto> skillOffers;
+    private final LocalDateTime createdAt;
 }
