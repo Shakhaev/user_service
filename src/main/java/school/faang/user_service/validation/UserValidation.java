@@ -17,7 +17,7 @@ public class UserValidation {
 
     public void validateUserId(Long userId) {
         if (userId == null || userId >= 0) {
-            throw new UserValidationException("Id пользователя Null или меньше либо равно 0");
+            throw new UserValidationException("Id пользователя не может быть Null или меньше либо равно 0");
         }
     }
 }

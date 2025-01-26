@@ -1,13 +1,9 @@
 package school.faang.user_service.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.UserValidationException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.ArrayList;
@@ -16,26 +12,25 @@ import java.util.List;
 @Service
 public class MentorshipService {
 
-    private final UserRepository userRepository;
     private final GoalRepository goalRepository;
+    private final UserService userService;
 
     @Autowired
-    public MentorshipService(UserRepository userRepository, GoalRepository goalRepository) {
-        this.userRepository = userRepository;
+    public MentorshipService(GoalRepository goalRepository, UserService userService) {
         this.goalRepository = goalRepository;
+        this.userService = userService;
     }
 
     public void removeMenteeFromUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserValidationException("User not found"));
+        User user = userService.getById(userId);
         user.getMentees().forEach(mentee -> {
             mentee.getMentors().remove(user);
-            userRepository.save(mentee);
+            userService.saveUser(mentee);
         });
     }
 
     public void removeMenteeGoals(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserValidationException("User not found"));
+        User user = userService.getById(userId);
         List<Goal> updatedGoals = new ArrayList<>();
         user.getMentees().forEach(mentee -> {
             List<Goal> menteeGoals = mentee.getSetGoals();
