@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.handler.error;
+package school.faang.user_service.dto.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ErrorMessage {
+public class ErrorResponse {
     private String message;
     private String path;
 

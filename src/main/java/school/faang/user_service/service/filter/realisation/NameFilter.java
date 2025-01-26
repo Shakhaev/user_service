@@ -1,20 +1,20 @@
-package school.faang.user_service.service.goal.filter.subscription;
+package school.faang.user_service.service.filter.realisation;
 
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.goal.filter.fiilterabs.UserFilter;
+import school.faang.user_service.service.filter.UserFilter;
 
 import java.util.stream.Stream;
 
-public class CountryFilter implements UserFilter {
+public class NameFilter implements UserFilter {
     @Override
     public boolean isAcceptable(UserFilterDto userFilterDto) {
-        return userFilterDto.countryPattern() != null;
+        return userFilterDto.namePattern() != null;
     }
 
     @Override
     public Stream<User> accept(Stream<User> users, UserFilterDto userFilterDto) {
-        return users.filter(user -> matchesPattern(userFilterDto.countryPattern(), user.getCountry().getTitle()));
+        return users.filter(user -> matchesPattern(userFilterDto.namePattern(), user.getUsername()));
     }
 
     private boolean matchesPattern(String pattern, String value) {
