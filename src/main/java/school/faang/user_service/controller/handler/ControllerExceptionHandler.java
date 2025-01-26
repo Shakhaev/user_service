@@ -13,66 +13,65 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class ControllerExceptionHandler {
 
-    private ErrorResponse buildErrorMessage(Exception exception, WebRequest webRequest, HttpStatus status) {
+    private ErrorResponse buildErrorMessage(Exception exception, WebRequest webRequest) {
         String path = webRequest.getDescription(false).replace("uri=", "");
         return ErrorResponse.builder()
                 .message(exception.getMessage())
                 .path(path)
-                .timestamp(LocalDateTime.now())
                 .build();
     }
 
     @ExceptionHandler(value = UserWasNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorResponse userWasNotFound(UserWasNotFoundException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.NOT_FOUND);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = DataValidationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataValidation(DataValidationException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.BAD_REQUEST);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = MinioSaveException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleMinioSave(MinioSaveException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = RecommendationRequestCreatedException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorResponse handleRecommendationRequestCreated(RecommendationRequestCreatedException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.CONFLICT);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = RequestAlreadyProcessedException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorResponse handleRequestAlreadyProcessed(RequestAlreadyProcessedException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.CONFLICT);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorResponse handleResourceNotFound(ResourceNotFoundException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.NOT_FOUND);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = SkillNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorResponse handleSkillNotFound(SkillNotFoundException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.NOT_FOUND);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = UserAlreadyExistsException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyExists(UserAlreadyExistsException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.CONFLICT);
+        return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = UserGoalLimitExceededException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUserGoalLimitExceeded(UserGoalLimitExceededException exception, WebRequest webRequest) {
-        return buildErrorMessage(exception, webRequest, HttpStatus.BAD_REQUEST);
+        return buildErrorMessage(exception, webRequest);
     }
 }
