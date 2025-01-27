@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.pojo.user.Person;
+import school.faang.user_service.publisher.kafka.KafkaHeatCacheProducer;
 import school.faang.user_service.redis.event.ProfileViewEvent;
 import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
@@ -60,9 +62,13 @@ public class UserService {
     private final UserCacheRepository userCacheRepository;
     private final AvatarService avatarService;
     private final AsyncConfig asyncConfig;
+    private final KafkaHeatCacheProducer kafkaHeatCacheProducer;
 
     private final CountryService countryService;
     private static final String FILE_TYPE = "text/csv";
+
+    @Value(value = "${application.kafka.heat-users-batch-size}")
+    private int batchSize;
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -88,6 +94,17 @@ public class UserService {
         boolean isUserExists = userRepository.existsById(userId);
         log.info(isUserExists ? "User with id {} exists" : "User with id: {} does not exist", userId);
         return isUserExists;
+    }
+
+    @Transactional
+    public void startHeatFeedCache() {
+        int offset = 0;
+        List<Long> batch;
+        do {
+            batch = userRepository.findAllActiveUsersWithPagination(batchSize, offset);
+            kafkaHeatCacheProducer.send(batch);
+            offset += batchSize;
+        } while (!batch.isEmpty());
     }
 
     @Transactional

@@ -48,21 +48,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Long> findNotExistingUserIds(@Param("userIds") List<Long> userIds);
 
     @Query("""
-    SELECT u.userProfilePic 
-    FROM User u 
-    WHERE u.id = :userId
-    """)
+            SELECT u.userProfilePic 
+            FROM User u 
+            WHERE u.id = :userId
+            """)
     Optional<UserProfilePic> findUserProfilePicByUserId(
             @Param("userId") Long userId
     );
 
     @Modifying
     @Query("""
-    UPDATE User u 
-    SET u.userProfilePic.fileId = :fileId, 
-        u.userProfilePic.smallFileId = :smallFileId 
-    WHERE u.id = :userId
-    """)
+            UPDATE User u 
+            SET u.userProfilePic.fileId = :fileId, 
+                u.userProfilePic.smallFileId = :smallFileId 
+            WHERE u.id = :userId
+            """)
     void updateProfilePic(
             @Param("userId") Long userId,
             @Param("fileId") String fileId,
@@ -71,13 +71,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("""
-    UPDATE User u 
-    SET u.userProfilePic.fileId = NULL, 
-        u.userProfilePic.smallFileId = NULL 
-    WHERE u.id = :userId
-    """)
+            UPDATE User u 
+            SET u.userProfilePic.fileId = NULL, 
+                u.userProfilePic.smallFileId = NULL 
+            WHERE u.id = :userId
+            """)
     void deleteProfilePic(
             @Param("userId") Long userId
     );
 
+    @Query(nativeQuery = true, value = """
+            SELECT id FROM users
+            WHERE active = true
+            LIMIT :limit OFFSET :offset
+            """)
+    List<Long> findAllActiveUsersWithPagination(@Param("limit") int limit, @Param("offset") int offset);
 }

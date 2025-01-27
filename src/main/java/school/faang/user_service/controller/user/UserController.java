@@ -190,8 +190,14 @@ public class UserController {
         return userService.existsById(userId);
     }
 
-    @PostMapping("users/caches")
-    List<UserCacheDto> getUsersCachesByIds(@RequestBody List<Long> usersIds) {
+    @PostMapping("/caches/ids")
+    public List<UserCacheDto> getUsersCachesByIds(@RequestBody List<Long> usersIds) {
         return userService.getUsersCachesDtos(usersIds);
+    }
+
+    @PostMapping("/caches")
+    public String heatCache() {
+        userService.startHeatFeedCache();
+        return "Cache heating started successfully.";
     }
 }

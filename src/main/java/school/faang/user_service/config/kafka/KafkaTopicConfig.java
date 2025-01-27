@@ -33,4 +33,10 @@ public class KafkaTopicConfig {
         return new NewTopic(topicProp.getPostTopicName(), topicProp.getPostPartitionsCount(),
                 topicProp.getPostReplicationsCount());
     }
+
+    @Bean
+    public NewTopic heatUsersCacheTopic() {
+        return new NewTopic(topicProp.getHeatUsersCacheTopicName(), topicProp.getHeatUsersCachePartitionsCount(),
+                topicProp.getHeatUsersCacheReplicationsCount());
+    }
 }

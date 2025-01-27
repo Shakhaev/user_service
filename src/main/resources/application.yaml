@@ -53,10 +53,17 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.JsonSerializer
     template:
       default-topic: default-topic
+application:
+  kafka:
     topics:
       post-topic-name: cache-user
       post-replications-count: 1
       post-partitions-count: 3
+
+      heat-users-cache-topic-name: heat-users-cache
+      heat-users-cache-replications-count: 1
+      heat-users-cache-partitions-count: 3
+    heat-users-batch-size: 1000
 
   servlet:
     multipart:
