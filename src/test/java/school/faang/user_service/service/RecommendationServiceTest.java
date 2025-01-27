@@ -27,6 +27,8 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +41,45 @@ public class RecommendationServiceTest {
 
     @Mock
     private RecommendationRepository recommendationRepository;
+    @Mock
+    private SkillOfferRepository skillOfferRepository;
+
+    @Mock
+    private SkillOffer skillOffer;
+
+    @Mock
+    private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+
+    @Mock
+    private UserSkillGuaranteeMapper userSkillGuaranteeMapper;
+
+    @Mock
+    private RecommendationMapper recommendationMapper;
+
+    @BeforeEach
+    public void setUp() {
+        // Initialize mocks
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testCreateRecommendation() {
+        RecommendationDto recommendationDto = new RecommendationDto();
+        recommendationDto.setAuthorId(1L);
+        recommendationDto.setReceiverId(2L);
+        recommendationDto.setContent("Great work!");
+
+        when(skillOffer.getSkill().getId()).thenReturn(1L);
+        when(recommendationRepository.create(anyLong(), anyLong(), anyString())).thenReturn(1L);
+        when(userSkillGuaranteeMapper.toEntity(any(UserSkillGuaranteeDto.class))).thenReturn(new UserSkillGuarantee());
+
+        RecommendationDto result = recommendationService.create(recommendationDto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(recommendationRepository, times(1)).create(anyLong(), anyLong(), anyString());
+        verify(userSkillGuaranteeRepository, times(1)).save(any(UserSkillGuarantee.class));
+    }
 
     @Test
     public void testDeleteRecommendation() {
