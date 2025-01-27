@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +28,20 @@ public class MentorshipRequestService {
     private final UserRepository userRepository;
 
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
-        if (!userRepository.existsById(mentorshipRequestDto.getRequesterId()) ||
-                !userRepository.existsById(mentorshipRequestDto.getReceiverId())) {
-            throw new BusinessException("Один из пользователей не существует.");
+        if (!userRepository.existsById(mentorshipRequestDto.getRequesterId())) {
+            throw new EntityNotFoundException("Пользователь с id " + mentorshipRequestDto.getRequesterId()
+                    + " не существует.");
+        }
+        if (!userRepository.existsById(mentorshipRequestDto.getReceiverId())) {
+            throw new EntityNotFoundException("Пользователь с id " + mentorshipRequestDto.getReceiverId()
+                    + " не существует.");
         }
         if (mentorshipRequestDto.getRequesterId().equals(mentorshipRequestDto.getReceiverId())) {
             throw new BusinessException("Нельзя отправить запрос самому себе.");
         }
         Optional<MentorshipRequest> latestRequest =
                 mentorshipRequestRepository.findLatestRequest(mentorshipRequestDto.getRequesterId(),
-                mentorshipRequestDto.getReceiverId());
+                        mentorshipRequestDto.getReceiverId());
         if (latestRequest.isPresent()) {
             MentorshipRequest request = latestRequest.get();
             LocalDateTime requestDate = request.getCreatedAt();
@@ -73,9 +78,9 @@ public class MentorshipRequestService {
     }
 
     @Transactional
-    public void acceptRequest(long id) {
+    public MentorshipRequestDto acceptRequest(long id) {
         MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Запрос на менторство не найден."));
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден."));
 
         if (request.getStatus() == RequestStatus.ACCEPTED) {
             throw new BusinessException("Запрос уже принят.");
@@ -89,20 +94,22 @@ public class MentorshipRequestService {
         userRepository.save(requester);
 
         request.setStatus(RequestStatus.ACCEPTED);
-        mentorshipRequestRepository.save(request);
+        MentorshipRequest updatedRequest = mentorshipRequestRepository.save(request);
+        return mapper.toDto(updatedRequest);
     }
 
     @Transactional
-    public void rejectRequest(long id, RejectionDto rejection) {
+    public MentorshipRequestDto rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Запрос на менторство не найден."));
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден."));
 
-        if (request.getStatus() == RequestStatus.REJECTED) {
-            throw new IllegalArgumentException("Запрос уже отклонен.");
+        if (RequestStatus.REJECTED.equals(request.getStatus())) {
+            throw new BusinessException("Запрос уже отклонен.");
         }
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getRejectionReason());
-        mentorshipRequestRepository.save(request);
+        MentorshipRequest updatedStatus = mentorshipRequestRepository.save(request);
+        return mapper.toDto(updatedStatus);
     }
 }
 

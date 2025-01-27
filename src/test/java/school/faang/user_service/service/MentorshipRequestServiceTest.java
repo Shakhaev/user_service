@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -43,26 +44,43 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void requestMentorship_RequesterOrReceiverIsNull_ThrowsBusinessException() {
+    public void testRequestMentorship_ThrowsEntityNotFoundException_Requester() {
         MentorshipRequestDto requestDto = new MentorshipRequestDto();
         requestDto.setRequesterId(1L);
-        requestDto.setReceiverId(2L);
 
         when(userRepository.existsById(1L)).thenReturn(false);
-        when(userRepository.existsById(2L)).thenReturn(false);
 
-        BusinessException exception = assertThrows(
-                BusinessException.class,
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
                 () -> mentorshipRequestService.requestMentorship(requestDto)
         );
 
-        assertEquals("Один из пользователей не существует.", exception.getMessage());
+        assertEquals("Пользователь с id " + requestDto.getRequesterId()
+                + " не существует.", exception.getMessage());
 
         verify(mentorshipRequestRepository, never()).save(any(MentorshipRequest.class));
     }
 
     @Test
-    void requestMentorship_ValidRequest_SavesEntityAndReturnsDto() {
+    public void testRequestMentorship_ThrowsEntityNotFoundException_Receiver() {
+        MentorshipRequestDto requestDto = new MentorshipRequestDto();
+        requestDto.setReceiverId(2L);
+
+        when(userRepository.existsById(2L)).thenReturn(false);
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipRequestService.requestMentorship(requestDto)
+        );
+
+        assertEquals("Пользователь с id " + requestDto.getRequesterId()
+                + " не существует.", exception.getMessage());
+
+        verify(mentorshipRequestRepository, never()).save(any(MentorshipRequest.class));
+    }
+
+    @Test
+    public void testRequestMentorship_ValidRequest_SavesEntityAndReturnsDto() {
 
         MentorshipRequestDto requestDto = new MentorshipRequestDto();
         requestDto.setRequesterId(1L);
@@ -92,7 +110,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void requestMentorship_LastRequestWithinThreeMonths_ThrowsBusinessException() {
+    public void testRequestMentorship_LastRequestWithinThreeMonths_ThrowsBusinessException() {
 
         MentorshipRequestDto requestDto = new MentorshipRequestDto();
         requestDto.setRequesterId(1L);
@@ -119,7 +137,7 @@ public class MentorshipRequestServiceTest {
     }
 
     @Test
-    void acceptRequest_UserAlreadyMentor_ThrowsBusinessException() {
+    public void testAcceptRequest_UserAlreadyMentor_ThrowsBusinessException() {
 
         long requestId = 1L;
 
@@ -196,7 +214,7 @@ public class MentorshipRequestServiceTest {
                 .build();
 
         MentorshipRequest request1 = new MentorshipRequest();
-        request1.setId(1L); // Устанавливаем ID
+        request1.setId(1L);
         request1.setDescription("Это запрос на менторство");
         request1.setRequester(requester1);
         request1.setReceiver(receiver1);
@@ -381,7 +399,7 @@ public class MentorshipRequestServiceTest {
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             mentorshipRequestService.acceptRequest(requestId);
         });
 
@@ -527,7 +545,7 @@ public class MentorshipRequestServiceTest {
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
             mentorshipRequestService.rejectRequest(requestId, rejection);
         });
 
