@@ -73,7 +73,7 @@ public class TariffServiceImpl implements TariffService {
 
     private void sendPayment(@NonNull TariffDto tariffDto, BigDecimal amount, String currency, Long userId) {
         log.info("Start sendPayment, amount: {}, currency: {}", amount, currency);
-        if (tariffDto.getUserId() == null) {
+        if (userId == null) {
             throw new IllegalArgumentException("User id is null");
         }
 
