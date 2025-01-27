@@ -79,7 +79,7 @@ public class RecommendationService {
     }
 
 
-    private void validateMonthsBetweenRecommendations(RecommendationDto recommendationDto) {
+    public void validateMonthsBetweenRecommendations(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto
                         .getReceiverId()).orElseThrow(()
@@ -91,7 +91,7 @@ public class RecommendationService {
         }
     }
 
-    private void validateSkillOffers(RecommendationDto recommendationDto) {
+    public void validateSkillOffers(RecommendationDto recommendationDto) {
         for (SkillOfferDto skillOffer : recommendationDto.getSkillOffers()) {
             if (!recommendationRepository.existsById(skillOffer.getSkillId())) {
                 skillOfferRepository.create(skillOffer.getSkillId(), recommendationDto.getId());
