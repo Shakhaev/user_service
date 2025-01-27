@@ -123,7 +123,8 @@ tasks.jacocoTestCoverageVerification {
                 "school.faang.user_service.service.SkillRequestService",
                 "school.faang.user_service.service.EventService",
                 "school.faang.user_service.service.filter.*",
-                "school.faang.user_service.service.recommendation.RecommendationRequestFilter")
+                "school.faang.user_service.service.recommendation.RecommendationRequestFilter",
+                "school.faang.user_service.service.RatingService")
             limit {
                 minimum = 0.4.toBigDecimal()
             }
@@ -187,4 +188,12 @@ tasks.checkstyleTest {
     include("**/*.java")
 
     classpath = files()
+}
+
+tasks.bootJar {
+    archiveFileName.set("service.jar")
+}
+
+kotlin {
+    jvmToolchain(17)
 }

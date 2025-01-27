@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/subscription")
 @RequiredArgsConstructor
-public class SubscriptonController {
+public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping("/{followeeId}")

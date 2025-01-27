@@ -15,6 +15,8 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.rating.ActionType;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
+    private final UserEventPublisher userEventPublisher;
     private final UserRepository userRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final AppConfig appConfig;
@@ -58,7 +61,6 @@ public class SkillService {
                 .toList();
     }
 
-
     @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         User user = userRepository.findById(userId)
@@ -87,6 +89,8 @@ public class SkillService {
 
                 userSkillGuaranteeRepository.save(guarantee);
             });
+
+            userEventPublisher.publishEvent(ActionType.SKILL_ACQUIRE, userId);
 
             return skillMapper.toDto(skill);
         }

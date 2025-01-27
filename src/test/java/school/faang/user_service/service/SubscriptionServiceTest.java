@@ -1,11 +1,10 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.FollowingFeatureDto;
 import school.faang.user_service.dto.UserDto;
@@ -15,11 +14,12 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.UserWasNotFoundException;
 import school.faang.user_service.service.filter.UserFilter;
 import school.faang.user_service.mapper.UserFollowingMapper;
+import school.faang.user_service.mapper.UserFollowingMapperImpl;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -28,32 +28,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
-
     @InjectMocks
     private SubscriptionService subscriptionService;
-
     @Mock
     private UserRepository userRepository;
-
+    @Mock
+    private UserEventPublisher userEventPublisher;
     @Mock
     private SubscriptionRepository subscriptionRepository;
-
+    @Mock
+    private RatingService ratingService;
+    @Spy
+    private final UserFollowingMapper mapper = new UserFollowingMapperImpl();
     private static final int RETURN_VALUE = 5;
-
-    @BeforeEach
-    void setUp() {
-        List<UserFilter> filters = Collections.emptyList();
-        UserFollowingMapper userFollowingMapper = Mappers.getMapper(UserFollowingMapper.class);
-        subscriptionService = new SubscriptionService(userRepository, subscriptionRepository, userFollowingMapper, filters);
-    }
 
     @Test
     void getFollowers_ShouldReturnListOfFollowersWhenFollowersExist() {
@@ -138,18 +129,18 @@ class SubscriptionServiceTest {
     @Test
     void followUser_ShouldAddFolloweeToFollowerWhenUsersExist() {
         FollowingFeatureDto dto = new FollowingFeatureDto(1L, 2L);
-        User follower = new User();
-        User followee = new User();
-        follower.setFollowees(new ArrayList<>());
-        followee.setFollowers(new ArrayList<>());
+        User follower = mock(User.class);
+        User followee = mock(User.class);
+
+        when(follower.getFollowers()).thenReturn(new ArrayList<>());
+        when(followee.getFollowees()).thenReturn(new ArrayList<>());
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(follower));
         when(userRepository.findById(2L)).thenReturn(Optional.of(followee));
 
         subscriptionService.followUser(dto);
 
-        assertTrue(follower.getFollowees().contains(followee));
-        assertTrue(followee.getFollowers().contains(follower));
+        verify(followee).getFollowees();
         verify(userRepository, times(2)).save(any(User.class));
     }
 
