@@ -31,7 +31,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
 
-    private static final Long USER_ID = 1L;
+    private static final Long FIRST_USER_ID = 1L;
+    private static final Long SECOND_USER_ID = 2L;
 
     @Mock
     private GoalRepository goalRepository;
@@ -53,6 +54,8 @@ public class MentorshipServiceTest {
 
     private List<User> mentee1Mentors;
     private List<User> mentee2Mentors;
+    private List<Goal> mentee1Goals;
+    private List<Goal> mentee2Goals;
     private Goal goal1;
     private Goal goal2;
 
@@ -62,34 +65,36 @@ public class MentorshipServiceTest {
         mentee2Mentors = new ArrayList<>(List.of(user));
 
         goal1 = Goal.builder()
-                .id(1L)
-                .title("Goal 1")
-                .description("Description 1")
+                .id(FIRST_USER_ID)
+                .title("Цель 1")
+                .description("Описание 1")
                 .mentor(user)
                 .build();
 
         goal2 = Goal.builder()
-                .id(2L)
-                .title("Goal 2")
-                .description("Description 2")
+                .id(SECOND_USER_ID)
+                .title("Цель 2")
+                .description("Описание 2")
                 .mentor(user)
                 .build();
+        mentee1Goals = List.of(goal1);
+        mentee2Goals = List.of(goal2);
     }
 
     @Test
     void removeMenteeFromUser_ShouldRemoveMentorFromMentees() {
 
-        when(userService.getById(USER_ID)).thenReturn(user);
+        when(userService.getById(FIRST_USER_ID)).thenReturn(user);
         when(user.getMentees()).thenReturn(List.of(mentee1, mentee2));
         when(mentee1.getMentors()).thenReturn(mentee1Mentors);
         when(mentee2.getMentors()).thenReturn(mentee2Mentors);
 
-        mentorshipService.removeMenteeFromUser(USER_ID);
+        mentorshipService.removeMenteeFromUser(FIRST_USER_ID);
 
         assertFalse(mentee1Mentors.contains(user));
         assertFalse(mentee2Mentors.contains(user));
 
-        verify(userService).getById(USER_ID);
+        verify(userService).getById(FIRST_USER_ID);
         verify(user).getMentees();
         verify(userService).saveUser(mentee1);
         verify(userService).saveUser(mentee2);
@@ -97,16 +102,14 @@ public class MentorshipServiceTest {
 
     @Test
     void shouldRemoveMenteeGoals() {
-        List<Goal> mentee1Goals = List.of(goal1);
-        List<Goal> mentee2Goals = List.of(goal2);
 
-        when(user.getId()).thenReturn(USER_ID);
-        when(userService.getById(USER_ID)).thenReturn(user);
+        when(user.getId()).thenReturn(FIRST_USER_ID);
+        when(userService.getById(FIRST_USER_ID)).thenReturn(user);
         when(user.getMentees()).thenReturn(List.of(mentee1, mentee2));
         when(mentee1.getSetGoals()).thenReturn(mentee1Goals);
         when(mentee2.getSetGoals()).thenReturn(mentee2Goals);
 
-        mentorshipService.removeMenteeGoals(USER_ID);
+        mentorshipService.removeMenteeGoals(FIRST_USER_ID);
 
         verify(goalRepository, times(1)).saveAll(anyList());
         assertEquals(goal1.getMentor(), mentee1);

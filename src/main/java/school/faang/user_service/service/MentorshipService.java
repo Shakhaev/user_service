@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
@@ -10,16 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MentorshipService {
 
     private final GoalRepository goalRepository;
     private final UserService userService;
-
-    @Autowired
-    public MentorshipService(GoalRepository goalRepository, UserService userService) {
-        this.goalRepository = goalRepository;
-        this.userService = userService;
-    }
 
     public void removeMenteeFromUser(Long userId) {
         User user = userService.getById(userId);

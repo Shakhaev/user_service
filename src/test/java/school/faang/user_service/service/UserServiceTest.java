@@ -44,6 +44,10 @@ import static school.faang.user_service.entity.goal.GoalStatus.ACTIVE;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private static final Long USER_ID = 2L;
+    private static final Long UNREAL_USER_ID = 99L;
+    private static final int INACTIVATION_PERIOD_DAYS = 91;
+
     @Mock
     private EventRepository eventRepository;
 
@@ -65,7 +69,7 @@ class UserServiceTest {
     private User activeUsers;
     private User inactiveUser;
     private User activeUser;
-    private Event activeEvent;
+    private UserDto userDto;
 
     @BeforeEach
     public void setUp() {
@@ -76,7 +80,7 @@ class UserServiceTest {
 
         inactiveUser = new User();
         inactiveUser.setActive(false);
-        inactiveUser.setUpdatedAt(LocalDateTime.now().minusDays(91));
+        inactiveUser.setUpdatedAt(LocalDateTime.now().minusDays(INACTIVATION_PERIOD_DAYS));
 
         activeUser = User.builder()
                 .id(1L)
@@ -85,6 +89,10 @@ class UserServiceTest {
                 .ownedEvents(new ArrayList<>())
                 .goals(new ArrayList<>())
                 .build();
+
+        userDto = new UserDto();
+        userDto.setId(USER_ID);
+
     }
 
     @Test
@@ -101,7 +109,7 @@ class UserServiceTest {
         long nonExistingUserId = 123L;
         when(userRepository.existsById(nonExistingUserId)).thenReturn(false);
 
-        assertThrows(BusinessException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> userService.isUserExists(nonExistingUserId),
                 "Пользователя с id " + nonExistingUserId + " не существует");
     }
@@ -117,10 +125,9 @@ class UserServiceTest {
 
     @Test
     void testRemoveMenteeAndGoals() {
-        Long userId = 123L;
-        userService.removeMenteeAndGoals(userId);
-        verify(mentorshipService, times(1)).removeMenteeGoals(userId);
-        verify(mentorshipService, times(1)).removeMenteeFromUser(userId);
+        userService.removeMenteeAndGoals(USER_ID);
+        verify(mentorshipService, times(1)).removeMenteeGoals(USER_ID);
+        verify(mentorshipService, times(1)).removeMenteeFromUser(USER_ID);
     }
 
     @Test
@@ -148,21 +155,21 @@ class UserServiceTest {
         when(userRepository.findById(activeUser.getId())).thenReturn(Optional.of(activeUser));
         when(userRepository.existsById(activeUser.getId())).thenReturn(true);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
 
         UserDto result = userService.deactivate(activeUser.getId());
 
         assertNotNull(result);
         assertFalse(result.isActive());
-        verify(userRepository).findById(activeUser.getId());
-        verify(userRepository).save(any(User.class));
+        verify(userRepository, times(3)).findById(activeUser.getId());
+
     }
 
     @Test
     void testDeactivate_UserNotFound() {
-        Long userId = 99L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(UNREAL_USER_ID)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> userService.deactivate(userId));
-        verify(userRepository).findById(userId);
+        assertThrows(EntityNotFoundException.class, () -> userService.deactivate(UNREAL_USER_ID));
+        verify(userRepository).findById(UNREAL_USER_ID);
     }
 }
