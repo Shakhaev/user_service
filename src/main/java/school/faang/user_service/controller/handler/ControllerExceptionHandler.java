@@ -1,24 +1,46 @@
 package school.faang.user_service.controller.handler;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import school.faang.user_service.dto.error.ErrorField;
 import school.faang.user_service.dto.error.ErrorResponse;
 import school.faang.user_service.exception.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RestControllerAdvice
 public class ControllerExceptionHandler {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException exception, WebRequest webRequest) {
+        String path = webRequest.getDescription(false).replace("uri=", "");
+
+        List<ErrorField> details = exception.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ErrorField(error.getField(), error.getDefaultMessage()))
+                .toList();
+
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .path(path)
+                .message("Validation failed")
+                .details(details)
+                .build();
+    }
+
     @ExceptionHandler(value = {UserWasNotFoundException.class, ResourceNotFoundException.class, SkillNotFoundException.class})
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public ErrorResponse userWasNotFound(UserWasNotFoundException exception, WebRequest webRequest) {
+    public ErrorResponse userWasNotFound(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
     }
 
     @ExceptionHandler(value = {DataValidationException.class, UserGoalLimitExceededException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataValidation(DataValidationException exception, WebRequest webRequest) {
+    public ErrorResponse handleDataValidation(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
     }
 
@@ -30,7 +52,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(value = {RecommendationRequestCreatedException.class, RequestAlreadyProcessedException.class, UserAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.CONFLICT)
-    public ErrorResponse handleRecommendationRequestCreated(RecommendationRequestCreatedException exception, WebRequest webRequest) {
+    public ErrorResponse handleRecommendationRequestCreated(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
     }
 
