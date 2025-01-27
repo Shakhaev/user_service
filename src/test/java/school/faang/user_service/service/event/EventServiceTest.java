@@ -1,15 +1,22 @@
 package school.faang.user_service.service.event;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.runner.RunWith;
 import org.mockito.*;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.mapper.EventMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.EventService;
@@ -19,14 +26,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(EventService.class)
 public class EventServiceTest {
 
-    User user1 = User.builder().id(1L).username("Mary").email("user@gmail.com").build();
+    User user1 = User.builder()
+            .id(1L)
+            .username("Mary")
+            .email("user@gmail.com")
+            .skills(getRelatedSkills())
+            .build();
     User user2 = User.builder().id(2L).username("John").email("admin@gmail.com").build();
 
 
@@ -48,7 +62,7 @@ public class EventServiceTest {
 
 
     @Spy
-    private EventMapper eventMapper;
+    private EventMapper eventMapper = new EventMapperImpl();
 
 
 
@@ -128,24 +142,33 @@ public class EventServiceTest {
                 .id(1L)
                 .title("title")
                 .ownerId(2L)
-                .relatedSkills(List.of(3L,4L))
+                .relatedSkills(List.of(1L,4L))
                 .build();
     }
 
     @Test
-    public void testCreateEvent(){
-        EventDto eventDtoBefore = createNewEventCandidate();
-        Event event = eventMapper.toEntityEvent(eventDtoBefore);
-        when(userRepository.getUser(eventDtoBefore.getOwnerId())).thenReturn(user1);
-        event.setOwner(user1);
-        mockValidateEventRelatedSkills();
+    public void testCreateEvent() throws Exception {
 
-
+        EventDto eventDto = createNewEventCandidate();
+        eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
+        List<Long> ownerSkillsIds = Arrays.asList(1L, 3L);
+        EventService spyService = PowerMockito.spy(eventService);
+        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills",
+                anyList(), eq(ownerSkillsIds));
+        when(skillService.getSkillsIds(any())).thenReturn(ownerSkillsIds);
+        EventDto result = eventService.create(eventDto);
+        assertNotNull(result);
+        PowerMockito.verifyPrivate(eventService).invoke("validateEventRelatedSkills",
+                anyList(), eq(ownerSkillsIds));
     }
 
     private void mockValidateEventRelatedSkills(){
-        List<Skill.SkillBuilder> relatedSkills = List.of(Skill.builder().id(1L), Skill.builder().id(2L));
+        List<Skill> relatedSkills = getRelatedSkills();
         when(relatedSkills.isEmpty()).thenReturn(false);
+    }
+
+    private static @NotNull List<Skill> getRelatedSkills() {
+        return List.of(Skill.builder().id(1L).build(), Skill.builder().id(2L).build());
     }
 
     @Test

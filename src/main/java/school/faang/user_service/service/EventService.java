@@ -112,7 +112,7 @@ public class EventService {
     private void validateEventRelatedSkills(List<Long> relatedSkills, List<Long> ownerSkillsIds) {
         for (Long skillId : relatedSkills) {
             if (!ownerSkillsIds.contains(skillId)) {
-                throw new BusinessException("Пользователь не обладает скилами" + skillId + " для создания события");
+                throw new BusinessException("Пользователь не обладает скилами " + skillId + " для создания события");
             }
         }
     }
