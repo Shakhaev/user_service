@@ -24,7 +24,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(nativeQuery = true, value = """
             SELECT e.*
             FROM event e
-                LEFT JOIN tariff t ON t.user_id = e.id
+                LEFT JOIN tariff t ON t.event_id = e.id
             ORDER BY
                 CASE WHEN t.active = true THEN t.priority END
             LIMIT ?1 OFFSET ?2
