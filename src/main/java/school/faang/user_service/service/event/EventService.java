@@ -28,8 +28,9 @@ public class EventService {
     private final List<EventFilter> filters;
 
     public EventDto create(EventDto eventDto) {
-        User owner = validateOwnerAndSkills(eventDto.ownerId(), eventDto.relatedSkills());
+        validateEventDto(eventDto);
 
+        User owner = validateOwnerAndSkills(eventDto.ownerId(), eventDto.relatedSkills());
         Event event = eventMapper.toEntity(eventDto);
         event.setOwner(owner);
 
@@ -64,6 +65,8 @@ public class EventService {
     }
 
     public EventDto updateEvent(EventDto eventDto) {
+        validateEventDto(eventDto);
+
         Event event = eventRepository.findById(eventDto.id())
                 .orElseThrow(() -> new DataValidationException("Event not found with ID: " + eventDto.id()));
 
@@ -104,6 +107,21 @@ public class EventService {
         return participatedEvents.stream()
                 .map(eventMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    private void validateEventDto(EventDto eventDto) {
+        if (eventDto.title() == null || eventDto.title().isEmpty()) {
+            throw new DataValidationException("Event title is required.");
+        }
+        if (eventDto.startDate() == null || eventDto.endDate() == null) {
+            throw new DataValidationException("Event start and end dates are required.");
+        }
+        if (eventDto.startDate().isAfter(eventDto.endDate())) {
+            throw new DataValidationException("Event start date must be before the end date.");
+        }
+        if (eventDto.relatedSkills() == null || eventDto.relatedSkills().isEmpty()) {
+            throw new DataValidationException("Event must have at least one related skill.");
+        }
     }
 
     private User validateOwnerAndSkills(Long ownerId, List<Long> relatedSkills) {

@@ -14,21 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/events")
+@RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventController {
 
     private final EventService eventService;
-    private final EventValidator eventValidator;
 
     @PostMapping
     public ResponseEntity<EventDto> create(@RequestBody EventDto eventDto) {
-        eventValidator.validate(eventDto);
         EventDto createdEvent = eventService.create(eventDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
     }
@@ -53,7 +50,6 @@ public class EventController {
 
     @PutMapping
     public ResponseEntity<EventDto> updateEvent(@RequestBody EventDto eventDto) {
-        eventValidator.validate(eventDto);
         EventDto updatedEvent = eventService.updateEvent(eventDto);
         return ResponseEntity.ok(updatedEvent);
     }
