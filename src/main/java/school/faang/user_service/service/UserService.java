@@ -56,6 +56,21 @@ public class UserService {
                 .toList();
     }
 
+    public UserDto getUser(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
+
+        return userMapper.toDto(user);
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+
+        return users.stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
     @Transactional
     public UserDto createUser(@Valid UserCreateDto userCreateDto) {
         userValidator.validateNewUser(userCreateDto);

@@ -32,6 +32,16 @@ public class UserController {
         return userService.getPremiumUsers(userFilterDto);
     }
 
+    @GetMapping("/{userId}")
+    public UserDto getUser(@PathVariable long userId) {
+        return userService.getUser(userId);
+    }
+
+    @GetMapping
+    public List<UserDto> getUsersByIds(@RequestParam List<Long> ids) {
+        return userService.getUsersByIds(ids);
+    }
+
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserDto createUser(@Valid @ModelAttribute UserCreateDto userCreateDto) {
         return userService.createUser(userCreateDto);
