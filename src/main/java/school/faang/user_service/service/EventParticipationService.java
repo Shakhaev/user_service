@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.BusinessException;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.validation.ParticipantValidate;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -23,12 +22,11 @@ public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final ParticipantValidate participantValidate;
 
     public UserDto registerParticipant(long eventId, long userId) {
-        boolean isPatricipantRegistred = isParticipantnRegistred(eventId, userId);
-        if (isPatricipantRegistred) {
-            throw new EntityNotFoundException("Пользователь уже зарегистрирован!");
-        }
+
+        participantValidate.checkParticipantAlreadyRegistered(eventId, userId);
         eventParticipationRepository.register(eventId, userId);
 
         User user = userRepository.getReferenceById(userId);
@@ -36,11 +34,8 @@ public class EventParticipationService {
     }
 
     public UserDto unregisterParticipant(long eventId, long userId) {
-        boolean isPatricipantRegistred = isParticipantnRegistred(eventId, userId);
 
-        if (!isPatricipantRegistred) {
-            throw new BusinessException("Пользователь не ЗАРЕГИСТРИРОВАН на событие!");
-        }
+        participantValidate.checkParticipantNotRegistered(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);
 
         User user = userRepository.getReferenceById(userId);
@@ -57,16 +52,7 @@ public class EventParticipationService {
                 .collect(Collectors.toList());
     }
 
-
     public int getParticipantsCount(long eventId) {
         return eventParticipationRepository.countParticipants(eventId);
     }
-
-
-    private boolean isParticipantnRegistred(long eventId, long userId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
-    }
-
 }
