@@ -30,12 +30,9 @@ public class SkillControllerTest {
     @InjectMocks
     private SkillController skillController;
 
-   // CreateSkillDto createSkill = new CreateSkillDto();
-    // = new ResponseSkillDto();
-
     @Test
     @DisplayName("Check for empty title")
-    public void testEmptyTitleIsValid() throws DataValidationException{
+    public void testEmptyTitleIsValid() throws DataValidationException {
         CreateSkillDto createSkill = new CreateSkillDto(1L, "     ");
 
         assertThrows(DataValidationException.class, () -> skillController.create(createSkill));
@@ -71,7 +68,7 @@ public class SkillControllerTest {
         skills.add(skill1);
         skills.add(skill2);
 
-        Mockito.when(skillService.getUserSkills(1L)).thenReturn(List.of(skill1,skill2));
+        Mockito.when(skillService.getUserSkills(1L)).thenReturn(List.of(skill1, skill2));
         List<ResponseSkillDto> skillDtos = skillController.getUserSkills(1L);
 
         assertEquals(skills, skillDtos);
@@ -89,7 +86,7 @@ public class SkillControllerTest {
 
     @Test
     @DisplayName("Get Offered Skills - success")
-    public void testGetOfferedSkillsByIdsuccess() {
+    public void testGetOfferedSkillsByIdSuccess() {
         List<SkillCandidateDto> skillCandidateDtos = new ArrayList<>();
 
         Mockito.when(skillService.getOfferedSkills(1L)).thenReturn(new ArrayList<>());
@@ -103,7 +100,8 @@ public class SkillControllerTest {
     public void testAcquireSkillFromOffersSuccess() {
         ResponseSkillDto responseSkillDto = new ResponseSkillDto(1L, "Spring");
 
-        Mockito.when(skillService.acquireSkillFromOffers(1L,2L)).thenReturn(new ResponseSkillDto(1L, "Spring"));
+        Mockito.when(skillService.acquireSkillFromOffers(1L, 2L))
+                .thenReturn(new ResponseSkillDto(1L, "Spring"));
         ResponseSkillDto skillDto = skillController.acquireSkillFromOffers(1L, 2L);
 
         assertEquals(responseSkillDto, skillDto);

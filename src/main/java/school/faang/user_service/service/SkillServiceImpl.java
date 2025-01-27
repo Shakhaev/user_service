@@ -19,11 +19,12 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SkillServiceImpl implements SkillService{
+public class SkillServiceImpl implements SkillService {
     @Value("${config.value.min.skill.offers}")
     private int minSkillOffers;
 
@@ -32,6 +33,7 @@ public class SkillServiceImpl implements SkillService{
     private final SkillOfferRepository skillOfferRepository;
     private final UserRepository userRepository;
 
+    @Override
     public ResponseSkillDto create(CreateSkillDto skill) {
         if (skillRepository.existsByTitle(skill.title())) {
             throw new DataValidationException("The skill = " + skill.title() + " already exists!");
@@ -43,14 +45,16 @@ public class SkillServiceImpl implements SkillService{
         return skillMapper.toSkillDto(skillEntity);
     }
 
+    @Override
     public List<ResponseSkillDto> getUserSkills(long userId) {
         return skillRepository.findAllByUserId(userId).stream()
                 .map(skillMapper::toSkillDto)
                 .toList();
     }
 
+    @Override
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        HashMap<Skill, Long> skillsOffers = skillRepository.findSkillsOfferedToUser(userId).stream()
+        Map<Skill, Long> skillsOffers = skillRepository.findSkillsOfferedToUser(userId).stream()
                 .collect(Collectors.groupingBy(x -> x, HashMap::new, Collectors.counting()));
 
         return skillsOffers.entrySet().stream()
@@ -59,6 +63,7 @@ public class SkillServiceImpl implements SkillService{
                 .toList();
     }
 
+    @Override
     public ResponseSkillDto acquireSkillFromOffers(long skillId, long userId) {
 
         Skill skill = skillRepository.findById(skillId)
@@ -69,7 +74,7 @@ public class SkillServiceImpl implements SkillService{
         }
 
         User userToAddGuarantee = userRepository.findById(userId).orElse(null);
-        List<SkillOffer>  skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
+        List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
 
         List<UserSkillGuarantee> userSkillGuarantees = skill.getGuarantees();
 
@@ -77,12 +82,7 @@ public class SkillServiceImpl implements SkillService{
             skillRepository.assignSkillToUser(skillId, userId);
 
             skillOffers.forEach(skillOffer -> {
-                User guarantorUser = userRepository.findById(skillOffer.getRecommendation().getAuthor().getId())
-                        .orElse(null);
-                UserSkillGuarantee guarantee = new UserSkillGuarantee();
-                guarantee.setUser(userToAddGuarantee);
-                guarantee.setSkill(skill);
-                guarantee.setGuarantor(guarantorUser);
+                UserSkillGuarantee guarantee = addGuaranteeToUser(skillOffer);
                 userSkillGuarantees.add(guarantee);
             });
 
@@ -90,5 +90,20 @@ public class SkillServiceImpl implements SkillService{
             skillRepository.save(skill);
         }
         return skillMapper.toSkillDto(skill);
+    }
+
+    private UserSkillGuarantee addGuaranteeToUser(SkillOffer skillOffer) {
+        Long userId = skillOffer.getRecommendation().getReceiver().getId();
+        Skill skill = skillOffer.getSkill();
+        User userToAddGuarantee = userRepository.findById(userId).orElse(null);
+        User guarantorUser = userRepository.findById(skillOffer.getRecommendation().getAuthor().getId())
+                .orElse(null);
+
+        UserSkillGuarantee guarantee = new UserSkillGuarantee();
+        guarantee.setUser(userToAddGuarantee);
+        guarantee.setSkill(skill);
+        guarantee.setGuarantor(guarantorUser);
+
+        return guarantee;
     }
 }

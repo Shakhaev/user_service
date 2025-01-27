@@ -33,7 +33,7 @@ public class SkillController {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
 
-    private void validateSkill(CreateSkillDto skill) throws DataValidationException {
+    private void validateSkill(CreateSkillDto skill) {
         if (StringUtils.isBlank(skill.title())) {
             throw new DataValidationException("Title can't be empty or null!");
         }

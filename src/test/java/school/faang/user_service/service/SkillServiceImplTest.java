@@ -6,8 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -61,23 +59,23 @@ public class SkillServiceImplTest {
     @Test
     @DisplayName("get skills from Repo")
     public void testGetUserSkillsSuccess() {
-        List<ResponseSkillDto> responseSkillDtos= new ArrayList<>();
+        List<ResponseSkillDto> responseSkillDtos = new ArrayList<>();
         List<ResponseSkillDto> result = skillService.getUserSkills(1L);
 
-        assertEquals(responseSkillDtos,result);
+        assertEquals(responseSkillDtos, result);
     }
 
     @Test
     @DisplayName("Get offered skills for user")
-    public void testGetOfferedSkills() {
+    public void testGetOfferedSkillsSuccess() {
         List<SkillCandidateDto> skillCandidateDtos = new ArrayList<>();
         List<SkillCandidateDto> result = skillService.getOfferedSkills(1L);
 
-        assertEquals(skillCandidateDtos,result);
+        assertEquals(skillCandidateDtos, result);
     }
 
     @Test
-    public void testAcquireSkillFromOffersSkillNotFoundFailed () {
+    public void testAcquireSkillFromOffersSkillNotFoundFailed() {
         Mockito.when(skillRepository.findById(1L))
                 .thenThrow(new DataValidationException("DataValidationException!!!"));
         Assert.assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(1L, 1L));

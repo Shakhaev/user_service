@@ -8,8 +8,11 @@ import java.util.List;
 
 public interface SkillService {
     ResponseSkillDto create(CreateSkillDto skill);
+
     List<ResponseSkillDto> getUserSkills(long userId);
+
     List<SkillCandidateDto> getOfferedSkills(long userId);
+
     ResponseSkillDto acquireSkillFromOffers(long skillId, long userId);
 
 }
