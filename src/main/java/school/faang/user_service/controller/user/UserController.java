@@ -185,9 +185,13 @@ public class UserController {
         return userService.isUserActive(userId);
     }
 
+    @GetMapping("/exists/{userId}")
+    public boolean isUserExists(@PathVariable Long userId) {
+        return userService.existsById(userId);
+    }
+
     @PostMapping("users/caches")
     List<UserCacheDto> getUsersCachesByIds(@RequestBody List<Long> usersIds) {
         return userService.getUsersCachesDtos(usersIds);
     }
-
 }

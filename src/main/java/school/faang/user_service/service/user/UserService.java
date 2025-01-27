@@ -85,7 +85,9 @@ public class UserService {
 
     @Transactional
     public boolean existsById(long userId) {
-        return userRepository.existsById(userId);
+        boolean isUserExists = userRepository.existsById(userId);
+        log.info(isUserExists ? "User with id {} exists" : "User with id: {} does not exist", userId);
+        return isUserExists;
     }
 
     @Transactional
