@@ -9,18 +9,16 @@ import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filters.user.UserFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
-import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import school.faang.user_service.service.profilePicture.AvatarService;
-import school.faang.user_service.service.profilePicture.RandomAvatarService;
+import school.faang.user_service.service.profilePicture.UserProfilePicService;
+import school.faang.user_service.service.validator.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -47,11 +45,12 @@ public class UserServiceTest {
 
     private PasswordEncoder passwordEncoder;
 
-    private AvatarService avatarService;
+    private UserValidator userValidator;
 
-    private RandomAvatarService randomAvatarService;
+    private UserProfilePicService userProfilePicService;
 
-    private CountryRepository countryRepository;
+    private CountryService countryService;
+
 
     @BeforeEach
     public void init() {
@@ -62,9 +61,9 @@ public class UserServiceTest {
         filter = List.of(mock(UserFilter.class));
         userMapperImpl = spy(UserMapperImpl.class);
         passwordEncoder = mock(PasswordEncoder.class);
-        avatarService = mock(AvatarService.class);
-        randomAvatarService = mock(RandomAvatarService.class);
-        countryRepository = mock(CountryRepository.class);
+        userValidator = mock(UserValidator.class);
+        userProfilePicService = mock(UserProfilePicService.class);
+        countryService = mock(CountryService.class);
 
         userService = new UserService(
                 userRepository,
@@ -74,9 +73,9 @@ public class UserServiceTest {
                 filter,
                 userMapperImpl,
                 passwordEncoder,
-                avatarService,
-                randomAvatarService,
-                countryRepository
+                userValidator,
+                userProfilePicService,
+                countryService
         );
 
 
@@ -124,7 +123,5 @@ public class UserServiceTest {
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(user.getUsername(), result.get(0).username());
-
     }
-
 }

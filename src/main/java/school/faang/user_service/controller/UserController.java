@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.BooleanResponse;
-import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.UserService;
@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UserDto createUser(@Valid @ModelAttribute  CreateUserDto createUserDto) {
-        return userService.createUser(createUserDto);
+    public UserDto createUser(@Valid @ModelAttribute UserCreateDto userCreateDto) {
+        return userService.createUser(userCreateDto);
     }
 }

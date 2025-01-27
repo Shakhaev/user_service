@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.exception.DataValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class AvatarService {
 
         long contentLength = file.getSize();
         if (contentLength <= 0) {
-            throw new IllegalArgumentException("Размер файла неверный: " + contentLength);
+            throw new DataValidationException("Размер файла неверный: " + contentLength);
         }
         metadata.setContentLength(contentLength);
 
@@ -66,6 +67,4 @@ public class AvatarService {
 
         return amazonS3.getUrl(bucketName, filename).toString();
     }
-
-
 }

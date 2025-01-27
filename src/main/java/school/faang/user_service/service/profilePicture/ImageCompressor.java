@@ -26,5 +26,4 @@ public class ImageCompressor {
             return compressedBytes;
         }
     }
-
 }

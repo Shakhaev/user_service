@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class CreateUserDto {
+public class UserCreateDto {
     @NotEmpty(message = "Имя не может быть пустым")
     @Size(max = 64, message = "Имя не должно быть длиннее 64 символов")
     private String username;
