@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.mentorship;
+package school.faang.user_service.service.mentorship;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.controller.mentorship.MentorshipController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-class MentorshipControllerTest {
+class MentorshipServiceTest {
 
     @Mock
     private MentorshipService mentorshipService;
