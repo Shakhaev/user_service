@@ -1,0 +1,12 @@
+ALTER TABLE users
+ADD COLUMN rating_points INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE rating_history (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    points INTEGER NOT NULL,
+    action_type VARCHAR(255) NOT NULL,
+    description VARCHAR(512),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);

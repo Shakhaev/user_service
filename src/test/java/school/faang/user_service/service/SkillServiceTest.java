@@ -18,6 +18,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.rating.publisher.UserEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -48,7 +49,11 @@ class SkillServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserEventPublisher userEventPublisher;
+    @Mock
     private SkillOfferRepository skillOfferRepository;
+    @Mock
+    private RatingService ratingService;
     @Mock
     private AppConfig appConfig;
     @Mock

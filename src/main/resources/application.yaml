@@ -1,6 +1,8 @@
 app:
   config:
     min_skill_offers: 3
+    active_transaction: 5
+    passive_transaction: 2
     dicebear_url: "${DICEBEAR_URL: https://api.dicebear.com/9.x/adventurer/svg?seed={seed}}"
 
 spring:
@@ -9,10 +11,10 @@ spring:
       path: /api/v1
 
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}
     username: ${DB_USERNAME:user}
     password: ${DB_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -39,6 +41,11 @@ spring:
       retries: 3
       enable-idempotence: true
       max-in-flight-requests-per-connection: 5
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
   port: ${SERVER_PORT:8080}

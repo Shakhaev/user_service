@@ -10,6 +10,12 @@ public class AppConfig {
     @Value("${app.config.min_skill_offers:3}")
     private int minSkillOffers;
 
+    @Value("${app.config.active_transaction:5}")
+    private int activeTransaction;
+
+    @Value("${app.config.passive_transaction:2}")
+    private int passiveTransaction;
+
     @Value("${app.config.dicebear_url}")
     private String dicebearUrl;
 }
