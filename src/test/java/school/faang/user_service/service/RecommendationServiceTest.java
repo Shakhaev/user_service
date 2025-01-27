@@ -63,22 +63,31 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void testCreateRecommendation() {
+    public void testCreate() {
+        // Подготовка данных
         RecommendationDto recommendationDto = new RecommendationDto();
         recommendationDto.setAuthorId(1L);
         recommendationDto.setReceiverId(2L);
-        recommendationDto.setContent("Great work!");
+        recommendationDto.setContent("Test recommendation");
 
-        when(skillOffer.getSkill().getId()).thenReturn(1L);
-        when(recommendationRepository.create(anyLong(), anyLong(), anyString())).thenReturn(1L);
-        when(userSkillGuaranteeMapper.toEntity(any(UserSkillGuaranteeDto.class))).thenReturn(new UserSkillGuarantee());
+        UserSkillGuaranteeDto userSkillGuaranteeDto = new UserSkillGuaranteeDto();
+        userSkillGuaranteeDto.setSkillId(3L);
+        userSkillGuaranteeDto.setGuarantorId(recommendationDto.getAuthorId());
+        userSkillGuaranteeDto.setUserId(recommendationDto.getReceiverId());
 
+        // Настройка поведения моков
+        when(skillOffer.getSkill().getId()).thenReturn(3L);
+        when(userSkillGuaranteeMapper.toEntity(userSkillGuaranteeDto)).thenReturn(new UserSkillGuarantee());
+        when(recommendationRepository.create(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent())).thenReturn(1L);
+
+        // Вызов тестируемого метода
         RecommendationDto result = recommendationService.create(recommendationDto);
 
+        // Проверка результатов
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        verify(recommendationRepository, times(1)).create(anyLong(), anyLong(), anyString());
-        verify(userSkillGuaranteeRepository, times(1)).save(any(UserSkillGuarantee.class));
+        verify(userSkillGuaranteeRepository).save(any(UserSkillGuarantee.class));
+        verify(recommendationRepository).create(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent());
     }
 
     @Test
