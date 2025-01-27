@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
 
-import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,12 +48,12 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_WhenUserDoesNotExist_ThrowsFeignExceptionNotFound() {
+    void getUser_WhenUserDoesNotExist_ThrowsEntityNotFoundException() {
         long userId = 1L;
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        FeignException.NotFound exception = assertThrows(FeignException.NotFound.class, () -> userService.getUser(userId));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getUser(userId));
 
         assertEquals(String.format(USER_WITH_ID_NOT_FOUND, userId), exception.getMessage());
         verify(userRepository).findById(userId);
