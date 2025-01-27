@@ -1,6 +1,6 @@
 package school.faang.user_service.dto.event;
 
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.ResponseSkillDto;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
@@ -14,7 +14,7 @@ public record EventDto(
         LocalDateTime endDate,
         Long ownerId,
         String description,
-        List<SkillDto> relatedSkillsDto,
+        List<ResponseSkillDto> relatedSkillsDto,
         String location,
         int maxAttendees,
         EventType eventType,

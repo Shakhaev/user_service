@@ -238,7 +238,7 @@ public class TestData {
                 .build();
     }
 
-    public static Event createEvent(Long id, String title, String date, int maxAttendees ) {
+    public static Event createEvent(Long id, String title, String date, int maxAttendees) {
         return Event.builder()
                 .id(id)
                 .title(title)

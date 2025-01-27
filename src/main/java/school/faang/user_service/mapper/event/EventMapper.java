@@ -9,7 +9,7 @@ import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventRequestDto;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.ResponseSkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.skill.SkillMapper;
@@ -46,7 +46,7 @@ public abstract class EventMapper {
     public abstract void update(EventRequestDto dto, @MappingTarget Event entity);
 
     @Named("mapToRelatedSkillsDto")
-    protected List<SkillDto> mapToRelatedSkillsDto(List<Skill> relatedSkills) {
+    protected List<ResponseSkillDto> mapToRelatedSkillsDto(List<Skill> relatedSkills) {
         return relatedSkills == null ? null : relatedSkills.stream()
                 .map(skillMapper::toSkillDto)
                 .toList();
