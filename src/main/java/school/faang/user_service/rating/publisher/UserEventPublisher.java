@@ -1,6 +1,5 @@
 package school.faang.user_service.rating.publisher;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.rating.ActionType;
 import school.faang.user_service.rating.observer.EventObserver;

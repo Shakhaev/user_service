@@ -132,6 +132,43 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
+tasks.bootJar {
+    archiveFileName.set("service.jar")
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+tasks.withType<JacocoReport> {
+    val filteredClassDirectories = classDirectories.files.map { dir ->
+        project.fileTree(dir) {
+            exclude(
+                "school/faang/user_service/client",
+                "school/faang/user_service/config",
+                "school/faang/user_service/controller",
+                "school/faang/user_service/dto",
+                "school/faang/user_service/mapper"
+            )
+        }
+    }
+    classDirectories.setFrom(filteredClassDirectories)
+}
+
+tasks {
+    val jacocoCustomTestReport by creating(JacocoReport::class) {
+        reports {
+            xml.isEnabled = false
+            csv.isEnabled = false
+            html.isEnabled = true
+        }
+    }
+
+    withType<Test> {
+        finalizedBy(jacocoCustomTestReport)
+    }
+}
+
 checkstyle {
     toolVersion = "10.17.0"
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
