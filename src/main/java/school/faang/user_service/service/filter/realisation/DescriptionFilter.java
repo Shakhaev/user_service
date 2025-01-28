@@ -1,8 +1,9 @@
-package school.faang.user_service.service.goal.filter;
+package school.faang.user_service.service.filter.realisation;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.service.filter.GoalFilter;
 
 import java.util.stream.Stream;
 

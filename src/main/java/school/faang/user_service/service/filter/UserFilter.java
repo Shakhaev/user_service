@@ -1,4 +1,4 @@
-package school.faang.user_service.filters.interfaces;
+package school.faang.user_service.service.filter;
 
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;

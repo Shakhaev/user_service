@@ -1,20 +1,21 @@
-package school.faang.user_service.service.goal.filter;
+package school.faang.user_service.service.filter.realisation;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.service.filter.GoalFilter;
 
 import java.util.stream.Stream;
 
 @Component
-public class StatusFilter implements GoalFilter {
+public class MentorIdFilter implements GoalFilter {
     @Override
     public boolean isApplicable(GoalFilterDto filterDto) {
-        return filterDto.status() != null;
+        return filterDto.mentorId() != null;
     }
 
     @Override
     public Stream<Goal> apply(Stream<Goal> goalStream, GoalFilterDto filterDto) {
-        return goalStream.filter(goal -> goal.getStatus().equals(filterDto.status()));
+        return goalStream.filter(goal -> goal.getMentor().getId().equals(filterDto.mentorId()));
     }
 }
