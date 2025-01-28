@@ -20,14 +20,14 @@ public class AppConfig {
     private String dicebearUrl;
 
     @Value("${app.config.file_size}")
-    private int file_size;
+    private int fileSize;
 
     @Value("${app.config.bucket_name}")
-    private String bucket_name;
+    private String bucketName;
 
     @Value("${app.config.large_file_size}")
-    private int large_file_size;
+    private int largeFileSize;
 
     @Value("${app.config.small_file_size}")
-    private int small_file_size;
+    private int smallFileSize;
 }

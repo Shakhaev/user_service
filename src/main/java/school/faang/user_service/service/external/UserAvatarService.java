@@ -30,8 +30,8 @@ public class UserAvatarService {
     public UserProfilePic uploadAvatar(Long userId, MultipartFile multipartFile) {
         checkFileSize(multipartFile);
         User user = findUserById(userId);
-        int large_file_size = appConfig.getLarge_file_size();
-        int small_file_size = appConfig.getSmall_file_size();
+        int large_file_size = appConfig.getLargeFileSize();
+        int small_file_size = appConfig.getSmallFileSize();
 
         ByteArrayOutputStream largeStream = new ByteArrayOutputStream();
         ByteArrayOutputStream smallStream = new ByteArrayOutputStream();
@@ -40,12 +40,12 @@ public class UserAvatarService {
             resizeImage(multipartFile, large_file_size, largeStream);
             resizeImage(multipartFile, small_file_size, smallStream);
 
-            String largeFileID = uploadToMinio(largeStream);
-            String smallFileID = uploadToMinio(smallStream);
+            String largeFileId = uploadToMinio(largeStream);
+            String smallFileId = uploadToMinio(smallStream);
 
             UserProfilePic userProfilePic = new UserProfilePic();
-            userProfilePic.setFileId(largeFileID);
-            userProfilePic.setSmallFileId(smallFileID);
+            userProfilePic.setFileId(largeFileId);
+            userProfilePic.setSmallFileId(smallFileId);
 
             user.setUserProfilePic(userProfilePic);
 
@@ -76,7 +76,7 @@ public class UserAvatarService {
 
     @Transactional
     public void deleteProfilePic(Long userId) {
-        String bucketName = appConfig.getBucket_name();
+        String bucketName = appConfig.getBucketName();
         User user = findUserById(userId);
         String largeFileId = user.getUserProfilePic().getFileId();
         String smallFileId = user.getUserProfilePic().getSmallFileId();
@@ -101,8 +101,8 @@ public class UserAvatarService {
         }
     }
 
-    private byte[] getImageFromMinio(String fileId){
-        String bucketName = appConfig.getBucket_name();
+    private byte[] getImageFromMinio(String fileId) {
+        String bucketName = appConfig.getBucketName();
         GetObjectArgs getObjectArgs = GetObjectArgs.builder()
                 .bucket(bucketName)
                 .object(fileId)
@@ -133,7 +133,7 @@ public class UserAvatarService {
 
     private String uploadToMinio(ByteArrayOutputStream stream) {
         String filename = "profile-" + LocalDateTime.now() + ".jpg";
-        String bucketName = appConfig.getBucket_name();
+        String bucketName = appConfig.getBucketName();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(stream.toByteArray());
 
         PutObjectArgs putObjectArgs = PutObjectArgs.builder()
@@ -154,9 +154,9 @@ public class UserAvatarService {
     }
 
     private void checkFileSize(MultipartFile multipartFile) {
-        int file_size = appConfig.getFile_size();
-        if (multipartFile.getSize() > file_size) {
-            throw new FileSizeIncorrectException("File size should be less than -> " + file_size);
+        int fileSize = appConfig.getFileSize();
+        if (multipartFile.getSize() > fileSize) {
+            throw new FileSizeIncorrectException("File size should be less than -> " + fileSize);
         }
     }
 }
