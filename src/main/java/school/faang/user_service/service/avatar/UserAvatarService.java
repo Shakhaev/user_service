@@ -117,6 +117,7 @@ public class UserAvatarService {
         return new byte[0];
     }
 
+    @Transactional(readOnly = true)
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserWasNotFoundException("User was not found -> ID : " + userId));
