@@ -1,17 +1,16 @@
-package school.faang.user_service.service.skills;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.repository.SkillRepository;
+package school.faang.user_service.service.skill;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -28,19 +27,6 @@ public class SkillService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillMapper skillMapper;
-
-    public void assignSkillsToUser(Long skillId, Long userId) {
-        skillRepository.assignSkillToUser(skillId, userId);
-    }
-
-    public boolean skillsExist(List<Long> ids) {
-        int existing = skillRepository.countExisting(ids);
-        return existing == ids.size();
-    }
-
-    public List<Skill> findByIds(List<Long> ids) {
-        return skillRepository.findAllById(ids);
-    }
 
     public SkillDto createSkill(SkillDto skillDto) {
         validateSkill(skillDto);
@@ -95,6 +81,6 @@ public class SkillService {
     }
 
     private Skill findSkillById(long skillId) {
-        return skillRepository.findById(skillId).orElseThrow(() -> new EntityNotFoundException("Skill not found by id " + skillId));
+      return skillRepository.findById(skillId).orElseThrow(() -> new EntityNotFoundException("Skill not found by id " + skillId));
     }
 }

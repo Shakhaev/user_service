@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.recommendation;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.service.RecommendationService;
+import school.faang.user_service.service.recommendation.RecommendationService;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
