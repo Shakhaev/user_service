@@ -30,15 +30,15 @@ public class UserAvatarService {
     public UserProfilePic uploadAvatar(Long userId, MultipartFile multipartFile) {
         checkFileSize(multipartFile);
         User user = findUserById(userId);
-        int large_file_size = appConfig.getLargeFileSize();
-        int small_file_size = appConfig.getSmallFileSize();
+        int largeFileSize = appConfig.getLargeFileSize();
+        int smallFileSize = appConfig.getSmallFileSize();
 
         ByteArrayOutputStream largeStream = new ByteArrayOutputStream();
         ByteArrayOutputStream smallStream = new ByteArrayOutputStream();
 
         try {
-            resizeImage(multipartFile, large_file_size, largeStream);
-            resizeImage(multipartFile, small_file_size, smallStream);
+            resizeImage(multipartFile, largeFileSize, largeStream);
+            resizeImage(multipartFile, smallFileSize, smallStream);
 
             String largeFileId = uploadToMinio(largeStream);
             String smallFileId = uploadToMinio(smallStream);
@@ -124,10 +124,10 @@ public class UserAvatarService {
     }
 
     private void resizeImage(MultipartFile multipartFile,
-                             int max_size,
+                             int maxSize,
                              OutputStream stream) throws IOException {
         Thumbnails.of(multipartFile.getInputStream())
-                .size(max_size, max_size)
+                .size(maxSize, maxSize)
                 .toOutputStream(stream);
     }
 
