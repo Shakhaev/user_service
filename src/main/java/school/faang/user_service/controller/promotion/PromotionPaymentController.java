@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${payments.domain.path}/payments")
+@RequestMapping("${domain.path}/payments")
 public class PromotionPaymentController {
     private final PromotionPaymentService promotionPaymentService;
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${promotions.domain.path}/promotions")
+@RequestMapping("${domain.path}/promotions")
 public class PromotionController {
     private final PromotionService promotionService;
 

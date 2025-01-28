@@ -142,10 +142,31 @@ public class PromotionPrepareData {
                 .build();
     }
 
-    public static Promotion getPromotion() {
+    public static Promotion getUserPromotion() {
         return Promotion.builder()
                 .id(1L)
                 .user(User.builder().id(1L).username("user").build())
+                .promotionPayment(PromotionPayment.builder()
+                        .id(RANDOM_UUID)
+                        .build())
+                .status(PromotionStatus.ACTIVE)
+                .usedViews(100)
+                .tariff(PromotionTariff.PREMIUM)
+                .planType(PromotionPlanType.USER)
+                .build();
+    }
+
+    public static Promotion getEventPromotion() {
+        return Promotion.builder()
+                .id(1L)
+                .user(User.builder().id(1L)
+                        .username("user")
+                        .participatedEvents(List.of(Event.builder().id(1L).build()))
+                        .build())
+                .event(Event.builder()
+                        .id(1L)
+                        .title("event")
+                        .build())
                 .promotionPayment(PromotionPayment.builder()
                         .id(RANDOM_UUID)
                         .build())

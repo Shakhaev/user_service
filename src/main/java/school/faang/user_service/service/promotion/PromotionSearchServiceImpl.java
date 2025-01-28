@@ -1,5 +1,6 @@
 package school.faang.user_service.service.promotion;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
@@ -65,22 +66,16 @@ public class PromotionSearchServiceImpl implements PromotionSearchService {
     }
 
     private List<Promotion> getPromotedEvents(String query) {
-        return promotionRepository.findAll().stream()
-                .filter(promotion -> promotion.getEvent() != null)
-                .filter(promotion -> query.contains(promotion.getEvent().getTitle()))
-                .filter(promotion -> promotion.getStatus().equals(PromotionStatus.ACTIVE))
-                .toList();
+        return promotionRepository.findPromotedEventsByQuery(query);
     }
 
     private List<Promotion> getPromotedUsers(String query) {
-        return promotionRepository.findAll().stream()
-                .filter(promotion -> promotion.getUser() != null)
-                .filter(promotion -> query.contains(promotion.getUser().getUsername()))
-                .filter(promotion -> promotion.getStatus().equals(PromotionStatus.ACTIVE))
-                .toList();
+        return promotionRepository.findPromotedUsersByQuery(query);
     }
 
     private PromotionPlan getPromotionPlanByTariff(PromotionTariff tariff) {
-        return promotionPlanRepository.findPromotionPlanByName(tariff.getValue());
+        return promotionPlanRepository.findPromotionPlanByName(tariff.getValue()).orElseThrow(() ->
+                new EntityNotFoundException(
+                        String.format("Promotion plan with tariff = %s not found", tariff.getValue())));
     }
 }

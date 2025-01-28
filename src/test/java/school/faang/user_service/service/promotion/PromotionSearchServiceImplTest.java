@@ -14,14 +14,16 @@ import school.faang.user_service.repository.promotion.PromotionPlanRepository;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotion;
+import static school.faang.user_service.utils.promotion.PromotionPrepareData.getEventPromotion;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPlanPremium;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getUserDto;
+import static school.faang.user_service.utils.promotion.PromotionPrepareData.getUserPromotion;
 
 @ExtendWith(MockitoExtension.class)
 class PromotionSearchServiceImplTest {
@@ -51,12 +53,13 @@ class PromotionSearchServiceImplTest {
 
     @Test
     public void testSearchResults() {
-        when(promotionRepository.findAll()).thenReturn(List.of(getPromotion()));
+        when(promotionRepository.findPromotedUsersByQuery(eq("user and event"))).thenReturn(List.of(getUserPromotion()));
+        when(promotionRepository.findPromotedEventsByQuery(eq("user and event"))).thenReturn(List.of(getEventPromotion()));
         when(promotionPlanRepository.findPromotionPlanByName(eq("PREMIUM")))
-                .thenReturn(getPromotionPlanPremium());
+                .thenReturn(Optional.ofNullable(getPromotionPlanPremium()));
         doNothing().when(promotionService).updatePromotionViews(eq(1L));
 
-        List<Object> result = promotionSearchService.searchResults("user", 5);
+        List<Object> result = promotionSearchService.searchResults("user and event", 5);
 
         assertEquals(result.get(0), getUserDto());
     }

@@ -1,6 +1,6 @@
 package school.faang.user_service.service.promotion;
 
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.promotion.PromotionPaymentFeignClient;
@@ -25,22 +25,23 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
 
     @Override
     public PromotionPaymentDto getPromotionPaymentById(UUID id) {
-        return promotionPaymentMapper.toDto(promotionPaymentRepository.findPromotionPaymentById(id));
+        PromotionPayment promotionPayment = promotionPaymentRepository.findPromotionPaymentById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Promotion payment with id = %s not found", id)));
+        return promotionPaymentMapper.toDto(promotionPayment);
     }
 
     @Override
-    @Transactional
     public PromotionPaymentDto sendAndCreate(PromotionRequestDto dto) {
-        PromotionPayment newPayment = createPayment(dto);
-        PaymentRequest paymentRequest = createPaymentRequest(newPayment);
+        PaymentRequest paymentRequest = buildPaymentRequest(dto);
         PaymentResponse paymentResponse = promotionPaymentClient.sendPayment(paymentRequest);
+        PromotionPayment newPayment = buildPayment(dto);
         newPayment.setStatus(getPaymentStatus(paymentResponse));
 
         PromotionPayment savedPayment = promotionPaymentRepository.save(newPayment);
         return promotionPaymentMapper.toDto(savedPayment);
     }
 
-    private PromotionPayment createPayment(PromotionRequestDto dto) {
+    private PromotionPayment buildPayment(PromotionRequestDto dto) {
         PromotionPayment promotionPayment = new PromotionPayment();
         promotionPayment.setId(UUID.randomUUID());
         promotionPayment.setUserId(dto.getUserId());
@@ -49,11 +50,11 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
         return promotionPayment;
     }
 
-    private PaymentRequest createPaymentRequest(PromotionPayment newPayment) {
+    private PaymentRequest buildPaymentRequest(PromotionRequestDto requestDto) {
         return PaymentRequest.builder()
-                .paymentNumber(newPayment.getId())
-                .amount(newPayment.getAmount())
-                .currency(newPayment.getCurrency())
+                .paymentNumber(UUID.randomUUID())
+                .amount(requestDto.getAmount())
+                .currency(requestDto.getCurrency())
                 .build();
     }
 

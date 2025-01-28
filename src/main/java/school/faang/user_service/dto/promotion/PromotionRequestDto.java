@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.promotion;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class PromotionRequestDto {
     private PromotionPlanType planType;
 
     @NotNull
+    @Min(1)
     private BigDecimal amount;
 
     @NotNull

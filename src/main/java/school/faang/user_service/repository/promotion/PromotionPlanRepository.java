@@ -4,10 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.promotion.PromotionPlan;
 
+import java.util.Optional;
+
 @Repository
 public interface PromotionPlanRepository extends JpaRepository<PromotionPlan, Long> {
 
-    PromotionPlan findPromotionPlanByName(String name);
+    Optional<PromotionPlan> findPromotionPlanByName(String name);
 
-    PromotionPlan findPromotionPlanByPrice(long price);
+    Optional<PromotionPlan> findPromotionPlanByPrice(long price);
 }

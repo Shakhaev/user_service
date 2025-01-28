@@ -45,21 +45,8 @@ management:
       exposure:
         include: caches
 
-promotions:
-  domain:
-    path: /api/v1
-
-payments:
-  domain:
-    path: /api/v1
-
-search:
-  domain:
-    path: /api/v1
-
-events:
-  domain:
-    path: /api/v1
+domain:
+  path: /api/v1
 
 redis:
-  ttl-minutes: 5
+  ttl-minutes: 2

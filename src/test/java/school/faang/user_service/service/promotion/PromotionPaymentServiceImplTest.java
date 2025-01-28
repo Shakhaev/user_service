@@ -15,6 +15,7 @@ import school.faang.user_service.mapper.promotion.PromotionPaymentMapperImpl;
 import school.faang.user_service.repository.promotion.PromotionPaymentRepository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,7 +65,7 @@ class PromotionPaymentServiceImplTest {
     @Test
     public void testGetPromotionPaymentByName() {
         when(promotionPaymentRepository.findPromotionPaymentById(eq(PROMOTION_PAYMENT_ID)))
-                .thenReturn(getPromotionPayment());
+                .thenReturn(Optional.ofNullable(getPromotionPayment()));
 
         PromotionPaymentDto actualPromotionPaymentDto = service.getPromotionPaymentById(PROMOTION_PAYMENT_ID);
 

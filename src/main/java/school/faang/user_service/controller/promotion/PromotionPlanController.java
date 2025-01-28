@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${promotions.domain.path}/promotion-plans")
+@RequestMapping("${domain.path}/promotion-plans")
 public class PromotionPlanController {
     private final PromotionPlanService service;
 

@@ -1,5 +1,5 @@
 CREATE TABLE promotion (
-    id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id bigserial PRIMARY KEY,
     user_id bigint NOT NULL,
     event_id bigint,
     tariff varchar(30) NOT NULL,

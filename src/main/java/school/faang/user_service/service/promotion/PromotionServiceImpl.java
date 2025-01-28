@@ -24,7 +24,6 @@ import school.faang.user_service.repository.promotion.PromotionPlanRepository;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +39,14 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<PromotionResponseDto> getPromotionsByUser(long userId) {
-        return promotionRepository.getPromotionByUserId(userId).stream()
+        return promotionRepository.findPromotionByUserId(userId).stream()
                 .map(promotionMapper::toDto)
                 .toList();
     }
 
     @Override
     public List<PromotionResponseDto> getPromotionsByEvent(long eventId) {
-        return promotionRepository.getPromotionByEventId(eventId).stream()
+        return promotionRepository.findPromotionByEventId(eventId).stream()
                 .map(promotionMapper::toDto)
                 .toList();
     }
@@ -115,10 +114,9 @@ public class PromotionServiceImpl implements PromotionService {
         if (PromotionPlanType.EVENT.equals(dto.getPlanType())) {
             Long eventId = dto.getEventId();
             if (eventId != null) {
-                Optional<Event> event = eventRepository.findById(eventId);
-                event.ifPresent(value -> checkUserHaveEvent(user, value));
-            } else {
-                throw new EntityNotFoundException("Event haven't doesn't exists");
+                Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                        new EntityNotFoundException("Event not found"));
+                checkUserHaveEvent(user, event);
             }
         }
     }
@@ -138,6 +136,8 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     private PromotionPlan getPromotionPlanByTariff(PromotionTariff tariff) {
-        return promotionPlanRepository.findPromotionPlanByName(tariff.getValue());
+        return promotionPlanRepository.findPromotionPlanByName(tariff.getValue()).orElseThrow(() ->
+                new EntityNotFoundException(
+                        String.format("Promotion plan with tariff = %s not found", tariff.getValue())));
     }
 }

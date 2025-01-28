@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getEvent;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getEventWithSecondId;
-import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotion;
+import static school.faang.user_service.utils.promotion.PromotionPrepareData.getUserPromotion;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPaymentDto;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPaymentDtoWithStatus;
 import static school.faang.user_service.utils.promotion.PromotionPrepareData.getPromotionPaymentDtoWhenDeclined;
@@ -68,8 +68,8 @@ class PromotionServiceImplTest {
 
     @Test
     public void testGetPromotionsByUser() {
-        when(promotionRepository.getPromotionByUserId(eq(1L)))
-                .thenReturn(List.of(getPromotion()));
+        when(promotionRepository.findPromotionByUserId(eq(1L)))
+                .thenReturn(List.of(getUserPromotion()));
 
         List<PromotionResponseDto> promotionsByUserDto = promotionService.getPromotionsByUser(1L);
 
