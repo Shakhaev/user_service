@@ -28,7 +28,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation ("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -49,6 +48,11 @@ dependencies {
      */
     implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
     implementation("io.minio:minio:8.3.3")
+
+    /**
+     * Message Broker
+     */
+    implementation("org.springframework.kafka:spring-kafka")
 
     /**
      * Swagger

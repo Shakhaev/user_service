@@ -46,11 +46,13 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       group-id: news-feed-group-1
       auto-offset-reset: earliest
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     template:
       default-topic: default-topic
 application:
@@ -60,10 +62,10 @@ application:
       post-replications-count: 1
       post-partitions-count: 3
 
-      heat-users-cache-topic-name: heat-users-cache
-      heat-users-cache-replications-count: 1
-      heat-users-cache-partitions-count: 3
-    heat-users-batch-size: 1000
+      heat-feed-cache-topic-name: heat-feed-cache
+      heat-feed-cache-replications-count: 1
+      heat-feed-cache-partitions-count: 3
+    heat-feed-batch-size: 1000
 
   servlet:
     multipart:

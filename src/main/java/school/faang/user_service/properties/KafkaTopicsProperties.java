@@ -15,8 +15,8 @@ public class KafkaTopicsProperties {
     private int postPartitionsCount;
     private short postReplicationsCount;
 
-    private String heatUsersCacheTopicName;
-    private int heatUsersCachePartitionsCount;
-    private short heatUsersCacheReplicationsCount;
+    private String heatFeedCacheTopicName;
+    private int heatFeedCachePartitionsCount;
+    private short heatFeedCacheReplicationsCount;
 
 }

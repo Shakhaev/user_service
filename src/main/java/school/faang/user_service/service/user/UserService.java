@@ -5,34 +5,27 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.config.async.AsyncConfig;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
-import school.faang.user_service.dto.user.UserProfilePicDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.userJira.UserJira;
-import school.faang.user_service.entity.user_cache.UserCacheDto;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.pojo.user.Person;
-import school.faang.user_service.publisher.kafka.KafkaHeatCacheProducer;
 import school.faang.user_service.redis.event.ProfileViewEvent;
 import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.cache.UserCacheRepository;
-import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
 import java.io.IOException;
@@ -59,16 +52,9 @@ public class UserService {
     private final UserJiraService userJiraService;
     private final ProfileViewEventPublisher profileViewEventPublisher;
     private final UserContext userContext;
-    private final UserCacheRepository userCacheRepository;
-    private final AvatarService avatarService;
-    private final AsyncConfig asyncConfig;
-    private final KafkaHeatCacheProducer kafkaHeatCacheProducer;
 
     private final CountryService countryService;
     private static final String FILE_TYPE = "text/csv";
-
-    @Value(value = "${application.kafka.heat-users-batch-size}")
-    private int batchSize;
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -84,9 +70,23 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids) {
-        return userRepository.findAllById(ids).stream()
+        return findAllUsersByIds(ids).stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<Long> findActiveUsersIdsWithPagination(int limit, int offset) {
+        List<Long> usersIds = userRepository.findAllActiveUsersWithPagination(limit, offset);
+        log.info("Got batch usersIds: {}, with pagination", limit);
+        return usersIds;
+    }
+
+    @Transactional
+    public List<User> findAllUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        log.info("Found {} users", users.size());
+        return users;
     }
 
     @Transactional
@@ -94,17 +94,6 @@ public class UserService {
         boolean isUserExists = userRepository.existsById(userId);
         log.info(isUserExists ? "User with id {} exists" : "User with id: {} does not exist", userId);
         return isUserExists;
-    }
-
-    @Transactional
-    public void startHeatFeedCache() {
-        int offset = 0;
-        List<Long> batch;
-        do {
-            batch = userRepository.findAllActiveUsersWithPagination(batchSize, offset);
-            kafkaHeatCacheProducer.send(batch);
-            offset += batchSize;
-        } while (!batch.isEmpty());
     }
 
     @Transactional
@@ -175,7 +164,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private User findUserById(long userId) {
+    User findUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
     }
@@ -184,36 +173,6 @@ public class UserService {
     public boolean isUserActive(long userId) {
         User user = findUserById(userId);
         return user.isActive();
-    }
-
-    @Transactional
-    public List<UserCacheDto> getUsersCachesDtos(List<Long> userIds) {
-        List<User> users = userRepository.findAllById(userIds);
-        List<UserCacheDto> usersDto = userMapper.toListUserCacheDto(users);
-        usersDto.forEach(user -> user.setProfilePicture(getProfilePicture(user.getUserId())));
-
-        asyncConfig.taskExecutor().execute(() -> userCacheRepository.saveBatchUsersToCache(usersDto));
-        log.info("Got {} users for cache ", usersDto.size());
-        return usersDto;
-    }
-
-    private UserProfilePicDto getProfilePicture(long userId) {
-        byte[] avatarData = avatarService.getUserAvatar(userId);
-        return UserProfilePicDto.builder()
-                .userId(userId)
-                .profilePictureData(avatarData)
-                .build();
-    }
-
-    @Transactional
-    public void saveUserToCache(long userId) {
-        User user = findUserById(userId);
-        UserCacheDto userCacheDto = userMapper.toUserCacheDto(user);
-        UserProfilePicDto picture = getProfilePicture(userId);
-        userCacheDto.setProfilePicture(picture);
-
-        userCacheRepository.saveUserToCache(userCacheDto);
-        log.info("User with id: {} saved to cache", userId);
     }
 
     @Transactional

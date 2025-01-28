@@ -35,6 +35,7 @@ import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.user_cache.UserCacheDto;
 import school.faang.user_service.mapper.user.UserProfilePicMapper;
 import school.faang.user_service.service.avatar.AvatarService;
+import school.faang.user_service.service.user.UserCacheService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
@@ -50,6 +51,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserCacheService userCacheService;
     private final AvatarService avatarService;
     private final UserProfilePicMapper userProfilePicMapper;
 
@@ -192,12 +194,12 @@ public class UserController {
 
     @PostMapping("/caches/ids")
     public List<UserCacheDto> getUsersCachesByIds(@RequestBody List<Long> usersIds) {
-        return userService.getUsersCachesDtos(usersIds);
+        return userCacheService.getUsersCachesDtos(usersIds);
     }
 
     @PostMapping("/caches")
     public String heatCache() {
-        userService.startHeatFeedCache();
+        userCacheService.startHeatFeedCache();
         return "Cache heating started successfully.";
     }
 }

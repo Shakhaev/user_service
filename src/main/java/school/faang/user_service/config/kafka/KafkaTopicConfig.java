@@ -35,8 +35,8 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic heatUsersCacheTopic() {
-        return new NewTopic(topicProp.getHeatUsersCacheTopicName(), topicProp.getHeatUsersCachePartitionsCount(),
-                topicProp.getHeatUsersCacheReplicationsCount());
+    public NewTopic heatFeedCacheTopic() {
+        return new NewTopic(topicProp.getHeatFeedCacheTopicName(), topicProp.getHeatFeedCachePartitionsCount(),
+                topicProp.getHeatFeedCacheReplicationsCount());
     }
 }
