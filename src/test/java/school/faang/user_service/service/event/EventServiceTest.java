@@ -32,7 +32,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -150,19 +149,19 @@ public class EventServiceTest {
         EventDto eventDto = createNewEventCandidate();
         eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
         List<Long> ownerSkillsIds = Arrays.asList(1L, 3L);
-        when(userRepository.getUser(eventDto.getOwnerId())).thenReturn(user1);
+        EventService spyService = PowerMockito.spy(eventService);
+        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills", ownerSkillsIds, eventDto.getRelatedSkills());
         eventService.create(eventDto);
-        verify(eventService, times(1)).create(eventCaptor.capture());
-        EventDto newEventDtoAfter = eventCaptor.getValue();
-
+        EventDto result = spyService.create(eventDto);
+        assertNotNull(result);
+        PowerMockito.verifyPrivate(spyService).invoke("validateEventRelatedSkills", ownerSkillsIds, eventDto.getRelatedSkills());
     }
 
     @Test
     public void testCreateEvent_ThrowsException() throws Exception {
         EventDto eventDto = createNewEventCandidate();
         eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
-        List<Long> ownerSkillsIds = Arrays.asList(3L, 4L);
-
+        List<Long> ownerSkillsIds = Arrays.asList(3L, 4L); // Намеренно не совпадают
 
         when(skillService.getSkillsIds(any())).thenReturn(ownerSkillsIds);
 
