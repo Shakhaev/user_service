@@ -1,7 +1,6 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.dto.user;
 
 import lombok.Data;
-import school.faang.user_service.dto.user.UserDto;
 
 @Data
 public class GetUserRequest {

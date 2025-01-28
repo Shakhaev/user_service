@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import school.faang.user_service.BaseTest;
-import school.faang.user_service.controller.GetUserRequest;
+import school.faang.user_service.dto.user.GetUserRequest;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Tariff;
 import school.faang.user_service.entity.User;

@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,12 +12,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import school.faang.user_service.common.Currency;
 import school.faang.user_service.dto.ErrorResponse;
+import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.PaymentException;
 import school.faang.user_service.exception.PremiumBadRequestException;
 import school.faang.user_service.exception.PremiumInvalidDataException;
 import school.faang.user_service.exception.PremiumNotFoundException;
 import school.faang.user_service.exception.ServiceNotAvailableException;
-import school.faang.user_service.exception.BusinessException;
-import school.faang.user_service.exception.PaymentException;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -108,22 +107,17 @@ public class ControllerExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(PaymentException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentException(PaymentException e) {
+    public ErrorResponse handlePaymentException(PaymentException e) {
         log.error("PaymentException: {}", e.getMessage());
 
-        return createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ErrorResponse(e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+    public ErrorResponse handleBusinessException(BusinessException e) {
         log.error("BusinessException: {}", e.getMessage());
 
-        return createErrorResponse(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-    }
-
-    private ResponseEntity<ErrorResponse> createErrorResponse(String message, HttpStatus status) {
-        return new ResponseEntity<>(new ErrorResponse(message),
-                status);
+        return new ErrorResponse(e.getMessage());
     }
 }

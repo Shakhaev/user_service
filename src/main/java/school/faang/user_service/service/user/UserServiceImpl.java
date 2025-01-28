@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.controller.GetUserRequest;
+import school.faang.user_service.dto.user.GetUserRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilter;
@@ -23,7 +23,6 @@ import school.faang.user_service.service.tariff.TariffService;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static school.faang.user_service.constant.UserErrorMessages.USER_WITH_ID_NOT_FOUND;
 
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(String.format("User with id %s not found", userId)));
     }
 
     @Override
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .peek(user -> tariffService.decrementShows(user.getTariff()))
                 .map(userMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

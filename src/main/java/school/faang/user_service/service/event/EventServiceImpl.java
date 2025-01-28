@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.controller.event.GetEventRequest;
+import school.faang.user_service.dto.event.GetEventRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilter;

@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.faang.user_service.BaseTest;
+import school.faang.user_service.controller.RecommendationRequestController;
 import school.faang.user_service.data.RecommendationRequestData;
 import school.faang.user_service.data.SkillData;
 import school.faang.user_service.dto.recommendation.request.RecommendationRequestDto;

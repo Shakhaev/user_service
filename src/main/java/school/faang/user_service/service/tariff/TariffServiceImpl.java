@@ -37,7 +37,7 @@ public class TariffServiceImpl implements TariffService {
     @Transactional
     public Tariff buyTariff(TariffDto tariffDto, Long userId) {
         if (!userServiceProperties.getListAvailableTariffDtos().contains(tariffDto)) {
-            String message = "Tariff " + tariffDto + " not found";
+            String message = String.format("Tariff %s not found", tariffDto);
             log.error(message);
             throw new EntityNotFoundException(message);
         }
@@ -78,7 +78,6 @@ public class TariffServiceImpl implements TariffService {
             throw new IllegalArgumentException("User id is null");
         }
 
-        userContext.setUserId(userId);
         PaymentResponse response;
         try {
             response = paymentServiceFeignClient.sendPayment(

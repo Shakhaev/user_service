@@ -1,7 +1,6 @@
-package school.faang.user_service.controller.event;
+package school.faang.user_service.dto.event;
 
 import lombok.Data;
-import school.faang.user_service.dto.event.EventDto;
 
 @Data
 public class GetEventRequest {

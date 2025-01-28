@@ -1,6 +1,6 @@
 package school.faang.user_service.service.event;
 
-import school.faang.user_service.controller.event.GetEventRequest;
+import school.faang.user_service.dto.event.GetEventRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;

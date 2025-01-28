@@ -1,7 +1,6 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.TariffDto;
+import school.faang.user_service.dto.user.GetUserRequest;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.UserService;
 
@@ -26,8 +26,8 @@ public class UserController {
     }
 
     @PostMapping("/buy-tariff")
-    public ResponseEntity<TariffDto> buyTariff(@RequestBody BuyTariffRequest request) {
-        return ResponseEntity.ok(userService.buyUserTariff(request.tariffDto(), request.id()));
+    public TariffDto buyTariff(@RequestBody BuyTariffRequest request) {
+        return userService.buyUserTariff(request.tariffDto(), request.id());
     }
 
     @GetMapping("/users")
