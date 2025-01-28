@@ -3,8 +3,10 @@ package school.faang.user_service.service.event;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -28,10 +30,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 
-@RunWith(PowerMockRunner.class)
+@ExtendWith(MockitoExtension.class)
 @PrepareForTest(EventService.class)
 public class EventServiceTest {
 
@@ -56,20 +60,14 @@ public class EventServiceTest {
     @Mock
     private List<EventFilter> eventFilters;
 
-
     @InjectMocks
     private EventService eventService;
-
 
     @Spy
     private EventMapper eventMapper = new EventMapperImpl();
 
-
-
     @Captor
     private ArgumentCaptor<EventDto> eventCaptor;
-
-
 
     @BeforeEach
     public  void setUp() {
@@ -152,20 +150,25 @@ public class EventServiceTest {
         EventDto eventDto = createNewEventCandidate();
         eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
         List<Long> ownerSkillsIds = Arrays.asList(1L, 3L);
-        EventService spyService = PowerMockito.spy(eventService);
-        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills",
-                anyList(), eq(ownerSkillsIds));
-        when(skillService.getSkillsIds(any())).thenReturn(ownerSkillsIds);
-        EventDto result = eventService.create(eventDto);
-        assertNotNull(result);
-        PowerMockito.verifyPrivate(eventService).invoke("validateEventRelatedSkills",
-                anyList(), eq(ownerSkillsIds));
+        when(userRepository.getUser(eventDto.getOwnerId())).thenReturn(user1);
+        eventService.create(eventDto);
+        verify(eventService, times(1)).create(eventCaptor.capture());
+        EventDto newEventDtoAfter = eventCaptor.getValue();
+
     }
 
-    private void mockValidateEventRelatedSkills(){
-        List<Skill> relatedSkills = getRelatedSkills();
-        when(relatedSkills.isEmpty()).thenReturn(false);
+    @Test
+    public void testCreateEvent_ThrowsException() throws Exception {
+        EventDto eventDto = createNewEventCandidate();
+        eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
+        List<Long> ownerSkillsIds = Arrays.asList(3L, 4L);
+
+
+        when(skillService.getSkillsIds(any())).thenReturn(ownerSkillsIds);
+
+        assertThrows(BusinessException.class, () -> eventService.create(eventDto));
     }
+
 
     private static @NotNull List<Skill> getRelatedSkills() {
         return List.of(Skill.builder().id(1L).build(), Skill.builder().id(2L).build());

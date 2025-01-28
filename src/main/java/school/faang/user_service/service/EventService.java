@@ -110,11 +110,12 @@ public class EventService {
 
 
     private void validateEventRelatedSkills(List<Long> relatedSkills, List<Long> ownerSkillsIds) {
-        for (Long skillId : relatedSkills) {
-            if (!ownerSkillsIds.contains(skillId)) {
-                throw new BusinessException("Пользователь не обладает скилами " + skillId + " для создания события");
+        boolean hasCommonElements = relatedSkills.stream().anyMatch(ownerSkillsIds::contains);
+
+            if (!hasCommonElements) {
+                throw new BusinessException("Пользователь не обладает скилами для создания события");
             }
         }
-    }
+
 
 }
