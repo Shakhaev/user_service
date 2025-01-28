@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.client.payment.Currency;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceFeignClient;
@@ -45,7 +46,7 @@ public class TariffServiceImpl implements TariffService {
                 .getAvailableTariffs()
                 .get(tariffDto.getPlan());
 
-        sendPayment(tariffDto, properties.getPrice(), properties.getCurrency(), userId);
+        sendPayment(tariffDto, properties.getPrice(), Currency.valueOf(properties.getCurrency()), userId);
 
         tariffDto.setExpirePeriod(LocalDateTime.now().plusDays(properties.getDays()));
         tariffDto.setIsActive(true);
@@ -71,7 +72,7 @@ public class TariffServiceImpl implements TariffService {
         tariffRepository.save(tariff);
     }
 
-    private void sendPayment(@NonNull TariffDto tariffDto, BigDecimal amount, String currency, Long userId) {
+    private void sendPayment(@NonNull TariffDto tariffDto, BigDecimal amount, Currency currency, Long userId) {
         log.info("Start sendPayment, amount: {}, currency: {}", amount, currency);
         if (userId == null) {
             throw new IllegalArgumentException("User id is null");

@@ -13,6 +13,6 @@ public record PaymentRequest(
         BigDecimal amount,
 
         @NotNull
-        String currency
+        Currency currency
 ) {
 }

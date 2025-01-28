@@ -21,4 +21,6 @@ public interface UserMapper {
         }
         return identifiable.getId();
     }
+
+
 }
