@@ -12,7 +12,7 @@ import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.validation.ParticipantValidate;
+import school.faang.user_service.validation.ParticipantValidator;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class EventParticipationServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private ParticipantValidate participantValidate;
+    private ParticipantValidator participantValidator;
 
 
     @Test
@@ -46,7 +46,7 @@ public class EventParticipationServiceTest {
         User existingUser = new User();
         existingUser.setId(userId);
 
-        doThrow(new BusinessException("Пользователь уже зарегистрирован на событие!")).when(participantValidate)
+        doThrow(new BusinessException("Пользователь уже зарегистрирован на событие!")).when(participantValidator)
                 .checkParticipantAlreadyRegistered(eventId, userId);
 
         assertThrows(BusinessException.class, () ->
@@ -62,7 +62,7 @@ public class EventParticipationServiceTest {
         long eventId = 1L;
         long userId = 1L;
 
-        doNothing().when(participantValidate).checkParticipantAlreadyRegistered(eventId, userId);
+        doNothing().when(participantValidator).checkParticipantAlreadyRegistered(eventId, userId);
 
         eventParticipationService.registerParticipant(eventId, userId);
 
@@ -76,7 +76,7 @@ public class EventParticipationServiceTest {
         long eventId = 1L;
         long userId = 1L;
 
-        doThrow(new BusinessException("Пользователь не зарегистрирован на событие!")).when(participantValidate)
+        doThrow(new BusinessException("Пользователь не зарегистрирован на событие!")).when(participantValidator)
                 .checkParticipantNotRegistered(eventId, userId);
 
         assertThrows(BusinessException.class, () ->
@@ -92,7 +92,7 @@ public class EventParticipationServiceTest {
         User existingUser = new User();
         existingUser.setId(userID);
 
-        doNothing().when(participantValidate).checkParticipantNotRegistered(eventId, userID);
+        doNothing().when(participantValidator).checkParticipantNotRegistered(eventId, userID);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(List.of(existingUser));
 

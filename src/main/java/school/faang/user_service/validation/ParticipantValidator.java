@@ -8,8 +8,8 @@ import school.faang.user_service.repository.event.EventParticipationRepository;
 
 @RequiredArgsConstructor
 @Component
-public class ParticipantValidate {
-    private EventParticipationRepository eventParticipationRepository;
+public class ParticipantValidator {
+    private final EventParticipationRepository eventParticipationRepository;
 
     private boolean isParticipantnRegistred(long eventId, long userId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId)

@@ -8,7 +8,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.validation.ParticipantValidate;
+import school.faang.user_service.validation.ParticipantValidator;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -22,24 +22,26 @@ public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final ParticipantValidate participantValidate;
+    private final ParticipantValidator participantValidator;
 
     public UserDto registerParticipant(long eventId, long userId) {
 
-        participantValidate.checkParticipantAlreadyRegistered(eventId, userId);
+        participantValidator.checkParticipantAlreadyRegistered(eventId, userId);
         eventParticipationRepository.register(eventId, userId);
 
         User user = userRepository.getReferenceById(userId);
         return userMapper.toDto(userRepository.save(user));
+
     }
 
     public UserDto unregisterParticipant(long eventId, long userId) {
 
-        participantValidate.checkParticipantNotRegistered(eventId, userId);
+        participantValidator.checkParticipantNotRegistered(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);
 
         User user = userRepository.getReferenceById(userId);
         return userMapper.toDto(userRepository.save(user));
+
     }
 
     public List<UserDto> getParticipant(long eventId) {

@@ -13,12 +13,12 @@ public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
 
-    public void registerParticipant(long userId, long eventId) {
-        eventParticipationService.registerParticipant(userId, eventId);
+    public UserDto registerParticipant(long userId, long eventId) {
+       return eventParticipationService.registerParticipant(userId, eventId);
     }
 
-    public void unregisterParticipant(long userId, long eventId) {
-        eventParticipationService.unregisterParticipant(userId, eventId);
+    public UserDto unregisterParticipant(long userId, long eventId) {
+       return eventParticipationService.unregisterParticipant(userId, eventId);
     }
 
     public List<UserDto> getParticipant(long eventId) {
