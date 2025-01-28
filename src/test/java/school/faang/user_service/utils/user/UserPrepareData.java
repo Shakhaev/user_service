@@ -25,4 +25,10 @@ public class UserPrepareData {
                         .build())
                 .build();
     }
+
+    public static Country getCountry() {
+        return Country.builder()
+                .id(1L)
+                .build();
+    }
 }

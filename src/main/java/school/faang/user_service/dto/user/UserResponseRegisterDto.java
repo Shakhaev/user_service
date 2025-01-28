@@ -1,43 +1,17 @@
 package school.faang.user_service.dto.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseRegisterDto {
-
-    @NotNull
-    private String username;
-
-    @NotNull
-    private String password;
-
-    @Email
-    @NotNull
-    private String email;
-
-    private String phone;
-
-    private String aboutMe;
-
-    private boolean active;
-
-    private String city;
-
-    private long countryId;
-
-    private Integer experience;
-
-    private LocalDateTime createdAt;
+public class UserResponseRegisterDto extends UserRegisterDto {
 
     private String avatarId;
 

@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import school.faang.user_service.client.avatar.AvatarFeignClient;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.properties.MinioProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,9 @@ class AvatarServiceImplTest {
 
     @Mock
     private AvatarFeignClient feignClient;
+
+    @Mock
+    private MinioProperties minioProperties;
 
     @InjectMocks
     private AvatarServiceImpl service;
@@ -73,6 +77,7 @@ class AvatarServiceImplTest {
                 null, "bucket", null, "default", inputStream
         );
         ObjectWriteResponse mock = mock(ObjectWriteResponse.class);
+        when(minioProperties.getDefaultAvatar()).thenReturn("avatar");
         when(minioClient.putObject(any())).thenReturn(mock);
         when(minioClient.getObject(any())).thenReturn(getObjectResponse);
 

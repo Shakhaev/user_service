@@ -15,4 +15,6 @@ public class MinioProperties {
 
     private String endpoint;
 
+    private String defaultAvatar;
+
 }

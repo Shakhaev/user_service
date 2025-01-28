@@ -36,18 +36,14 @@ payment-service:
   host: localhost
   port: 9080
 
-events:
-  domain:
-    path: /api/v1
-
-users:
-  domain:
-    path: /api/v1
+domain:
+  path: /api/v1
 
 minio:
   accessKey: user
   secretKey: password
   endpoint: http://localhost:9000
+  default-avatar: default-avatar.png
 
 dicebear:
   endpoint: https://api.dicebear.com

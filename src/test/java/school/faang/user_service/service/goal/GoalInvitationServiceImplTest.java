@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.goal;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.GoalInvitationServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +17,7 @@ import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.EventServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;

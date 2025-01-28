@@ -12,7 +12,7 @@ import school.faang.user_service.service.user.UserService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${users.domain.path}/users")
+@RequestMapping("${domain.path}/users")
 public class UserController {
     private final UserService userService;
 

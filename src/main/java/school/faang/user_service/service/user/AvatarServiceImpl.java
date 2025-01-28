@@ -14,6 +14,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.avatar.AvatarFeignClient;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.properties.MinioProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +27,10 @@ public class AvatarServiceImpl implements AvatarService {
     private static final int AVATAR_SIZE = 64;
     private static final int SMALL_AVATAR_SIZE = 32;
     private static final String AVATAR_BUCKET_NAME = "avatars";
-    private static final String DEFAULT_AVATAR = "default-avatar.png";
 
     private final MinioClient minioClient;
     private final AvatarFeignClient avatarFeignClient;
+    private final MinioProperties minioProperties;
 
     @Transactional
     public Pair<String, String> saveAvatarsToMinio(User user) {
@@ -56,7 +57,7 @@ public class AvatarServiceImpl implements AvatarService {
     private ByteArrayResource getDefaultAvatar() {
         InputStream object = minioClient.getObject(GetObjectArgs.builder()
                 .bucket(AVATAR_BUCKET_NAME)
-                .object(DEFAULT_AVATAR)
+                .object(minioProperties.getDefaultAvatar())
                 .build());
         byte[] bytes = object.readAllBytes();
         return new ByteArrayResource(bytes);

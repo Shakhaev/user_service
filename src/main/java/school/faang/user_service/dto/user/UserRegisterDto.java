@@ -3,33 +3,33 @@ package school.faang.user_service.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRegisterDto {
 
     @NotNull
-    private String username;
+    protected String username;
 
     @NotNull
-    private String password;
+    protected String password;
 
     @Email
     @NotNull
-    private String email;
+    protected String email;
 
-    private String phone;
+    protected String phone;
 
-    private String aboutMe;
+    protected String aboutMe;
 
-    private boolean active;
+    protected boolean active;
 
-    private String city;
+    protected String city;
 
     private long countryId;
 
