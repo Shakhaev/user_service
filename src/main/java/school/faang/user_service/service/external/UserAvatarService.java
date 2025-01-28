@@ -153,11 +153,10 @@ public class UserAvatarService {
         return "";
     }
 
-    private boolean checkFileSize(MultipartFile multipartFile) {
+    private void checkFileSize(MultipartFile multipartFile) {
         int file_size = appConfig.getFile_size();
         if (multipartFile.getSize() > file_size) {
             throw new FileSizeIncorrectException("File size should be less than -> " + file_size);
         }
-        return true;
     }
 }
