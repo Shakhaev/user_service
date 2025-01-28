@@ -150,11 +150,14 @@ public class EventServiceTest {
         eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
         List<Long> ownerSkillsIds = Arrays.asList(1L, 3L);
         EventService spyService = PowerMockito.spy(eventService);
-        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills", ownerSkillsIds, eventDto.getRelatedSkills());
+        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills", ownerSkillsIds,
+                eventDto.getRelatedSkills());
+        when(userRepository.getUser(eventDto.getOwnerId())).thenReturn(user1);
         eventService.create(eventDto);
         EventDto result = spyService.create(eventDto);
         assertNotNull(result);
-        PowerMockito.verifyPrivate(spyService).invoke("validateEventRelatedSkills", ownerSkillsIds, eventDto.getRelatedSkills());
+        PowerMockito.verifyPrivate(spyService).invoke("validateEventRelatedSkills", ownerSkillsIds,
+                eventDto.getRelatedSkills());
     }
 
     @Test
