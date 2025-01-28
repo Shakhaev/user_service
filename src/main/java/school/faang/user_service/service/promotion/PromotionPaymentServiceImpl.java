@@ -2,6 +2,7 @@ package school.faang.user_service.service.promotion;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.promotion.PromotionPaymentFeignClient;
 import school.faang.user_service.dto.promotion.PaymentRequest;
@@ -16,6 +17,7 @@ import school.faang.user_service.repository.promotion.PromotionPaymentRepository
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromotionPaymentServiceImpl implements PromotionPaymentService {
@@ -25,6 +27,7 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
 
     @Override
     public PromotionPaymentDto getPromotionPaymentById(UUID id) {
+        log.info("Get promotion by id: {}", id);
         PromotionPayment promotionPayment = promotionPaymentRepository.findPromotionPaymentById(id).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Promotion payment with id = %s not found", id)));
         return promotionPaymentMapper.toDto(promotionPayment);
@@ -32,6 +35,7 @@ public class PromotionPaymentServiceImpl implements PromotionPaymentService {
 
     @Override
     public PromotionPaymentDto sendAndCreate(PromotionRequestDto dto) {
+        log.info("Send an crate promotion payment: {}", dto);
         PaymentRequest paymentRequest = buildPaymentRequest(dto);
         PaymentResponse paymentResponse = promotionPaymentClient.sendPayment(paymentRequest);
         PromotionPayment newPayment = buildPayment(dto);

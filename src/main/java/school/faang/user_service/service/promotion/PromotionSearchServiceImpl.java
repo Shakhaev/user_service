@@ -2,6 +2,7 @@ package school.faang.user_service.service.promotion;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionPlan;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromotionSearchServiceImpl implements PromotionSearchService {
@@ -28,6 +30,7 @@ public class PromotionSearchServiceImpl implements PromotionSearchService {
 
     @Override
     public List<Object> searchResults(String query, int limit) {
+        log.info("Search results by query = {}, limit = {}", query, limit);
         List<Object> result = updateAndGetPromotionViewsFor(query);
         return result.stream()
                 .limit(limit)

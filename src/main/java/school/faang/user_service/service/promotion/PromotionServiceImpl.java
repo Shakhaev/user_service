@@ -3,6 +3,7 @@ package school.faang.user_service.service.promotion;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.promotion.PromotionPaymentDto;
 import school.faang.user_service.dto.promotion.PromotionPlanDto;
@@ -25,6 +26,7 @@ import school.faang.user_service.repository.promotion.PromotionRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromotionServiceImpl implements PromotionService {
@@ -39,6 +41,7 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<PromotionResponseDto> getPromotionsByUser(long userId) {
+        log.info("Get promotions by user with id: {}", userId);
         return promotionRepository.findPromotionByUserId(userId).stream()
                 .map(promotionMapper::toDto)
                 .toList();
@@ -46,6 +49,7 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public List<PromotionResponseDto> getPromotionsByEvent(long eventId) {
+        log.info("Get promotions by event with id: {}", eventId);
         return promotionRepository.findPromotionByEventId(eventId).stream()
                 .map(promotionMapper::toDto)
                 .toList();
@@ -54,6 +58,7 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     @Transactional
     public PromotionResponseDto createPromotion(PromotionRequestDto dto) {
+        log.info("Create promotion: {}", dto);
         PromotionPaymentDto newPayment = promotionPaymentService.sendAndCreate(dto);
 
         Promotion promotion = createPromotion(dto, newPayment);
@@ -64,6 +69,7 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     @Transactional
     public void updatePromotionViews(Long promotionId) {
+        log.info("Update views promotion with id = {}", promotionId);
         Promotion promotion = promotionRepository.findById(promotionId)
                 .orElseThrow(() -> new EntityNotFoundException("Promotion not found with id: " + promotionId));
         if (promotion.getUsedViews() < getPromotionPlanByTariff(promotion.getTariff()).getViewsCount()) {
