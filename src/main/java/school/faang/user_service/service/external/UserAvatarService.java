@@ -1,4 +1,4 @@
-package school.faang.user_service.service.avatar;
+package school.faang.user_service.service.external;
 
 import io.minio.*;
 import lombok.RequiredArgsConstructor;

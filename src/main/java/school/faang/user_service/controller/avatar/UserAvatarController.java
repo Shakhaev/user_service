@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.service.avatar.UserAvatarService;
+import school.faang.user_service.service.external.UserAvatarService;
 
 @RestController
 @RequestMapping("/avatar")
