@@ -18,6 +18,8 @@ public class InvitationInviterNameFilter implements InvitationFilter {
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterDto filters) {
         String namePattern = filters.getInviterNamePattern();
         return invitations.filter((invitation) ->
+                invitation.getInviter() != null &&
+                invitation.getInviter().getUsername() != null &&
                 invitation.getInviter().getUsername().contains(namePattern));
     }
 }

@@ -13,6 +13,7 @@ import school.faang.user_service.filters.goal.InvitationFilter;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class GoalInvitationService {
             log.error("Inviter or invited user don't exist. Inviterid: {}. InvitedId: {}", inviterId, invitedId);
             throw new IllegalArgumentException("There is no inviter or invited user. InviterId: " + inviterId + " InvitedId: " + invitedId);
         }
-        if (inviterId.equals(invitedId)) {
+        if (Objects.equals(invitedId, inviterId)) {
             log.error("Inviter or invited user don't exist. Inviterid: {}. InvitedId: {}", inviterId, invitedId);
             throw new IllegalArgumentException("Inviter and invited user have the same id. InviterId: " + inviterId + " InvitedId: " + invitedId);
         }

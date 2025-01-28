@@ -12,7 +12,8 @@ public class GoalService {
     private final GoalRepository goalRepository;
 
     public Goal getGoalById(long goalId) {
-        return goalRepository.findById(goalId).orElseThrow(() -> new IllegalArgumentException("There is no goal with id: " + goalId));
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new IllegalArgumentException("There is no goal with id: " + goalId));
     }
 
     public Goal updateGoal(Goal goal) {

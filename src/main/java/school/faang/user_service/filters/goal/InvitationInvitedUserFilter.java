@@ -18,6 +18,8 @@ public class InvitationInvitedUserFilter implements InvitationFilter {
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterDto filters) {
         Long invitedId = filters.getInvitedId();
         return invitations.filter((invitation) ->
+                invitation.getInvited() != null &&
+                invitation.getInvited().getId() != null &&
                 invitation.getInvited().getId().equals(invitedId));
     }
 }

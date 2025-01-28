@@ -19,6 +19,7 @@ public class InvitationStatusFilter implements InvitationFilter {
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterDto filters) {
         RequestStatus status = filters.getStatus();
         return invitations.filter((invitation) ->
+                invitation.getStatus() != null &&
                 invitation.getStatus().equals(status));
     }
 }

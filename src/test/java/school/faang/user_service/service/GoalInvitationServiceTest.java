@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -51,41 +49,47 @@ public class GoalInvitationServiceTest {
     @InjectMocks
     private GoalInvitationService goalInvitationService;
 
+    private Goal goal;
+    private User inviter;
+    private User invited;
+    private GoalInvitation goalInvitation;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(goalInvitationService, "MAX_ACTIVE_GOALS_PER_USER", 3);
-    }
 
-    @Test
-    public void testCreateInvitation_Success() {
-        Goal goal = Goal.builder()
+        goal = Goal.builder()
                 .id(1L)
                 .title("Learn Java")
                 .description("Complete a Java course within 3 months")
                 .status(GoalStatus.ACTIVE)
                 .build();
 
-        User inviter = User.builder()
+        inviter = User.builder()
                 .id(1L)
                 .username("JohnDoe")
                 .email("john.doe@example.com")
                 .active(true)
                 .build();
 
-        User invited = User.builder()
+        invited = User.builder()
                 .id(2L)
                 .username("JaneSmith")
                 .email("jane.smith@example.com")
                 .active(true)
                 .build();
 
-        GoalInvitation goalInvitation = GoalInvitation.builder()
+        goalInvitation = GoalInvitation.builder()
                 .goal(goal)
                 .inviter(inviter)
                 .invited(invited)
                 .status(RequestStatus.PENDING)
                 .build();
+    }
+
+    @Test
+    public void testCreateInvitation_Success() {
 
         when(goalService.getGoalById(1L)).thenReturn(goal);
         when(userService.getUserById(1L)).thenReturn(inviter);
@@ -103,14 +107,8 @@ public class GoalInvitationServiceTest {
 
     @Test
     void testCreateInvitation_ThrowsExceptionWhenUsersAreSame() {
-        Goal goal = Goal.builder().id(1L).build();
-        User user = User.builder().id(1L).build();
-
-        GoalInvitation goalInvitation = GoalInvitation.builder()
-                .goal(goal)
-                .inviter(user)
-                .invited(user)
-                .build();
+        goalInvitation.setInvited(inviter);
+        goalInvitation.setInviter(inviter);
 
         assertThrows(IllegalArgumentException.class, () ->
                 goalInvitationService.createInvitation(goalInvitation));
@@ -118,19 +116,11 @@ public class GoalInvitationServiceTest {
 
     @Test
     void testCreateInvitation_ThrowsExceptionWhenUserIsNull() {
-        Goal goal = Goal.builder().id(1L).build();
-
-        User inviter = User.builder().id(null).build();
-        User invited = User.builder().id(2L).build();
-
-        GoalInvitation goalInvitationWithNullInviter = GoalInvitation.builder()
-                .goal(goal)
-                .inviter(inviter)
-                .invited(invited)
-                .build();
+        inviter.setId(null);
+        goalInvitation.setInviter(inviter);
 
         assertThrows(IllegalArgumentException.class, () ->
-                goalInvitationService.createInvitation(goalInvitationWithNullInviter));
+                goalInvitationService.createInvitation(goalInvitation));
     }
 
     @Test
@@ -226,28 +216,8 @@ public class GoalInvitationServiceTest {
 
     @Test
     public void testGetInvitations_Success() {
-        Goal goal = Goal.builder()
-                .id(1L)
-                .status(GoalStatus.ACTIVE)
-                .build();
 
-        User inviter = User.builder()
-                .id(1L)
-                .build();
-
-        User invited = User.builder()
-                .id(2L)
-                .build();
-
-        GoalInvitation invitation1 = GoalInvitation.builder()
-                .id(1L)
-                .goal(goal)
-                .inviter(inviter)
-                .invited(invited)
-                .status(RequestStatus.PENDING)
-                .build();
-
-        GoalInvitation invitation2 = GoalInvitation.builder()
+        GoalInvitation goalInvitation1 = GoalInvitation.builder()
                 .id(2L)
                 .goal(goal)
                 .inviter(inviter)
@@ -257,10 +227,10 @@ public class GoalInvitationServiceTest {
 
         InvitationFilter filterMock = mock(InvitationFilter.class);
         when(filterMock.isApplicable(any())).thenReturn(true);
-        when(filterMock.apply(any(), any())).thenReturn(Stream.of(invitation1, invitation2));
+        when(filterMock.apply(any(), any())).thenReturn(Stream.of(goalInvitation, goalInvitation1));
 
         when(invitationFilters.stream()).thenReturn(Stream.of(filterMock));
-        when(goalInvitationRepository.findAll()).thenReturn(Arrays.asList(invitation1, invitation2));
+        when(goalInvitationRepository.findAll()).thenReturn(Arrays.asList(goalInvitation, goalInvitation1));
 
         InvitationFilterDto filterDto = new InvitationFilterDto();
         List<GoalInvitation> result = goalInvitationService.getInvitations(filterDto);

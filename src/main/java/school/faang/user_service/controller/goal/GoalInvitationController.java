@@ -31,7 +31,7 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
     private final GoalInvitationMapper goalInvitationMapper;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<GoalInvitationDto> createInvitation(@RequestBody @Valid GoalInvitationDto invitation) {
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(invitation);
         GoalInvitation createdInvitation = goalInvitationService.createInvitation(goalInvitation);
@@ -50,13 +50,8 @@ public class GoalInvitationController {
         return ResponseEntity.ok(goalInvitationMapper.toDto(updatedgoalInvitation));
     }
 
-    @GetMapping()
-    public ResponseEntity<List<GoalInvitationDto>> getInvitations(@RequestParam(required = false) String inviterNamePattern,
-                                                                  @RequestParam(required = false) String invitedNamePattern,
-                                                                  @RequestParam(required = false) Long inviterId,
-                                                                  @RequestParam(required = false) Long invitedId,
-                                                                  @RequestParam(required = false) RequestStatus status) {
-        InvitationFilterDto filter = new InvitationFilterDto(inviterNamePattern, invitedNamePattern, inviterId, invitedId, status);
+    @PostMapping()
+    public ResponseEntity<List<GoalInvitationDto>> getInvitations(@RequestBody InvitationFilterDto filter) {
         List<GoalInvitation> filtered = goalInvitationService.getInvitations(filter);
         return ResponseEntity.ok(goalInvitationMapper.toDtoList(filtered));
     }
