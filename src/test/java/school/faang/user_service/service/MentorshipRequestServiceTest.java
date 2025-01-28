@@ -15,7 +15,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.filter.MentorshipRequestFilter;
+import school.faang.user_service.filter.mentorship_request.MentorshipRequestFilter;
 import school.faang.user_service.filter.mentorship_request.DescriptionFilter;
 import school.faang.user_service.filter.mentorship_request.StatusFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;

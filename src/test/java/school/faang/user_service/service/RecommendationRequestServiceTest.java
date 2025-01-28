@@ -17,7 +17,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filter.request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -55,7 +55,7 @@ public class RecommendationRequestServiceTest {
     private SkillRequestRepository skillRequestRepository;
 
     @Mock
-    private List<RequestFilter> requestFilters;
+    private List<RecommendationRequestFilter> recommendationRequestFilters;
 
     @Captor
     private ArgumentCaptor<RecommendationRequest> requestCaptor;
@@ -222,7 +222,7 @@ public class RecommendationRequestServiceTest {
 
         when(requestRepository.findAll()).thenReturn(List.of(recommendationRequest, otherRequest));
 
-        when(requestFilters.get(0).apply(any(Stream.class), eq(requestFilterDto)))
+        when(recommendationRequestFilters.get(0).apply(any(Stream.class), eq(requestFilterDto)))
                 .thenReturn(Stream.of(recommendationRequest));
 
         RecommendationRequestDto rejectedRequestDto = new RecommendationRequestDto();
@@ -237,7 +237,7 @@ public class RecommendationRequestServiceTest {
         assertEquals(RequestStatus.REJECTED, result.get(0).getStatus());
 
         verify(requestRepository).findAll();
-        verify(requestFilters.get(0)).apply(any(Stream.class), eq(requestFilterDto));
+        verify(recommendationRequestFilters.get(0)).apply(any(Stream.class), eq(requestFilterDto));
         verify(recommendationRequestMapper).toDto(recommendationRequest);
     }
 }

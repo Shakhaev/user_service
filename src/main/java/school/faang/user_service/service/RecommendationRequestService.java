@@ -11,7 +11,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filter.request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -30,7 +30,7 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final RequestValidation requestValidation;
     private final SkillRequestRepository skillRequestRepository;
-    private final List<RequestFilter> requestFilters;
+    private final List<RecommendationRequestFilter> recommendationRequestFilters;
 
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
 
@@ -99,7 +99,7 @@ public class RecommendationRequestService {
     }
 
     private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
-        return requestFilters.stream().noneMatch(filter -> filter.isApplicable(filters)
+        return recommendationRequestFilters.stream().noneMatch(filter -> filter.isApplicable(filters)
                 && filter.apply(Stream.of(request), filters).findAny().isEmpty());
     }
 }
