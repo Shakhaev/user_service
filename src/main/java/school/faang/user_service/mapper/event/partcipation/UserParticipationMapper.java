@@ -9,8 +9,7 @@ import school.faang.user_service.entity.User;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserMapper {
-    @Mapping(source = "id", target = "id")
+public interface UserParticipationMapper {
     User toEntity(UserParticipationDto userParticipationDto);
 
     UserParticipationDto toDto(User user);
