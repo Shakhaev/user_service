@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    id("jacoco")
 }
 
 group = "faang.school"
@@ -81,8 +82,69 @@ jsonSchema2Pojo {
     setSourceType("jsonschema")
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+    reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+var includesPath = listOf(
+    "**/school/faang/user_service/service/**",
+    "**/school/faang/user_service/validator/**",
+    "**/school/faang/user_service/filter/**"
+)
+
+val verificationIncludes = listOf(
+    "school.faang.user_service.service.*",
+    "school.faang.user_service.validator.*",
+    "school.faang.user_service.filter.*"
+)
+
+tasks.jacocoTestReport {
+    classDirectories.setFrom(
+        files(classDirectories.files.map { file ->
+            fileTree(file.parentFile) {
+                include(includesPath)
+            }
+        })
+    )
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+    doLast {
+        val reportDir = layout.buildDirectory.dir("jacocoHtml")
+        val reportUrl = "file:///${reportDir.get()}/index.html".replace("\\", "/")
+        println("Отчет по покрытию кода доступен по ссылке: $reportUrl")
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "CLASS"
+            includes = verificationIncludes
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.65".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -90,6 +152,7 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+
 kotlin {
     jvmToolchain(17)
 }
