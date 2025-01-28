@@ -124,7 +124,8 @@ public class EventServiceImplTest {
     @Test
     public void testCreateIfInvalidSkillsFailed() {
         EventRequestDto dto = TestData.createEventRequestDto("meeting", 1L, List.of(1L));
-        Mockito.when(userRepository.findById(dto.ownerId())).thenReturn(Optional.of(TestData.createUser(1L, List.of())));
+        Mockito.when(userRepository.findById(dto.ownerId()))
+                .thenReturn(Optional.of(TestData.createUser(1L, List.of())));
         Mockito.when(skillRepository.findAllById(dto.relatedSkillsIds())).thenReturn(List.of(new Skill()));
 
         assertThrows(DataValidationException.class, () -> eventService.createEvent(dto));
