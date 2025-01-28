@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.user;
+package school.faang.user_service.controller;
 
 import lombok.Data;
 import school.faang.user_service.dto.user.UserDto;

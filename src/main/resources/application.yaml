@@ -21,14 +21,6 @@ spring:
       port: 6379
       host: localhost
 
-feign:
-  client:
-    config:
-      payment-service:
-        connectTimeout: 1000
-        readTimeout: 1000
-        loggerLevel: FULL
-
 server:
   port: 8080
 

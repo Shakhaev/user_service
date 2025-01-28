@@ -1,7 +1,8 @@
 package school.faang.user_service.client.payment;
 
 import jakarta.validation.constraints.NotNull;
-import school.faang.user_service.dto.PaymentStatus;
+import school.faang.user_service.common.Currency;
+import school.faang.user_service.common.PaymentStatus;
 
 import java.math.BigDecimal;
 

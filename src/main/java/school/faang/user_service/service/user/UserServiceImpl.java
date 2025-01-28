@@ -1,24 +1,31 @@
 package school.faang.user_service.service.user;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.controller.user.GetUserRequest;
+import school.faang.user_service.controller.GetUserRequest;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilter;
 import school.faang.user_service.entity.Tariff;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.BusinessException;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.TariffMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.tariff.TariffService;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static school.faang.user_service.constant.UserErrorMessages.USER_WITH_ID_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -69,4 +76,14 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public UserDto getUser(long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new FeignException.NotFound(String.format(USER_WITH_ID_NOT_FOUND, userId),
+                        Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate()),
+                        null,
+                        Collections.emptyMap()
+                ));
+    }
 }

@@ -1,15 +1,13 @@
 package school.faang.user_service.controller;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,12 +17,12 @@ import school.faang.user_service.exception.PremiumBadRequestException;
 import school.faang.user_service.exception.PremiumInvalidDataException;
 import school.faang.user_service.exception.PremiumNotFoundException;
 import school.faang.user_service.exception.ServiceNotAvailableException;
+import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.PaymentException;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import school.faang.user_service.exceptions.BusinessException;
-import school.faang.user_service.exceptions.PaymentException;
 
 @Slf4j
 @ControllerAdvice
@@ -125,9 +123,7 @@ public class ControllerExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(String message, HttpStatus status) {
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .message(message)
-                .build(),
+        return new ResponseEntity<>(new ErrorResponse(message),
                 status);
     }
 }

@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.client.payment.Currency;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceFeignClient;
+import school.faang.user_service.common.Currency;
+import school.faang.user_service.common.PaymentStatus;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.PaymentStatus;
 import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.entity.Tariff;
-import school.faang.user_service.exceptions.PaymentException;
+import school.faang.user_service.exception.PaymentException;
 import school.faang.user_service.mapper.TariffMapper;
 import school.faang.user_service.properties.UserServiceProperties;
 import school.faang.user_service.repository.TariffRepository;
@@ -85,7 +85,7 @@ public class TariffServiceImpl implements TariffService {
                     new PaymentRequest(
                     new Random().nextLong(),
                     amount,
-                    currency));
+                    currency)).getBody();
         } catch (Exception e) {
             throw new PaymentException(e.getMessage());
         }

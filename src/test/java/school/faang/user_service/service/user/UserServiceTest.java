@@ -12,7 +12,7 @@ import school.faang.user_service.dto.TariffDto;
 import school.faang.user_service.dto.user.UserFilter;
 import school.faang.user_service.entity.Tariff;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.BusinessException;
+import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.TariffMapperImpl;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.properties.UserServiceProperties;
