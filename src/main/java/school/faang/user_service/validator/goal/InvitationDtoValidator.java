@@ -2,7 +2,6 @@ package school.faang.user_service.validator.goal;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -11,7 +10,6 @@ import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.NoSuchElementException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InvitationDtoValidator {

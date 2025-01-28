@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.GoalInvitationDtoOut;
+import school.faang.user_service.dto.goal.GoalInvitationDtoResponse;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -18,6 +18,7 @@ import school.faang.user_service.service.goal.filter.invitation.InvitationFilter
 import school.faang.user_service.validator.goal.InvitationDtoValidator;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -34,18 +35,18 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final List<InvitationFilter> filters;
 
     @Override
-    public GoalInvitationDtoOut createInvitation(GoalInvitationDto goalInvitationDto) {
+    public GoalInvitationDtoResponse createInvitation(GoalInvitationDto goalInvitationDto) {
 
         invitationDtoValidator.validate(goalInvitationDto);
         log.info(String.format("Create invitation goalId: %s", goalInvitationDto.goalId()));
 
         GoalInvitation savedInvitation =
                 goalInvitationRepository.save(goalInvitationMapper.toGoalInvitationEntity(goalInvitationDto));
-        return goalInvitationMapper.toGoalInvitationDtoOut(savedInvitation);
+        return goalInvitationMapper.toGoalInvitationDtoResponse(savedInvitation);
     }
 
     @Override
-    public GoalInvitationDtoOut acceptGoalInvitation(long id) {
+    public GoalInvitationDtoResponse acceptGoalInvitation(long id) {
         log.info("Accept goal invitation with id: {}.", id);
         GoalInvitation goalInvitation = findGoalInvitationById(id);
 
@@ -67,34 +68,41 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         userRepository.save(invitedUser);
         goalInvitationRepository.save(goalInvitation);
 
-        return goalInvitationMapper.toGoalInvitationDtoOut(goalInvitation);
+        return goalInvitationMapper.toGoalInvitationDtoResponse(goalInvitation);
     }
 
     @Override
-    public GoalInvitationDtoOut rejectGoalInvitation(long id) {
+    public GoalInvitationDtoResponse rejectGoalInvitation(long id) {
         log.info("Reject goal with id: {}.", id);
 
         GoalInvitation invitation = findGoalInvitationById(id);
         invitation.setStatus(RequestStatus.REJECTED);
         goalInvitationRepository.save(invitation);
 
-        return goalInvitationMapper.toGoalInvitationDtoOut(invitation);
+        return goalInvitationMapper.toGoalInvitationDtoResponse(invitation);
     }
 
     @Override
-    public List<GoalInvitationDtoOut> getInvitations(InvitationFilterDto filterDto) {
+    public List<GoalInvitationDtoResponse> getInvitations(InvitationFilterDto filterDto) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
-        List<GoalInvitation> filteredInvitations = filters.stream()
+        Stream<GoalInvitation> filteredStream = filters.stream()
+                .filter(filter -> filter.isAcceptable(filterDto))
+                .findAny()
+                .map(any -> getReduce(filterDto, invitations))
+                .orElse(Stream.empty());
+
+        return filteredStream.map(goalInvitationMapper::toGoalInvitationDtoResponse).toList();
+    }
+
+    private Stream<GoalInvitation> getReduce(InvitationFilterDto filterDto, List<GoalInvitation> invitations) {
+        return filters.stream()
                 .filter(filter -> filter.isAcceptable(filterDto))
                 .reduce(
-                        List.of(),
-                        (currentInvitations, filter) ->
-                                filter.apply(currentInvitations.isEmpty() ? invitations : currentInvitations, filterDto),
-                        (inv1, inv2) -> inv1
+                        invitations.stream(),
+                        (currentStream, filter) -> filter.apply(currentStream, filterDto),
+                        Stream::concat
                 );
-
-        return filteredInvitations.stream().map(goalInvitationMapper::toGoalInvitationDtoOut).toList();
     }
 
     private boolean containsGoalWithId(List<Goal> goals, long goalId) {

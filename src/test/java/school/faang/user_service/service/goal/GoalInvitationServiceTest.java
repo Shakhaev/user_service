@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.GoalInvitationDtoOut;
+import school.faang.user_service.dto.goal.GoalInvitationDtoResponse;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -53,7 +53,7 @@ public class GoalInvitationServiceTest {
     @Mock
     private InvitationDtoValidator invitationDtoValidator;
 
-    private GoalInvitationDtoOut goalInvitationDtoReject;
+    private GoalInvitationDtoResponse goalInvitationDtoReject;
     private GoalInvitation goalInvitationReject;
 
     @BeforeEach
@@ -65,7 +65,7 @@ public class GoalInvitationServiceTest {
         Goal goal = new Goal();
         goalInvitationReject.setGoal(goal);
         goalInvitationDtoReject =
-                new GoalInvitationDtoOut(null, null, null, null, RequestStatus.REJECTED);
+                new GoalInvitationDtoResponse(null, null, null, null, RequestStatus.REJECTED);
 
 
         List<InvitationFilter> filters = new ArrayList<>();
@@ -83,20 +83,20 @@ public class GoalInvitationServiceTest {
         GoalInvitationDto goalInvitationDto = new GoalInvitationDto(null, null, null, null, null);
         GoalInvitation goalInvitation = new GoalInvitation();
         GoalInvitation savedInvitation = new GoalInvitation();
-        GoalInvitationDtoOut savedDto = new GoalInvitationDtoOut(null, null, null, null, null);
+        GoalInvitationDtoResponse savedDto = new GoalInvitationDtoResponse(null, null, null, null, null);
 
         when(goalInvitationMapper.toGoalInvitationEntity(goalInvitationDto)).thenReturn(goalInvitation);
         when(goalInvitationRepository.save(goalInvitation)).thenReturn(savedInvitation);
-        when(goalInvitationMapper.toGoalInvitationDtoOut(savedInvitation)).thenReturn(savedDto);
+        when(goalInvitationMapper.toGoalInvitationDtoResponse(savedInvitation)).thenReturn(savedDto);
 
-        GoalInvitationDtoOut result = goalInvitationService.createInvitation(goalInvitationDto);
+        GoalInvitationDtoResponse result = goalInvitationService.createInvitation(goalInvitationDto);
 
         assertEquals(savedDto, result);
 
         verify(invitationDtoValidator, times(1)).validate(goalInvitationDto);
         verify(goalInvitationMapper, times(1)).toGoalInvitationEntity(goalInvitationDto);
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
-        verify(goalInvitationMapper, times(1)).toGoalInvitationDtoOut(savedInvitation);
+        verify(goalInvitationMapper, times(1)).toGoalInvitationDtoResponse(savedInvitation);
     }
 
     @Test
@@ -121,9 +121,9 @@ public class GoalInvitationServiceTest {
     public void testRejectGoalInvitationSuccess() {
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(goalInvitationReject));
         when(goalInvitationRepository.save(goalInvitationReject)).thenReturn(goalInvitationReject);
-        when(goalInvitationMapper.toGoalInvitationDtoOut(goalInvitationReject)).thenReturn(goalInvitationDtoReject);
+        when(goalInvitationMapper.toGoalInvitationDtoResponse(goalInvitationReject)).thenReturn(goalInvitationDtoReject);
 
-        GoalInvitationDtoOut result = goalInvitationService.rejectGoalInvitation(1L);
+        GoalInvitationDtoResponse result = goalInvitationService.rejectGoalInvitation(1L);
 
         assertNotNull(result);
         assertEquals(RequestStatus.REJECTED, result.status());
@@ -169,7 +169,7 @@ public class GoalInvitationServiceTest {
         Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
 
         InvitationFilterDto filterDto = new InvitationFilterDto(null, null, idInviter1, idInvited1, null);
-        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+        List<GoalInvitationDtoResponse> result = goalInvitationService.getInvitations(filterDto);
 
         Assertions.assertEquals(2, result.size());
     }
@@ -193,7 +193,7 @@ public class GoalInvitationServiceTest {
         Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
 
         InvitationFilterDto filterDto = new InvitationFilterDto(null, null, idInviter1, idInvited1, null);
-        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+        List<GoalInvitationDtoResponse> result = goalInvitationService.getInvitations(filterDto);
 
         Assertions.assertEquals(1, result.size());
     }
@@ -217,7 +217,7 @@ public class GoalInvitationServiceTest {
         Mockito.when(goalInvitationRepository.findAll()).thenReturn(invitations);
 
         InvitationFilterDto filterDto = new InvitationFilterDto(null, null, null, null, null);
-        List<GoalInvitationDtoOut> result = goalInvitationService.getInvitations(filterDto);
+        List<GoalInvitationDtoResponse> result = goalInvitationService.getInvitations(filterDto);
 
         Assertions.assertEquals(0, result.size());
     }

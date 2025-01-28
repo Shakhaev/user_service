@@ -4,8 +4,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class InvitationFilterIdInviter implements InvitationFilter {
@@ -16,9 +15,9 @@ public class InvitationFilterIdInviter implements InvitationFilter {
     }
 
     @Override
-    public List<GoalInvitation> apply(List<GoalInvitation> goalInvitation, InvitationFilterDto filters) {
-        return goalInvitation.stream().filter(invitation -> invitation.getInviter() != null
+    public Stream<GoalInvitation> apply(Stream<GoalInvitation> goalInvitation, InvitationFilterDto filters) {
+        return goalInvitation.filter(invitation -> invitation.getInviter() != null
                 && invitation.getInviter().getId() != null
-                && invitation.getInviter().getId().equals(filters.inviterId())).collect(Collectors.toList());
+                && invitation.getInviter().getId().equals(filters.inviterId()));
     }
 }
