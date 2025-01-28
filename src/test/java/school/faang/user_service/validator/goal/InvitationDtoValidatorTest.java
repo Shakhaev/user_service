@@ -34,7 +34,7 @@ public class InvitationDtoValidatorTest {
 
     @BeforeEach
     void setUp() {
-        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 2L, 1L, null);
+        validGoalInvitationDto = new GoalInvitationDto(1L, 2L, 1L, null);
     }
 
     @Test
@@ -48,14 +48,14 @@ public class InvitationDtoValidatorTest {
 
     @Test
     void testValidateUserInvitesSelfThrowsException() {
-        validGoalInvitationDto = new GoalInvitationDto(null, 1L, 1L, 1L, null);
+        validGoalInvitationDto = new GoalInvitationDto(1L, 1L, 1L, null);
 
         assertThrows(DataValidationException.class, () -> invitationDtoValidator.validate(validGoalInvitationDto));
     }
 
     @Test
     void testValidateUserDoesNotInviteHimselfShouldThrowExceptionWhenUserInvitesHimself() {
-        validGoalInvitationDto = new GoalInvitationDto(1L, 1L, 1L, 1L, null);
+        validGoalInvitationDto = new GoalInvitationDto(1L, 1L, 1L, null);
 
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> invitationDtoValidator.validate(validGoalInvitationDto));

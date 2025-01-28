@@ -80,7 +80,7 @@ public class GoalInvitationServiceTest {
 
     @Test
     public void testCreateInvitation() {
-        GoalInvitationDto goalInvitationDto = new GoalInvitationDto(null, null, null, null, null);
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto(null, null, null, null);
         GoalInvitation goalInvitation = new GoalInvitation();
         GoalInvitation savedInvitation = new GoalInvitation();
         GoalInvitationDtoResponse savedDto = new GoalInvitationDtoResponse(null, null, null, null, null);
@@ -101,7 +101,7 @@ public class GoalInvitationServiceTest {
 
     @Test
     void testCreateInvitationValidationFails() {
-        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null, null);
+        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null);
 
         doThrow(new IllegalArgumentException("Validation failed"))
                 .when(invitationDtoValidator).validate(inputDto);
@@ -131,7 +131,7 @@ public class GoalInvitationServiceTest {
 
     @Test
     void testRejectGoalInvitationValidationFails() {
-        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null, null);
+        GoalInvitationDto inputDto = new GoalInvitationDto(null, null, null, null);
 
         doThrow(new IllegalArgumentException("Validation failed"))
                 .when(invitationDtoValidator).validate(inputDto);
