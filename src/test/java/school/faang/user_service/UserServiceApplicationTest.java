@@ -1,7 +1,6 @@
-package school.faang.user_service.service;
+package school.faang.user_service ;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.AbstractIntegrationTest;
 
 public class UserServiceApplicationTest extends AbstractIntegrationTest {
 
