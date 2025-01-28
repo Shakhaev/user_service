@@ -1,5 +1,6 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.goal;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,10 +10,9 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.filters.goal.InvitationFilter;
+import school.faang.user_service.filter.goalInvitation.InvitationFilter;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
@@ -31,6 +31,7 @@ public class GoalInvitationService {
     @Value("${goal.max-active-goals-per-user}")
     private Integer MAX_ACTIVE_GOALS_PER_USER;
 
+    @Transactional
     public GoalInvitation createInvitation(GoalInvitation goalInvitation) {
         Long goalId = goalInvitation.getGoal().getId();
         Long inviterId = goalInvitation.getInviter().getId();
@@ -60,6 +61,7 @@ public class GoalInvitationService {
         return createdInvitation;
     }
 
+    @Transactional
     public GoalInvitation acceptGoalInvitation(long goalInvitationId) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(goalInvitationId)
                 .orElseThrow(() ->
@@ -92,6 +94,7 @@ public class GoalInvitationService {
         return updated;
     }
 
+    @Transactional
     public GoalInvitation rejectGoalInvitation(long goalInvitationId) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(goalInvitationId)
                 .orElseThrow(() -> new IllegalArgumentException("There is no invitation with id = " + goalInvitationId));

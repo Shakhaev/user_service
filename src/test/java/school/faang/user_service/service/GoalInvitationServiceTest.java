@@ -12,11 +12,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.filters.goal.InvitationFilter;
-import school.faang.user_service.filters.goal.InvitationInvitedNameFilter;
-import school.faang.user_service.filters.goal.InvitationInviterNameFilter;
-import school.faang.user_service.filters.goal.InvitationInviterUserFilter;
+import school.faang.user_service.filter.goalInvitation.InvitationFilter;
+import school.faang.user_service.filter.goalInvitation.InvitationInvitedNameFilter;
+import school.faang.user_service.filter.goalInvitation.InvitationInviterNameFilter;
+import school.faang.user_service.filter.goalInvitation.InvitationInviterUserFilter;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.GoalInvitationService;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.user.UserService;
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.filters.goal;
+package school.faang.user_service.filter.goalInvitation;
 
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
