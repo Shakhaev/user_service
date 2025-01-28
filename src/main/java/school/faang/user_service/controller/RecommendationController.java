@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recommendation")
+@RequestMapping("${user-service.api-version}/recommendation")
 public class RecommendationController {
     private final RecommendationService recommendationService;
     private final SubscriptionService subscriptionService;
