@@ -19,7 +19,7 @@ class UserAboutFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnTrue_WhenAboutPatternIsNotNull() {
+    void isApplicableTest_ShouldReturnTrueWhenAboutPatternIsNotNull() {
         filters.setAboutPattern("Software Developer");
 
         boolean result = userFilter.isApplicable(filters);
@@ -28,14 +28,14 @@ class UserAboutFilterTest extends UserFilterTest {
     }
 
     @Test
-    void isApplicable_ShouldReturnFalse_WhenAboutPatternIsNull() {
+    void isApplicableTest_ShouldReturnFalseWhenAboutPatternIsNull() {
         boolean result = userFilter.isApplicable(filters);
 
         assertFalse(result);
     }
 
     @Test
-    void apply_ShouldFilterUsersWithMatchingAboutPattern() {
+    void applyTest_ShouldFilterUsersWithMatchingAboutPattern() {
         filters.setAboutPattern("Software Developer");
 
         user1 = new User();
@@ -56,7 +56,7 @@ class UserAboutFilterTest extends UserFilterTest {
     }
 
     @Test
-    void apply_ShouldReturnEmptyStream_WhenNoUsersMatch() {
+    void applyTest_ShouldReturnEmptyStreamWhenNoUsersMatch() {
         filters.setAboutPattern("Project Manager");
 
         user1 = new User();

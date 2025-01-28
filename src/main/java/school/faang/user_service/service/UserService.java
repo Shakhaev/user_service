@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
+import jakarta.persistence.EntityNotFoundException;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
@@ -19,6 +20,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
+
+    public UserDto findUserById(Long id) {
+        return userMapper.toDto(userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with id not found")));
+    }
 
     public List<UserDto> getPremiumUsers(UserFilterDto userFilterDto) {
         var users = userRepository.findPremiumUsers();

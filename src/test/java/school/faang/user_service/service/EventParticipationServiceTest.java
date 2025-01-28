@@ -74,23 +74,22 @@ public class EventParticipationServiceTest {
     @Test
     public void testUnregisterUser() {
         long eventId = 1L;
-        long userID = 1L;
+        long userId = 1L;
         User existingUser = new User();
-        existingUser.setId(userID);
+        existingUser.setId(userId);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(List.of(existingUser));
 
         eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        eventService.unregisterParticipant(eventId, userID);
+        eventService.unregisterParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).unregister(eventId, userID);
+        verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
 
 
     }
 
     @Test
     public void testGetParticipantUsers() {
-        long eventId = 1L;
         User userFirst = new User();
         userFirst.setId(1L);
         userFirst.setUsername("John");
@@ -100,6 +99,7 @@ public class EventParticipationServiceTest {
         userSecond.setUsername("John");
         userSecond.setEmail("John@gmail.com");
         List<User> users = List.of(userFirst, userSecond);
+        long eventId = 1L;
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
                 .thenReturn(users);
 
