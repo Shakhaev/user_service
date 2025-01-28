@@ -7,10 +7,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.CreateSkillDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -24,8 +24,12 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,22 +75,37 @@ public class SkillServiceTest {
     @Test
     public void create_CreateSkill() {
         CreateSkillDto skillDto = prepareData(false);
+        Skill skill = new Skill();
+        skill.setTitle(skillDto.getTitle());
+        when(skillRepository.save(any(Skill.class))).thenReturn(skill);
 
-        skillService.create(skillDto);
+        SkillDto dto = skillService.create(skillDto);
 
         verify(skillRepository, times(1)).save(captor.capture());
+        Skill skillcaptor = captor.getValue();
+        assertEquals(dto.getId(), skillcaptor.getId());
+        assertEquals(dto.getTitle(), skillcaptor.getTitle());
     }
 
     @Test
     public void testGetUserSkills() {
         long userId = 1L;
+        SkillDto dto = new SkillDto();
+        dto.setId(2L);
+        dto.setTitle("Java");
         Skill skill = new Skill();
+        skill.setId(2L);
+        skill.setTitle("Java");
         List<Skill> skills = List.of(skill);
         when(skillRepository.findAllByUserId(userId)).thenReturn(skills);
 
-        skillService.getUserSkills(userId);
+        List<SkillDto> userSkills = skillService.getUserSkills(userId);
 
         verify(skillRepository, times(1)).findAllByUserId(userId);
+
+        assertEquals(1, userSkills.size());
+        assertEquals(dto.getId(), userSkills.get(0).getId());
+        assertEquals(dto.getTitle(), userSkills.get(0).getTitle());
     }
 
     @Test
@@ -149,6 +168,7 @@ public class SkillServiceTest {
 
     @Test
     public void acquireSkillFromOffers_verifyAccept() {
+        // Arrange
         Skill skill = new Skill();
         skill.setId(SKILL_ID);
         List<UserSkillGuarantee> userSkillGuarantees = List.of(new UserSkillGuarantee());
@@ -171,13 +191,17 @@ public class SkillServiceTest {
         when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(offers);
 
-
         skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
-        verify(skillRepository, times(1)).assignSkillToUser(SKILL_ID, USER_ID);
-        verify(userSkillGuaranteeRepository, times(3)).save(Mockito.any());
-    }
+        verify(skillRepository, times(1)).assignSkillToUser(eq(SKILL_ID), eq(USER_ID));
 
+        ArgumentCaptor<UserSkillGuarantee> captor = ArgumentCaptor.forClass(UserSkillGuarantee.class);
+        verify(userSkillGuaranteeRepository, times(3)).save(captor.capture());
+
+        List<UserSkillGuarantee> capturedGuarantees = captor.getAllValues();
+        assertNotNull(capturedGuarantees, "Captured guarantees list is null");
+        assertEquals(3, capturedGuarantees.size(), "Unexpected number of guarantees saved");
+        }
 
     private CreateSkillDto prepareData(boolean existTitle) {
         CreateSkillDto skillDto = new CreateSkillDto();
