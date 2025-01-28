@@ -16,18 +16,6 @@ import java.util.List;
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
-    public void notNull(UserParticipationDto userId, EventParticipationDto eventId) {
-        if (userId == null || eventId == null) {
-            throw new IllegalArgumentException("userId and eventId cannot be null");
-        }
-    }
-
-    public void notNullId(EventParticipationDto eventId) {
-        if (eventId == null) {
-            throw new IllegalArgumentException("eventId cannot be null");
-        }
-    }
-
     @PostMapping("/register/{userId}/{eventId}")
     public void registerParticipant(@RequestBody UserParticipationDto userId,
                                     @RequestBody EventParticipationDto eventId) {
@@ -44,13 +32,17 @@ public class EventParticipationController {
 
     @GetMapping("/participant/list/{eventId}")
     public List<UserParticipationDto> getParticipant(@RequestBody EventParticipationDto eventId) {
-        notNullId(eventId);
         return eventParticipationService.getParticipant(eventId);
     }
 
     @GetMapping("/participant/{eventId}")
     public int getParticipantCount(@RequestBody EventParticipationDto eventId) {
-        notNullId(eventId);
         return eventParticipationService.getParticipantCount(eventId);
+    }
+
+    private void notNull(UserParticipationDto userId, EventParticipationDto eventId) {
+        if (userId == null || eventId == null) {
+            throw new IllegalArgumentException("userId and eventId cannot be null");
+        }
     }
 }
