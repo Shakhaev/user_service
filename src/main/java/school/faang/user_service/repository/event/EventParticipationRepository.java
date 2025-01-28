@@ -4,6 +4,7 @@ import feign.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
@@ -30,7 +31,7 @@ public interface EventParticipationRepository extends CrudRepository<User, Long>
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN TRUE ELSE FALSE END " +
             "FROM Event e JOIN e.attendees u " +
             "WHERE e.id = :eventId AND u.id = :userId")
-    boolean existsUserByEventIdAndUserId(@Param("eventId") long eventId, @Param("userId") long userId);
+    boolean existsUserByEventIdAndUserId(long eventId, long userId);
 
     @Query(nativeQuery = true, value = """
             SELECT COUNT(ue.id) FROM user_event ue
