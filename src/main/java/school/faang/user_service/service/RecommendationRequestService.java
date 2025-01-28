@@ -11,6 +11,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.mentorship_request.MentorshipRequestFilter;
 import school.faang.user_service.filter.request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -76,13 +77,20 @@ public class RecommendationRequestService {
         return create(recommendationRequest);
     }
 
-    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filters) {
         List<RecommendationRequest> requests = requestRepository.findAll();
+        List<RecommendationRequestFilter> applicableFilters = recommendationRequestFilters.stream()
+                .filter(filter -> filter.isApplicable(filters)).toList();
 
-        return  requests.stream()
-                .filter(request -> filterMatches(request, filter))
-                .map(recommendationRequestMapper::toDto)
-                .toList();
+        if (applicableFilters.isEmpty()) {
+            return List.of();
+        }
+
+        return applicableFilters.stream()
+                .reduce(requests.stream(),
+                        (requestStream, filter) -> filter.apply(requestStream, filters),
+                        (list1, list2) -> list1)
+                .map(recommendationRequestMapper::toDto).toList();
     }
 
     public RecommendationRequestDto getRecommendationRequests(long id) {
@@ -96,10 +104,5 @@ public class RecommendationRequestService {
                     log.error("запрос на рекомендацию с ID {} не найден", id);
                     return new EntityNotFoundException("Recommendation request not found");
                 });
-    }
-
-    private boolean filterMatches(RecommendationRequest request, RequestFilterDto filters) {
-        return recommendationRequestFilters.stream().noneMatch(filter -> filter.isApplicable(filters)
-                && filter.apply(Stream.of(request), filters).findAny().isEmpty());
     }
 }

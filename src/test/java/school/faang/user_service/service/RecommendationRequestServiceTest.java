@@ -17,6 +17,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.request.ReceiverIdFilter;
 import school.faang.user_service.filter.request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -55,14 +56,14 @@ public class RecommendationRequestServiceTest {
     private SkillRequestRepository skillRequestRepository;
 
     @Mock
-    private List<RecommendationRequestFilter> recommendationRequestFilters;
+    private ReceiverIdFilter receiverIdFilter;
 
     @Captor
     private ArgumentCaptor<RecommendationRequest> requestCaptor;
 
-    @InjectMocks
     private RecommendationRequestService recommendationRequestService;
 
+    private List<RecommendationRequestFilter> recommendationRequestFilters;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequest recommendationRequest;
     private Skill skill;
@@ -73,6 +74,15 @@ public class RecommendationRequestServiceTest {
 
     @BeforeEach
     public void setUp() {
+        recommendationRequestFilters = List.of(receiverIdFilter);
+        recommendationRequestService = new RecommendationRequestService(
+                requestRepository,
+                recommendationRequestMapper,
+                requestValidation,
+                skillRequestRepository,
+                recommendationRequestFilters
+        );
+
         requester = User.builder().id(1L).username("Requester").build();
         receiver = User.builder().id(2L).username("Receiver").build();
 
@@ -214,7 +224,6 @@ public class RecommendationRequestServiceTest {
 
     @Test
     void testGetRecommendationRequests() {
-
         RecommendationRequest otherRequest = RecommendationRequest.builder()
                 .id(2L)
                 .status(RequestStatus.PENDING)
@@ -222,8 +231,8 @@ public class RecommendationRequestServiceTest {
 
         when(requestRepository.findAll()).thenReturn(List.of(recommendationRequest, otherRequest));
 
-        when(recommendationRequestFilters.get(0).apply(any(Stream.class), eq(requestFilterDto)))
-                .thenReturn(Stream.of(recommendationRequest));
+        when(receiverIdFilter.isApplicable(any())).thenReturn(true);
+        when(receiverIdFilter.apply(any(), any())).thenReturn(Stream.of(recommendationRequest));
 
         RecommendationRequestDto rejectedRequestDto = new RecommendationRequestDto();
         rejectedRequestDto.setId(recommendationRequest.getId());
@@ -234,10 +243,10 @@ public class RecommendationRequestServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(recommendationRequest.getId(), result.get(0).getId());
-        assertEquals(RequestStatus.REJECTED, result.get(0).getStatus());
+        assertEquals(recommendationRequest.getStatus(), result.get(0).getStatus());
 
         verify(requestRepository).findAll();
-        verify(recommendationRequestFilters.get(0)).apply(any(Stream.class), eq(requestFilterDto));
+        verify(receiverIdFilter).apply(any(),any());
         verify(recommendationRequestMapper).toDto(recommendationRequest);
     }
 }

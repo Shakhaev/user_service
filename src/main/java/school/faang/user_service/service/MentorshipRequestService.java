@@ -42,9 +42,13 @@ public class MentorshipRequestService {
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto incomeFilter) {
         List<MentorshipRequest> requests = mentorshipRequestRepository.findAll();
+        List<MentorshipRequestFilter> applicableFilters =  filters.stream()
+                .filter(filter -> filter.isApplicable(incomeFilter)).toList();
+        if (applicableFilters.isEmpty()) {
+            return List.of();
+        }
 
-        return filters.stream()
-                .filter(filter -> filter.isApplicable(incomeFilter))
+        return applicableFilters.stream()
                 .reduce(requests.stream(),
                         (requestStream, filter) -> filter.apply(requestStream, incomeFilter),
                         (list1, list2) -> list1)

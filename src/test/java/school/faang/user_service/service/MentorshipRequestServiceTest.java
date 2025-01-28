@@ -132,7 +132,7 @@ class MentorshipRequestServiceTest {
                 .build();
         when(mentorshipRequestRepository.findLatestRequest(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(BusinessException.class, () -> mentorshipRequestService.requestMentorship(dto));
+        assertThrows(EntityNotFoundException.class, () -> mentorshipRequestService.requestMentorship(dto));
     }
 
     @Test
