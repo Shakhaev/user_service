@@ -17,6 +17,8 @@ import school.faang.user_service.filters.goal.InvitationInvitedNameFilter;
 import school.faang.user_service.filters.goal.InvitationInviterNameFilter;
 import school.faang.user_service.filters.goal.InvitationInviterUserFilter;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -10,7 +10,10 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.filters.goal.InvitationFilter;
+import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +26,7 @@ public class GoalInvitationService {
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalService goalService;
     private final UserService userService;
+    private final GoalMapper goalMapper;
     private final List<InvitationFilter> invitationFilters;
     @Value("${goal.max-active-goals-per-user}")
     private Integer MAX_ACTIVE_GOALS_PER_USER;
@@ -79,7 +83,9 @@ public class GoalInvitationService {
         goal.getUsers().add(user);
 
         userService.updateUser(user);
-        goalService.updateGoal(goal);
+
+        List<Long> skillIds = goalMapper.mapSkills(goal.getSkillsToAchieve());
+        goalService.updateGoal(goal.getId(), goal, goal.getParent().getId(), skillIds);
         GoalInvitation updated = goalInvitationRepository.save(goalInvitation);
 
         log.info("goal invitation with id: {}. Was accepted by user with id: {}", goalInvitation.getId(), user.getId());
