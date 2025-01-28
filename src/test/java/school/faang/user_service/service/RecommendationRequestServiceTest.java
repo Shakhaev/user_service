@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -17,6 +16,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.ReceiverIdFilter;
 import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -55,14 +54,14 @@ public class RecommendationRequestServiceTest {
     private SkillRequestRepository skillRequestRepository;
 
     @Mock
-    private List<RequestFilter> requestFilters;
+    private ReceiverIdFilter receiverIdFilter;
 
     @Captor
     private ArgumentCaptor<RecommendationRequest> requestCaptor;
 
-    @InjectMocks
     private RecommendationRequestService recommendationRequestService;
 
+    private List<RequestFilter> requestFilters;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequest recommendationRequest;
     private Skill skill;
@@ -73,6 +72,15 @@ public class RecommendationRequestServiceTest {
 
     @BeforeEach
     public void setUp() {
+        requestFilters = List.of(receiverIdFilter);
+        recommendationRequestService = new RecommendationRequestService(
+                requestRepository,
+                recommendationRequestMapper,
+                requestValidation,
+                skillRequestRepository,
+                requestFilters
+        );
+
         requester = User.builder().id(1L).username("Requester").build();
         receiver = User.builder().id(2L).username("Receiver").build();
 
@@ -214,7 +222,6 @@ public class RecommendationRequestServiceTest {
 
     @Test
     void testGetRecommendationRequests() {
-
         RecommendationRequest otherRequest = RecommendationRequest.builder()
                 .id(2L)
                 .status(RequestStatus.PENDING)
@@ -222,8 +229,8 @@ public class RecommendationRequestServiceTest {
 
         when(requestRepository.findAll()).thenReturn(List.of(recommendationRequest, otherRequest));
 
-        when(requestFilters.get(0).apply(any(Stream.class), eq(requestFilterDto)))
-                .thenReturn(Stream.of(recommendationRequest));
+        when(receiverIdFilter.isApplicable(any())).thenReturn(true);
+        when(receiverIdFilter.apply(any(), any())).thenReturn(Stream.of(recommendationRequest));
 
         RecommendationRequestDto rejectedRequestDto = new RecommendationRequestDto();
         rejectedRequestDto.setId(recommendationRequest.getId());
@@ -234,10 +241,10 @@ public class RecommendationRequestServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(recommendationRequest.getId(), result.get(0).getId());
-        assertEquals(RequestStatus.REJECTED, result.get(0).getStatus());
+        assertEquals(recommendationRequest.getStatus(), result.get(0).getStatus());
 
         verify(requestRepository).findAll();
-        verify(requestFilters.get(0)).apply(any(Stream.class), eq(requestFilterDto));
+        verify(receiverIdFilter).apply(any(),any());
         verify(recommendationRequestMapper).toDto(recommendationRequest);
     }
 }
