@@ -21,8 +21,8 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public List<UserDto> getMentees(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " +
-                        userId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User with id "
+                        + userId + " not found"));
 
         List<User> userMentees = user.getMentees();
         if (userMentees == null) {
@@ -31,7 +31,7 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         List<UserDto> mentees = new ArrayList<>();
         userMentees.forEach(mentee -> mentees.add(
-                userMapper.toRecommendationRequestDto(mentee)));
+                userMapper.toUserDto(mentee)));
 
         return mentees;
     }
@@ -39,8 +39,8 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public List<UserDto> getMentors(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " +
-                        userId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User with id "
+                        + userId + " not found"));
 
         List<User> userMentors = user.getMentors();
         if (userMentors == null) {
@@ -49,7 +49,7 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         List<UserDto> mentors = new ArrayList<>();
         userMentors.forEach(mentor -> mentors.add(
-                userMapper.toRecommendationRequestDto(mentor)));
+                userMapper.toUserDto(mentor)));
 
         return mentors;
     }
@@ -57,24 +57,24 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public void deleteMentee(Long menteeId, Long mentorId) {
         User mentor = userRepository.findById(mentorId)
-                .orElseThrow(() -> new EntityNotFoundException("Mentor with id " +
-                        mentorId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Mentor with id "
+                        + mentorId + " not found"));
 
-        mentor.getMentees().removeIf(menteeToRemove -> menteeToRemove.
-                getId().
-                equals(menteeId));
+        mentor.getMentees().removeIf(menteeToRemove -> menteeToRemove
+                .getId()
+                .equals(menteeId));
         userRepository.save(mentor);
     }
 
     @Override
     public void deleteMentor(Long menteeId, Long mentorId) {
         User mentee = userRepository.findById(menteeId)
-                .orElseThrow(() -> new EntityNotFoundException("Mentee with id " +
-                        menteeId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Mentee with id "
+                        + menteeId + " not found"));
 
-        mentee.getMentors().removeIf(mentorToRemove -> mentorToRemove.
-                getId().
-                equals(mentorId));
+        mentee.getMentors().removeIf(mentorToRemove -> mentorToRemove
+                .getId()
+                .equals(mentorId));
         userRepository.save(mentee);
 
     }

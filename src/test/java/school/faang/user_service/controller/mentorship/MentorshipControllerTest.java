@@ -16,7 +16,7 @@ public class MentorshipControllerTest {
     private MentorshipController mentorshipController;
 
     @Test
-    public void testGetMenteesByIdSuccess() {
+    public void testGetMenteesByIdFailed() {
 
         //Тестируем проверки на null в методе getMentees
         Assert.assertThrows(
@@ -26,7 +26,7 @@ public class MentorshipControllerTest {
     }
 
     @Test
-    public void testGetMentorsByIdSuccess() {
+    public void testGetMentorsByIdFailed() {
 
         //Тестируем проверки на null в методе getMentors
         Assert.assertThrows(
@@ -37,7 +37,7 @@ public class MentorshipControllerTest {
     }
 
     @Test
-    public void testDeleteMenteeSuccess() {
+    public void testDeleteMenteeFailed() {
         //Тестируем проверки на null в методе deleteMentee
         Assert.assertThrows(
                 EntityNotFoundException.class,
@@ -46,11 +46,42 @@ public class MentorshipControllerTest {
     }
 
     @Test
-    public void testDeleteMentorSuccess() {
+    public void testDeleteMentorFailed() {
         //Тестируем проверки на null в методе deleteMentor
         Assert.assertThrows(
                 EntityNotFoundException.class,
                 () -> mentorshipController.deleteMentor(null, null)
         );
     }
+
+    /*
+    @Test
+    public void testGetMenteesByIdSuccess() {
+
+    }
+
+    @Test
+    public void testGetMentorsByIdSuccess() {
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () ->
+                        mentorshipController.getMentors(null)
+        );
+    }
+
+    @Test
+    public void testDeleteMenteeSuccess() {
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipController.deleteMentee(null, null)
+        );
+    }
+
+    @Test
+    public void testDeleteMentorSuccess() {
+        Assert.assertThrows(
+                EntityNotFoundException.class,
+                () -> mentorshipController.deleteMentor(null, null)
+        );
+    }*/
 }

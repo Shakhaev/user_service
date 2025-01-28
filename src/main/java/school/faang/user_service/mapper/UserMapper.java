@@ -8,7 +8,7 @@ import school.faang.user_service.entity.User;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    UserDto toRecommendationRequestDto (User user);
+    UserDto toUserDto(User user);
 
-    //User toRecommendationRequestEntity(UserDto userDto);
+    User toUserEntity(UserDto userDto);
 }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.event.Event;
@@ -26,7 +25,6 @@ import school.faang.user_service.filter.event.StartDateLaterThanFilter;
 import school.faang.user_service.filter.event.TitleContainsFilter;
 
 import java.time.LocalDateTime;
-import java.util.*;
 
 public class TestData {
     public static Stream<MentorshipRequest> getMentorshipRequestsStream() {
@@ -238,7 +236,7 @@ public class TestData {
                 .build();
     }
 
-    public static Event createEvent(Long id, String title, String date, int maxAttendees ) {
+    public static Event createEvent(Long id, String title, String date, int maxAttendees) {
         return Event.builder()
                 .id(id)
                 .title(title)

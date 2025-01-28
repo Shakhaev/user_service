@@ -18,7 +18,7 @@ public class MentorshipController {
         if (userId == null) {
             throwError("User ID is missing. Cannot search mentees.");
         }
-        List<UserDto> users= mentorshipService.getMentees(userId);
+        List<UserDto> users = mentorshipService.getMentees(userId);
         log.info("Found {} mentees.", users.size());
         return users;
     }
@@ -27,7 +27,7 @@ public class MentorshipController {
         if (userId == null) {
             throwError("User ID is missing. Cannot search mentors.");
         }
-        List<UserDto> users= mentorshipService.getMentors(userId);
+        List<UserDto> users = mentorshipService.getMentors(userId);
         log.info("Found {} mentors.", users.size());
         return users;
     }
