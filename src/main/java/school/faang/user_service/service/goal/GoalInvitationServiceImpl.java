@@ -54,13 +54,13 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         boolean isUserAlreadyWorkingOnGoal = containsGoalWithId(invitedUser.getGoals(), id);
 
         if (isUserAlreadyWorkingOnGoal) {
-            throw new IllegalArgumentException(String.format("Exception invited user, " +
-                    "the invited user is already working on this goal with id= %s", id));
+            throw new IllegalArgumentException(String.format("Exception invited user, "
+                    + "the invited user is already working on this goal with id= %s", id));
         }
 
         if (invitedUser.getReceivedGoalInvitations().size() > MAX_ACTIVE_GOALS) {
-            throw new IllegalArgumentException(String.format("Exception invited user can`t " +
-                    "have more than %s goal invitations!", MAX_ACTIVE_GOALS));
+            throw new IllegalArgumentException(String.format("Exception invited user can`t "
+                    + "have more than %s goal invitations!", MAX_ACTIVE_GOALS));
         }
 
         invitedUser.getGoals().add(goalInvitation.getGoal());
