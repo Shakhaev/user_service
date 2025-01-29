@@ -1,15 +1,14 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 public class SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
+    private final SkillOfferRepository skillOfferRepository;
 
     public SkillDto create(SkillDto skillDto) {
         if (skillRepository.existsByTitle(skillDto.getTitle())) {
@@ -42,14 +42,14 @@ public class SkillService {
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        // 1. Получаем список предложенных скиллов
+
         List<Skill> skillsOfferedToUser = skillRepository.findSkillsOfferedToUser(userId);
 
-        // 2. Группируем скиллы и считаем количество предложений
+
         Map<Skill, Long> skillOffersCount = skillsOfferedToUser.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        // 3. Преобразуем Map<Skill, Long> в List<SkillCandidateDto>
+
         return skillOffersCount.entrySet().stream()
                 .map(entry -> {
                     SkillCandidateDto dto = new SkillCandidateDto();
@@ -74,7 +74,7 @@ public class SkillService {
         skillRepository.assignSkillToUser(skillId, userId);
 
         offers.stream()
-                .map(SkillOffer::getGuarantorId)
+                .map(offer -> offer.getRecommendation().getAuthor().getId())
                 .distinct()
                 .forEach(guarantorId -> skillRepository.assignGuarantorToUser(skillId, userId, guarantorId));
 
