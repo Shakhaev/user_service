@@ -1,9 +1,8 @@
 package school.faang.user_service.dto;
 
+import lombok.Data;
+
+@Data
 public class UserFilterDto {
-    private String usernamePattern;
-    private String emailPattern;
-    private Boolean active;
-    private String countryPattern;
-    private String cityPattern;
+    private Boolean premium;
 }
