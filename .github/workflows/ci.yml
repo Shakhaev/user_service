@@ -65,9 +65,6 @@ jobs:
           done
           echo "PostgreSQL failed to start" && exit 1
 
-      - name: Run database migrations
-        run: ./gradlew liquibaseUpdate --no-daemon
-
       - name: Build project
         run: ./gradlew build --no-daemon
 
