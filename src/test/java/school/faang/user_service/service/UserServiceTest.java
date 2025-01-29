@@ -1,24 +1,34 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.filters.interfaces.UserFilter;
+import school.faang.user_service.filters.subscription.CityFilter;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -28,6 +38,10 @@ public class UserServiceTest {
     private GoalService goalService;
     @Mock
     private EventService eventService;
+    @Spy
+    private UserMapperImpl userMapper;
+    @Mock
+    private List<UserFilter> userFilters;
     @Mock
     private MentorshipService mentorshipService;
 
@@ -35,6 +49,12 @@ public class UserServiceTest {
     private UserService service;
 
     private User user;
+
+    private User premiumUser1;
+    private User premiumUser2;
+
+    private Premium premium1;
+    private Premium premium2;
 
     @BeforeEach
     public void init() {
@@ -54,6 +74,34 @@ public class UserServiceTest {
                         Event.builder().id(3L).startDate(LocalDateTime.now().plusDays(10)).build()
                 ))
                 .build();
+
+        premium1 = Premium.builder()
+                .id(1L)
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(30))
+                .build();
+
+        premium2 = Premium.builder()
+                .id(2L)
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(30))
+                .build();
+
+        premiumUser1 = User.builder()
+                .id(2L)
+                .username("Alice")
+                .active(true)
+                .city("Tashkent")
+                .premium(premium1)
+                .build();
+
+        premiumUser2 = User.builder()
+                .id(3L)
+                .username("Charlie")
+                .active(true)
+                .city("Tashkent")
+                .premium(premium2)
+                .build();
     }
 
     @Test
@@ -66,7 +114,20 @@ public class UserServiceTest {
         verify(userRepository).save(userCaptor.capture());
 
         User savedUser = userCaptor.getValue();
-        Assertions.assertEquals(savedUser.getId(), user.getId());
-        Assertions.assertTrue(savedUser.getOwnedEvents().isEmpty());
+        assertEquals(savedUser.getId(), user.getId());
+        assertTrue(savedUser.getOwnedEvents().isEmpty());
+    }
+
+    @Test
+    public void getAllPremiumUserSuccess() {
+        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(premiumUser1, premiumUser2));
+        when(userFilters.stream()).thenReturn(Stream.of(new CityFilter()));
+
+        UserFilterDto userFilterDto = UserFilterDto.builder().cityPattern("Tashkent").build();
+
+        List<UserDto> result = service.getPremiumUsers(userFilterDto);
+
+        assertEquals(2, result.size());
+        assertEquals(premiumUser1.getUsername(), result.get(0).username());
     }
 }

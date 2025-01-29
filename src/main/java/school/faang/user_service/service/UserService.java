@@ -2,10 +2,12 @@ package school.faang.user_service.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PromotionServiceClient;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
@@ -16,6 +18,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
+import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.external.AvatarService;
@@ -32,8 +35,6 @@ import java.util.UUID;
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
 
-import org.springframework.kafka.core.KafkaTemplate;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -48,6 +49,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final AvatarService avatarService;
     private final MinioStorageService minioStorageService;
+    private final List<UserFilter> userFilters;
 
     public User findById(long id) {
         return userRepository.findById(id)
@@ -141,6 +143,5 @@ public class UserService {
             throw new MinioSaveException("Minio error save file" + e.getMessage());
         }
     }
-
 
 }
