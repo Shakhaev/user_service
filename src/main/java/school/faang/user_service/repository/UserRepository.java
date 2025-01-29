@@ -27,5 +27,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByUsernameLike(String username);
 
-    User getUser(@NotNull Long ownerId);
 }

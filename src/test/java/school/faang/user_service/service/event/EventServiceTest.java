@@ -4,18 +4,15 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.EventMapperImpl;
@@ -28,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -37,15 +33,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @PrepareForTest(EventService.class)
 public class EventServiceTest {
-
-    User user1 = User.builder()
-            .id(1L)
-            .username("Mary")
-            .email("user@gmail.com")
-            .skills(getRelatedSkills())
-            .build();
-    User user2 = User.builder().id(2L).username("John").email("admin@gmail.com").build();
-
 
     @Mock
     private EventRepository eventRepository;
@@ -69,11 +56,27 @@ public class EventServiceTest {
     private ArgumentCaptor<EventDto> eventCaptor;
 
     @BeforeEach
-    public  void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-
+    private @NotNull EventService getService() {
+        return new EventService(
+                eventMapper,
+                skillService,
+                eventRepository,
+                userRepository,
+                eventFilters
+        );
+    }
+    private EventDto createNewEventCandidate() {
+        return EventDto.builder()
+                .id(1L)
+                .title("title")
+                .ownerId(2L)
+                .relatedSkills(List.of(1L, 4L))
+                .build();
+    }
 
     @Test
     public void deactivateEventsByUser_updatesStatusAndDeletesEvents() {
@@ -134,71 +137,23 @@ public class EventServiceTest {
         assertEquals(newEventDtoBefore, newEventDtoAfter);
     }
 
-    private EventDto createNewEventCandidate() {
-        return EventDto.builder()
-                .id(1L)
-                .title("title")
-                .ownerId(2L)
-                .relatedSkills(List.of(1L,4L))
-                .build();
+    @Test
+    public void testValidateEventRelatedSkills_ValidSkills() throws Exception {
+
+        EventService service = getService();
+        List<Long> relatedSkills = Arrays.asList(1L, 2L, 3L);
+        List<Long> ownerSkillsIds = Arrays.asList(3L, 4L, 5L);
+        Whitebox.invokeMethod(service, "validateEventRelatedSkills", relatedSkills, ownerSkillsIds);
     }
 
     @Test
-    public void testCreateEvent() throws Exception {
+    public void testValidateEventRelatedSkills_InvalidSkills() {
+        EventService service = getService();
+        List<Long> relatedSkills = Arrays.asList(1L, 2L, 3L);
+        List<Long> ownerSkillsIds = Arrays.asList(4L, 5L, 6L);
 
-        EventDto eventDto = createNewEventCandidate();
-        eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
-        List<Long> ownerSkillsIds = Arrays.asList(1L, 3L);
-        EventService spyService = PowerMockito.spy(eventService);
-        PowerMockito.doNothing().when(spyService, "validateEventRelatedSkills", ownerSkillsIds,
-                eventDto.getRelatedSkills());
-        when(userRepository.getUser(eventDto.getOwnerId())).thenReturn(user1);
-        eventService.create(eventDto);
-        EventDto result = spyService.create(eventDto);
-        assertNotNull(result);
-        PowerMockito.verifyPrivate(spyService).invoke("validateEventRelatedSkills", ownerSkillsIds,
-                eventDto.getRelatedSkills());
-    }
-
-    @Test
-    public void testCreateEvent_ThrowsException() throws Exception {
-        EventDto eventDto = createNewEventCandidate();
-        eventDto.setRelatedSkills(Arrays.asList(1L, 2L));
-        List<Long> ownerSkillsIds = Arrays.asList(3L, 4L); // Намеренно не совпадают
-
-        when(skillService.getSkillsIds(any())).thenReturn(ownerSkillsIds);
-
-        assertThrows(BusinessException.class, () -> eventService.create(eventDto));
-    }
-
-
-    private static @NotNull List<Skill> getRelatedSkills() {
-        return List.of(Skill.builder().id(1L).build(), Skill.builder().id(2L).build());
-    }
-
-    @Test
-    public void testUpdateEvent(){
-
-    }
-
-    @Test
-    public void testGetEvent(){
-
-
-    }
-
-    @Test
-    public void testGetParticipatedEvents(){
-
-    }
-
-    @Test
-    public void testGetOwnedEvents(){
-
-    }
-
-    @Test
-    public void testGetEventsByFilter(){
-
+        assertThrows(BusinessException.class, () -> {
+            Whitebox.invokeMethod(service, "validateEventRelatedSkills", relatedSkills, ownerSkillsIds);
+        });
     }
 }

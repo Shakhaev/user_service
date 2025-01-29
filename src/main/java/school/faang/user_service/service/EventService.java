@@ -34,9 +34,11 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
     @Transactional
-    public EventDto create(EventDto eventDto) throws DataValidationException {
+    public EventDto create(EventDto eventDto) throws EntityNotFoundException {
         Event event = eventMapper.toEntityEvent(eventDto);
-        User owner = userRepository.getUser(eventDto.getOwnerId());
+        User owner = userRepository.findById(eventDto.getOwnerId())
+                .orElseThrow(()->new EntityNotFoundException("Пользователь с ID " + eventDto.getOwnerId()
+                        + " не найден"));
         event.setOwner(owner);
         validateEventRelatedSkills(eventDto.getRelatedSkills(), skillService.getSkillsIds(owner.getSkills()));
         event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkills()));
