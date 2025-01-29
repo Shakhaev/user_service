@@ -7,6 +7,5 @@ import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
-
     UserDto toDto(User user);
 }

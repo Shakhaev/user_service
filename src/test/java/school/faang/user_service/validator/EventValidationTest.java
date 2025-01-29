@@ -1,5 +1,6 @@
 package school.faang.user_service.validator;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -148,7 +149,7 @@ class EventValidationTest {
         eventDto.setId(1L);
         when(eventRepository.existsById(eventDto.getId())).thenReturn(false);
 
-        assertThrows(DataValidationException.class, () -> eventValidation.validateEventId(eventDto.getId()));
+        assertThrows(EntityNotFoundException.class, () -> eventValidation.validateEventId(eventDto.getId()));
     }
 
     // test validateEventOwner method

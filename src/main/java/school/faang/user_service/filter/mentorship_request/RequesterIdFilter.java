@@ -8,7 +8,7 @@ import school.faang.user_service.filter.MentorshipRequestFilter;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Component
+@Component("mentorshipRequesterIdFilter")
 public class RequesterIdFilter implements MentorshipRequestFilter {
 
     @Override
