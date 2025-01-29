@@ -1,18 +1,15 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.EventParticipationService;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1")
+@RequestMapping("${user-service.api-version}/event")
 public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
@@ -26,7 +23,6 @@ public class EventParticipationController {
     void unregister(@RequestParam long userId, @RequestParam long eventId) {
         eventParticipationService.unregister(eventId, userId);
     }
-
 
     @GetMapping("/participants/{eventId}")
     List<UserDto> getParticipants(@PathVariable long eventId) {
