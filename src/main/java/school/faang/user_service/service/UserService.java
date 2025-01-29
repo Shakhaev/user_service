@@ -20,8 +20,6 @@ import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.filters.interfaces.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.external.AvatarService;
 import school.faang.user_service.service.external.MinioStorageService;
@@ -36,8 +34,6 @@ import java.util.UUID;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -113,8 +109,6 @@ public class UserService {
         if (userRepository.existsByUsername(request.username())) {
             throw new UserAlreadyExistsException("username: " + request.username() + " is busy");
         }
-    }
-
         String avatar = avatarService.getRandomAvatar().block();
         String avatarId = UUID.randomUUID().toString();
 
