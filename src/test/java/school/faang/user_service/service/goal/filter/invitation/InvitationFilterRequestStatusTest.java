@@ -31,19 +31,19 @@ class InvitationFilterRequestStatusTest {
 
     @Test
     void testIsAcceptableTrue() {
-        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null, null,null,null, RequestStatus.ACCEPTED);
         assertTrue(invitationFilterRequestStatus.isAcceptable(filters));
     }
 
     @Test
     void testIsAcceptableFalse() {
-        filters = new InvitationFilterDto(null, null, null, null, null);
+        filters = new InvitationFilterDto(null,null,null,null,null);
         assertFalse(invitationFilterRequestStatus.isAcceptable(filters));
     }
 
     @Test
     void testApplyFilterWork() {
-        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null,null,null,null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
@@ -53,7 +53,7 @@ class InvitationFilterRequestStatusTest {
 
     @Test
     void testApplyFilterUnequal() {
-        filters = new InvitationFilterDto(null, null, null, null, RequestStatus.ACCEPTED);
+        filters = new InvitationFilterDto(null,null,null,null, RequestStatus.ACCEPTED);
         goalInvitation.setStatus(RequestStatus.REJECTED);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);

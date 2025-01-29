@@ -35,19 +35,19 @@ class InvitationFilterIdInvitedTest {
 
     @Test
     void testIsAcceptableTrue() {
-        filters = new InvitationFilterDto(null, null, null, 1L, null);
+        filters = new InvitationFilterDto(null,null,null,1L,null);
         assertTrue(invitationFilterIdInvited.isAcceptable(filters));
     }
 
     @Test
     void testIsAcceptableFalse() {
-        filters = new InvitationFilterDto(null, null, null, null, null);
+        filters = new InvitationFilterDto(null,null,null,null,null);
         assertFalse(invitationFilterIdInvited.isAcceptable(filters));
     }
 
     @Test
     void testApplyFilterWork() {
-        filters = new InvitationFilterDto(null, null, null, INVITED_ID, null);
+        filters = new InvitationFilterDto(null,null,null,INVITED_ID,null);
         fillParamsForApplayingFilter(1L, user);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
@@ -59,7 +59,7 @@ class InvitationFilterIdInvitedTest {
     void testApplyFilterUnequal() {
         fillParamsForApplayingFilter(2L, user);
 
-        filters = new InvitationFilterDto(null, null, null, INVITED_ID, null);
+        filters = new InvitationFilterDto(null,null,null, INVITED_ID,null);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);
         Stream<GoalInvitation> streamApplyFilter = invitationFilterIdInvited.apply(streamGoalInvitation, filters);
@@ -68,7 +68,7 @@ class InvitationFilterIdInvitedTest {
 
     @Test
     void testApplyFilterInvitedIsNull() {
-        filters = new InvitationFilterDto(null, null, null, INVITED_ID, null);
+        filters = new InvitationFilterDto(null,null,null, INVITED_ID,null);
         goalInvitation.setInvited(null);
 
         Stream<GoalInvitation> streamGoalInvitation = Stream.of(goalInvitation);

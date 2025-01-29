@@ -32,7 +32,7 @@ class InvitationFilterIdInviterTest {
 
     @Test
     void testIsAcceptableTrue() {
-        filters = new InvitationFilterDto(null,null,INVITER_ID,null,null);
+        filters = new InvitationFilterDto(null,null, INVITER_ID,null,null);
         assertTrue(invitationFilterIdInviter.isAcceptable(filters));
     }
 
