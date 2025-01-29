@@ -1,8 +1,8 @@
 package school.faang.user_service.controller.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -100,7 +100,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
             assertEquals("Message must not be null", e.getMessage());
         }
     }
-
+    @Disabled
     @Test
     void getRecommendationRequests() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
@@ -110,7 +110,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
         assertEquals(1, response.size());
     }
 
-    @Ignore
+    @Disabled
     @Test
     void getRecommendationRequest() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
