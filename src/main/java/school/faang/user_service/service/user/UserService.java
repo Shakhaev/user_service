@@ -48,6 +48,15 @@ public class UserService {
         return users;
     }
 
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("There is no user with id = " + userId));
+    }
+
     @Transactional
     public void deactivateUser(Long userId) {
         User user = userRepository.findById(userId)
