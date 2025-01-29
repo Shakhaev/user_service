@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EventFilterTests {
 
     @Test
-    void ownerIdEventFilter_ShouldApplyFilter_WhenOwnerIdMatches() {
+    void testOwnerIdFilterAppliesWhenOwnerIdMatches() {
         OwnerIdEventFilter filter = new OwnerIdEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, 1L);
 
@@ -29,7 +29,7 @@ class EventFilterTests {
     }
 
     @Test
-    void ownerIdEventFilter_ShouldNotApplyFilter_WhenOwnerIdIsNull() {
+    void testOwnerIdFilterDoesNotApplyWhenOwnerIdIsNull() {
         OwnerIdEventFilter filter = new OwnerIdEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, null);
 
@@ -37,7 +37,7 @@ class EventFilterTests {
     }
 
     @Test
-    void startDateEventFilter_ShouldApplyFilter_WhenStartDateMatches() {
+    void testStartDateFilterAppliesWhenStartDateMatches() {
         StartDateEventFilter filter = new StartDateEventFilter();
         LocalDateTime filterDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         EventFilterDto dto = new EventFilterDto(null, filterDate, null, null, null);
@@ -53,7 +53,7 @@ class EventFilterTests {
     }
 
     @Test
-    void startDateEventFilter_ShouldNotApplyFilter_WhenStartDateIsNull() {
+    void testStartDateFilterDoesNotApplyWhenStartDateIsNull() {
         StartDateEventFilter filter = new StartDateEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, null);
 
@@ -61,7 +61,7 @@ class EventFilterTests {
     }
 
     @Test
-    void titleEventFilter_ShouldApplyFilter_WhenTitleContainsKeyword() {
+    void testTitleFilterAppliesWhenTitleContainsKeyword() {
         TitleEventFilter filter = new TitleEventFilter();
         EventFilterDto dto = new EventFilterDto("conference", null, null, null, null);
 
@@ -76,7 +76,7 @@ class EventFilterTests {
     }
 
     @Test
-    void titleEventFilter_ShouldNotApplyFilter_WhenTitleIsNullOrEmpty() {
+    void testTitleFilterDoesNotApplyWhenTitleIsNullOrEmpty() {
         TitleEventFilter filter = new TitleEventFilter();
 
         EventFilterDto emptyTitle = new EventFilterDto("", null, null, null, null);
@@ -86,7 +86,6 @@ class EventFilterTests {
         assertFalse(filter.isApplicable(nullTitle));
     }
 
-    // Вспомогательные методы для создания объектов
     private Event createEventWithOwner(Long ownerId) {
         Event event = new Event();
         User owner = new User();

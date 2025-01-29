@@ -67,14 +67,11 @@ class EventServiceTest {
     }
 
     @Test
-    void createEvent_shouldReturnEventDto_whenValidInput() {
+    void testCreateEventReturnsDtoWhenValid() {
         User owner = new User();
         owner.setId(1L);
         owner.setSkills(new ArrayList<>(List.of(
-                Skill.builder()
-                        .id(1L)
-                        .title("Skill 1")
-                        .build()
+                Skill.builder().id(1L).title("Skill 1").build()
         )));
 
         Event eventEntity = new Event();
@@ -97,7 +94,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getEvent_shouldReturnEventDto_whenEventExists() {
+    void testGetEventReturnsDtoWhenExists() {
         long eventId = 1L;
         Event event = new Event();
         event.setId(eventId);
@@ -116,7 +113,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getEvent_shouldThrowException_whenEventDoesNotExist() {
+    void testGetEventThrowsExceptionWhenNotFound() {
         long eventId = 1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
@@ -131,7 +128,7 @@ class EventServiceTest {
     }
 
     @Test
-    void getEventsByFilter_shouldReturnFilteredEvents_whenFilterIsApplicable() {
+    void testGetEventsByFilterReturnsFilteredEvents() {
         Event event1 = new Event();
         event1.setId(1L);
         event1.setTitle("Event 1");
@@ -166,7 +163,7 @@ class EventServiceTest {
     }
 
     @Test
-    void deleteEvent_shouldThrowException_whenEventDoesNotExist() {
+    void testDeleteEventThrowsExceptionWhenNotFound() {
         long eventId = 1L;
         when(eventRepository.existsById(eventId)).thenReturn(false);
 
@@ -181,7 +178,7 @@ class EventServiceTest {
     }
 
     @Test
-    void deleteEvent_shouldDeleteEvent_whenEventExists() {
+    void testDeleteEventDeletesWhenExists() {
         long eventId = 1L;
         when(eventRepository.existsById(eventId)).thenReturn(true);
 
