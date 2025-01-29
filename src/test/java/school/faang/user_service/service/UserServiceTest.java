@@ -9,16 +9,25 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.BusinessException;
+import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.filter.UserFilter;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -62,6 +73,12 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapperMock;
+
+    @Mock
+    private List<UserFilter> users;
 
     @InjectMocks
     private UserService userService;
@@ -171,5 +188,20 @@ class UserServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> userService.deactivate(UNREAL_USER_ID));
         verify(userRepository).findById(UNREAL_USER_ID);
+    }
+
+    @Test
+    void testGetPremiumUsers() {
+        User user = new User();
+        UserDto userDto = new UserDto(1L, "John", "john@example.com");
+        UserFilterDto userFilterDto = new UserFilterDto();
+        when(userRepository.findPremiumUsers()).thenReturn((Stream.of(user)));
+      //  when(userMapperMock.toDto(user)).thenReturn(userDto);
+
+        List<UserDto> result = userService.getPremiumUsers(userFilterDto);
+
+        assertEquals(1, result.size());
+        assertEquals(userDto, result.get(0));
+        verify(userRepository, times(1)).findPremiumUsers();
     }
 }

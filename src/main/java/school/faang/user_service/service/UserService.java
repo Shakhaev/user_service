@@ -5,16 +5,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import school.faang.user_service.dto.UserDto;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.filter.UserFilter;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -23,6 +32,8 @@ public class UserService {
 
     private static final int ACCOUNT_DEACTIVATION_PERIOD_DAYS = 90;
     private final UserRepository userRepository;
+    private final List<UserFilter> users;
+    private final UserMapper userMapper;
     private final EventRepository eventRepository;
     private final GoalRepository goalRepository;
     private final MentorshipService mentorshipService;
@@ -88,5 +99,14 @@ public class UserService {
     public User getById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Невозможно получить пользователя"));
+    }
+
+    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+        Stream<User> premiumUsers = userRepository.findPremiumUsers();
+        users.stream()
+                .filter(userFilter -> userFilter.isApplicable(filter))
+                .forEach(userFilter -> userFilter.apply(premiumUsers, filter));
+
+        return premiumUsers.map(userMapper::toDto).toList();
     }
 }
