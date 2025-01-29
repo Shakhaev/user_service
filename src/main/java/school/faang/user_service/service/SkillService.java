@@ -52,8 +52,8 @@ public class SkillService {
 
     @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        int MIN_SKILL_OFFERS = 3;
-        Skill skill = skillRepository.findById(skillId)
+        int minSkillOffers = 3;
+        final Skill skill = skillRepository.findById(skillId)
                 .orElseThrow(() -> new EntityNotFoundException("Skill with Id " + skillId + " not found!"));
         Optional<Skill> userSkill = skillRepository.findUserSkill(skillId, userId);
 
@@ -61,9 +61,8 @@ public class SkillService {
             return null;
         }
         List<SkillOffer> allOffersOfSkill = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
-        if (allOffersOfSkill.size() < MIN_SKILL_OFFERS) {
-            throw new IllegalArgumentException("This skill has been offered less than "
-                    + MIN_SKILL_OFFERS + " times.");
+        if (allOffersOfSkill.size() < minSkillOffers) {
+            throw new IllegalArgumentException("This skill has been offered less than min times.");
         }
         skillRepository.assignSkillToUser(skillId, userId);
         for (SkillOffer offer : allOffersOfSkill) {
@@ -85,6 +84,7 @@ public class SkillService {
             throw new DataValidationException("Skill with title " + skillDto.getTitle() + " already exist");
         }
     }
+
     public SkillDto findSkillById(Long id) {
         return skillMapper.toDto(skillRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Skill not found, id: " + id)));

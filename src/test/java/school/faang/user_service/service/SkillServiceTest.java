@@ -56,8 +56,8 @@ public class SkillServiceTest {
     @Captor
     private ArgumentCaptor<Skill> captor;
 
-    private final long SKILL_ID = 1L;
-    private final long USER_ID = 1L;
+    private final long skillId = 1L;
+    private final long userId = 1L;
 
     @Test
     public void create_CreatingWithBlankNames() {
@@ -90,7 +90,6 @@ public class SkillServiceTest {
 
     @Test
     public void testGetUserSkills() {
-        long userId = 1L;
         SkillDto dto = new SkillDto();
         dto.setId(2L);
         dto.setTitle("Java");
@@ -111,7 +110,6 @@ public class SkillServiceTest {
 
     @Test
     public void testGetOfferedSkills() {
-        long userId = 1L;
         Skill skill = new Skill();
         List<Skill> skills = List.of(skill);
         when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(skills);
@@ -123,8 +121,6 @@ public class SkillServiceTest {
 
     @Test
     public void acquireSkillFromOffers_WithSkillNull() {
-        long skillId = 1L;
-        long userId = 1L;
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(null);
 
 
@@ -136,42 +132,41 @@ public class SkillServiceTest {
 
     @Test
     public void acquireSkillFromOffers_SkillNotFound() {
+        when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
 
-        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
 
-        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID));
-
-        verify(skillRepository, times(1)).findById(SKILL_ID);
+        verify(skillRepository, times(1)).findById(skillId);
 
     }
 
     @Test
     void testAcquireSkillFromOffers_UserAlreadyHasSkill() {
         Skill skill = new Skill();
-        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(List.of(new SkillOffer()));
+        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
+        when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
+        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(List.of(new SkillOffer()));
 
-        assertThrows(IllegalArgumentException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID));
+        assertThrows(IllegalArgumentException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
     }
 
     @Test
     public void acquireSkillFromOffers_SuggestedLessThanTheStandardValue() {
         Skill skill = new Skill();
-        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID))
+        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
+        when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
+        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId))
                 .thenReturn(List.of(new SkillOffer()));
 
         assertThrows(IllegalArgumentException.class,
-                () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID));
+                () -> skillService.acquireSkillFromOffers(skillId, userId));
     }
 
     @Test
     public void acquireSkillFromOffers_verifyAccept() {
-        // Arrange
+
         Skill skill = new Skill();
-        skill.setId(SKILL_ID);
+        skill.setId(skillId);
         List<UserSkillGuarantee> userSkillGuarantees = List.of(new UserSkillGuarantee());
         skill.setGuarantees(userSkillGuarantees);
 
@@ -188,13 +183,13 @@ public class SkillServiceTest {
         offer3.setRecommendation(new Recommendation());
 
         List<SkillOffer> offers = List.of(offer1, offer2, offer3);
-        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(offers);
+        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
+        when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
+        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(offers);
 
-        skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
+        skillService.acquireSkillFromOffers(skillId, userId);
 
-        verify(skillRepository, times(1)).assignSkillToUser(eq(SKILL_ID), eq(USER_ID));
+        verify(skillRepository, times(1)).assignSkillToUser(eq(skillId), eq(userId));
 
         ArgumentCaptor<UserSkillGuarantee> captor = ArgumentCaptor.forClass(UserSkillGuarantee.class);
         verify(userSkillGuaranteeRepository, times(3)).save(captor.capture());
@@ -202,7 +197,8 @@ public class SkillServiceTest {
         List<UserSkillGuarantee> capturedGuarantees = captor.getAllValues();
         assertNotNull(capturedGuarantees, "Captured guarantees list is null");
         assertEquals(3, capturedGuarantees.size(), "Unexpected number of guarantees saved");
-        }
+
+    }
 
     private CreateSkillDto prepareData(boolean existTitle) {
         CreateSkillDto skillDto = new CreateSkillDto();
