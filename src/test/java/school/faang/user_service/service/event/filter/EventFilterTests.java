@@ -16,7 +16,7 @@ class EventFilterTests {
     @Test
     void ownerIdEventFilter_ShouldApplyFilter_WhenOwnerIdMatches() {
         OwnerIdEventFilter filter = new OwnerIdEventFilter();
-        EventFilterDto dto = new EventFilterDto(null, null, null, null, 1L); // Исправленный конструктор
+        EventFilterDto dto = new EventFilterDto(null, null, null, null, 1L);
 
         Event event1 = createEventWithOwner(1L);
         Event event2 = createEventWithOwner(2L);
@@ -39,7 +39,7 @@ class EventFilterTests {
     @Test
     void startDateEventFilter_ShouldApplyFilter_WhenStartDateMatches() {
         StartDateEventFilter filter = new StartDateEventFilter();
-        LocalDateTime filterDate = LocalDateTime.of(2025, 1, 1, 0, 0); // Используем LocalDateTime
+        LocalDateTime filterDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         EventFilterDto dto = new EventFilterDto(null, filterDate, null, null, null);
 
         Event event1 = createEventWithDate(LocalDateTime.of(2025, 1, 2, 12, 0));
