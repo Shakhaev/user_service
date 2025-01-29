@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EventFilterTests {
 
     @Test
-    void testOwnerIdFilterAppliesWhenOwnerIdMatches() {
+    void apply_OwnerIdMatchesShouldReturnFilteredEvents() {
         OwnerIdEventFilter filter = new OwnerIdEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, 1L);
 
@@ -29,7 +29,7 @@ class EventFilterTests {
     }
 
     @Test
-    void testOwnerIdFilterDoesNotApplyWhenOwnerIdIsNull() {
+    void isApplicable_OwnerIdIsNullShouldReturnFalse() {
         OwnerIdEventFilter filter = new OwnerIdEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, null);
 
@@ -37,7 +37,7 @@ class EventFilterTests {
     }
 
     @Test
-    void testStartDateFilterAppliesWhenStartDateMatches() {
+    void apply_StartDateMatchesShouldReturnFilteredEvents() {
         StartDateEventFilter filter = new StartDateEventFilter();
         LocalDateTime filterDate = LocalDateTime.of(2025, 1, 1, 0, 0);
         EventFilterDto dto = new EventFilterDto(null, filterDate, null, null, null);
@@ -53,7 +53,7 @@ class EventFilterTests {
     }
 
     @Test
-    void testStartDateFilterDoesNotApplyWhenStartDateIsNull() {
+    void isApplicable_StartDateIsNullShouldReturnFalse() {
         StartDateEventFilter filter = new StartDateEventFilter();
         EventFilterDto dto = new EventFilterDto(null, null, null, null, null);
 
@@ -61,7 +61,7 @@ class EventFilterTests {
     }
 
     @Test
-    void testTitleFilterAppliesWhenTitleContainsKeyword() {
+    void apply_TitleContainsKeywordShouldReturnFilteredEvents() {
         TitleEventFilter filter = new TitleEventFilter();
         EventFilterDto dto = new EventFilterDto("conference", null, null, null, null);
 
@@ -76,7 +76,7 @@ class EventFilterTests {
     }
 
     @Test
-    void testTitleFilterDoesNotApplyWhenTitleIsNullOrEmpty() {
+    void isApplicable_TitleIsNullOrEmptyShouldReturnFalse() {
         TitleEventFilter filter = new TitleEventFilter();
 
         EventFilterDto emptyTitle = new EventFilterDto("", null, null, null, null);
