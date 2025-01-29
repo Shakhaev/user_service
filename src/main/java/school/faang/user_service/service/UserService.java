@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
@@ -38,11 +38,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Невозможно получить пользователя"));
     }
 
-    public UserDto getUser(long userId) {
+    public UserReadDto getUser(long userId) {
         return userMapper.toDto(getById(userId));
     }
 
-    public List<UserDto> getUsersByIds(List<Long> ids) {
+    public List<UserReadDto> getUsersByIds(List<Long> ids) {
         return getAllByIds(ids).stream()
                 .map(userMapper::toDto)
                 .toList();
