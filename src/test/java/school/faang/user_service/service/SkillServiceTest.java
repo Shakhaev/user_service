@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -16,7 +17,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -50,7 +51,7 @@ public class SkillServiceTest {
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     @Spy
-    private SkillMapperImpl skillMapper;
+    private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
 
     @Captor
     private ArgumentCaptor<Skill> captor;
