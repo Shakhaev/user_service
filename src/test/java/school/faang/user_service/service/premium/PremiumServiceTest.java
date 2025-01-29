@@ -65,7 +65,7 @@ class PremiumServiceTest {
     }
 
     @Test
-    public void testBuyPremiumSuccess() {
+    public void buyPremium_Success() {
 
         when(userService.getUserById(userId)).thenReturn(user);
         when(premiumRepository.existsByUserId(userId)).thenReturn(false);
@@ -83,7 +83,7 @@ class PremiumServiceTest {
     }
 
     @Test
-    void testBuyPremiumAlreadyExists() {
+    void buyPremium_AlreadyExists() {
 
         when(premiumRepository.existsByUserId(userId)).thenReturn(true);
 
@@ -100,7 +100,7 @@ class PremiumServiceTest {
     }
 
     @Test
-    void testBuyPremiumPaymentPayFailed() {
+    void buyPremium_PaymentPayFailed() {
 
         when(userService.getUserById(userId)).thenReturn(user);
         when(premiumRepository.existsByUserId(userId)).thenReturn(false);
@@ -123,7 +123,7 @@ class PremiumServiceTest {
     }
 
     @Test
-    void testBuyPremiumPaymentServiceFailed() {
+    void buyPremium_PaymentServiceFailed() {
 
         when(userService.getUserById(userId)).thenReturn(user);
         when(premiumRepository.existsByUserId(userId)).thenReturn(false);
