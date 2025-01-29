@@ -2,6 +2,7 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.user.ShortUserDto;
 import school.faang.user_service.dto.user.ShortUserWithAvatarDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
@@ -35,6 +37,11 @@ public class UserController {
     @GetMapping("{userId}")
     public ResponseEntity<UserDto> getUser(@NotNull @PathVariable long userId) {
         return ResponseEntity.ok().body(userService.getUserDtoById(userId));
+    }
+
+    @GetMapping("/id")
+    public List<Long> getUserIds(@PathParam("page") long page, @PathParam("pageSize") long pageSize) {
+        return userService.getUserIds(page, pageSize);
     }
 
     @GetMapping("with-avatar/{userId}")

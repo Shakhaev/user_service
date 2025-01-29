@@ -192,4 +192,9 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    public List<Long> getUserIds(long page, long pageSize) {
+        long offset = page * pageSize;
+        return userRepository.getUserIds(pageSize, offset);
+    }
 }
