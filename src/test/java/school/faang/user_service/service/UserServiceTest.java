@@ -72,7 +72,7 @@ class UserServiceTest {
     @Test
     void testGetPremiumUsers() {
         User user = new User();
-        UserDto userDto = new UserDto();
+        UserDto userDto = new UserDto(1L, "John", "john@example.com");
         UserFilterDto userFilterDto = new UserFilterDto();
         when(userRepository.findPremiumUsers()).thenReturn((Stream.of(user)));
         when(userMapper.toDto(user)).thenReturn(userDto);
