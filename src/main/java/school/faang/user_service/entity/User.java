@@ -21,14 +21,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
@@ -65,6 +66,7 @@ public class User {
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
@@ -93,6 +95,7 @@ public class User {
     @ManyToMany(mappedBy = "followers")
     private List<User> followees;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
