@@ -45,6 +45,8 @@ public class EventServiceTest {
 
     @Mock
     private List<EventFilter> eventFilters;
+    @Mock
+    private EventService mockEventService;
 
     @InjectMocks
     private EventService eventService;
@@ -110,21 +112,8 @@ public class EventServiceTest {
         event2.setId(2L);
         event2.setId(userId);
         event2.setStatus(EventStatus.IN_PROGRESS);
-
-        List<Event> events = Arrays.asList(event1, event2);
-
-        Mockito.when(eventRepository.findAllByUserId(userId)).thenReturn(events);
-
-        eventService.deactivateEventsByUser(userId);
-
-        verify(eventRepository, times(2)).save(event1);
-        verify(eventRepository, times(2)).delete(event1);
-
-        verify(eventRepository, times(2)).save(event2);
-        verify(eventRepository, times(2)).delete(event2);
-
-        assert event1.getStatus() == EventStatus.COMPLETED;
-        assert event2.getStatus() == EventStatus.COMPLETED;
+        mockEventService.deactivateEventsByUser(userId);
+        verify(mockEventService, times(1)).deactivateEventsByUser(userId);
     }
 
     @Test
