@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
 
-@Mapper (componentModel = "spring")
+@Mapper(componentModel = "spring")
 public interface MentorshipRequestMapper {
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
@@ -13,5 +13,6 @@ public interface MentorshipRequestMapper {
 
     @Mapping(source = "requesterId", target = "requester.id")
     @Mapping(source = "receiverId", target = "receiver.id")
+    @Mapping(target = "status", defaultValue = "PENDING")
     MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDTO);
 }

@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -175,5 +175,20 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findUserProfilePicByUserId(1L);
         verify(s3Service, times(0)).deleteFile("key");
         verify(s3Service, times(0)).deleteFile("smallKey");
+    }
+
+    @Test
+    void banUserSuccessTest() {
+        User user = User.builder().id(2L).username("Alex").email("alex@mail.ru").build();
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        assertDoesNotThrow(() -> userService.banUser(2L));
+        verify(userRepository).findById(2L);
+    }
+
+    @Test
+    void banUserForNonExistentUserFailTest() {
+        when(userRepository.findById(200L)).thenThrow(EntityNotFoundException.class);
+        assertThrows((EntityNotFoundException.class), () -> userService.banUser(200L));
+        verify(userRepository).findById(200L);
     }
 }
