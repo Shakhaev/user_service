@@ -1,10 +1,10 @@
 package school.faang.user_service.repository.goal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -47,4 +47,18 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+        DELETE FROM user_goal
+        WHERE user_id = :userId
+        RETURNING goal_id
+    """)
+    Stream<Long> deleteUserGoalByUserId(long userId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+        SELECT EXISTS(SELECT 1 FROM user_goal WHERE goal_id=:goalId AND user_id != :userId)
+    """)
+    boolean existsOtherGoalsInProcess(long goalId, long userId);
 }
