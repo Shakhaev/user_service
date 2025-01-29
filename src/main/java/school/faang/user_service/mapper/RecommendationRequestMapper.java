@@ -21,9 +21,7 @@ public interface RecommendationRequestMapper {
 
     @Mapping(source = "requesterId", target = "requester.id")
     @Mapping(source = "receiverId", target = "receiver.id")
-    //todo видимо правильно тут проигнорировать skills, так как SkillRequest из skills создаются в Service после создания RecommendationRequest
     @Mapping(target = "skills", ignore = true)
-    //todo правильно ли игнорировать id, createdAt, updatedAt? Так как они создадутся в БД автоматически.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
