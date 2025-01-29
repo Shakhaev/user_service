@@ -4,12 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito.*;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
@@ -27,118 +23,106 @@ import static org.mockito.Mockito.times;
 @ExtendWith(MockitoExtension.class)
 class EventParticipationServiceTest {
 
+    private final static long MOCKED_EVENT_ID = 2;
+    private final static long MOCKED_USER_ID = 1;
+
     @Mock
     private EventParticipationRepository eventParticipationRepository;
 
     @InjectMocks
-    private EventParticipationService eventParticipationService;
+    private EventParticipationServiceImpl eventParticipationService;
 
     @Spy
     private UserMapperImpl userMapper;
 
     @Test
     void testRegisterParticipantWhenItIsAlreadyIn() {
-        long userId = 1L;
-        long eventId = 2L;
         when(eventParticipationRepository.findAllParticipantsByEventId(anyLong()))
                 .thenReturn(List.of(User.builder()
-                        .id(userId)
+                        .id(MOCKED_USER_ID)
                         .build()));
-        assertNotEquals(
-            HttpStatus.CONFLICT,
-            eventParticipationService.registerParticipant(userId, eventId).getStatusCode()
-        );
+        eventParticipationService.registerParticipant(MOCKED_USER_ID, MOCKED_EVENT_ID);
+
     }
 
     @Test
     void testRegisterParticipantInvocation() {
-        long userId = 1L;
-        long eventId = 2L;
         when(eventParticipationRepository.findAllParticipantsByEventId(anyLong()))
                 .thenReturn(List.of());
-        eventParticipationService.registerParticipant(eventId, userId);
+        eventParticipationService.registerParticipant(MOCKED_EVENT_ID, MOCKED_USER_ID);
         verify(
                 eventParticipationRepository,
                 times(1)
-        ).register(eventId, userId);
+        ).register(MOCKED_EVENT_ID, MOCKED_USER_ID);
     }
 
     @Test
     void testUnregisterParticipantWhenUserNotInEvent() {
-        long userId = 1L;
-        long eventId = 2L;
         when(eventParticipationRepository.findAllParticipantsByEventId(anyLong()))
                 .thenReturn(List.of());
         assertThrows(
                 ResponseStatusException.class,
-                () -> eventParticipationService.unregister(eventId, userId)
+                () -> eventParticipationService.unregister(MOCKED_EVENT_ID, MOCKED_USER_ID)
         );
     }
 
     @Test
     void testUnregisterParticipantInvocation() {
-        long userId = 1L;
-        long eventId = 2L;
         when(eventParticipationRepository.findAllParticipantsByEventId(anyLong()))
                 .thenReturn(List.of(User.builder()
-                        .id(userId)
+                        .id(MOCKED_USER_ID)
                         .build()));
-        eventParticipationService.unregister(eventId, userId);
+        eventParticipationService.unregister(MOCKED_EVENT_ID, MOCKED_USER_ID);
         verify(
                 eventParticipationRepository,
                 times(1)
-        ).unregister(eventId, userId);
+        ).unregister(MOCKED_EVENT_ID, MOCKED_USER_ID);
     }
 
 
     @Test
     void testGetRegisterParticipantListIfException() {
-        long eventId = 1L;
-        when(eventParticipationRepository.findAllParticipantsByEventId(eventId))
+        when(eventParticipationRepository.findAllParticipantsByEventId(MOCKED_EVENT_ID))
                 .thenThrow(new RuntimeException("Exception"));
         assertThrows(
                 RuntimeException.class,
-                () -> eventParticipationService.getParticipant(eventId)
+                () -> eventParticipationService.getParticipant(MOCKED_EVENT_ID)
         );
     }
 
     @Test
     void testGetRegisterParticipantListInvocation() {
-        long eventId = 2L;
-        long userId = 1L;
         when(eventParticipationRepository.findAllParticipantsByEventId(anyLong()))
-                .thenReturn(List.of(User.builder().id(userId).build()));
-        List<UserDto> users = eventParticipationService.getParticipant(eventId);
+                .thenReturn(List.of(User.builder().id(MOCKED_USER_ID).build()));
+        List<UserDto> users = eventParticipationService.getParticipant(MOCKED_EVENT_ID);
         verify(
                 eventParticipationRepository,
                 times(1)
-        ).findAllParticipantsByEventId(eventId);
+        ).findAllParticipantsByEventId(MOCKED_EVENT_ID);
         assertEquals(users.size(), 1);
-        assertEquals(users.get(0).getId(), userId);
+        assertEquals(users.get(0).getId(), MOCKED_USER_ID);
 
     }
 
     @Test
     void testGetRegisterParticipantCountIfException() {
-        long eventId = 1L;
         when(eventParticipationRepository.countParticipants(anyLong()))
                 .thenThrow(new RuntimeException("Exception"));
         assertThrows(
                 RuntimeException.class,
-                () -> eventParticipationService.getParticipantsCount(eventId)
+                () -> eventParticipationService.getParticipantsCount(MOCKED_EVENT_ID)
         );
     }
 
     @Test
     void testGetRegisterParticipantCountInvocation() {
-        long eventId = 2L;
         when(eventParticipationRepository.countParticipants(anyLong()))
                 .thenReturn(1);
-        int participantsCount = eventParticipationService.getParticipantsCount(eventId);
+        int participantsCount = eventParticipationService.getParticipantsCount(MOCKED_EVENT_ID);
         verify(
                 eventParticipationRepository,
                 times(1)
-        ).countParticipants(eventId);
+        ).countParticipants(MOCKED_EVENT_ID);
         assertEquals(participantsCount, 1);
     }
 }

@@ -18,50 +18,23 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PostMapping("/register")
-    ResponseEntity<Object> register(@RequestParam long userId, @RequestParam long eventId) {
-        return eventParticipationService.registerParticipant(eventId, userId);
+    void register(@RequestParam long userId, @RequestParam long eventId) {
+        eventParticipationService.registerParticipant(eventId, userId);
     }
 
     @PostMapping("/unregister")
-    ResponseEntity<Object> unregister(@RequestParam long userId, @RequestParam long eventId) {
-        ResponseEntity<Object> response;
-        try {
-            eventParticipationService.unregister(eventId, userId);
-            response = new ResponseEntity<>("success", HttpStatus.ACCEPTED);
-        }
-        catch (ResponseStatusException e) {
-            response = new ResponseEntity<>(e.getReason(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
-            response = new ResponseEntity<>("something went wrong:(", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+    void unregister(@RequestParam long userId, @RequestParam long eventId) {
+        eventParticipationService.unregister(eventId, userId);
     }
 
 
     @GetMapping("/participants/{eventId}")
-    ResponseEntity<Object> getParticipants(@PathVariable long eventId) {
-        ResponseEntity<Object> response;
-        try {
-            List<UserDto> listOfParticipants = eventParticipationService.getParticipant(eventId);
-            response = new ResponseEntity<>(listOfParticipants, HttpStatus.ACCEPTED);
-        }
-        catch (Exception e) {
-            response = new ResponseEntity<>("something went wrong:(", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+    List<UserDto> getParticipants(@PathVariable long eventId) {
+        return eventParticipationService.getParticipant(eventId);
     }
 
     @GetMapping("/participants/count/{eventId}")
-    ResponseEntity<Object> getParticipantsCount(@PathVariable long eventId) {
-        ResponseEntity<Object> response;
-        try {
-            int count = eventParticipationService.getParticipantsCount(eventId);
-            response = new ResponseEntity<>(count, HttpStatus.ACCEPTED);
-        }
-        catch (Exception e) {
-            response = new ResponseEntity<>("something went wrong:(", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+    Integer getParticipantsCount(@PathVariable long eventId) {
+        return eventParticipationService.getParticipantsCount(eventId);
     }
 }
