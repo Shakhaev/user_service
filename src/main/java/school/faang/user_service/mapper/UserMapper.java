@@ -1,11 +1,12 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import school.faang.user_service.dto.UserDto;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
     User toEntity(UserDto dto);
