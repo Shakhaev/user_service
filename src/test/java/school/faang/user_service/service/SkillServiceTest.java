@@ -107,23 +107,23 @@ public class SkillServiceTest {
         long skillId = 1L;
         long userId = 1L;
 
-        // Создаем объект Recommendation и устанавливаем автора
+
         Recommendation recommendation = new Recommendation();
         User author = new User();
-        author.setId(2L); // Устанавливаем ID автора рекомендации
+        author.setId(2L);
         recommendation.setAuthor(author);
 
-        // Создаем объект SkillOffer и устанавливаем рекомендацию
+
         SkillOffer skillOffer = new SkillOffer();
         skillOffer.setRecommendation(recommendation);
 
-        // Мокируем поведение репозиториев
+
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(Collections.nCopies(3, skillOffer));
         when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
         when(skillMapper.toDTO(skill)).thenReturn(skillDto);
 
-        // Вызываем метод и проверяем результат
+
         SkillDto result = skillService.acquireSkillFromOffers(skillId, userId);
 
         assertNotNull(result);

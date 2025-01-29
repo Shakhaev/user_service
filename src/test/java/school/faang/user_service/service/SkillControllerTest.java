@@ -38,10 +38,9 @@ class SkillControllerTest {
 
     @Test
     void testCreateSkill_Success() throws Exception {
-        // Arrange
+
         when(skillService.create(any(SkillDto.class))).thenReturn(validSkillDto);
 
-        // Act & Assert
         mockMvc.perform(post("/api/skills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validSkillDto)))
@@ -53,10 +52,9 @@ class SkillControllerTest {
 
     @Test
     void testCreateSkill_ValidationError() throws Exception {
-        // Arrange
+
         SkillDto invalidSkillDto = new SkillDto();
 
-        // Act & Assert
         mockMvc.perform(post("/api/skills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidSkillDto)))
@@ -68,11 +66,10 @@ class SkillControllerTest {
 
     @Test
     void testCreateSkill_ServiceThrowsException() throws Exception {
-        // Arrange
+
         when(skillService.create(any(SkillDto.class)))
                 .thenThrow(new IllegalArgumentException("Skill already exists."));
 
-        // Act & Assert
         mockMvc.perform(post("/api/skills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validSkillDto)))
