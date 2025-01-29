@@ -6,7 +6,6 @@ import school.faang.user_service.entity.User;
 
 import java.util.List;
 
-@Service
 public interface MentorshipService {
 
     List<UserDto> getMentees(long userId);
