@@ -79,7 +79,7 @@ class PremiumServiceTest {
 
         PremiumDto premiumDto = premiumService.buyPremium(userId, premiumPeriod);
 
-        assertEquals(premiumDto.getUserName(), premium.getUser().getUsername());
+        assertEquals(premiumDto.userName(), premium.getUser().getUsername());
     }
 
     @Test
