@@ -14,6 +14,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.filters.subscription.CityFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
@@ -105,7 +106,7 @@ public class UserServiceTest {
                 .premium(premium2)
                 .build();
 
-        userDto = new UserDto(1L, "testUser", "test@example.com");
+        userDto = new UserDto(1L, "Bob", "bob@example.com");
     }
 
     @Test
@@ -147,8 +148,8 @@ public class UserServiceTest {
     public void getUser_NotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> service.getUser(1L));
-        assertEquals("User not found", exception.getMessage());
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> service.getUser(1L));
+        assertEquals("User with id 1 not found", exception.getMessage());
     }
 
     @Test
