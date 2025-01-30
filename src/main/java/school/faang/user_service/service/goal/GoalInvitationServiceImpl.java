@@ -86,24 +86,22 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     public List<GoalInvitationDtoResponse> getInvitations(InvitationFilterDto filterDto) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
-        Stream<GoalInvitation> filteredStream = filters.stream()
+        List<InvitationFilter> applicableFilters = filters.stream()
                 .filter(filter -> filter.isAcceptable(filterDto))
-                .findAny()
-                .map(any -> getReduce(filterDto, invitations))
-                .orElse(Stream.empty());
+                .toList();
 
-        return filteredStream.map(goalInvitationMapper::toGoalInvitationDtoResponse).toList();
-    }
-
-    private Stream<GoalInvitation> getReduce(InvitationFilterDto filterDto, List<GoalInvitation> invitations) {
-        return filters.stream()
-                .filter(filter -> filter.isAcceptable(filterDto))
+        Stream<GoalInvitation> filteredStream = applicableFilters.isEmpty()
+                ? Stream.empty()
+                : applicableFilters.stream()
                 .reduce(
                         invitations.stream(),
                         (currentStream, filter) -> filter.apply(currentStream, filterDto),
                         Stream::concat
                 );
+
+        return filteredStream.map(goalInvitationMapper::toGoalInvitationDtoResponse).toList();
     }
+
 
     private boolean containsGoalWithId(List<Goal> goals, long goalId) {
         return goals.stream().anyMatch(goal -> goal.getId() == goalId);
