@@ -30,11 +30,11 @@ public class UserServiceImpl implements UserService {
                 new EntityNotFoundException(String.format("Country with id = %d doesn't exists", dto.getCountryId())));
         user.setCountry(country);
         Pair<String, String> avatars = avatarService.saveAvatarsToMinio(user);
-        User savedUser = saveAvatarsIdsToDb(user, avatars);
+        User savedUser = saveUser(user, avatars);
         return userMapper.toDto(savedUser);
     }
 
-    private User saveAvatarsIdsToDb(User user, Pair<String, String> avatars) {
+    private User saveUser(User user, Pair<String, String> avatars) {
         UserProfilePic userProfilePic = new UserProfilePic();
         userProfilePic.setFileId(avatars.getLeft());
         userProfilePic.setSmallFileId(avatars.getRight());

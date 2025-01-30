@@ -1,14 +1,5 @@
 package school.faang.user_service.service.user;
 
-import io.minio.GetObjectResponse;
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,72 +9,57 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import school.faang.user_service.client.avatar.AvatarFeignClient;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.properties.MinioProperties;
+import school.faang.user_service.properties.AvatarProperties;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AvatarServiceImplTest {
 
     @Mock
-    private MinioClient minioClient;
+    private MinioService minioService;
 
     @Mock
-    private AvatarFeignClient feignClient;
+    private AvatarFeignClient avatarFeignClient;
 
     @Mock
-    private MinioProperties minioProperties;
+    private AvatarProperties avatarProperties;
+
+    @Mock
+    private ByteArrayResource defaultAvatar;
 
     @InjectMocks
-    private AvatarServiceImpl service;
+    private AvatarServiceImpl avatarService;
 
     @Test
-    public void testSaveAvatarsToMinio() throws IOException, ServerException, InsufficientDataException,
-            ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException,
-            XmlParserException, InternalException {
+    public void testSaveAvatarsToMinio() {
         byte[] image = "image".getBytes(StandardCharsets.UTF_8);
         ByteArrayResource byteArrayResource = new ByteArrayResource(image);
-        when(feignClient.getAvatar(eq("random"), eq(32))).thenReturn(byteArrayResource);
+        when(avatarFeignClient.getAvatar(any(), anyInt())).thenReturn(byteArrayResource);
 
-        commonTest();
-    }
-
-    @Test
-    public void testSaveAvatarsToMinioWhenFeignClientNotAvailable() throws IOException, ServerException,
-            InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException,
-            InvalidResponseException, XmlParserException, InternalException {
-        when(feignClient.getAvatar(eq("random"), eq(32))).thenThrow(RuntimeException.class);
-
-        commonTest();
-    }
-
-    public void commonTest() throws IOException, ServerException, InsufficientDataException,
-            ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException,
-            InvalidResponseException, XmlParserException, InternalException {
-        byte[] image = "image".getBytes(StandardCharsets.UTF_8);
-        ByteArrayResource byteArrayResource = new ByteArrayResource(image);
-        InputStream inputStream = byteArrayResource.getInputStream();
-        GetObjectResponse getObjectResponse = new GetObjectResponse(
-                null, "bucket", null, "default", inputStream
-        );
-        ObjectWriteResponse mock = mock(ObjectWriteResponse.class);
-        when(minioProperties.getDefaultAvatar()).thenReturn("avatar");
-        when(minioClient.putObject(any())).thenReturn(mock);
-        when(minioClient.getObject(any())).thenReturn(getObjectResponse);
-
-        Pair<String, String> avatars = service.saveAvatarsToMinio(User.builder().build());
+        Pair<String, String> avatars = avatarService.saveAvatarsToMinio(User.builder().build());
 
         assertNotNull(avatars);
     }
 
+    @Test
+    public void testSaveAvatarsToMinioWhenFeignClientNotAvailable() {
+        byte[] image = "image".getBytes(StandardCharsets.UTF_8);
+        when(avatarProperties.getBucket()).thenReturn("bucket");
+        when(avatarProperties.getDefaultAvatar()).thenReturn("avatar");
+        when(minioService.downloadFile(anyString(), anyString())).thenReturn(new ByteArrayInputStream(image));
+        when(avatarFeignClient.getAvatar(any(), anyInt())).thenThrow(new RuntimeException("Feign client error"));
+
+        avatarService.init();
+        Pair<String, String> avatars = avatarService.saveAvatarsToMinio(User.builder().build());
+
+        assertNotNull(avatars);
+    }
 }

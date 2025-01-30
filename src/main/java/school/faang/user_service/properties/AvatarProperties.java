@@ -5,14 +5,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "minio")
+@ConfigurationProperties(prefix = "avatar")
 @Data
-public class MinioProperties {
+public class AvatarProperties {
 
-    private String accessKey;
+    private String defaultAvatar;
 
-    private String secretKey;
+    private String bucket;
 
-    private String endpoint;
+    private int size;
+
+    private int smallSize;
 
 }
