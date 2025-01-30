@@ -6,13 +6,12 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.filter.EventFilter;
+import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validation.EventValidation;
+import school.faang.user_service.validator.EventValidation;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 @Component

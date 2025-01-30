@@ -9,9 +9,8 @@ import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.filter.MentorshipRequestFilter;
+import school.faang.user_service.filter.mentorship_request.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
@@ -43,9 +42,13 @@ public class MentorshipRequestService {
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto incomeFilter) {
         List<MentorshipRequest> requests = mentorshipRequestRepository.findAll();
+        List<MentorshipRequestFilter> applicableFilters =  filters.stream()
+                .filter(filter -> filter.isApplicable(incomeFilter)).toList();
+        if (applicableFilters.isEmpty()) {
+            return List.of();
+        }
 
-        return filters.stream()
-                .filter(filter -> filter.isApplicable(incomeFilter))
+        return applicableFilters.stream()
                 .reduce(requests.stream(),
                         (requestStream, filter) -> filter.apply(requestStream, incomeFilter),
                         (list1, list2) -> list1)
