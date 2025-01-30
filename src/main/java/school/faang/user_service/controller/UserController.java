@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserValidator userValidation;
 
     @GetMapping("/{userId}")
     public UserReadDto getUser(@PathVariable long userId) {
@@ -28,5 +30,9 @@ public class UserController {
     public List<UserReadDto> getPremiumUsers(UserFilterDto filter) {
         return userService.getPremiumUsers(filter);
     }
-}
 
+    public UserDto deactivateUser(long userId) {
+        userValidation.validateUserId(userId);
+        return userService.deactivate(userId);
+    }
+}

@@ -7,6 +7,7 @@ import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
+
     User toEntity(UserReadDto dto);
 
     UserReadDto toDto(User entity);
