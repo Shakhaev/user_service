@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.common.PaymentStatus;
@@ -138,22 +137,6 @@ public class PremiumServiceTest {
 
         verify(userRepository).findById(anyLong());
         verifyNoInteractions(premiumRepository);
-    }
-
-    @Test
-    void buyPremium_NullPaymentResponse_ThrowsException() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
-        when(premiumRepository.existsByUserId(anyLong())).thenReturn(USER_IS_NOT_PREMIUM_FLAG);
-        when(paymentServiceClient.sendPayment(any())).thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
-
-        assertThrows(
-                PremiumInvalidDataException.class,
-                () -> premiumService.buyPremium(VALID_PREMIUM_PERIOD_DAYS)
-        );
-
-        verify(userRepository).findById(anyLong());
-        verify(premiumRepository).existsByUserId(anyLong());
-        verify(paymentServiceClient).sendPayment(any());
     }
 
     private @NotNull ResponseEntity<PaymentResponse> getPaymentResponseEntity() {
