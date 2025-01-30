@@ -19,7 +19,7 @@ public class UserController {
         return userService.getPremiumUsers(userFilterDto);
     }
 
-    @PutMapping("/users/{id}/deactivate")
+    @PutMapping("/{id}/deactivate")
     public void deactivateUser(@PathVariable Long id) {
         userService.deactivateUser(id);
     }
