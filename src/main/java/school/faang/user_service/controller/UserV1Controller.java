@@ -62,7 +62,6 @@ public class UserV1Controller {
         return userService.getUserByIdForNotification(userId);
     }
 
-    // ToDo: не забыть создать ветку
     @GetMapping("/feed/{userId}")
     public UserForNewsFeedDto getUserForNewsFeed(@Positive @PathVariable long userId) {
         return userService.getUserByIdForNewsFeed(userId);
