@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.filter.goal.data.InviterNameFilter;
+import school.faang.user_service.filter.goal.invitation.InviterNameFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
