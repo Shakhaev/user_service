@@ -119,11 +119,9 @@ public class PromotionServiceImpl implements PromotionService {
     private void checkEvent(PromotionRequestDto dto, User user) {
         if (PromotionPlanType.EVENT.equals(dto.getPlanType())) {
             Long eventId = dto.getEventId();
-            if (eventId != null) {
-                Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                        new EntityNotFoundException("Event not found"));
-                checkUserHaveEvent(user, event);
-            }
+            Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                    new EntityNotFoundException("Event not found"));
+            checkUserHaveEvent(user, event);
         }
     }
 
