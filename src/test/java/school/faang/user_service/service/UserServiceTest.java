@@ -65,6 +65,7 @@ public class UserServiceTest {
                 .id(1L)
                 .username("Bob")
                 .active(true)
+                .email("bob@example.com")
                 .goals(List.of(
                         Goal.builder().id(1L).build(),
                         Goal.builder().id(2L).build(),
