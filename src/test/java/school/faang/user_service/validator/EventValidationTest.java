@@ -33,7 +33,6 @@ class EventValidationTest {
     @InjectMocks
     private EventValidation eventValidation;
 
-    // test validateEvent method
     @Test
     void testValidateEvent() {
         EventDto eventDto = null;
@@ -90,7 +89,6 @@ class EventValidationTest {
         assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
     }
 
-    // test validateUserSkills method
     @Test
     void testValidateUserWithAllSkills() {
         EventDto eventDto = new EventDto();
@@ -135,7 +133,6 @@ class EventValidationTest {
         assertThrows(DataValidationException.class, () -> eventValidation.validateUserSkills(eventDto));
     }
 
-    // test validateEventId method
     @Test
     void testValidateEventIdWithNull() {
         Long id = null;
@@ -152,7 +149,6 @@ class EventValidationTest {
         assertThrows(EntityNotFoundException.class, () -> eventValidation.validateEventId(eventDto.getId()));
     }
 
-    // test validateEventOwner method
     @Test
     void testValidateEventOwnerIdWithNull() {
         EventDto eventDto = new EventDto();

@@ -1,11 +1,5 @@
 package school.faang.user_service.service;
 
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -16,8 +10,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.filter.ReceiverIdFilter;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filter.request.ReceiverIdFilter;
+import school.faang.user_service.filter.request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -61,7 +55,7 @@ public class RecommendationRequestServiceTest {
 
     private RecommendationRequestService recommendationRequestService;
 
-    private List<RequestFilter> requestFilters;
+    private List<RecommendationRequestFilter> recommendationRequestFilters;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequest recommendationRequest;
     private Skill skill;
@@ -72,13 +66,13 @@ public class RecommendationRequestServiceTest {
 
     @BeforeEach
     public void setUp() {
-        requestFilters = List.of(receiverIdFilter);
+        recommendationRequestFilters = List.of(receiverIdFilter);
         recommendationRequestService = new RecommendationRequestService(
                 requestRepository,
                 recommendationRequestMapper,
                 requestValidation,
                 skillRequestRepository,
-                requestFilters
+                recommendationRequestFilters
         );
 
         requester = User.builder().id(1L).username("Requester").build();
