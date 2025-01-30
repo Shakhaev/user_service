@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.mapper.UserMapperImpl;
@@ -118,21 +118,22 @@ public class EventParticipationServiceTest {
         userSecond.setEmail("Jane@gmail.com");
 
         List<User> users = List.of(userFirst, userSecond);
-        List<UserDto> userDtos = List.of(
-                new UserDto(1L, "John", "Doe"),
-                new UserDto(2L, "Jane", "Smith")
+        List<UserReadDto> userDtos = List.of(
+                new UserReadDto(1L, "John", "Doe"),
+                new UserReadDto(2L, "Jane", "Smith")
         );
 
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
-        when(userMapper.toDto(userFirst)).thenReturn(new UserDto(1L, "John", "Doe"));
-        when(userMapper.toDto(userSecond)).thenReturn(new UserDto(2L, "Jane", "Smith"));
+        when(userMapper.toDto(userFirst)).thenReturn(new UserReadDto(1L, "John", "Doe"));
+        when(userMapper.toDto(userSecond)).thenReturn(new UserReadDto(2L, "Jane", "Smith"));
 
-        List<UserDto> result = eventParticipationService.getParticipant(eventId);
+
+        List<UserReadDto> result = eventParticipationService.getParticipant(eventId);
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals("John", result.get(0).getUsername());
-        assertEquals("Jane", result.get(1).getUsername());
+        assertEquals("John", result.get(0).username());
+        assertEquals("Jane", result.get(1).username());
 
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
     }

@@ -2,16 +2,15 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.filter.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -53,7 +52,7 @@ public class UserService {
                 .toList();
     }
 
-    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+    public List<UserReadDto> getPremiumUsers(UserFilterDto filter) {
         Stream<User> premiumUsers = userRepository.findPremiumUsers();
         users.stream()
                 .filter(userFilter -> userFilter.isApplicable(filter))

@@ -3,7 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -24,7 +24,7 @@ public class EventParticipationService {
     private final UserRepository userRepository;
     private final ParticipantValidator participantValidator;
 
-    public UserDto registerParticipant(long eventId, long userId) {
+    public UserReadDto registerParticipant(long eventId, long userId) {
 
         participantValidator.checkParticipantAlreadyRegistered(eventId, userId);
         eventParticipationRepository.register(eventId, userId);
@@ -34,7 +34,7 @@ public class EventParticipationService {
 
     }
 
-    public UserDto unregisterParticipant(long eventId, long userId) {
+    public UserReadDto unregisterParticipant(long eventId, long userId) {
 
         participantValidator.checkParticipantNotRegistered(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);
@@ -44,7 +44,7 @@ public class EventParticipationService {
 
     }
 
-    public List<UserDto> getParticipant(long eventId) {
+    public List<UserReadDto> getParticipant(long eventId) {
         List<User> events = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
         return Optional.ofNullable(events)
