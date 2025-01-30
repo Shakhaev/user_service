@@ -31,7 +31,9 @@ public interface SkillMapper {
 
     @Named("mapIdsToSkills")
     default List<Skill> mapIdsToSkills(List<Long> skillIds) {
-        if (skillIds == null) return List.of();
+        if (skillIds == null) {
+            return List.of();
+        }
         return skillIds.stream()
                 .map(id -> {
                     Skill skill = new Skill();
