@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,11 +25,17 @@ public class UserRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
     private UserRatingType type;
+
+    @PositiveOrZero
+    private int score;
 }

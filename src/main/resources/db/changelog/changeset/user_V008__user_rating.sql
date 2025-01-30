@@ -1,8 +1,9 @@
 CREATE TABLE rating_types
 (
-    id   bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
-    name varchar(64) NOT NULL,
-    cost smallint    NOT NULL
+    id       bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    name     varchar(64) NOT NULL UNIQUE,
+    cost     smallint    NOT NULL,
+    activity boolean
 );
 
 CREATE TABLE user_rating
