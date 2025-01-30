@@ -1,5 +1,7 @@
 package school.faang.user_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
 
+@Tag(name = "Рекоммендации")
 @RestController
 @RequestMapping("/api/v1/recommendations")
 @Validated
@@ -28,6 +31,7 @@ public class RecommendationController {
 
     private final RecommendationService service;
 
+    @Operation(summary = "Получить реккомандацию")
     @PostMapping
     public ResponseEntity<RecommendationDto> giveRecommendation(
             @Valid @RequestBody RecommendationDto recommendation) {
@@ -35,6 +39,7 @@ public class RecommendationController {
         return ResponseEntity.ok(retRecommendation);
     }
 
+    @Operation(summary = "Обновить рекоммендацию")
     @PutMapping
     public ResponseEntity<RecommendationDto> updateRecommendation(
             @Valid @RequestBody RecommendationDto recommendation) {
@@ -42,6 +47,7 @@ public class RecommendationController {
         return ResponseEntity.ok(retRecommendation);
     }
 
+    @Operation(summary = "Удалить рекоммендацию")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecommendation(
             @PathVariable
@@ -50,6 +56,7 @@ public class RecommendationController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Получить рекоммендации по идентификатору получателя")
     @GetMapping("/receiver/{receiverId}")
     public Page<RecommendationDto> getAllUserRecommendations(
             @PathVariable long receiverId,
@@ -64,6 +71,7 @@ public class RecommendationController {
         return recommendations;
     }
 
+    @Operation(summary = "Получить рекоммендации по автору")
     @GetMapping("/author/{authorId}")
     public Page<RecommendationDto> getAllGivenRecommendations(
             @PathVariable long authorId,
