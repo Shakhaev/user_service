@@ -1,5 +1,6 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validator;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +33,6 @@ class EventValidationTest {
     @InjectMocks
     private EventValidation eventValidation;
 
-    // test validateEvent method
     @Test
     void testValidateEvent() {
         EventDto eventDto = null;
@@ -89,7 +89,6 @@ class EventValidationTest {
         assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
     }
 
-    // test validateUserSkills method
     @Test
     void testValidateUserWithAllSkills() {
         EventDto eventDto = new EventDto();
@@ -134,7 +133,6 @@ class EventValidationTest {
         assertThrows(DataValidationException.class, () -> eventValidation.validateUserSkills(eventDto));
     }
 
-    // test validateEventId method
     @Test
     void testValidateEventIdWithNull() {
         Long id = null;
@@ -148,10 +146,9 @@ class EventValidationTest {
         eventDto.setId(1L);
         when(eventRepository.existsById(eventDto.getId())).thenReturn(false);
 
-        assertThrows(DataValidationException.class, () -> eventValidation.validateEventId(eventDto.getId()));
+        assertThrows(EntityNotFoundException.class, () -> eventValidation.validateEventId(eventDto.getId()));
     }
 
-    // test validateEventOwner method
     @Test
     void testValidateEventOwnerIdWithNull() {
         EventDto eventDto = new EventDto();
