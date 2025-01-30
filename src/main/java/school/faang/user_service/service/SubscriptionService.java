@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final List<UserFilter> userFilters;
 
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         checkSameUsers(followerId, followeeId);
         checkExistFollower(followerId, followeeId);
@@ -27,12 +29,14 @@ public class SubscriptionService {
         subscriptionRepository.followUser(followerId, followeeId);
     }
 
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         checkSameUsers(followerId, followeeId);
         log.info("Unfollowing subscription (%d - %d)".formatted(followerId, followeeId));
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
+    @Transactional
     public List<User> getFollowers(long followerId, UserFilterDto filters) {
         Stream<User> allFollowers = subscriptionRepository.findByFollowerId(followerId);
         log.info("Followers by id {} and filters {}", followerId, filters);
