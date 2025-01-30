@@ -4,4 +4,6 @@ public record GoalInvitationDto(
         Long inviterId,
         Long invitedUserId,
         Long goalId) {
-};
+}
+
+;

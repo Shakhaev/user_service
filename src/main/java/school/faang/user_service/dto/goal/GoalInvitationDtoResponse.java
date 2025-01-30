@@ -8,4 +8,6 @@ public record GoalInvitationDtoResponse(
         Long invitedUserId,
         Long goalId,
         RequestStatus status) {
-};
+}
+
+;

@@ -8,4 +8,6 @@ public record InvitationFilterDto(
         Long inviterId,
         Long invitedId,
         RequestStatus status) {
-};
+}
+
+;
