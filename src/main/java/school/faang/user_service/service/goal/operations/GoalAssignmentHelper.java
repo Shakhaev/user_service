@@ -36,6 +36,11 @@ public class GoalAssignmentHelper {
 
     public void assignSkillsToUsers(Goal goal, List<Long> skillIds) {
         List<User> users = goalRepository.findUsersByGoalId(goal.getId());
+
+        if (users.isEmpty()) {
+            return;
+        }
+
         List<Skill> skills = loadSkills(skillIds);
         for (User user : users) {
             user.getSkills().addAll(skills);

@@ -32,14 +32,10 @@ public class GoalService {
         goalValidator.validateActiveGoalsLimit(userId);
         goalValidator.validateSkillsExist(goalDto.getSkillIds());
 
-        Goal createdGoal = goalRepository.create(
-                goalDto.getTitle(),
-                goalDto.getDescription(),
-                goalDto.getParentId()
-        );
+        Goal goal = goalMapper.toEntity(goalDto);
+        Goal createdGoal = goalRepository.save(goal);
 
         goalAssignmentHelper.bindSkillsToGoal(goalDto.getSkillIds(), createdGoal);
-        goalRepository.save(createdGoal);
 
         return goalMapper.toCreateResponse(createdGoal);
     }
