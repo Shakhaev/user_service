@@ -157,7 +157,7 @@ class GoalServiceTest {
 
 
     @Test
-    void testUpdateGoal_ShouldCallValidators () {
+    void testUpdateGoal_ShouldCallValidators() {
         when(goalValidator.findGoalById(goalId)).thenReturn(existingGoal);
 
         goalService.updateGoal(goalId, goalDto);
