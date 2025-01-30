@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.SkillDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapperImpl;
