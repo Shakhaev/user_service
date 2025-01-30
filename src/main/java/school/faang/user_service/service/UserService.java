@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
@@ -142,5 +143,18 @@ public class UserService {
         } catch (Exception e) {
             throw new MinioSaveException("Minio error save file" + e.getMessage());
         }
+    }
+
+    public UserDto getUser(long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        return userRepository.findAllById(ids)
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

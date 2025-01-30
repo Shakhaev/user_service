@@ -48,4 +48,14 @@ public class UserController {
     public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto filterDto) {
         return userService.getPremiumUsers(filterDto);
     }
+
+    @GetMapping("/users/{userId}")
+    public UserDto getUser(@PathVariable long userId) {
+        return userService.getUser(userId);
+    }
+
+    @PostMapping("/users")
+    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
+        return userService.getUsersByIds(ids);
+    }
 }

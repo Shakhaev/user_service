@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +50,7 @@ public class UserServiceTest {
     private UserService service;
 
     private User user;
+    private UserDto userDto;
 
     private User premiumUser1;
     private User premiumUser2;
@@ -102,6 +104,8 @@ public class UserServiceTest {
                 .city("Tashkent")
                 .premium(premium2)
                 .build();
+
+        userDto = new UserDto(1L, "testUser", "test@example.com");
     }
 
     @Test
@@ -129,5 +133,32 @@ public class UserServiceTest {
 
         assertEquals(2, result.size());
         assertEquals(premiumUser1.getUsername(), result.get(0).username());
+    }
+
+    @Test
+    public void getUser_Success() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserDto result = service.getUser(1L);
+        assertEquals(userDto, result);
+    }
+
+    @Test
+    public void getUser_NotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> service.getUser(1L));
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    public void getUsersByIds_Success() {
+        List<Long> ids = List.of(1L, 2L);
+        User user2 = User.builder().id(2L).username("Bob").build();
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of(user, user2));
+
+        List<UserDto> result = service.getUsersByIds(ids);
+        assertEquals(2, result.size());
     }
 }
