@@ -119,21 +119,23 @@ public class EventParticipationServiceTest {
 
         List<User> users = List.of(userFirst, userSecond);
         List<UserReadDto> userDtos = List.of(
-                new UserReadDto(1L, "John", "Doe"),
-                new UserReadDto(2L, "Jane", "Smith")
+                UserReadDto.builder().id(1L).username("John").email("Doe").build(),
+                UserReadDto.builder().id(2L).username("Jane").email("Smith").build()
         );
 
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
-        when(userMapper.toDto(userFirst)).thenReturn(new UserReadDto(1L, "John", "Doe"));
-        when(userMapper.toDto(userSecond)).thenReturn(new UserReadDto(2L, "Jane", "Smith"));
+        when(userMapper.toDto(userFirst))
+                .thenReturn(UserReadDto.builder().id(1L).username("John").email("Doe").build());
+        when(userMapper.toDto(userSecond))
+                .thenReturn(UserReadDto.builder().id(2L).username("Jane").email("Smith").build());
 
 
         List<UserReadDto> result = eventParticipationService.getParticipant(eventId);
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals("John", result.get(0).username());
-        assertEquals("Jane", result.get(1).username());
+        assertEquals("John", result.get(0).getUsername());
+        assertEquals("Jane", result.get(1).getUsername());
 
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
     }
