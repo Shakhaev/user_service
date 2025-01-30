@@ -1,5 +1,6 @@
 package school.faang.user_service.config.redis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,12 +19,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RedisCacheConfig {
 
+    private final ObjectMapper objectMapper;
     private final JedisConnectionFactory jedisConnectionFactory;
     private final RedisCacheProperties prop;
 
     @Bean
     public RedisCacheManager cacheManager() {
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))

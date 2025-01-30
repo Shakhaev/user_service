@@ -5,6 +5,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,9 +78,9 @@ public class UserService {
     }
 
     @Transactional
-    public List<Long> findActiveUsersIdsWithPagination(int limit, int offset) {
-        List<Long> usersIds = userRepository.findAllActiveUsersWithPagination(limit, offset);
-        log.info("Got batch usersIds: {}, with pagination", limit);
+    public Page<Long> findActiveUsersIds(Pageable pageable) {
+        Page<Long> usersIds = userRepository.findAllActiveUsers(pageable);
+        log.info("Got batch usersIds: {}", usersIds.getContent().size());
         return usersIds;
     }
 

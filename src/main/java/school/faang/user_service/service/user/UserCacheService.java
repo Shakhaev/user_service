@@ -3,6 +3,9 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.async.AsyncConfig;
@@ -29,18 +32,18 @@ public class UserCacheService {
     private final KafkaHeatFeedCacheProducer kafkaHeatFeedCacheProducer;
 
     @Value(value = "${application.kafka.heat-feed-batch-size}")
-    private int batchSize;
+    private int pageSize;
 
     @Transactional
     public void startHeatFeedCache() {
-        int offset = 0;
-        List<Long> batchUsersIds;
-        do {
-            batchUsersIds = userService.findActiveUsersIdsWithPagination(batchSize, offset);
-            kafkaHeatFeedCacheProducer.send(batchUsersIds);
-            offset += batchSize;
+        Pageable pageable = PageRequest.of(0, pageSize);
+        Page<Long> page;
 
-        } while (!batchUsersIds.isEmpty());
+        do {
+            page = userService.findActiveUsersIds(pageable);
+            kafkaHeatFeedCacheProducer.send(page.getContent());
+            pageable = pageable.next();
+        } while (!page.isLast());
     }
 
     @Transactional

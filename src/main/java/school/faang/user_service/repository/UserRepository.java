@@ -1,5 +1,7 @@
 package school.faang.user_service.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -83,7 +85,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(nativeQuery = true, value = """
             SELECT id FROM users
             WHERE active = true
-            LIMIT :limit OFFSET :offset
             """)
-    List<Long> findAllActiveUsersWithPagination(@Param("limit") int limit, @Param("offset") int offset);
+    Page<Long> findAllActiveUsers(Pageable pageable);
 }
