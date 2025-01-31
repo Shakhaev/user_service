@@ -28,12 +28,11 @@ public class UserAvatarService {
 
     @Transactional
     public UserProfilePic uploadAvatar(Long userId, MultipartFile multipartFile) {
-        checkFileType(multipartFile);
+        checkFileType(multipartFile.getContentType());
         User user = findUserById(userId);
         int largeFileSize = appConfig.getAvatarLargeFileSize();
         int smallFileSize = appConfig.getAvatarSmallFileSize();
-        String contentTypeSmall = multipartFile.getContentType();
-        String contentTypeLarge = multipartFile.getContentType();
+        String contentType = multipartFile.getContentType();
 
         ByteArrayOutputStream largeStream = new ByteArrayOutputStream();
         ByteArrayOutputStream smallStream = new ByteArrayOutputStream();
@@ -42,8 +41,8 @@ public class UserAvatarService {
             avatarUploadingSystem.resizeImage(multipartFile, largeFileSize, largeStream);
             avatarUploadingSystem.resizeImage(multipartFile, smallFileSize, smallStream);
 
-            String largeFileId = avatarUploadingSystem.uploadToMinio(largeStream, contentTypeLarge);
-            String smallFileId = avatarUploadingSystem.uploadToMinio(smallStream, contentTypeSmall);
+            String largeFileId = avatarUploadingSystem.uploadToMinio(largeStream, contentType);
+            String smallFileId = avatarUploadingSystem.uploadToMinio(smallStream, contentType);
 
             UserProfilePic userProfilePic = new UserProfilePic();
             userProfilePic.setFileId(largeFileId);
@@ -91,8 +90,7 @@ public class UserAvatarService {
         profilePic.setSmallFileId(null);
     }
 
-    private void checkFileType(MultipartFile multipartFile) {
-        String contentType = multipartFile.getContentType();
+    private void checkFileType(String contentType) {
         if (contentType == null || !contentType.startsWith("image/")) {
             log.error("Only image files are allowed. Provided: {}, ", contentType);
             throw new FileTypeIncorrectException("");
