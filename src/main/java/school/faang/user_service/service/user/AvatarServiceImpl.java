@@ -31,8 +31,7 @@ public class AvatarServiceImpl implements AvatarService {
     public void init() {
         try (InputStream object = minioService.downloadFile(avatarProperties.getBucket(),
                 avatarProperties.getDefaultAvatar())) {
-            byte[] bytes = object.readAllBytes();
-            defaultAvatar = new ByteArrayResource(bytes);
+            defaultAvatar = new ByteArrayResource(object.readAllBytes());
         } catch (IOException e) {
             log.error("Download default avatar failed.", e);
             throw new DownloadMinioException("");
