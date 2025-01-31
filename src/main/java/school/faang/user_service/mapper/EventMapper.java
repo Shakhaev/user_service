@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 public interface EventMapper {
     Event toEntity(EventResponse eventResponse);
 
-    EventResponse toEventResponse(Event event);
+    @Mapping(source = "ownerId", target = "owner.id")
+    @Mapping(target = "relatedSkills", expression = "java(idsToSkills(eventDto.relatedSkills()))")
+    Event toEntity(EventDto eventDto);
 
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(target = "relatedSkills", expression = "java(skillsToSkillIds(event.getRelatedSkills()))")
     EventDto toDto(Event event);
 
-    @Mapping(source = "ownerId", target = "owner.id")
-    @Mapping(target = "relatedSkills", expression = "java(idsToSkills(eventDto.relatedSkills()))")
-    Event toEntity(EventDto eventDto);
+    EventResponse toEventResponse(Event event);
 
     default List<Long> skillsToSkillIds(List<Skill> skills) {
         return skills != null ? skills.stream().map(Skill::getId).collect(Collectors.toList()) : null;
