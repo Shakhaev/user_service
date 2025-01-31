@@ -1,9 +1,13 @@
 package school.faang.user_service.service.user;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
@@ -11,22 +15,26 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.MentorshipService;
+import school.faang.user_service.service.s3.S3Service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static school.faang.user_service.service.user.UserErrorMessage.USERS_NOT_FOUND;
-import static school.faang.user_service.service.user.UserErrorMessage.USER_NOT_FOUND;
+import static school.faang.user_service.utils.user.UserErrorMessage.USERS_NOT_FOUND;
+import static school.faang.user_service.utils.user.UserErrorMessage.USER_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final MentorshipService mentorshipService;
 
+    private final UserContext userContext;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final GoalRepository goalRepository;
+    private final S3Service s3Service;
 
     public boolean userExists(Long userId) {
         return userRepository.existsById(userId);
@@ -70,13 +78,58 @@ public class UserService {
         mentorshipService.stopUserMentorship(userId);
     }
 
+    @Transactional
+    public InputStream uploadAvatar(MultipartFile file, String size) {
+        long userId = userContext.getUserId();
+        User currentUser = getUser(userId);
+
+        Pair<UserProfilePic, InputStream> uploadResult = s3Service.uploadAvatar(file, size);
+
+        String largeImageKey = currentUser.getUserProfilePic().getFileId();
+        String smallImageKey = currentUser.getUserProfilePic().getSmallFileId();
+
+        s3Service.deleteAvatar(largeImageKey);
+        s3Service.deleteAvatar(smallImageKey);
+
+        currentUser.setUserProfilePic(uploadResult.getFirst());
+
+        userRepository.save(currentUser);
+
+        return uploadResult.getSecond();
+    }
+
+    @Transactional(readOnly = true)
+    public InputStream downloadAvatar(String size) {
+        long userId = userContext.getUserId();
+        User currentUser = getUser(userId);
+
+        String imageKey = currentUser.getUserProfilePic().getFileId();
+        if (size.equalsIgnoreCase("large")) {
+            imageKey = currentUser.getUserProfilePic().getSmallFileId();
+        }
+
+        return s3Service.downloadAvatar(imageKey);
+    }
+
+    @Transactional
+    public void deleteAvatar() {
+        long userId = userContext.getUserId();
+        User currentUser = getUser(userId);
+
+        String largeImageKey = currentUser.getUserProfilePic().getFileId();
+        String smallImageKey = currentUser.getUserProfilePic().getSmallFileId();
+
+        s3Service.deleteAvatar(largeImageKey);
+        s3Service.deleteAvatar(smallImageKey);
+    }
+
     private void deactivateUserDependencies(Long userId) {
         removeUserFromGoals(userId);
         removeUserEvents(userId);
     }
 
     private void removeUserFromGoals(Long userId) {
-        List<Goal> userGoals =  goalRepository.findGoalsByUserId(userId).toList();
+        List<Goal> userGoals = goalRepository.findGoalsByUserId(userId).toList();
 
         List<Goal> goalsToDelete = userGoals.stream()
                 .filter(goal -> goal.getUsers().size() == 1)
