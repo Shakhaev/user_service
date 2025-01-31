@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import school.faang.user_service.dto.error.ErrorField;
 import school.faang.user_service.dto.error.ErrorResponse;
 import school.faang.user_service.exception.*;
@@ -50,7 +51,9 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = {
             DataValidationException.class,
             UserGoalLimitExceededException.class,
-            FileSizeIncorrectException.class})
+            FileSizeIncorrectException.class,
+            FileTypeIncorrectException.class,
+            MaxUploadSizeExceededException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataValidation(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
@@ -82,6 +85,7 @@ public class ControllerExceptionHandler {
             XmlParserException.class,
             InternalException.class
     })
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleMinioExceptions(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
     }

@@ -19,15 +19,15 @@ public class AppConfig {
     @Value("${app.config.dicebear_url}")
     private String dicebearUrl;
 
-    @Value("${app.config.file_size}")
-    private int fileSize;
+    @Value("${app.config.avatar_file_size}")
+    private int avatarFileSize;
 
-    @Value("${app.config.bucket_name}")
-    private String bucketName;
+    @Value("${app.config.avatar_bucket_name}")
+    private String avatarBucketName;
 
-    @Value("${app.config.large_file_size}")
-    private int largeFileSize;
+    @Value("${app.config.avatar_large_file_size}")
+    private int avatarLargeFileSize;
 
-    @Value("${app.config.small_file_size}")
-    private int smallFileSize;
+    @Value("${app.config.avatar_small_file_size}")
+    private int avatarSmallFileSize;
 }
