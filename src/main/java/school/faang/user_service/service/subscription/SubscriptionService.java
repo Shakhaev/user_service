@@ -85,4 +85,11 @@ public class SubscriptionService {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
+    @Transactional
+    public List<Long> getFollowers(long userId) {
+        return subscriptionRepository.findByFolloweeId(userId)
+                .map(User::getId)
+                .toList();
+    }
+
 }
