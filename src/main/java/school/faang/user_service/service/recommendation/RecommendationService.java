@@ -9,8 +9,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -21,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static school.faang.user_service.service.recommendation.RecommendationErrorMessage.RECOMMENDATION_NOT_FOUND;
-import static school.faang.user_service.service.recommendation.RecommendationErrorMessage.RECOMMENDATION_PERIOD;
-import static school.faang.user_service.service.recommendation.RecommendationErrorMessage.SKILL_NOT_FOUND;
+import static school.faang.user_service.utils.RecommendationErrorMessage.RECOMMENDATION_NOT_FOUND;
+import static school.faang.user_service.utils.RecommendationErrorMessage.RECOMMENDATION_PERIOD;
+import static school.faang.user_service.utils.RecommendationErrorMessage.SKILL_NOT_FOUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,12 +41,14 @@ public class RecommendationService {
         User receiver = recommendation.getReceiver();
         User author = recommendation.getAuthor();
 
-        updateSkillOffers(recommendation, receiver, author);
         Long id = recommendationRepository.create(
                 author.getId(),
                 receiver.getId(),
                 recommendation.getContent()
         );
+
+        recommendation.setId(id);
+        updateSkillOffers(recommendation, receiver, author);
 
         return recommendationRepository.findById(id).get();
     }
@@ -100,12 +101,14 @@ public class RecommendationService {
     }
 
     private void updateSkillOffers(Recommendation recommendation, User receiver, User author) {
-        List<SkillOffer> skillOffersOfReceiver = skillOfferRepository.findAllByUserId(
-                receiver.getId());
+        List<Long> skillOfReceiverIds = skillRepository.findAllByUserId(
+                        receiver.getId()).stream()
+                .map(Skill::getId)
+                .toList();
         List<UserSkillGuarantee> updateGuarantees = new ArrayList<>();
 
         recommendation.getSkillOffers().forEach(skillOffer -> {
-            if (skillOffersOfReceiver.contains(skillOffer)) {
+            if (skillOfReceiverIds.contains(skillOffer.getSkill().getId())) {
                 updateGuarantees.add(UserSkillGuarantee.builder()
                         .skill(skillOffer.getSkill())
                         .user(receiver)
@@ -130,12 +133,13 @@ public class RecommendationService {
     private void validateRecommendation(Recommendation recommendation) {
         Optional<Recommendation> pastRecommendation = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
-                        recommendation.getId(), recommendation.getReceiver().getId());
+                        recommendation.getAuthor().getId(),
+                        recommendation.getReceiver().getId());
 
         pastRecommendation.ifPresent(rec -> {
             LocalDateTime expirationDate = rec.getCreatedAt()
                     .plusMonths(monthsAllowedAfterRecommendationCreation);
-            boolean isWithinAllowedPeriod = expirationDate.isAfter(LocalDateTime.now());
+            boolean isWithinAllowedPeriod = expirationDate.isBefore(LocalDateTime.now());
 
             if (!isWithinAllowedPeriod) {
                 var message = String.format(RECOMMENDATION_PERIOD,
@@ -144,12 +148,12 @@ public class RecommendationService {
             }
         });
 
-        List<Skill> allSkills = skillRepository.findAll()
-                .stream()
+        List<Long> allSkills = skillRepository.findAll().stream()
+                .map(Skill::getId)
                 .toList();
 
         recommendation.getSkillOffers().forEach(skillOffer -> {
-            if (!allSkills.contains(skillOffer.getSkill())) {
+            if (!allSkills.contains(skillOffer.getSkill().getId())) {
                 var message = String.format(SKILL_NOT_FOUND,
                         skillOffer.getSkill().getId());
                 throw new DataValidationException(message);

@@ -99,6 +99,11 @@ public class GoalService {
         goalRepository.deleteById(goalId);
     }
 
+    public Goal getGoalById(long goalId) {
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new IllegalArgumentException("There is no goal with id: " + goalId));
+    }
+
     @Transactional(readOnly = true)
     public List<Goal> findSubGoalsByParentId(Long parentGoalId, GoalFilterDto filterDto) {
         Stream<Goal> subGoals = goalRepository.findByParent(parentGoalId);
