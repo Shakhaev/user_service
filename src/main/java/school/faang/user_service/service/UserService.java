@@ -1,5 +1,8 @@
 package school.faang.user_service.service;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,6 +14,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
 import school.faang.user_service.dto.promotion.UserPromotionRequest;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.entity.event.Event;
@@ -20,21 +24,24 @@ import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
 import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.model.Person;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.external.AvatarService;
 import school.faang.user_service.service.external.MinioStorageService;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.util.ConverterUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
-
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +58,7 @@ public class UserService {
     private final AvatarService avatarService;
     private final MinioStorageService minioStorageService;
     private final List<UserFilter> userFilters;
+    private final CountryService countryService;
 
     public User findById(long id) {
         return userRepository.findById(id)
@@ -142,5 +150,44 @@ public class UserService {
         } catch (Exception e) {
             throw new MinioSaveException("Minio error save file" + e.getMessage());
         }
+    }
+
+    @Transactional
+    public void processCsvFile(InputStream file) {
+        try {
+            CsvMapper csvMapper = new CsvMapper();
+            CsvSchema schema = CsvSchema.emptySchema().withHeader();
+            MappingIterator<Person> mappingIterator = csvMapper.readerFor(Person.class)
+                    .with(schema)
+                    .readValues(file);
+            List<Person> people = mappingIterator.readAll();
+            List<CompletableFuture<Void>> future = new ArrayList<>();
+            for (Person person : people) {
+                CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> processPerson(person));
+                future.add(completableFuture);
+            }
+            CompletableFuture.allOf(future.toArray(new CompletableFuture[0])).join();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void processPerson(Person person) {
+        String username = generateUsername(person);
+        String password = generatePassword();
+        String personCountry = person.getContactInfo()
+                .getAddress()
+                .getCountry();
+        Country country = countryService.updateCountryByTitle(personCountry);
+        User user = userMapper.toEntity(person, username, password, country);
+        userRepository.save(user);
+    }
+
+    private String generatePassword() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private String generateUsername(Person person) {
+        return person.getFirstName() + "." + person.getLastName();
     }
 }

@@ -8,7 +8,11 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserRegisterRequest;
 import school.faang.user_service.dto.UserRegisterResponse;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.model.Person;
+
+import java.util.List;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -20,6 +24,10 @@ public interface UserMapper {
 
     @Mapping(source = "countryId", target = "country.id")
     User toEntity(UserRegisterRequest request);
+
+    User toEntity(Person person, String username, String password, Country country);
+
+    List<User> toEntity(List<Person> persons);
 
     UserDto toDto(User entity);
 
