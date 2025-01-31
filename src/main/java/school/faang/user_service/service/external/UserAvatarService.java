@@ -1,6 +1,5 @@
 package school.faang.user_service.service.external;
 
-import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.AppConfig;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.exception.FileSizeIncorrectException;
 import school.faang.user_service.exception.FileTypeIncorrectException;
 import school.faang.user_service.exception.UserProfileWasNotFound;
 import school.faang.user_service.exception.UserWasNotFoundException;
