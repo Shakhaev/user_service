@@ -86,7 +86,7 @@ public class EventService {
     }
 
     @Transactional
-    public void completeEventsByUser(long userId) {
+    public void cancelEventsByUser(long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
 
         events.forEach(event -> {
@@ -96,7 +96,6 @@ public class EventService {
             }
         });
 
-        eventRepository.deleteAll(events);
     }
 }
 

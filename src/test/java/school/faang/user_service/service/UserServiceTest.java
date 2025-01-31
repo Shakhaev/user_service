@@ -11,7 +11,6 @@ import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.goal.GoalService;
-import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +43,7 @@ class UserServiceTest {
         eventService = mock(EventService.class);
         mentorshipService = mock(MentorshipService.class);
         userService = new UserService(userRepository, userFilters,
-                goalService, eventService, userMapper, new UserValidator(), mentorshipService);
+                goalService, eventService, userMapper, mentorshipService);
     }
 
     @Test

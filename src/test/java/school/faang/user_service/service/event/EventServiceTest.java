@@ -156,10 +156,9 @@ public class EventServiceTest {
 
         when(eventRepository.findAllByUserId(1L)).thenReturn(events);
 
-        eventService.completeEventsByUser(1L);
+        eventService.cancelEventsByUser(1L);
 
         verify(eventRepository, times(2)).save(any(Event.class));
-        verify(eventRepository, times(1)).deleteAll(events);
     }
 
     private void prepareValidationThrows() {
