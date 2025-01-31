@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.user.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
@@ -28,7 +29,7 @@ public class UserService {
     public User getUser(Long userId) {
         if (userId == null) {
             logger.error("User ID is null");
-            throw new IllegalArgumentException("User ID must not be null");
+            throw new DataValidationException("User ID must not be null");
         }
 
         return userRepository.findById(userId).orElseThrow(() -> {

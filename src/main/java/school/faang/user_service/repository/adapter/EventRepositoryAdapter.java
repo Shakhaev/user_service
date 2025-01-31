@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.List;
@@ -15,9 +16,9 @@ public class EventRepositoryAdapter {
 
     private final EventRepository eventRepository;
 
-    public Event getEventById(Long eventId) throws DataValidationException {
+    public Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new DataValidationException("Event not found with ID: " + eventId));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + eventId));
     }
 
     public Event save(Event event) {

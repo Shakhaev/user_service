@@ -13,6 +13,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.adapter.EventParticipationAdapter;
@@ -34,9 +35,10 @@ public class EventService {
     private final UserService userService;
     private final EventParticipationRepository eventParticipationRepository;
     private final SkillRepository skillRepository;
+    private final EventParticipationAdapter eventParticipationAdapter;
 
     @Transactional
-    public EventResponseDto createEvent(CreateEventRequestDto createRequest) throws DataValidationException {
+    public EventResponseDto createEvent(CreateEventRequestDto createRequest) {
         List<Skill> relatedSkills = getSkillsByIds(createRequest.getRelatedSkills());
         Event event = eventMapper.toEntity(createRequest, relatedSkills);
         event.setOwner(userService.getUser(createRequest.getOwnerId()));
@@ -45,13 +47,13 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public EventResponseDto getEvent(Long eventId) throws DataValidationException {
+    public EventResponseDto getEvent(Long eventId) {
         Event event = eventRepositoryAdapter.getEventById(eventId);
         return eventMapper.toResponseDto(event);
     }
 
     @Transactional
-    public EventResponseDto updateEvent(UpdateEventRequestDto updateRequest) throws DataValidationException {
+    public EventResponseDto updateEvent(UpdateEventRequestDto updateRequest) {
         Event existingEvent = eventRepositoryAdapter.getEventById(updateRequest.getId());
 
         List<Skill> relatedSkills = getSkillsByIds(updateRequest.getRelatedSkills());
@@ -61,7 +63,7 @@ public class EventService {
         return eventMapper.toResponseDto(eventRepositoryAdapter.save(updatedEvent));
     }
     @Transactional
-    public void deleteEvent(Long eventId) throws DataValidationException {
+    public void deleteEvent(Long eventId) {
         Event event = eventRepositoryAdapter.getEventById(eventId);
 
         List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
@@ -108,15 +110,14 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventsByParticipant(Long userId) {
-        EventParticipationAdapter eventParticipationAdapter = null;
         List<Event> events = eventParticipationAdapter.findParticipatedEventsByUserId(userId);
         return eventMapper.toResponseDtoList(events);
     }
 
-    private List<Skill> getSkillsByIds(List<Long> skillIds) throws DataValidationException {
+    private List<Skill> getSkillsByIds(List<Long> skillIds) {
         return skillIds.stream()
                 .map(skillId -> skillRepository.findById(skillId)
-                        .orElseThrow(() -> new DataValidationException("Skill not found with ID: " + skillId)))
+                        .orElseThrow(() -> new EntityNotFoundException("Skill not found with ID: " + skillId)))
                 .toList();
     }
 }
