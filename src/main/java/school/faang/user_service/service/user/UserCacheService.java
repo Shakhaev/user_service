@@ -41,7 +41,10 @@ public class UserCacheService {
 
         do {
             page = userService.findActiveUsersIds(pageable);
-            kafkaHeatFeedCacheProducer.send(page.getContent());
+            if (page.hasContent()){
+                kafkaHeatFeedCacheProducer.send(page.getContent());
+            }
+
             pageable = pageable.next();
         } while (!page.isLast());
     }
