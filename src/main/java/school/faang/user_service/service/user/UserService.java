@@ -2,11 +2,16 @@ package school.faang.user_service.service.user;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -27,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final GoalRepository goalRepository;
+    private final UserMapper userMapper;
 
     public boolean userExists(Long userId) {
         return userRepository.existsById(userId);
@@ -46,6 +52,16 @@ public class UserService {
             throw new IllegalArgumentException(USERS_NOT_FOUND);
         }
         return users;
+    }
+
+    @Transactional
+    public Page<UserDto> getUsersByIds(List<Long> ids, Pageable pageable) {
+        List<User> users = userRepository.findByIdIn(ids, pageable);
+        List<UserDto> userDos = users
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
+        return new PageImpl<>(userDos, pageable, userRepository.countByIdIn(ids));
     }
 
     public User updateUser(User user) {
@@ -76,7 +92,7 @@ public class UserService {
     }
 
     private void removeUserFromGoals(Long userId) {
-        List<Goal> userGoals =  goalRepository.findGoalsByUserId(userId).toList();
+        List<Goal> userGoals = goalRepository.findGoalsByUserId(userId).toList();
 
         List<Goal> goalsToDelete = userGoals.stream()
                 .filter(goal -> goal.getUsers().size() == 1)
