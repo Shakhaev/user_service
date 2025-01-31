@@ -10,7 +10,7 @@ import io.swagger.v3.oas.models.info.Info;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI customOpenApi() {
         return new OpenAPI()
                 .info(new Info().title("User Service API")
                         .description("API documentation for the User Service of Corporation X project")
