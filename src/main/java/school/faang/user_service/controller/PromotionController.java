@@ -1,6 +1,8 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,11 +15,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class PromotionController {
 
     private final PromotionService promotionService;
 
-    public OrderDto buyPromotion(@RequestBody BuyPromotionDto buyPromotionDto) {
+    public OrderDto buyPromotion(@Valid @RequestBody BuyPromotionDto buyPromotionDto) {
         return promotionService.buyPromotion(buyPromotionDto);
     }
 

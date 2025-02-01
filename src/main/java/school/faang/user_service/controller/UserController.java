@@ -1,7 +1,9 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -35,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/premium")
-    public List<UserDto> getPremiumUsers(@RequestBody(required = false) UserFilterDto userFilterDto) {
+    public List<UserDto> getPremiumUsers(@Valid @RequestBody(required = false) UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
     }
 

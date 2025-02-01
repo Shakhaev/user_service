@@ -19,18 +19,18 @@ public class RecommendationDto {
     @Positive(message = "Id должно быть больше нуля")
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Id не должно равняться нулю")
     @Positive(message = "Id должно быть больше нуля")
     private Long authorId;
 
-    @NotNull
+    @NotNull(message = "Id не должно равняться нулю")
     @Positive(message = "Id должно быть больше нуля")
     private Long receiverId;
 
     @NotBlank(message = "Рекомендация не должна быть пустой!")
     private String content;
 
-    @NotNull
+    @NotNull(message = "Список не должен быть пустым")
     private List<SkillOfferDto> skillOffers;
     private LocalDateTime createdAt;
 }

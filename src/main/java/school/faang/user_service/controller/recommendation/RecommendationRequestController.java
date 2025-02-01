@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Validated
 public class RecommendationRequestController {
 
     private final RecommendationRequestService recommendationRequestService;
