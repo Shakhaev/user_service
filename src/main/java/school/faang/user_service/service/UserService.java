@@ -18,11 +18,12 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
-import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.external.AvatarService;
 import school.faang.user_service.service.external.MinioStorageService;
+import school.faang.user_service.service.filter.UserFilter;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.util.ConverterUtil;
 
@@ -69,7 +70,7 @@ public class UserService {
         user.getOwnedEvents().forEach(event -> {
             if (event.getStartDate().isAfter(currentTime)) { //Если ивент ещё не начался - удаляем
                 neededToRemove.add(event);
-                eventService.removeEvent(event.getId()); //Удаление ивентов из БД
+                eventService.deleteEvent(event.getId()); //Удаление ивентов из БД
             }
         });
         user.setOwnedEvents(user.getOwnedEvents().stream()
