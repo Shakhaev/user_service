@@ -2,6 +2,7 @@ package school.faang.user_service.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -87,4 +88,9 @@ public class SkillServiceImpl implements SkillService {
         return skillMapper.toSkillDto(assignedSkill);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Skill> getSkillListBySkillIds(List<Long> ids) {
+        return skillRepository.findAllById(ids);
+    }
 }
