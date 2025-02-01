@@ -12,7 +12,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.Person;
@@ -21,14 +20,11 @@ import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.filters.avatar.AvatarFilter;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.mentorship.MentorshipService;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -77,8 +73,6 @@ public class UserServiceTest {
 
     @Mock
     private CountryService countryService;
-    @Mock
-    private MentorshipService mentorshipService;
 
     @BeforeEach
     void setUp() {
@@ -181,7 +175,7 @@ public class UserServiceTest {
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             userService.generateRandomAvatar();
         });
-        assertEquals("User not found", exception.getMessage());
+        assertEquals("User doesn't exist.", exception.getMessage());
         verify(avatarService, never()).generateRandomAvatar(anyString(), anyString());
         verify(userRepository, never()).save(any(User.class));
     }
@@ -278,17 +272,12 @@ public class UserServiceTest {
     }
 
     @Test
-    void testSaveCustomAvatar() throws IOException {
+    void testSaveCustomAvatar() {
         MultipartFile file = mock(MultipartFile.class);
-        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
 
-        AvatarFilter avatarFilterMock = mock(AvatarFilter.class);
-        ReflectionTestUtils.setField(userService, "avatarFilters", List.of(avatarFilterMock));
-
         userService.saveCustomAvatar(file);
-        verify(avatarFilterMock).resizeAndUploadToMinio(any(), any(), any(UserProfilePic.class));
         verify(userRepository).save(any(User.class));
     }
 
@@ -299,14 +288,14 @@ public class UserServiceTest {
 
         userService.deleteAvatar();
 
-        verify(avatarService).deleteFromMinio(any());
+        verify(avatarService).deleteAvatar(any());
         verify(userRepository).save(any(User.class));
     }
 
     @Test
-    void testGetBigAvatar() {
+    void testGetAvatar() {
         UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setFileId("big avatar");
+        userProfilePic.setFileId("avatar");
         User user = new User();
         user.setUserProfilePic(userProfilePic);
 
@@ -314,21 +303,7 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         userService.getAvatar(false);
-        verify(avatarService).getAvatar(userProfilePic.getFileId());
-    }
-
-    @Test
-    void testGetSmallAvatar() {
-        UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setSmallFileId("small avatar");
-        User user = new User();
-        user.setUserProfilePic(userProfilePic);
-
-        when(userContext.getUserId()).thenReturn(1L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        userService.getAvatar(true);
-        verify(avatarService).getAvatar(userProfilePic.getSmallFileId());
+        verify(avatarService).getAvatar(userProfilePic, false);
     }
 
     @Test
