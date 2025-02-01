@@ -9,44 +9,19 @@ import school.faang.user_service.entity.User;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PersonToUserMapper {
 
-    // username генерируем из firstName/lastName
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "username", expression = "java(generateUsername(person.getFirstName(), person.getLastName()))")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "phone", target = "phone")
-    @Mapping(target = "password", ignore = true) // будет генерироваться в сервисе
+    @Mapping(target = "password", ignore = true) // generate in service
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "aboutMe", expression = "java(buildAboutMe(person))")
-    @Mapping(target = "country", ignore = true)   // присвоим в сервисе
+    @Mapping(target = "country", ignore = true)   // set in service
     @Mapping(source = "city", target = "city")
     @Mapping(target = "experience", expression = "java(person.getYearOfStudy())")
     @Mapping(target = "banned", constant = "false")
-/*    // Остальные связи и коллекции игнорируем
-    @Mapping(target = "followers", ignore = true)
-    @Mapping(target = "followees", ignore = true)
-    @Mapping(target = "ownedEvents", ignore = true)
-    @Mapping(target = "mentees", ignore = true)
-    @Mapping(target = "mentors", ignore = true)
-    @Mapping(target = "receivedMentorshipRequests", ignore = true)
-    @Mapping(target = "sentMentorshipRequests", ignore = true)
-    @Mapping(target = "sentGoalInvitations", ignore = true)
-    @Mapping(target = "receivedGoalInvitations", ignore = true)
-    @Mapping(target = "setGoals", ignore = true)
-    @Mapping(target = "goals", ignore = true)
-    @Mapping(target = "skills", ignore = true)
-    @Mapping(target = "participatedEvents", ignore = true)
-    @Mapping(target = "recommendationsGiven", ignore = true)
-    @Mapping(target = "recommendationsReceived", ignore = true)
-    @Mapping(target = "contacts", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "userProfilePic", ignore = true)
-    @Mapping(target = "contactPreference", ignore = true)
-    @Mapping(target = "premium", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)*/
     User personToUser(Person person);
 
-    // Вспомогательный метод для генерации username
     default String generateUsername(String firstName, String lastName) {
         if (firstName == null || lastName == null) {
             return "user" + System.currentTimeMillis();
