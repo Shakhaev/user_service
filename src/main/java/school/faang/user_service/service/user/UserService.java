@@ -181,7 +181,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<SubscriptionDto> findUsersFollowees() {
+    public List<SubscriptionDto> findAllUsersFollowees() {
        var tuples = subscriptionRepository.findUsersFolloweesTuple()
                 .orElseThrow(() -> new EntityNotFoundException("Users not found!"));
         return tuples.stream()

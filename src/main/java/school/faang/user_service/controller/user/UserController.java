@@ -65,7 +65,7 @@ public class UserController {
 
     @GetMapping("followees")
     @ResponseStatus(HttpStatus.OK)
-    public List<SubscriptionDto> getUserFollowees() {
-        return userService.findUsersFollowees();
+    public List<SubscriptionDto> getAllUserFollowees() {
+        return userService.findAllUsersFollowees();
     }
 }
