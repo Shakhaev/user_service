@@ -93,7 +93,7 @@ public class RecommendationRequestServiceTest {
         recommendationRequestDto.setCreatedAt(LocalDateTime.now());
         recommendationRequestDto.setUpdatedAt(LocalDateTime.now());
 
-        requestFilterDto = new RequestFilterDto();
+        requestFilterDto = RequestFilterDto.builder().build();
         requestFilterDto.setReceiverId(1L);
         requestFilterDto.setRequesterId(2L);
         requestFilterDto.setStatus(RequestStatus.REJECTED);

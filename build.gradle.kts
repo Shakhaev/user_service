@@ -93,7 +93,6 @@ tasks.withType<Test> {
 
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
-    finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 var includesPath = listOf(
@@ -109,10 +108,12 @@ val verificationIncludes = listOf(
 )
 
 tasks.jacocoTestReport {
+    dependsOn(tasks.test)
     classDirectories.setFrom(
         files(classDirectories.files.map { file ->
             fileTree(file.parentFile) {
                 include(includesPath)
+                exclude("**/test/**", "**/tests/**")
             }
         })
     )
@@ -130,6 +131,7 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
     violationRules {
         rule {
             element = "CLASS"
