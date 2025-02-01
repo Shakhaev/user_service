@@ -39,7 +39,7 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void createRequestMentorshipSuccessTest() throws Exception {
-        MentorshipRequestDto requestDto = new MentorshipRequestDto("sdfsddsfadsfdafefdferw213213qdfdsfsdfadfadsf", 3L, 4L);
+        MentorshipRequestDto requestDto = new MentorshipRequestDto("sdfsddsfadsfdafefdferw213213qdfdsfsdfadfadsf", 3L, 4L, RequestStatusDto.PENDING);
 
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -51,7 +51,7 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void createRequestMentorshipWithFieldDescriptionLess25SymbolsFailTest() throws Exception {
-        MentorshipRequestDto requestDto = new MentorshipRequestDto("less25symbols", 1L, 1L);
+        MentorshipRequestDto requestDto = new MentorshipRequestDto("less25symbols", 1L, 1L, RequestStatusDto.PENDING);
 
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testGetRequestsSuccessTest() throws Exception {
-        List<MentorshipRequestDto> responseList = List.of(new MentorshipRequestDto("test", 1L, 2L));
+        List<MentorshipRequestDto> responseList = List.of(new MentorshipRequestDto("test", 1L, 2L, RequestStatusDto.PENDING));
 
         when(mentorshipRequestService.getRequest("test", 1L, 2L, RequestStatusDto.PENDING)).thenReturn(responseList);
         mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)

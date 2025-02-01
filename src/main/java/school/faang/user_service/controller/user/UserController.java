@@ -7,24 +7,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserAvatarSize;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.publisher.mentorshipoffered.ProfileViewEventPublisher;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.utilities.UrlUtils;
 
+import java.time.LocalDateTime;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 
 @Validated
 @RestController
@@ -32,9 +28,13 @@ import java.util.List;
 @RequestMapping(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS)
 public class UserController {
     private final UserService userService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     @GetMapping(UrlUtils.ID)
-    public UserDto getUser(@PathVariable("id") @Min(1) Long id) {
+    public UserDto getUser(@PathVariable("id") @Min(1) Long id, @RequestParam("idRequester") @Min(1) Long idRequester) {
+        if (!Objects.equals(id, idRequester)) {
+            profileViewEventPublisher.publish(new ProfileViewEvent(idRequester, id, LocalDateTime.now()));
+        }
         return userService.getUser(id);
     }
 

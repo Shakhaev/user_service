@@ -27,6 +27,20 @@ spring:
           name: follower_event
         userBanChannel:
           name: user_ban_channel
+        goalSetChannel:
+          name: goal_set_channel
+        mentorshipOfferedChannel:
+          name: mentorship_offered_channel
+        profileViewChannel:
+          name: profile_view_event_channel
+        followerChannel:
+          name: follower_channel
+
+
+
+servlet:
+  multipart:
+    enabled: true
 
 services:
   s3:
@@ -38,6 +52,8 @@ services:
 
 server:
   port: 8080
+
+
 
 logging:
   level:

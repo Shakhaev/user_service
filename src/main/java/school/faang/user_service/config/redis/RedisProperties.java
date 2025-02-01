@@ -16,6 +16,10 @@ public class RedisProperties {
     @Setter
     protected static class Channels {
         private Channel userBanChannel;
+        private Channel goalSetChannel;
+        private Channel mentorshipOfferedChannel;
+        private Channel profileViewChannel;
+        private Channel followerChannel;
 
         @Getter
         @Setter

@@ -1,0 +1,1 @@
+ALTER TABLE subscription ADD CONSTRAINT subscription_follower_id_followee_id UNIQUE (follower_id, followee_id);

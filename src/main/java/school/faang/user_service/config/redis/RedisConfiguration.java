@@ -39,7 +39,6 @@ public class RedisConfiguration {
         template.setConnectionFactory(jedisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-
         return template;
     }
 
@@ -61,6 +60,11 @@ public class RedisConfiguration {
     }
 
     @Bean
+    public ChannelTopic goalSetTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getGoalSetChannel().getName());
+    }
+
+    @Bean
     public MessageListenerAdapter userBanMessageListener(UserBanEventListener userBanEventListener) {
         return new MessageListenerAdapter(userBanEventListener);
     }
@@ -69,5 +73,20 @@ public class RedisConfiguration {
     public Pair<MessageListenerAdapter, ChannelTopic> userBanPair(MessageListenerAdapter userBanMessageListener,
                                                                   ChannelTopic userBanTopic) {
         return Pair.of(userBanMessageListener, userBanTopic);
+    }
+
+    @Bean
+    public ChannelTopic mentorshipOfferedTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getMentorshipOfferedChannel().getName());
+    }
+
+    @Bean
+    public ChannelTopic  profileViewTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProfileViewChannel().getName());
+    }
+
+    @Bean
+    public ChannelTopic followerTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getFollowerChannel().getName());
     }
 }

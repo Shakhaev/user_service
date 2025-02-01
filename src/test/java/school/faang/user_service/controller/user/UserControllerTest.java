@@ -85,7 +85,7 @@ public class UserControllerTest {
 
     @Test
     void getUserSuccessTest() throws Exception {
-        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/7"))
+        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/7" + "?idRequester=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(7)))
@@ -95,7 +95,7 @@ public class UserControllerTest {
 
     @Test
     void getUserWithNegativeIdFailTest() throws Exception {
-        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/-7"))
+        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/-7"+"?idRequester=10"))
                 .andExpect(status().isBadRequest())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
@@ -105,7 +105,7 @@ public class UserControllerTest {
 
     @Test
     void getUserWithForNonExistentUserFailTest() throws Exception {
-        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/55"))
+        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.USERS + "/55"+"?idRequester=10" ))
                 .andExpect(status().isNotFound())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();

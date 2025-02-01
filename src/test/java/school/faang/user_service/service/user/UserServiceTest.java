@@ -14,9 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.dto.user.UserAvatarSize;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.Person;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.s3.S3Service;
 
@@ -32,17 +36,24 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private CountryRepository countryRepository;
+    @Mock
     private UserMapper userMapper;
+    @Mock
+    private PersonToUserMapper personToUserMapper;
     @Mock
     private S3Service s3Service;
     @InjectMocks
@@ -190,5 +201,106 @@ public class UserServiceTest {
         when(userRepository.findById(200L)).thenThrow(EntityNotFoundException.class);
         assertThrows((EntityNotFoundException.class), () -> userService.banUser(200L));
         verify(userRepository).findById(200L);
+    }
+
+
+    @Test
+    void importUsersFromCSVSuccessTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("""
+            email,firstName,lastName,country
+            alice@mail.com,Alice,Smith,USA
+            bob@mail.com,Bob,Johnson,Canada
+        """.getBytes());
+
+        Person person1 = Person.builder().email("alice@mail.com").firstName("Alice").lastName("Smith").country("USA").build();
+        Person person2 = Person.builder().email("bob@mail.com").firstName("Bob").lastName("Johnson").country("Canada").build();
+        Country country1 = Country.builder().id(1L).title("USA").build();
+        Country country2 = Country.builder().id(2L).title("Canada").build();
+
+        when(userRepository.findByEmail("alice@mail.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("bob@mail.com")).thenReturn(Optional.empty());
+        when(countryRepository.findByTitle("USA")).thenReturn(Optional.of(country1));
+        when(countryRepository.findByTitle("Canada")).thenReturn(Optional.of(country2));
+        when(personToUserMapper.personToUser(person1)).thenReturn(new User());
+        when(personToUserMapper.personToUser(person2)).thenReturn(new User());
+        doNothing().when(userRepository).save(any(User.class));
+
+        assertDoesNotThrow(() -> userService.importUsersFromCSV(csvInput));
+
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(countryRepository, never()).save(any(Country.class));
+    }
+
+    @Test
+    void importUsersFromCSVWithParsingErrorTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("""
+            email,firstName,lastName,country
+            alice@mail.com,Alice,Smith
+        """.getBytes()); // Missing "country" in the header
+
+        assertThrows(IOException.class, () -> userService.importUsersFromCSV(csvInput));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void importUsersFromCSVWithEmptyFileTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("".getBytes());
+
+        assertDoesNotThrow(() -> userService.importUsersFromCSV(csvInput));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+    //------
+    @Test
+    void importUsersFromCSVWhenCountryDoesNotExistCreatesNewCountryAndSavesUserTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("""
+            email,firstName,lastName,country
+            jane.doe@mail.com,Jane,Doe,Spain
+        """.getBytes());
+
+        Person person = Person.builder().email("jane.doe@mail.com").firstName("Jane").lastName("Doe").country("Spain").build();
+        Country spainCountry = Country.builder().id(1L).title("Spain").build();
+
+        when(userRepository.findByEmail("jane.doe@mail.com")).thenReturn(Optional.empty());
+        when(countryRepository.findByTitle("Spain")).thenReturn(Optional.empty());
+        when(countryRepository.save(any(Country.class))).thenReturn(spainCountry);
+        when(personToUserMapper.personToUser(person)).thenReturn(new User());
+        doNothing().when(userRepository).save(any(User.class));
+
+        assertDoesNotThrow(() -> userService.importUsersFromCSV(csvInput));
+
+        verify(countryRepository, times(1)).save(any(Country.class));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void importUsersFromCSVWithExistingUserSkipsImportForExistingUserTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("""
+            email,firstName,lastName,country
+            john.doe@mail.com,John,Doe,France
+        """.getBytes());
+
+        Person person = Person.builder().email("john.doe@mail.com").firstName("John").lastName("Doe").country("France").build();
+        User existingUser = User.builder().email("john.doe@mail.com").build();
+
+        when(userRepository.findByEmail("john.doe@mail.com")).thenReturn(Optional.of(existingUser));
+
+        assertDoesNotThrow(() -> userService.importUsersFromCSV(csvInput));
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(countryRepository, never()).save(any(Country.class));
+    }
+
+    @Test
+    void importUsersFromCSVWithFailureWhenNoUsersProvidedTest() throws IOException {
+        InputStream csvInput = new ByteArrayInputStream("""
+            email,firstName,lastName,country
+        """.getBytes());
+
+        assertDoesNotThrow(() -> userService.importUsersFromCSV(csvInput));
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(countryRepository, never()).save(any(Country.class));
     }
 }

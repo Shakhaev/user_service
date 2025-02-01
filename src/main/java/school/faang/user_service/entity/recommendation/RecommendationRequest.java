@@ -11,6 +11,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -61,6 +62,18 @@ public class RecommendationRequest {
     private LocalDateTime updatedAt;
 
     public void addSkillRequest(SkillRequest skillRequest) {
+        if (skills == null) {
+            skills = new ArrayList<>();
+        }
         skills.add(skillRequest);
+    }
+
+    @Override
+    public String toString() {
+        return "RecommendationRequest{" +
+                "id=" + id +
+                ", message='" + message + '\'' +
+                ", status=" + status +
+                '}';
     }
 }

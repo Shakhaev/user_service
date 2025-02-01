@@ -1,9 +1,11 @@
 package school.faang.user_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class Person {
     private String firstName;
     private String lastName;
