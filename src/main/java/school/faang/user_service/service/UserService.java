@@ -4,22 +4,16 @@ import org.springframework.stereotype.Service;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import school.faang.user_service.dto.UserDto;
-import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.event.EventStatus;
-import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.filter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,15 +31,14 @@ public class UserService {
     private final EventRepository eventRepository;
     private final GoalRepository goalRepository;
     private final MentorshipService mentorshipService;
-    private final UserMapper userMapper;
 
-    public UserDto deactivate(Long userId) {
+    public UserReadDto deactivate(Long userId) {
         User user = getById(userId);
         removeEvents(userId);
         removeGoals(userId);
         removeMenteeAndGoals(userId);
         user.setActive(false);
-        return userMapper.toUserDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public void removeMenteeAndGoals(Long userId) {
@@ -62,7 +55,7 @@ public class UserService {
     private void removeEvents(Long userId) {
         isUserExists(userId);
         User user = getById(userId);
-        if (user.getOwnedEvents() != null &&!user.getOwnedEvents().isEmpty()) {
+        if (user.getOwnedEvents() != null && !user.getOwnedEvents().isEmpty()) {
             user.getOwnedEvents().forEach(event ->
                     event.setStatus(EventStatus.CANCELED));
             eventRepository.saveAll(user.getOwnedEvents());
@@ -72,7 +65,7 @@ public class UserService {
     private void removeGoals(Long userId) {
         isUserExists(userId);
         User user = getById(userId);
-        if (user.getGoals() != null &&!user.getGoals().isEmpty()) {
+        if (user.getGoals() != null && !user.getGoals().isEmpty()) {
             user.getGoals().forEach(goal -> {
                 goal.getUsers().remove(user);
                 if (goal.getUsers().isEmpty()) {
@@ -101,7 +94,17 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Невозможно получить пользователя"));
     }
 
-    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+    public UserReadDto getUser(long userId) {
+        return userMapper.toDto(getById(userId));
+    }
+
+    public List<UserReadDto> getUsersByIds(List<Long> ids) {
+        return getAllByIds(ids).stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    public List<UserReadDto> getPremiumUsers(UserFilterDto filter) {
         Stream<User> premiumUsers = userRepository.findPremiumUsers();
         users.stream()
                 .filter(userFilter -> userFilter.isApplicable(filter))

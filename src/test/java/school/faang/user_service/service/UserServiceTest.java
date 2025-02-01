@@ -1,6 +1,6 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EnumType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,49 +8,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserReadDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.BusinessException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static school.faang.user_service.entity.goal.GoalStatus.ACTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -60,22 +42,13 @@ class UserServiceTest {
     private static final int INACTIVATION_PERIOD_DAYS = 91;
 
     @Mock
-    private EventRepository eventRepository;
-
-    @Mock
-    private GoalRepository goalRepository;
-
-    @Mock
     private MentorshipService mentorshipService;
 
     @Spy
-    private UserMapper userMapper;
+    private UserMapperImpl userMapper;
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UserMapper userMapperMock;
 
     @Mock
     private List<UserFilter> users;
@@ -86,7 +59,7 @@ class UserServiceTest {
     private User activeUsers;
     private User inactiveUser;
     private User activeUser;
-    private UserDto userDto;
+    private UserReadDto userDto;
 
     @BeforeEach
     public void setUp() {
@@ -107,9 +80,7 @@ class UserServiceTest {
                 .goals(new ArrayList<>())
                 .build();
 
-        userDto = new UserDto();
-        userDto.setId(USER_ID);
-
+        userDto = UserReadDto.builder().id(USER_ID).build();
     }
 
     @Test
@@ -172,9 +143,9 @@ class UserServiceTest {
         when(userRepository.findById(activeUser.getId())).thenReturn(Optional.of(activeUser));
         when(userRepository.existsById(activeUser.getId())).thenReturn(true);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
 
-        UserDto result = userService.deactivate(activeUser.getId());
+        UserReadDto result = userService.deactivate(activeUser.getId());
 
         assertNotNull(result);
         assertFalse(result.isActive());
@@ -193,15 +164,37 @@ class UserServiceTest {
     @Test
     void testGetPremiumUsers() {
         User user = new User();
-        UserDto userDto = new UserDto(1L, "John", "john@example.com");
+        UserReadDto userDto = UserReadDto.builder().id(1L).username("John").email("john@example.com").build();
         UserFilterDto userFilterDto = new UserFilterDto();
         when(userRepository.findPremiumUsers()).thenReturn((Stream.of(user)));
-      //  when(userMapperMock.toDto(user)).thenReturn(userDto);
+        when(userMapper.toDto(user)).thenReturn(userDto);
 
-        List<UserDto> result = userService.getPremiumUsers(userFilterDto);
+        List<UserReadDto> result = userService.getPremiumUsers(userFilterDto);
 
-        assertEquals(1, result.size());
-        assertEquals(userDto, result.get(0));
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(userDto, result.get(0));
         verify(userRepository, times(1)).findPremiumUsers();
+    }
+
+    @Test
+    void shouldGetUser() {
+        UserReadDto userReadDto = UserReadDto.builder().id(1L).build();
+        User user = User.builder().id(1L).build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        Assertions.assertEquals(userService.getUser(1L), userReadDto);
+        verify(userRepository).findById(1L);
+    }
+
+    @Test
+    void shouldGetUserUsersByIds() {
+        User userFinal = User.builder().id(1L).build();
+        List<User> users = new ArrayList<>(List.of(userFinal));
+        List<Long> ids = new ArrayList<>(List.of(1L));
+        when(userRepository.findAllById(ids)).thenReturn(users);
+
+        Assertions.assertEquals(users.stream()
+                        .map(userResult -> userMapper.toDto(userResult)).toList(), userService.getUsersByIds(ids));
+        verify(userRepository).findAllById(ids);
     }
 }

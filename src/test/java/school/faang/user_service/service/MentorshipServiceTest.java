@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -13,27 +12,21 @@ import school.faang.user_service.dto.mentorship.MenteeReadDto;
 import school.faang.user_service.dto.mentorship.MentorReadDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.mentorship.MenteeReadMapper;
 import school.faang.user_service.mapper.mentorship.MentorReadMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,7 +50,7 @@ public class MentorshipServiceTest {
     private MenteeReadMapper menteeReadMapper;
 
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Mock
     private MentorReadMapper mentorReadMapper;
@@ -306,7 +299,7 @@ public class MentorshipServiceTest {
     @Test
     void removeMenteeFromUser_ShouldRemoveMentorFromMentees() {
 
-        when(userService.getById(FIRST_USER_ID)).thenReturn(user);
+        when(userRepository.findById(FIRST_USER_ID)).thenReturn(Optional.of(user));
         when(user.getMentees()).thenReturn(List.of(mentee1, mentee2));
         when(mentee1.getMentors()).thenReturn(mentee1Mentors);
         when(mentee2.getMentors()).thenReturn(mentee2Mentors);
@@ -316,17 +309,17 @@ public class MentorshipServiceTest {
         assertFalse(mentee1Mentors.contains(user));
         assertFalse(mentee2Mentors.contains(user));
 
-        verify(userService).getById(FIRST_USER_ID);
+        verify(userRepository).findById(FIRST_USER_ID);
         verify(user).getMentees();
-        verify(userService).saveUser(mentee1);
-        verify(userService).saveUser(mentee2);
+        verify(userRepository).save(mentee1);
+        verify(userRepository).save(mentee2);
     }
 
     @Test
     void shouldRemoveMenteeGoals() {
 
         when(user.getId()).thenReturn(FIRST_USER_ID);
-        when(userService.getById(FIRST_USER_ID)).thenReturn(user);
+        when(userRepository.findById(FIRST_USER_ID)).thenReturn(Optional.of(user));
         when(user.getMentees()).thenReturn(List.of(mentee1, mentee2));
         when(mentee1.getSetGoals()).thenReturn(mentee1Goals);
         when(mentee2.getSetGoals()).thenReturn(mentee2Goals);

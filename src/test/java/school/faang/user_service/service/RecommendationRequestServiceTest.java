@@ -1,5 +1,10 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -88,7 +93,7 @@ public class RecommendationRequestServiceTest {
         recommendationRequestDto.setCreatedAt(LocalDateTime.now());
         recommendationRequestDto.setUpdatedAt(LocalDateTime.now());
 
-        requestFilterDto = new RequestFilterDto();
+        requestFilterDto = RequestFilterDto.builder().build();
         requestFilterDto.setReceiverId(1L);
         requestFilterDto.setRequesterId(2L);
         requestFilterDto.setStatus(RequestStatus.REJECTED);
