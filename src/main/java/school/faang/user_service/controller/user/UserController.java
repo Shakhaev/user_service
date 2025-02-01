@@ -44,10 +44,4 @@ public class UserController {
     public void deactivateUser(@RequestParam("userId") Long userId) {
         userService.deactivateUser(userId);
     }
-  
-    @GetMapping("/user/exists/{userId}")
-    public ResponseEntity<Boolean> userExists(@PathVariable @Positive long userId) {
-        boolean response = userService.userExists(userId);
-        return ResponseEntity.ok(response);
-    }
 }
