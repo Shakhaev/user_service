@@ -52,4 +52,10 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     GROUP BY s.follower_id
     """, nativeQuery = true)
     Optional<List<Tuple>> findUsersFolloweesTuple();
+
+    @Query(nativeQuery = true, value = """
+    SELECT subs.follower_id FROM subscription AS subs
+    WHERE subs.followee_id = :followeeId
+""")
+    List<Long> findFollowerIdsByFolloweeId(long followeeId);
 }
