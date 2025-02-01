@@ -197,7 +197,7 @@ public class UserController {
         return userCacheService.getUsersCachesDtos(usersIds);
     }
 
-    @PostMapping("/feeds/caches/heat")
+    @PostMapping("/caches/heat")
     public String heatCache() {
         userCacheService.startHeatFeedCache();
         return "Cache heating started successfully.";
