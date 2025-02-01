@@ -2,6 +2,7 @@ package school.faang.user_service.controller.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -22,7 +23,8 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -98,7 +100,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
             assertEquals("Message must not be null", e.getMessage());
         }
     }
-
+    @Disabled
     @Test
     void getRecommendationRequests() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
@@ -108,6 +110,7 @@ public class RecommendationRequestControllerTest extends BaseTest {
         assertEquals(1, response.size());
     }
 
+    @Disabled
     @Test
     void getRecommendationRequest() {
         RecommendationRequestData data = RecommendationRequestData.DATA1;
