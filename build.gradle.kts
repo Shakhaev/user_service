@@ -102,8 +102,6 @@ kotlin {
  */
 val jacocoIncludes = listOf(
     "**/controller/**",
-    "**/filter/**",
-    "**/mapper/**",
     "**/service/**",
     "**/validation/**"
 )

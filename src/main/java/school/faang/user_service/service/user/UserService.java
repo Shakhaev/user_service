@@ -13,6 +13,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.user.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
 
 import java.util.List;
 
@@ -22,9 +23,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
-  
+    private final UserRepositoryAdapter userRepositoryAdapter;
+
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-  
+
     public User getUser(Long userId) {
         if (userId == null) {
             logger.error("User ID is null");
@@ -37,11 +39,11 @@ public class UserService {
         });
     }
 
-    public List<UserDto> getPremiumUsers(UserFilterDto userFilterDto){
+    public List<UserDto> getPremiumUsers(UserFilterDto userFilterDto) {
         List<User> users = userRepository.findPremiumUsers().toList();
-        for (UserFilter filter: userFilters){
-            if (filter.isApplicable(userFilterDto)){
-                users = filter.apply(users,userFilterDto);
+        for (UserFilter filter : userFilters) {
+            if (filter.isApplicable(userFilterDto)) {
+                users = filter.apply(users, userFilterDto);
             }
         }
 
@@ -49,11 +51,19 @@ public class UserService {
                 .map(userMapper::toDto)
                 .toList();
     }
-    public List<UserDto> getPremiumUsers(){
+
+    public List<UserDto> getPremiumUsers() {
         return userRepository.findPremiumUsers()
                 .map(userMapper::toDto)
                 .toList();
     }
 
+    public UserDto getUserById(Long userId) {
+        return userMapper.toDto(userRepositoryAdapter.getById(userId));
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        return userMapper.toListDto(userRepositoryAdapter.getUsersByIds(ids));
+    }
 }
 

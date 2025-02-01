@@ -81,6 +81,6 @@ public class SkillService {
     }
 
     private Skill findSkillById(long skillId) {
-      return skillRepository.findById(skillId).orElseThrow(() -> new EntityNotFoundException("Skill not found by id " + skillId));
+        return skillRepository.findById(skillId).orElseThrow(() -> new EntityNotFoundException("Skill not found by id " + skillId));
     }
 }
