@@ -10,7 +10,6 @@ public class EventTypeFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filters) {
         return !filters.getEventTypes().isEmpty();
-
     }
 
     @Override

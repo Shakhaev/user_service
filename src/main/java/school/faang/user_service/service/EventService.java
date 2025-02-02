@@ -6,12 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.BusinessException;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
@@ -20,6 +18,7 @@ import school.faang.user_service.repository.event.EventRepository;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 
@@ -47,8 +46,8 @@ public class EventService {
     }
 
     @Transactional
-    public EventDto updateEvent(EventUpdateDto eventDto, long eventId, long userId) {
-        Event event = eventRepository.getById(eventId);
+    public EventDto updateEvent(EventUpdateDto eventDto) {
+        Event event = eventRepository.getReferenceById(eventDto.getOwnerEventId());
         User owner = event.getOwner();
         if (!eventDto.getRelatedSkillIds().isEmpty()) {
             validateEventRelatedSkills(
@@ -58,7 +57,7 @@ public class EventService {
             event.setRelatedSkills(skillService.getAllSkills(eventDto.getRelatedSkillIds()));
         }
         if (eventDto.getOwnerId() != null) {
-            if (event.getOwner().getId() != userId) {
+            if (!Objects.equals(event.getOwner().getId(), eventDto.getUserId())) {
                 throw new BusinessException("Основателя может сменить только основатель");
             }
         }
@@ -69,7 +68,7 @@ public class EventService {
 
 
     public EventDto getEvent(long eventId) {
-        return eventMapper.toDto(eventRepository.getById(eventId));
+        return eventMapper.toDto(eventRepository.getReferenceById(eventId));
     }
 
     @Transactional

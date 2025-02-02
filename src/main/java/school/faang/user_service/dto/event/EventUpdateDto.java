@@ -9,6 +9,9 @@ import java.util.List;
 
 @Data
 public class EventUpdateDto {
+    private Long id;
+    private Long ownerEventId;
+    private Long userId;
     private String title;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

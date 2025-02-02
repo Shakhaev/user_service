@@ -22,26 +22,27 @@ public class EventController {
         return eventService.create(event);
     }
 
-    public EventDto update(EventUpdateDto eventDto, long eventId, long userId) {
-        return eventService.updateEvent(eventDto, eventId, userId);
+    public EventDto update(EventUpdateDto eventDto) {
+        return eventService.updateEvent(eventDto);
     }
 
-    public EventDto getEvent(EventDto event) {
-        return eventService.getEvent(event.getId());
+    public EventDto getEvent(Long eventId) {
+        return eventService.getEvent(eventId);
     }
 
     public void deleteEvent(EventDto event) {
+        eventService.deleteEvent(event.getId());
     }
 
     public List<Event> getParticipatedEvents(long userId) {
         return eventService.getParticipatedEvents(userId);
     }
 
-    public List<EventDto> getOwnedEvents(EventDto event){
-        return eventService.getOwnedEvents(event.getOwnerId());
+    public List<EventDto> getOwnedEvents(Long ownerId) {
+        return eventService.getOwnedEvents(ownerId);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filter){
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
         return eventService.getEventsByFilter(filter);
     }
 }
