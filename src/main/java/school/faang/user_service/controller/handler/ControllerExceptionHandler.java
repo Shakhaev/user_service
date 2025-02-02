@@ -59,16 +59,17 @@ public class ControllerExceptionHandler {
         return buildErrorMessage(exception, webRequest);
     }
 
-    @ExceptionHandler(value = MinioSaveException.class)
+    @ExceptionHandler(value = {MinioSaveException.class, PaymentServiceException.class, PaymentPayException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleMinioSave(MinioSaveException exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
     }
 
-    @ExceptionHandler(value = {
-            RecommendationRequestCreatedException.class,
-            RequestAlreadyProcessedException.class,
-            UserAlreadyExistsException.class})
+
+    @ExceptionHandler(value = {RecommendationRequestCreatedException.class, 
+                               RequestAlreadyProcessedException.class, 
+                               UserAlreadyExistsException.class, 
+                               PremiumAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public ErrorResponse handleRecommendationRequestCreated(Exception exception, WebRequest webRequest) {
         return buildErrorMessage(exception, webRequest);
