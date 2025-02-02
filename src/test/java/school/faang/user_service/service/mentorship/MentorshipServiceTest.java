@@ -7,6 +7,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.filter.UserFilterDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
@@ -279,6 +281,9 @@ public class MentorshipServiceTest {
         user.setId(userId);
         user.setMentees(mentees);
         user.setMentors(mentors);
+        user.setContactPreference(ContactPreference.builder()
+                .preference(PreferredContact.EMAIL)
+                .build());
         return user;
     }
 }

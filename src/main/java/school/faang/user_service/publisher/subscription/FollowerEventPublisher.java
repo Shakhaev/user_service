@@ -13,6 +13,7 @@ import school.faang.user_service.dto.subscription.FollowerEvent;
 @Component
 @RequiredArgsConstructor
 public class FollowerEventPublisher {
+
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 

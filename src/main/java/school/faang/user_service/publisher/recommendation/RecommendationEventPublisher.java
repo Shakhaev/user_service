@@ -28,7 +28,6 @@ public class RecommendationEventPublisher {
             log.error("Error converting object {} to JSON: {}", event, e.getMessage());
             throw new RuntimeException(e);
         }
-
     }
 
 }
