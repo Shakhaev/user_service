@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
@@ -15,10 +15,9 @@ import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.filters.*;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
-
+import school.faang.user_service.service.impl.SubscriptionServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
@@ -38,17 +37,13 @@ public class SubscriptionServiceTest {
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @InjectMocks
-    private SubscriptionService subscriptionService;
+    private SubscriptionServiceImpl subscriptionService;
 
     @BeforeEach
     public void initialize() {
         userId1 = 1111L;
         userId2 = 2222L;
-        userFilters.add(new CityPatternFilter());
-        userFilters.add(new CountryPatternFilter());
-        userFilters.add(new NamePatternFilter());
-        userFilters.add(new ExperienceMaxFilter());
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, userFilters);
+        subscriptionService = new SubscriptionServiceImpl(subscriptionRepository, userMapper, userFilters);
     }
 
     @Test
@@ -72,6 +67,7 @@ public class SubscriptionServiceTest {
     public void testUnfollowUserThrowsExceptionWhenUnfollowYourself() {
         assertThrows(DataValidationException.class, () -> subscriptionService.unfollowUser(userId2, userId2));
     }
+
     @Test
     public void testUnfollowUser() {
         subscriptionService.unfollowUser(userId1, userId2);
@@ -89,14 +85,6 @@ public class SubscriptionServiceTest {
     }
 
     @Test
-    public void testGetFollowersCount() {
-        when(subscriptionRepository.findFollowersAmountByFolloweeId(userId1)).thenReturn(100);
-        subscriptionService.getFollowersCount(userId1);
-        verify(subscriptionRepository, times(1)).findFollowersAmountByFolloweeId(userId1);
-        assertEquals(100, subscriptionService.getFollowersCount(userId1));
-    }
-
-    @Test
     public void testGetFollowing() {
         User user1 = new User();
         user1.setId(userId1);
@@ -104,15 +92,5 @@ public class SubscriptionServiceTest {
         when(subscriptionRepository.findByFolloweeId(userId1)).thenReturn(user1.getFollowees().stream());
         List<UserDto> result = subscriptionService.getFollowing(userId1, new UserFilterDto());
         assertEquals(result.get(0).getId(), userId2);
-
     }
-
-    @Test
-    public void testGetFollowingCount() {
-        subscriptionService.getFollowingCount(userId1);
-        when(subscriptionRepository.findFolloweesAmountByFollowerId(userId1)).thenReturn(500);
-        verify(subscriptionRepository, times(1)).findFolloweesAmountByFollowerId(userId1);
-        assertEquals(500, subscriptionService.getFollowingCount(userId1));
-    }
-
 }

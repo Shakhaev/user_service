@@ -48,5 +48,4 @@ public interface RecommendationRequestMapper {
                 .map(skillRequest -> skillRequest.getSkill().getTitle())
                 .toList();
     }
-
 }

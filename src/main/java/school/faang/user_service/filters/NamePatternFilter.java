@@ -1,5 +1,6 @@
 package school.faang.user_service.filters;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.entity.User;
 
@@ -13,7 +14,7 @@ public class NamePatternFilter implements UserFilter {
     }
 
     @Override
-    public void apply(Stream<User> users, UserFilterDto filterDto) {
-        users.filter(user -> user.getUsername().matches(filterDto.getNamePattern()));
+    public Stream <User> apply(Stream<User> users, UserFilterDto filterDto) {
+       return users.filter(user -> user.getUsername().matches(filterDto.getNamePattern()));
     }
 }
