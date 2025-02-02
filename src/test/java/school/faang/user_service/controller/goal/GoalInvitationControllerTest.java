@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.service.GoalInvitationServiceImpl;
+import school.faang.user_service.service.goal.GoalInvitationServiceImpl;
 
 import java.util.List;
 
