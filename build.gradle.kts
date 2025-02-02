@@ -69,6 +69,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     implementation("net.coobird:thumbnailator:0.4.1")
+    implementation("org.imgscalr:imgscalr-lib:4.2")
 
     /**
      * Test containers

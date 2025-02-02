@@ -11,20 +11,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.data.DataValidationException;
-import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.csv.CsvParser;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,6 +41,7 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class UserService {
     private final static int BATCH_SIZE = 50;
+
     @PersistenceContext
     private final EntityManager entityManager;
     private final UserMapper userMapper;
@@ -51,7 +51,6 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
-    private final MentorshipService mentorshipService;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -103,15 +102,54 @@ public class UserService {
     }
 
     public String generateRandomAvatar() {
-        Long userId = userContext.getUserId();
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = getUserOrThrowException(userContext.getUserId());
         String randomAvatarUrl = avatarService.generateRandomAvatar(UUID.randomUUID().toString(),
-                userId + ".svg");
+                user.getId() + ".svg");
         UserProfilePic userProfilePic = new UserProfilePic();
         userProfilePic.setFileId(randomAvatarUrl);
         user.setUserProfilePic(userProfilePic);
         userRepository.save(user);
         return randomAvatarUrl;
+    }
+
+    @Transactional
+    public String saveCustomAvatar(MultipartFile file) {
+        log.info("Start loading custom avatar for user with id={}.", userContext.getUserId());
+        User user = getUserOrThrowException(userContext.getUserId());
+        avatarService.validateCustomAvatarSize(file);
+
+        UserProfilePic userProfilePic = avatarService.uploadCustomAvatar(file);
+        user.setUserProfilePic(userProfilePic);
+        userRepository.save(user);
+
+        log.info("Successful completion of uploading a custom avatar for user id={}", userContext.getUserId());
+        return getAvatar(false);
+    }
+
+    @Transactional
+    public void deleteAvatar() {
+        log.info("Start deleting user avatar with id={}", userContext.getUserId());
+        User user = getUserOrThrowException(userContext.getUserId());
+        avatarService.checkUserHasAvatar(user);
+
+        avatarService.deleteAvatar(user.getUserProfilePic());
+        user.setUserProfilePic(null);
+        userRepository.save(user);
+        log.info("Successful deletion of user avatar with id={}", userContext.getUserId());
+    }
+
+    public String getAvatar(boolean isSmall) {
+        log.info("Start receiving user avatar with id={}; isSmall={}", userContext.getUserId(), isSmall);
+        User user = getUserOrThrowException(userContext.getUserId());
+        avatarService.checkUserHasAvatar(user);
+
+        log.info("Successfully retrieve avatar of user id={}; isSmall={}", userContext.getUserId(), isSmall);
+        return avatarService.getAvatar(user.getUserProfilePic(), isSmall);
+    }
+
+    private User getUserOrThrowException(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User doesn't exist."));
     }
 
     public UserDto getUserDtoById(long userId) {

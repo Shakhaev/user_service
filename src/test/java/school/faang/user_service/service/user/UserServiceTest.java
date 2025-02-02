@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
@@ -19,12 +20,12 @@ import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.data.DataValidationException;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -73,8 +75,6 @@ public class UserServiceTest {
 
     @Mock
     private CountryService countryService;
-    @Mock
-    private MentorshipService mentorshipService;
 
     @BeforeEach
     void setUp() {
@@ -178,7 +178,7 @@ public class UserServiceTest {
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             userService.generateRandomAvatar();
         });
-        assertEquals("User not found", exception.getMessage());
+        assertEquals("User doesn't exist.", exception.getMessage());
         verify(avatarService, never()).generateRandomAvatar(anyString(), anyString());
         verify(userRepository, never()).save(any(User.class));
     }
@@ -272,6 +272,41 @@ public class UserServiceTest {
         verify(userMapper, times(1)).toDto(user);
         assertEquals(user.getId(), userDto.getId());
         assertNotNull(userDto);
+    }
+
+    @Test
+    void testSaveCustomAvatar() {
+        MultipartFile file = mock(MultipartFile.class);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+        userService.saveCustomAvatar(file);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testDeleteAvatar() {
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+        userService.deleteAvatar();
+
+        verify(avatarService).deleteAvatar(any());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testGetAvatar() {
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setFileId("avatar");
+        User user = new User();
+        user.setUserProfilePic(userProfilePic);
+
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.getAvatar(false);
+        verify(avatarService).getAvatar(userProfilePic, false);
     }
 
     @Test
