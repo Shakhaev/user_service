@@ -15,7 +15,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.adapter.EventParticipationAdapter;
+import school.faang.user_service.repository.adapter.EventParticipationRepositoryAdapter;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.adapter.EventRepositoryAdapter;
 import school.faang.user_service.repository.specification.EventSpecification;
@@ -108,8 +108,8 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<EventResponseDto> getEventsByParticipant(Long userId) {
-        EventParticipationAdapter eventParticipationAdapter = null;
-        List<Event> events = eventParticipationAdapter.findParticipatedEventsByUserId(userId);
+        EventParticipationRepositoryAdapter eventParticipationRepositoryAdapter = null;
+        List<Event> events = eventParticipationRepositoryAdapter.findParticipatedEventsByUserId(userId);
         return eventMapper.toResponseDtoList(events);
     }
 

@@ -17,6 +17,10 @@ public interface EventParticipationRepository extends CrudRepository<User, Long>
     @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId and user_id = :userId")
     void unregister(long eventId, long userId);
 
+    @Modifying
+    @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId")
+    void unregisterAll(long eventId);
+
     @Query(nativeQuery = true, value = """
             SELECT u.* FROM users u
             JOIN user_event ue ON u.id = ue.user_id

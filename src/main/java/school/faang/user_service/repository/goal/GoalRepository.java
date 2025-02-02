@@ -1,8 +1,8 @@
 package school.faang.user_service.repository.goal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -17,6 +17,12 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.user_id = ?1
             """)
     Stream<Goal> findGoalsByUserId(long userId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT g.* FROM goal g
+            WHERE g.mentor_id = ?1
+            """)
+    Stream<Goal> findGoalsByMentorId(long mentorId);
 
     @Query(nativeQuery = true, value = """
             INSERT INTO goal (title, description, parent_goal_id, status, created_at, updated_at)
@@ -48,4 +54,8 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
+
+    @Query(nativeQuery = true, value = "DELETE FROM user_goal WHERE user_id = :userId")
+    @Modifying
+    void removeUserGoals(long userId);
 }

@@ -35,4 +35,8 @@ public class EventRepositoryAdapter {
     public List<Event> findAllByUserId(Long userId) {
         return eventRepository.findAllByUserId(userId);
     }
+
+    public void deleteAll(Iterable<Event> events) {
+        eventRepository.deleteAll(events);
+    }
 }
