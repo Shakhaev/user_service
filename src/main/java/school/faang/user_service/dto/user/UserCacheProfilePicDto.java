@@ -11,7 +11,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfilePicDto {
-    private String fileId;
-    private String smallFileId;
+public class UserCacheProfilePicDto {
+
+    private long userId;
+    private byte[] profilePictureData;
 }

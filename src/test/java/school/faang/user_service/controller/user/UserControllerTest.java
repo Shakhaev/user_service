@@ -9,10 +9,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import school.faang.user_service.dto.user.UserCacheProfilePicDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserIdsDto;
-import school.faang.user_service.dto.user.UserProfilePicDto;
 import school.faang.user_service.entity.user_cache.UserCacheDto;
 import school.faang.user_service.service.user.UserCacheService;
 import school.faang.user_service.service.user.UserService;
@@ -205,8 +205,8 @@ class UserControllerTest {
     void getUsersCachesByIdsTest() throws Exception {
         List<Long> userIds = Arrays.asList(1L, 2L);
 
-        UserCacheDto user1 = new UserCacheDto(1L, "user1", true, new UserProfilePicDto());
-        UserCacheDto user2 = new UserCacheDto(2L, "user2", false, new UserProfilePicDto());
+        UserCacheDto user1 = new UserCacheDto(1L, "user1", true, new UserCacheProfilePicDto());
+        UserCacheDto user2 = new UserCacheDto(2L, "user2", false, new UserCacheProfilePicDto());
 
         List<UserCacheDto> mockResponse = Arrays.asList(user1, user2);
 

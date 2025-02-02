@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.async.AsyncConfig;
-import school.faang.user_service.dto.user.UserProfilePicDto;
+import school.faang.user_service.dto.user.UserCacheProfilePicDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.user_cache.UserCacheDto;
 import school.faang.user_service.mapper.user.UserMapper;
@@ -41,7 +41,7 @@ public class UserCacheService {
 
         do {
             page = userService.findActiveUsersIds(pageable);
-            if (page.hasContent()){
+            if (page.hasContent()) {
                 kafkaHeatFeedCacheProducer.send(page.getContent());
             }
 
@@ -72,9 +72,9 @@ public class UserCacheService {
         log.info("{} Users saved to cache", usersCaches.size());
     }
 
-    private UserProfilePicDto getProfilePicture(long userId) {
+    private UserCacheProfilePicDto getProfilePicture(long userId) {
         byte[] avatarData = avatarService.getUserAvatar(userId);
-        return UserProfilePicDto.builder()
+        return UserCacheProfilePicDto.builder()
                 .userId(userId)
                 .profilePictureData(avatarData)
                 .build();
