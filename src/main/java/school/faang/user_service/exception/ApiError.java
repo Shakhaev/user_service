@@ -1,5 +1,6 @@
 package school.faang.user_service.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class ApiError {
     private String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, String> errors;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp = LocalDateTime.now();
 
     public ApiError(HttpStatus status, String message, Map<String, String> errors) {
