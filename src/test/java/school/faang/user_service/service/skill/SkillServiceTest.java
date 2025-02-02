@@ -1,3 +1,5 @@
+package school.faang.user_service.service.skill;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +20,7 @@ import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,9 @@ public class SkillServiceTest {
 
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+
+    @Mock
+    private UserService userService;
 
     @Spy
     private SkillMapperImpl skillMapper;
@@ -218,13 +223,14 @@ public class SkillServiceTest {
 
     @Test
     public void testAcquireOfferedSkill() {
-        long userId = 10L;
+        long ownerId = 10L;
 
         Skill proposedSkill = new Skill();
         proposedSkill.setId(1L);
         proposedSkill.setTitle("Java");
 
         User guarantor = new User();
+        User owner = new User();
 
         Recommendation recommendation = new Recommendation();
         recommendation.setAuthor(guarantor);
@@ -238,20 +244,22 @@ public class SkillServiceTest {
         SkillDto dto = new SkillDto();
         dto.setId(100L);
 
-        when(skillRepository.findUserSkill(proposedSkill.getId(), userId))
+        when(skillRepository.findUserSkill(proposedSkill.getId(), ownerId))
                 .thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(proposedSkill.getId(), userId))
+        when(skillOfferRepository.findAllOffersOfSkill(proposedSkill.getId(), ownerId))
                 .thenReturn(skillOffers);
         when(skillMapper.toDto(any())).thenReturn(dto);
         when(skillRepository.findById(proposedSkill.getId())).thenReturn(Optional.of(proposedSkill));
+        when(userService.getUser(ownerId)).thenReturn(owner);
 
-        SkillDto result = skillService.acquireSkillFromOffer(proposedSkill.getId(), userId);
+        SkillDto result = skillService.acquireSkillFromOffer(proposedSkill.getId(), ownerId);
 
         verify(skillRepository, times(1))
-                .assignSkillToUser(proposedSkill.getId(), userId);
+                .assignSkillToUser(proposedSkill.getId(), ownerId);
         verify(userSkillGuaranteeRepository, times(3))
                 .save(argThat(userSkillGuarantee -> userSkillGuarantee.getGuarantor() != null));
         verify(skillRepository, times(1)).findById(proposedSkill.getId());
+        verify(userService, times(3)).getUser(ownerId);
 
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());
