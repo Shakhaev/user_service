@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://${POSTGRES_IP:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  redis:
+    host: localhost
+    port: 6379
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -28,16 +31,17 @@ logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
-
-payment-service:
-  host: localhost
-  port: 9080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: caches
 
 domain:
   path: /api/v1
+
+redis:
+  ttl-minutes: 2
 
 minio:
   accessKey: user
