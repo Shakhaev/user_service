@@ -42,7 +42,7 @@ public class UserController {
         return userService.getUsersByIds(ids);
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/registration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserDto createUser(@Valid @ModelAttribute UserCreateDto userCreateDto) {
         return userService.createUser(userCreateDto);
     }

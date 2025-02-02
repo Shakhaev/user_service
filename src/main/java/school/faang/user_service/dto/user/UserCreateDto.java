@@ -20,7 +20,7 @@ public class UserCreateDto {
     private String phone;
 
     @NotEmpty(message = "Пароль не может быть пустым")
-    @Length(min = 8, max = 64, message = "Пароль должен содержать от 8 до 128 символов")
+    @Length(min = 8, max = 128, message = "Пароль должен содержать от 8 до 128 символов")
     private String password;
 
     private String confirmPassword;
