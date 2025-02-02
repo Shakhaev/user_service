@@ -24,14 +24,14 @@ public class MentorshipServiceImpl implements MentorshipService {
     public List<UserDto> getMentees(long userId) {
         return userRepository.findById(userId)
                 .map(user -> userMapper.toDto(mentorshipRepository.findMenteesById(userId)))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId)));
     }
 
     @Override
     public List<UserDto> getMentors(long userId) {
         return userRepository.findById(userId)
                 .map(user -> userMapper.toDto(mentorshipRepository.findMentorsById(userId)))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId)));
     }
 
     @Override

@@ -1,14 +1,15 @@
 package school.faang.user_service.service;
 
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.user.UserDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
@@ -18,7 +19,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static school.faang.user_service.constant.UserErrorMessages.USER_WITH_ID_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -27,7 +27,7 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Spy
-    private UserMapperImpl projectMapper;
+    private UserMapperImpl userMapper;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -36,28 +36,32 @@ class UserServiceTest {
     void getUser_WhenUserExists_ReturnsUserDto() {
         long userId = 1L;
         User project = createTestUser();
-        UserDto expectedUserDto = projectMapper.toDto(project);
+        UserDto expectedUserDto = userMapper.toDto(project);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(project));
-        UserDto result = userService.getUser(userId);
+
+        ResponseEntity<UserDto> result = userService.getUser(userId);
 
         assertNotNull(result);
-        assertEquals(expectedUserDto, result);
+        assertEquals(expectedUserDto, result.getBody());
 
         verify(userRepository).findById(userId);
     }
 
     @Test
-    void getUser_WhenUserDoesNotExist_ThrowsEntityNotFoundException() {
+    void getUser_WhenUserDoesNotExist_ReturnsNotFoundResponse() {
         long userId = 1L;
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getUser(userId));
+        ResponseEntity<UserDto> response = userService.getUser(userId);
 
-        assertEquals(String.format(USER_WITH_ID_NOT_FOUND, userId), exception.getMessage());
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+
         verify(userRepository).findById(userId);
-        verifyNoInteractions(projectMapper);
+        verifyNoInteractions(userMapper);
     }
 
     private User createTestUser() {

@@ -6,7 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.user.UserDto;
+import org.springframework.http.ResponseEntity;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,11 +26,12 @@ class UserControllerTest {
     @Test
     void getUser_WhenUserExists_ReturnsUserDto() {
         long userId = 1L;
-        UserDto expectedUserDto = new UserDto(userId, "Test User", "Test email");
-        when(projectService.getUser(userId)).thenReturn(expectedUserDto);
-        UserDto result = projectController.getUser(userId);
+        UserDto expectedUserDto = UserDto.builder().id(userId).username("Test user").email("Test email").build();
+        when(projectService.getUser(userId)).thenReturn(ResponseEntity.ok(expectedUserDto));
 
-        assertEquals(expectedUserDto, result);
+        ResponseEntity<UserDto> result = projectController.getUser(userId);
+
+        assertEquals(expectedUserDto, result.getBody());
     }
 
     @Test
