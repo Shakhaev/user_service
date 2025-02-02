@@ -1,10 +1,16 @@
 package school.faang.user_service.dto.error;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Builder
+@Data
+@AllArgsConstructor
 public class ErrorModel {
 
     private String message;
+
+    private int statusCode;
+
+    private String serviceName;
 
 }

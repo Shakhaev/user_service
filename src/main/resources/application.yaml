@@ -50,3 +50,6 @@ domain:
 
 redis:
   ttl-minutes: 2
+
+service:
+  name: user-service
