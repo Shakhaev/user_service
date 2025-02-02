@@ -2,6 +2,7 @@ package school.faang.user_service.service.user;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -90,6 +91,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test should throw BadRequestException when the ID of the deactivated user is transmitted")
     void testDeactivateUserThrowBadRequestException() {
         long deactivatedUserId = 1L;
 
@@ -103,6 +105,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Test should return DeactivatedUserDto when the ID of the non-deactivated user is transmitted")
     void testDeactivateUserSuccessful() {
         long userId = 1L;
 

@@ -2,6 +2,7 @@ package school.faang.user_service.controller.user;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -39,6 +40,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Test should return DeactivatedUserDto when the ID of the non-deactivated user is transmitted")
     void testDeactivateUserSuccessful() throws Exception {
         String dateTimeString = "2025-02-01 12:00:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
