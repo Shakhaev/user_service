@@ -2,7 +2,6 @@ package school.faang.user_service.mapper.user;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserRegisterDto;
@@ -19,6 +18,6 @@ public interface UserMapper {
     @Mapping(source = "country.id", target = "countryId")
     @Mapping(source = "userProfilePic.fileId", target = "avatarId")
     @Mapping(source = "userProfilePic.smallFileId", target = "avatarSmallId")
-    UserResponseRegisterDto toDto(User user);
+    UserResponseRegisterDto toResponseRegisterDto(User user);
 
 }

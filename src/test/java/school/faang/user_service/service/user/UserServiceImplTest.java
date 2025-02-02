@@ -54,7 +54,7 @@ class UserServiceImplTest {
 
         UserResponseRegisterDto result = userService.registerUser(userRegisterDto);
 
-        assertEquals(mapper.toDto(user), result);
+        assertEquals(mapper.toResponseRegisterDto(user), result);
     }
 
 

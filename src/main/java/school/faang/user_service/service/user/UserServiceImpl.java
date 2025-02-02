@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
         Pair<String, String> avatars = avatarService.saveAvatarsToMinio(user);
         User savedUser = saveUser(user, avatars);
-        return userMapper.toDto(savedUser);
+        return userMapper.toResponseRegisterDto(savedUser);
     }
 
     private User saveUser(User user, Pair<String, String> avatars) {
