@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
@@ -20,19 +21,20 @@ import java.util.List;
 
 @Validated
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/users")
 @RestController
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/{userId}")
     ResponseEntity<UserDto> getUser(@PathVariable @Positive long userId) {
         User user = userService.getUser(userId);
         UserDto userDto = userMapper.toDto(user);
         return ResponseEntity.ok(userDto);
     }
 
-    @PostMapping("/users")
+    @PostMapping
     ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<UserDto> users) {
         List<User> userList = userMapper.toUserList(users);
         userList = userService.getUsersByIds(userList);
@@ -40,7 +42,7 @@ public class UserController {
         return ResponseEntity.ok(userDtoList);
     }
 
-    @DeleteMapping("/user/deactivate")
+    @DeleteMapping("/deactivate")
     public void deactivateUser(@RequestParam("userId") Long userId) {
         userService.deactivateUser(userId);
     }
