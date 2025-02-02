@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -49,13 +51,13 @@ public class UserController {
         return userService.getPremiumUsers(filterDto);
     }
 
-    @GetMapping("/users/{userId}")
-    public UserDto getUser(@PathVariable long userId) {
+    @GetMapping("/{userId}")
+    public UserDto getUser(@PathVariable @Positive Long userId) {
         return userService.getUser(userId);
     }
 
-    @PostMapping("/users")
-    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
+    @PostMapping
+    public List<UserDto> getUsersByIds(@RequestBody @NotNull List<@Positive Long> ids) {
         return userService.getUsersByIds(ids);
     }
 }

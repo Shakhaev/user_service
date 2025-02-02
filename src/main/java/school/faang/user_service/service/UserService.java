@@ -1,6 +1,9 @@
 package school.faang.user_service.service;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -18,11 +21,11 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.MinioSaveException;
 import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.exception.UserAlreadyExistsException;
-import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.external.AvatarService;
 import school.faang.user_service.service.external.MinioStorageService;
+import school.faang.user_service.service.filter.UserFilter;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.util.ConverterUtil;
 
@@ -145,13 +148,13 @@ public class UserService {
         }
     }
 
-    public UserDto getUser(long userId) {
+    public UserDto getUser(@Positive @NotNull Long userId) {
         return userRepository.findById(userId)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
     }
 
-    public List<UserDto> getUsersByIds(List<Long> ids) {
+    public List<UserDto> getUsersByIds(@NotEmpty List<@Positive Long> ids) {
         return userRepository.findAllById(ids)
                 .stream()
                 .map(userMapper::toDto)
