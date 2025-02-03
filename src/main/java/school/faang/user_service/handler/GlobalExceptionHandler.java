@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import school.faang.user_service.dto.ErrorDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -12,9 +13,10 @@ import school.faang.user_service.exception.EntityNotFoundException;
 
 @Slf4j
 @ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(DataValidationException.class)
+  @ExceptionHandler(DataValidationException.class)
     public ResponseEntity<ErrorDto> handleDataValidationException(DataValidationException ex) {
         log.error(ex.getMessage());
         ErrorDto dto = new ErrorDto(ex.getMessage());
