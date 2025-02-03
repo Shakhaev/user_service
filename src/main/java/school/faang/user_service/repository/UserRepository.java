@@ -27,5 +27,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Stream<User> findPremiumUsers();
 
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(*) > 0\s
+            FROM users\s
+            WHERE email = ?1
+            """)
+    boolean existsByEmail(String email);
+
     Optional<User> findByPhone(String phone);
 }

@@ -66,6 +66,8 @@ class EventServiceTest {
     @Mock
     private SchedulerConfig schedulerConfig;
 
+    private ExecutorService executorService;
+
     @InjectMocks
     private EventService eventService;
 
@@ -81,12 +83,11 @@ class EventServiceTest {
     private List<Event> ownedEvents;
     private List<EventDto> ownedEventsDto;
     private EventFilter mockFilter;
-    private ExecutorService executorService;
 
     @BeforeEach
     public void setUp() {
         mockFilter = mock(EventFilter.class);
-        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig, executorService);
+        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig,executorService);
 
         skillDto1 = SkillDto.builder().id(1L).title("Java").build();
         skillDto2 = SkillDto.builder().id(2L).title("Spring").build();

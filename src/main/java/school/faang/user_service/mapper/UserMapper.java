@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserRegistrationDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.MenteeResponseDto;
@@ -54,6 +55,7 @@ public interface UserMapper {
     @Mapping(target = "preference", source = "contactPreference.preference")
     UserForNotificationDto toUserForNotificationDto(User user);
 
+
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
         if (goals == null) {
@@ -65,6 +67,10 @@ public interface UserMapper {
     }
 
     User toEntity(UserDto userDto);
+
+    @Mapping(target = "country", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    User toEntity(UserRegistrationDto userRegistrationDto);
 
     List<UserDto> toDtos(List<User> users);
 
