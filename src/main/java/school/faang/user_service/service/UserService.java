@@ -149,6 +149,11 @@ public class UserService {
         }
     }
 
+    public User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
+    }
+
     public UserDto getUser(@Positive @NotNull Long userId) {
         return userRepository.findById(userId)
                 .map(userMapper::toDto)
