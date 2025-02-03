@@ -23,6 +23,6 @@ public class SwaggerConfig {
                                 .name("Mihail Svistunov")
                                 .email("egzermr@gmail.com")))
                 .servers(List.of(new Server()
-                        .url("/api/v1")));
+                        .url("/")));
     }
 }

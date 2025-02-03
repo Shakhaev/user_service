@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -102,8 +103,8 @@ class EventServiceTest {
 
         when(skillRepository.findById(999L)).thenReturn(Optional.empty());
 
-        DataValidationException exception = assertThrows(
-                DataValidationException.class,
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
                 () -> eventService.createEvent(createRequest)
         );
 

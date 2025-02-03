@@ -27,9 +27,9 @@ import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
-@Tag(name = "Events", description = "Api for event management")
+@Tag(name = "Events", description = "Api for events management")
 @RestController
-@RequestMapping("events")
+@RequestMapping("api/v1/events")
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
@@ -60,7 +60,7 @@ public class EventController {
     @ApiResponse(responseCode = "400", description = "invalid request data"),
     @ApiResponse(responseCode = "404", description = "event with received id not found")})
     @GetMapping("/{eventId}")
-    public EventResponseDto getEvent(@PathVariable @Valid @Positive Long eventId) throws DataValidationException {
+    public EventResponseDto getEvent(@PathVariable @Valid @Positive Long eventId) {
         return eventService.getEvent(eventId);
     }
 

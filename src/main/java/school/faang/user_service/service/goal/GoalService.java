@@ -1,23 +1,22 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.repository.adapter.GoalRepositoryAdapter;
-import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.BadRequestException;
-import school.faang.user_service.exception.ResourceNotFoundException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.goal.GoalFilter;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.repository.adapter.GoalRepositoryAdapter;
 import school.faang.user_service.repository.adapter.SkillRepositoryAdapter;
+import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
 import school.faang.user_service.repository.goal.GoalRepository;
-
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +42,7 @@ public class GoalService {
         validateGoal(goalDTO);
 
         if (goalRepository.countActiveGoalsPerUser(userId) > MAX_ACTIVE_GOAL) {
-            throw new BadRequestException("User have more than " + MAX_ACTIVE_GOAL + " active goals");
+            throw new DataValidationException("User have more than " + MAX_ACTIVE_GOAL + " active goals");
         }
         Goal goal = goalMapper.toEntity(goalDTO);
         if (goalDTO.getParentId() != null) {
@@ -68,7 +67,7 @@ public class GoalService {
         Goal goal = goalRepositoryAdapter.getById(goalId);
 
         if (goal.getStatus() == GoalStatus.COMPLETED) {
-            throw new BadRequestException("This goal is already completed");
+            throw new DataValidationException("This goal is already completed");
         }
         goal.setTitle(goalDTO.getTitle());
         goal.setDescription(goalDTO.getDescription());
@@ -139,7 +138,7 @@ public class GoalService {
 
     private void validateGoal(GoalDTO goalDTO) {
         if (!skillRepositoryAdapter.skillsExist(goalDTO.getSkillToAchieveIds())) {
-            throw new ResourceNotFoundException("Unable to find skills");
+            throw new EntityNotFoundException("Unable to find skills");
         }
 
     }

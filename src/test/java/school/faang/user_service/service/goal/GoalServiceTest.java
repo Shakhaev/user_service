@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,19 +11,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
 import school.faang.user_service.dto.goal.GoalDTO;
 import school.faang.user_service.dto.goal.GoalFilterDTO;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.BadRequestException;
-import school.faang.user_service.exception.ResourceNotFoundException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.goal.GoalFilter;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.adapter.GoalRepositoryAdapter;
 import school.faang.user_service.repository.adapter.SkillRepositoryAdapter;
+import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.time.LocalDateTime;
@@ -217,14 +217,14 @@ public class GoalServiceTest {
         Mockito.when(skillRepositoryAdapter.skillsExist(goalDTO.getSkillToAchieveIds())).thenReturn(true);
         Mockito.when(goalRepositoryAdapter.getById(1L)).thenReturn(goal);
 
-        Assertions.assertThrows(BadRequestException.class, () -> goalService.updateGoal(1L, goalDTO));
+        Assertions.assertThrows(DataValidationException.class, () -> goalService.updateGoal(1L, goalDTO));
     }
 
 
     @Test
     public void testCreateWithSkillsNotExists() {
         Mockito.when(skillRepositoryAdapter.skillsExist(goalDTO.getSkillToAchieveIds())).thenReturn(false);
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> goalService.createGoal(1L, goalDTO));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> goalService.createGoal(1L, goalDTO));
     }
 
     @Test
@@ -232,7 +232,7 @@ public class GoalServiceTest {
         long userId = 1L;
         Mockito.when(skillRepositoryAdapter.skillsExist(goalDTO.getSkillToAchieveIds())).thenReturn(true);
         Mockito.when(goalRepository.countActiveGoalsPerUser(userId)).thenReturn(4);
-        Assertions.assertThrows(BadRequestException.class, () -> goalService.createGoal(userId, goalDTO));
+        Assertions.assertThrows(DataValidationException.class, () -> goalService.createGoal(userId, goalDTO));
     }
 
     @Test

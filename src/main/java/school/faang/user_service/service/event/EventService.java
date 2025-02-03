@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -12,13 +13,11 @@ import school.faang.user_service.dto.event.UpdateEventRequestDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.adapter.EventParticipationAdapter;
-import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.adapter.EventRepositoryAdapter;
+import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.specification.EventSpecification;
 import school.faang.user_service.service.user.UserService;
 
