@@ -40,10 +40,9 @@ public class GoalController {
 
     @PutMapping("/{goalId}")
     public ResponseEntity<UpdateGoalResponse> updateGoal(
-            @PathVariable Long goalId,
             @Valid @RequestBody UpdateGoalRequestDto request
     ) {
-        UpdateGoalResponse response = goalService.updateGoal(goalId, request);
+        UpdateGoalResponse response = goalService.updateGoal(request);
         return ResponseEntity.ok(response);
     }
 

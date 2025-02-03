@@ -101,6 +101,7 @@ class GoalServiceTest {
         createGoalResponse.setDescription("New Goal Description");
 
         updateGoalRequestDto = new UpdateGoalRequestDto();
+        updateGoalRequestDto.setGoalId(goalId);
         updateGoalRequestDto.setTitle("Updated Goal");
         updateGoalRequestDto.setDescription("Updated Goal Description");
         updateGoalRequestDto.setStatus(GoalStatus.ACTIVE);
@@ -135,10 +136,11 @@ class GoalServiceTest {
 
     @Test
     void testUpdateGoal_ShouldValidateAndUpdate() {
+        updateGoalRequestDto.setGoalId(goalId);
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
         when(goalMapper.toUpdateResponse(existingGoal)).thenReturn(updateGoalResponse);
 
-        final UpdateGoalResponse response = goalService.updateGoal(goalId, updateGoalRequestDto);
+        final UpdateGoalResponse response = goalService.updateGoal(updateGoalRequestDto);
 
         verify(goalValidator).validateGoalUpdatable(existingGoal);
         verify(goalValidator).validateSkillsExist(updateGoalRequestDto.getSkillIds());
@@ -150,11 +152,11 @@ class GoalServiceTest {
 
     @Test
     void testUpdateGoal_ShouldAssignSkillsWhenCompleted() {
+        updateGoalRequestDto.setGoalId(goalId);
+        updateGoalRequestDto.setStatus(GoalStatus.COMPLETED);
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
 
-        updateGoalRequestDto.setStatus(GoalStatus.COMPLETED);
-
-        goalService.updateGoal(goalId, updateGoalRequestDto);
+        goalService.updateGoal(updateGoalRequestDto);
 
         verify(goalAssignmentHelper).assignSkillsToUsers(existingGoal, updateGoalRequestDto.getSkillIds());
     }
@@ -178,21 +180,22 @@ class GoalServiceTest {
     }
 
     @Test
-    void testGetGoalById_ShouldReturnGoal() {
-        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
-
-        Goal foundGoal = goalService.getGoalById(goalId);
-
-        verify(goalRepository).findById(goalId);
-        Assertions.assertEquals(goal, foundGoal);
-    }
-
-    @Test
-    void testGetGoalById_ShouldThrowExceptionIfGoalNotFound() {
+    void testUpdateGoal_ShouldThrowExceptionIfGoalNotFound() {
+        updateGoalRequestDto.setGoalId(goalId);
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> goalService.getGoalById(goalId));
+                () -> goalService.updateGoal(updateGoalRequestDto));
+
+        Assertions.assertEquals("Goal not found with id: " + goalId, exception.getMessage());
+    }
+
+    @Test
+    void testDeleteGoal_ShouldThrowExceptionIfGoalNotFound() {
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> goalService.deleteGoal(goalId));
 
         Assertions.assertEquals("Goal not found with id: " + goalId, exception.getMessage());
     }

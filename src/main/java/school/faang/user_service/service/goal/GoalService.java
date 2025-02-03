@@ -40,20 +40,18 @@ public class GoalService {
         goal.setParent(goalValidator.findParentGoal(request.getParentId()));
 
         Goal createdGoal = goalRepository.save(goal);
-
         goalAssignmentHelper.assignSkillsToGoal(createdGoal, request.getSkillIds());
 
         return goalMapper.toCreateResponse(createdGoal);
     }
 
     @Transactional
-    public UpdateGoalResponse updateGoal(Long goalId, UpdateGoalRequestDto request) {
-        Goal existingGoal = getGoalById(goalId);
+    public UpdateGoalResponse updateGoal(UpdateGoalRequestDto request) {
+        Goal existingGoal = getGoalById(request.getGoalId());
         goalValidator.validateGoalUpdatable(existingGoal);
         goalValidator.validateSkillsExist(request.getSkillIds());
 
         goalMapper.updateGoalFromDto(request, existingGoal);
-
         goalAssignmentHelper.assignSkillsToGoal(existingGoal, request.getSkillIds());
 
         if (request.getStatus() == GoalStatus.COMPLETED) {
@@ -94,7 +92,7 @@ public class GoalService {
                 .collect(Collectors.toList());
     }
 
-    public Goal getGoalById(Long goalId) {
+    private Goal getGoalById(Long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new DataValidationException("Goal not found with id: " + goalId));
     }
