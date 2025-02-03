@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,20 +22,19 @@ import school.faang.user_service.dto.goal.GoalFilterDTO;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.goal.GoalService;
 
-import java.util.List;
-
 @Tag(name = "Goal", description = "Api for goals management")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/goals")
+@RequestMapping("/api/v1/goals")
 public class GoalController {
+
     private final GoalService goalService;
 
     @Operation(summary = "create new goal")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "goal created successfully"),
-    @ApiResponse(responseCode = "400", description = "invalid request data"),
-    @ApiResponse(responseCode = "404", description = "goal or user with received id not found")})
+            @ApiResponse(responseCode = "400", description = "invalid request data"),
+            @ApiResponse(responseCode = "404", description = "goal or user with received id not found")})
     @PostMapping
     public GoalDTO createGoal(@RequestParam Long userId, @RequestBody GoalDTO goalDTO) {
         if (goalDTO.getTitle() == null || goalDTO.getTitle().isBlank()) {
@@ -54,6 +56,14 @@ public class GoalController {
         return goalService.updateGoal(goalId, goalDTO);
     }
 
+  @GetMapping("user/{userId}")
+  public List<GoalDTO> getGoalsByUser(
+      @PathVariable Long userId,
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) String status) {
+    GoalFilterDTO goalFilterDTO = new GoalFilterDTO(title, status);
+    return goalService.getGoalsByUser(userId, goalFilterDTO);
+  }
     @Operation(summary = "get goal by user id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "goal received successfully"),
