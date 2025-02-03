@@ -1,6 +1,9 @@
 package school.faang.user_service.service;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static school.faang.user_service.config.KafkaConstants.PAYMENT_PROMOTION_TOPIC;
 import static school.faang.user_service.config.KafkaConstants.USER_KEY;
@@ -150,4 +154,16 @@ public class UserService {
                 .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
     }
 
+    public UserDto getUser(@Positive @NotNull Long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFoundException(userId));
+    }
+
+    public List<UserDto> getUsersByIds(@NotEmpty List<@Positive Long> ids) {
+        return userRepository.findAllById(ids)
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }
