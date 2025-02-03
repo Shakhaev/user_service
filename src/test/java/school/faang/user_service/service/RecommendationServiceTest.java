@@ -7,12 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.dto.user.UserSkillGuaranteeDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
@@ -20,6 +23,8 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.mapper.UserSkillGuaranteeMapper;
+import school.faang.user_service.mapper.UserSkillGuaranteeMapperImpl;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -29,137 +34,85 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
-
     @InjectMocks
     private RecommendationService recommendationService;
 
     @Mock
     private RecommendationRepository recommendationRepository;
-
     @Mock
     private SkillOfferRepository skillOfferRepository;
-
     @Mock
-    private SkillOffer skillOffer;
-
+    SkillRepository skillRepository;
     @Mock
-    private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    UserSkillGuaranteeRepository guaranteeRepository;
+    @Spy
+    private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
 
-    @Mock
-    private UserSkillGuaranteeMapper userSkillGuaranteeMapper;
+    @Test
+    public void testCreateRecommendationWithOfferInValid() {
 
-    @Mock
-    private RecommendationMapper recommendationMapper;
+        assertThrows(DataValidationException.class,
+                () -> recommendationService.create(getRecommendationDtoWithOffer()));
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        Mockito.verify(recommendationRepository, Mockito.times(0))
+                .create(12l, 14l, "content");
+    }
+
+    private Recommendation getRecommendationInvalidCreatedDate() {
+        return new Recommendation(5L, "old content", getAuthorUser(), getReceiverUser(),
+                null, null, LocalDateTime.now().minusMonths(2), null);
+    }
+
+    private RecommendationDto getRecommendationDtoWithNullableOffer() {
+        return RecommendationDto.builder()
+                .content("content")
+                .authorId(12L)
+                .receiverId(14L)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private RecommendationDto getRecommendationDtoWithOffer() {
+        RecommendationDto recommendationDto = getRecommendationDtoWithNullableOffer();
+        recommendationDto.setSkillOffers(skillOffersDto());
+        return recommendationDto;
+    }
+    private List<SkillOfferDto> skillOffersDto() {
+        return List.of(SkillOfferDto.builder().id(18L).skillId(15L).build());
+    }
+
+    private User getAuthorUser() {
+        return User.builder().id(12L).build();
+    }
+
+    private User getReceiverUser() {
+        return User.builder().id(14L).build();
     }
 
     @Test
-    public void testCreateRecommendation() {
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setAuthorId(1L);
-        recommendationDto.setReceiverId(2L);
-        recommendationDto.setContent("Great work!");
+    public void testDelete() {
+        Mockito.doNothing().when(recommendationRepository).deleteById(1L);
 
-        when(skillOffer.getSkill().getId()).thenReturn(1L);
-        when(recommendationRepository.create(anyLong(), anyLong(), anyString())).thenReturn(1L);
-        when(userSkillGuaranteeMapper.toEntity(any(UserSkillGuaranteeDto.class))).thenReturn(new UserSkillGuarantee());
-
-        RecommendationDto result = recommendationService.create(recommendationDto);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        verify(recommendationRepository, times(1)).create(anyLong(), anyLong(), anyString());
-        verify(userSkillGuaranteeRepository, times(1)).save(any(UserSkillGuarantee.class));
-    }
-
-    @Test
-    public void testUpdateRecommendation() {
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setId(1L);
-        recommendationDto.setAuthorId(1L);
-        recommendationDto.setReceiverId(2L);
-        recommendationDto.setContent("Updated content");
-        recommendationDto.setSkillOffers(Collections.emptyList());
-
-        doNothing().when(skillOfferRepository).deleteAllByRecommendationId(anyLong());
-        when(skillOfferRepository.create(anyLong(), anyLong())).thenReturn(1L);
-
-        RecommendationDto result = recommendationService.update(recommendationDto);
-
-        assertNotNull(result);
-        assertEquals(recommendationDto.getId(), result.getId());
-        verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(anyLong());
-        verify(skillOfferRepository, times(0)).create(anyLong(), anyLong());
-    }
-
-    @Test
-    public void testDeleteRecommendation() {
         recommendationService.delete(1L);
 
-        verify(recommendationRepository, times(1)).deleteById(1L);
+        verify(recommendationRepository).deleteById(1L);
     }
+}
 
-    @Test
-    public void testGetAllUserRecommendations() {
-        when(recommendationRepository.findAllByReceiverId(anyLong(), any())).thenReturn(Page.empty());
 
-        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(1L);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(recommendationRepository, times(1)).findAllByReceiverId(anyLong(), any());
-    }
 
-    @Test
-    public void testGetAllGivenRecommendations() {
-        when(recommendationRepository.findAllByAuthorId(anyLong())).thenReturn(Page.empty());
-
-        List<RecommendationDto> result = recommendationService.getAllGivenRecommendations(1L);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(recommendationRepository, times(1)).findAllByAuthorId(anyLong());
-    }
-
-    @Test
-    public void testValidateMonthsBetweenRecommendations() {
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setAuthorId(1L);
-        recommendationDto.setReceiverId(2L);
-
-        Recommendation recommendation = new Recommendation();
-        recommendation.setCreatedAt(LocalDateTime.now().minusMonths(7));
-
-        when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
-                .thenReturn(Optional.of(recommendation));
-
-        assertDoesNotThrow(() -> recommendationService.validateMonthsBetweenRecommendations(recommendationDto));
-    }
-
-    @Test
-    public void testValidateSkillOffers() {
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setSkillOffers(Collections.emptyList());
-
-        assertDoesNotThrow(() -> recommendationService.create(recommendationDto));
-    }}

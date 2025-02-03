@@ -6,12 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.dto.user.UserSkillGuaranteeDto;
-import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.UserSkillGuaranteeMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -27,35 +29,41 @@ public class RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
-    private final SkillOffer skillOffer;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserSkillGuaranteeMapper userSkillGuaranteeMapper;
     private final RecommendationMapper recommendationMapper;
-    private final DataValidationException dataValidationException;
+    private final SkillRepository skillRepository;
 
-    public RecommendationDto create(RecommendationDto recommendationDto) {
-        validateMonthsBetweenRecommendations(recommendationDto);
-        validateSkillOffers(recommendationDto);
-
-        UserSkillGuaranteeDto userSkillGuaranteeDto = new UserSkillGuaranteeDto();
-
-        userSkillGuaranteeDto.setSkillId(skillOffer.getSkill().getId());
-        userSkillGuaranteeDto.setGuarantorId(recommendationDto.getAuthorId());
-        userSkillGuaranteeDto.setUserId(recommendationDto.getReceiverId());
-        userSkillGuaranteeRepository.save(userSkillGuaranteeMapper.toEntity(userSkillGuaranteeDto));
-
-        Long recommendationId = recommendationRepository.create(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent());
-        recommendationDto.setId(recommendationId);
-        return recommendationDto;
+    public RecommendationDto create(RecommendationDto recommendation) {
+       validateMonthsBetweenRecommendations(recommendation);
+        for (SkillOfferDto skillOfferDto : recommendation.getSkillOffers()) {
+            if (!skillRepository.existsById(skillOfferDto.getSkillId())) {
+                throw new DataValidationException("Skill with id " + skillOfferDto.getSkillId() + " not found");
+            }
+        }
+        List<Skill> skills = skillRepository.findAllByUserId(recommendation.getReceiverId());
+        for (Skill skill : skills) {
+            if (skills.contains(skill)) {
+                UserSkillGuaranteeDto userSkillGuaranteeDto = new UserSkillGuaranteeDto();
+                userSkillGuaranteeMapper.toEntity(userSkillGuaranteeDto);
+                userSkillGuaranteeRepository.save(userSkillGuaranteeMapper.toEntity(userSkillGuaranteeDto));
+            }
+        }
+        Long recommendationId = recommendationRepository.create(recommendation.getAuthorId(), recommendation.getReceiverId(), recommendation.getContent());
+        recommendation.getSkillOffers().forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), recommendationId));
+        return recommendationMapper.toDto(recommendationRepository.findById(recommendationId).orElseThrow());
     }
 
-    public RecommendationDto update(RecommendationDto recommendation) {
-        validateMonthsBetweenRecommendations(recommendation);
-        validateSkillOffers(recommendation);
-
-        skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
-        recommendation.getSkillOffers().forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), recommendation.getId()));
-        return recommendation;
+    public RecommendationDto update(RecommendationDto recommendationDto) {
+        validateMonthsBetweenRecommendations(recommendationDto);
+        for (SkillOfferDto skillOffer : recommendationDto.getSkillOffers()) {
+            if (!recommendationRepository.existsById(skillOffer.getSkillId())) {
+                skillOfferRepository.create(skillOffer.getSkillId(), recommendationDto.getId());
+            }
+        }
+        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
+        recommendationDto.getSkillOffers().forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), recommendationDto.getId()));
+        return recommendationDto;
     }
 
     public void delete(long id) {
@@ -77,9 +85,7 @@ public class RecommendationService {
                 .map(recommendationMapper::toDto)
                 .toList();
     }
-
-
-    public void validateMonthsBetweenRecommendations(RecommendationDto recommendationDto) {
+    private void validateMonthsBetweenRecommendations(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto
                         .getReceiverId()).orElseThrow(()
@@ -91,7 +97,7 @@ public class RecommendationService {
         }
     }
 
-    public void validateSkillOffers(RecommendationDto recommendationDto) {
+    private void validateSkillOffers(RecommendationDto recommendationDto) {
         for (SkillOfferDto skillOffer : recommendationDto.getSkillOffers()) {
             if (!recommendationRepository.existsById(skillOffer.getSkillId())) {
                 skillOfferRepository.create(skillOffer.getSkillId(), recommendationDto.getId());
