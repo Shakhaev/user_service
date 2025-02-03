@@ -19,6 +19,7 @@ import school.faang.user_service.filters.interfaces.UserFilter;
 import school.faang.user_service.filters.subscription.CityFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.time.LocalDateTime;
