@@ -26,7 +26,6 @@ import school.faang.user_service.repository.specifications.GoalInvitationSpecifi
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GoalInvitationService {
-    private final GoalInvitationRepository goalInvitationRepository;
   private final GoalInvitationRepository goalInvitationRepository;
   private final UserRepositoryAdapter userRepositoryAdapter;
   private final GoalInvitationMapper goalInvitationMapper;

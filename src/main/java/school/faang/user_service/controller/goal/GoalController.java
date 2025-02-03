@@ -56,14 +56,6 @@ public class GoalController {
         return goalService.updateGoal(goalId, goalDTO);
     }
 
-  @GetMapping("user/{userId}")
-  public List<GoalDTO> getGoalsByUser(
-      @PathVariable Long userId,
-      @RequestParam(required = false) String title,
-      @RequestParam(required = false) String status) {
-    GoalFilterDTO goalFilterDTO = new GoalFilterDTO(title, status);
-    return goalService.getGoalsByUser(userId, goalFilterDTO);
-  }
     @Operation(summary = "get goal by user id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "goal received successfully"),
