@@ -124,7 +124,7 @@ class GoalServiceTest {
         when(goalRepository.save(any(Goal.class))).thenReturn(goal);
         when(goalMapper.toCreateResponse(any(Goal.class))).thenReturn(createGoalResponse);
 
-        CreateGoalResponse response = goalService.createGoal(createGoalRequestDto);
+        final CreateGoalResponse response = goalService.createGoal(createGoalRequestDto);
 
         verify(goalValidator).validateActiveGoalsLimit(userId);
         verify(goalValidator).validateSkillsExist(createGoalRequestDto.getSkillIds());
@@ -138,7 +138,7 @@ class GoalServiceTest {
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
         when(goalMapper.toUpdateResponse(existingGoal)).thenReturn(updateGoalResponse);
 
-        UpdateGoalResponse response = goalService.updateGoal(goalId, updateGoalRequestDto);
+        final UpdateGoalResponse response = goalService.updateGoal(goalId, updateGoalRequestDto);
 
         verify(goalValidator).validateGoalUpdatable(existingGoal);
         verify(goalValidator).validateSkillsExist(updateGoalRequestDto.getSkillIds());

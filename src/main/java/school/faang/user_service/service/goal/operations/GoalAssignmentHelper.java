@@ -41,7 +41,9 @@ public class GoalAssignmentHelper {
     }
 
     private void bindSkillsToGoal(List<Long> skillIds, Goal goal) {
-        if (skillIds == null || skillIds.isEmpty()) return;
+        if (skillIds == null || skillIds.isEmpty()) {
+            return;
+        }
 
         Set<Skill> existingSkills = new HashSet<>(Optional.ofNullable(goal.getSkillsToAchieve()).orElseGet(List::of));
         Set<Skill> newSkills = new HashSet<>(loadSkills(skillIds));
