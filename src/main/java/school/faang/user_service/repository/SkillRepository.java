@@ -45,8 +45,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
             WHERE s.id IN (SELECT gs.skill_id FROM goal_skill gs
             WHERE gs.goal_id = ?1)
             """)
-    List<Skill> findSkillsByGoalId(long goalId);
 
-    void assignGuarantorToUser(long skillId, long userId, Object guarantorId);
+    List<Skill> findSkillsByGoalId(long goalId);
 
 }
