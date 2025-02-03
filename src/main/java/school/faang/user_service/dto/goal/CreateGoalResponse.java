@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.goal;
 
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import org.joda.time.LocalDateTime;
 import school.faang.user_service.entity.goal.GoalStatus;
@@ -14,5 +15,7 @@ public class CreateGoalResponse {
     private String description;
     private Long parentId;
     private List<Long> skillIds;
+
+    @PastOrPresent(message = "Update date must be in the past or present")
     private LocalDateTime createdAt;
 }

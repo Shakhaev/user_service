@@ -6,18 +6,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.goal.CreateGoalRequestDto;
 import school.faang.user_service.dto.goal.CreateGoalResponse;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalRequestDto;
 import school.faang.user_service.dto.goal.UpdateGoalResponse;
-import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -31,19 +32,18 @@ public class GoalController {
 
     @PostMapping
     public ResponseEntity<CreateGoalResponse> createGoal(
-            @RequestParam Long userId,
-            @Valid @RequestBody GoalDto goalDto
+            @Valid @RequestBody CreateGoalRequestDto createGoalRequest
     ) {
-        CreateGoalResponse response = goalService.createGoal(userId, goalDto);
+        CreateGoalResponse response = goalService.createGoal(createGoalRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{goalId}")
     public ResponseEntity<UpdateGoalResponse> updateGoal(
             @PathVariable Long goalId,
-            @Valid @RequestBody GoalDto goalDto
+            @Valid @RequestBody UpdateGoalRequestDto request
     ) {
-        UpdateGoalResponse response = goalService.updateGoal(goalId, goalDto);
+        UpdateGoalResponse response = goalService.updateGoal(goalId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -56,15 +56,8 @@ public class GoalController {
     @GetMapping("/{goalId}/subtasks")
     public ResponseEntity<List<GoalDto>> findSubtasksByGoalId(
             @PathVariable long goalId,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) GoalStatus status,
-            @RequestParam(required = false) Long parentId
+            @ModelAttribute GoalFilterDto filter
     ) {
-        GoalFilterDto filter = new GoalFilterDto();
-        filter.setTitle(title);
-        filter.setStatus(status);
-        filter.setParentId(parentId);
-
         List<GoalDto> subtasks = goalService.findSubtasksByGoalId(goalId, filter);
         return ResponseEntity.ok(subtasks);
     }
@@ -72,15 +65,8 @@ public class GoalController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<GoalDto>> getGoalsByUser(
             @PathVariable Long userId,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) GoalStatus status,
-            @RequestParam(required = false) Long parentId
+            @ModelAttribute GoalFilterDto filter
     ) {
-        GoalFilterDto filter = new GoalFilterDto();
-        filter.setTitle(title);
-        filter.setStatus(status);
-        filter.setParentId(parentId);
-
         List<GoalDto> goals = goalService.getGoalsByUser(userId, filter);
         return ResponseEntity.ok(goals);
     }

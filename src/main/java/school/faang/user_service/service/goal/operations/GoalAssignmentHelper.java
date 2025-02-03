@@ -20,18 +20,11 @@ public class GoalAssignmentHelper {
     private final SkillRepository skillRepository;
     private final GoalRepository goalRepository;
 
-    public void bindSkillsToGoal(List<Long> skillIds, Goal goal) {
-        List<Skill> existingSkills = Optional.ofNullable(goal.getSkillsToAchieve()).orElseGet(List::of);
-        List<Skill> newSkills = loadSkills(skillIds);
-
-        Set<Skill> newSkillSet = new HashSet<>(newSkills);
-        Set<Skill> existingSkillSet = new HashSet<>(existingSkills);
-
-        existingSkillSet.removeAll(newSkillSet);
-        existingSkills.forEach(newSkillSet::remove);
-
-        goal.getSkillsToAchieve().removeAll(existingSkillSet);
-        goal.getSkillsToAchieve().addAll(newSkillSet);
+    public void assignSkillsToGoal(Goal goal, List<Long> skillIds) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return;
+        }
+        bindSkillsToGoal(skillIds, goal);
     }
 
     public void assignSkillsToUsers(Goal goal, List<Long> skillIds) {
@@ -45,6 +38,18 @@ public class GoalAssignmentHelper {
         for (User user : users) {
             user.getSkills().addAll(skills);
         }
+    }
+
+    private void bindSkillsToGoal(List<Long> skillIds, Goal goal) {
+        if (skillIds == null || skillIds.isEmpty()) return;
+
+        Set<Skill> existingSkills = new HashSet<>(Optional.ofNullable(goal.getSkillsToAchieve()).orElseGet(List::of));
+        Set<Skill> newSkills = new HashSet<>(loadSkills(skillIds));
+
+        existingSkills.retainAll(newSkills);
+        newSkills.removeAll(existingSkills);
+
+        goal.getSkillsToAchieve().addAll(newSkills);
     }
 
     private List<Skill> loadSkills(List<Long> skillIds) {

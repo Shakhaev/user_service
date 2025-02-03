@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal.operations;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,9 +14,8 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -31,62 +31,66 @@ class GoalAssignmentHelperTest {
     private Goal goal;
     private List<Long> skillIds;
     private List<Skill> skills;
+    private List<User> users;
 
     @InjectMocks
     private GoalAssignmentHelper goalAssignmentHelper;
 
     @BeforeEach
     void setup() {
+        initTestData();
+    }
+
+    private void initTestData() {
         goal = new Goal();
         goal.setId(1L);
         goal.setSkillsToAchieve(new ArrayList<>());
 
         skillIds = List.of(1L, 2L, 3L);
 
-        skills = new ArrayList<>();
-        for (Long id : skillIds) {
+        skills = skillIds.stream().map(id -> {
             Skill skill = new Skill();
             skill.setId(id);
-            skills.add(skill);
-        }
-    }
+            return skill;
+        }).collect(Collectors.toList());
 
-    @Test
-    void testBindSkillsToGoal_AddsNewSkills() {
-        when(skillRepository.findAllById(skillIds)).thenReturn(skills);
-
-        goalAssignmentHelper.bindSkillsToGoal(skillIds, goal);
-
-        verify(skillRepository).findAllById(skillIds);
-        Set<Skill> skillSet = new HashSet<>(goal.getSkillsToAchieve());
-        assert skillSet.containsAll(skills);
-    }
-
-    @Test
-    void testBindSkillsToGoal_RemovesOldSkills() {
-        Skill oldSkill = new Skill();
-        oldSkill.setId(4L);
-        goal.getSkillsToAchieve().add(oldSkill);
-
-        when(skillRepository.findAllById(skillIds)).thenReturn(skills);
-
-        goalAssignmentHelper.bindSkillsToGoal(skillIds, goal);
-
-        verify(skillRepository).findAllById(skillIds);
-        assert !goal.getSkillsToAchieve().contains(oldSkill);
-        assert goal.getSkillsToAchieve().containsAll(skills);
-    }
-
-    @Test
-    void testAssignSkillsToUsers_AddsSkillsToUsers() {
         User user1 = new User();
         user1.setSkills(new ArrayList<>());
 
         User user2 = new User();
         user2.setSkills(new ArrayList<>());
 
-        List<User> users = List.of(user1, user2);
+        users = List.of(user1, user2);
+    }
 
+    @Test
+    void testAssignSkillsToGoal_AddsNewSkills() {
+        when(skillRepository.findAllById(skillIds)).thenReturn(skills);
+
+        goalAssignmentHelper.assignSkillsToGoal(goal, skillIds);
+
+        verify(skillRepository).findAllById(skillIds);
+        Assertions.assertTrue(goal.getSkillsToAchieve().containsAll(skills));
+    }
+
+    @Test
+    void testAssignSkillsToGoal_DoesNothingIfSkillIdsNull() {
+        goalAssignmentHelper.assignSkillsToGoal(goal, null);
+
+        verify(skillRepository, never()).findAllById(anyList());
+        Assertions.assertTrue(goal.getSkillsToAchieve().isEmpty());
+    }
+
+    @Test
+    void testAssignSkillsToGoal_DoesNothingIfSkillIdsEmpty() {
+        goalAssignmentHelper.assignSkillsToGoal(goal, List.of());
+
+        verify(skillRepository, never()).findAllById(anyList());
+        Assertions.assertTrue(goal.getSkillsToAchieve().isEmpty());
+    }
+
+    @Test
+    void testAssignSkillsToUsers_AddsSkillsToUsers() {
         when(goalRepository.findUsersByGoalId(goal.getId())).thenReturn(users);
         when(skillRepository.findAllById(skillIds)).thenReturn(skills);
 
@@ -95,8 +99,8 @@ class GoalAssignmentHelperTest {
         verify(goalRepository).findUsersByGoalId(goal.getId());
         verify(skillRepository).findAllById(skillIds);
 
-        assert user1.getSkills().containsAll(skills);
-        assert user2.getSkills().containsAll(skills);
+        Assertions.assertTrue(users.get(0).getSkills().containsAll(skills));
+        Assertions.assertTrue(users.get(1).getSkills().containsAll(skills));
     }
 
     @Test

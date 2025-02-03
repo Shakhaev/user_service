@@ -89,6 +89,14 @@ class GoalValidatorTest {
     }
 
     @Test
+    void testValidateSkillsExist_ShouldNotThrowExceptionIfSkillsExist() {
+        when(skillRepository.countExisting(skillIds)).thenReturn(skillIds.size());
+
+        assertDoesNotThrow(() -> goalValidator.validateSkillsExist(skillIds));
+        verify(skillRepository).countExisting(skillIds);
+    }
+
+    @Test
     void testFindGoalById_ShouldThrowExceptionIfGoalIdIsNull() {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> goalValidator.findGoalById(null));
@@ -114,6 +122,23 @@ class GoalValidatorTest {
 
         assertNotNull(result);
         assertEquals(goal, result);
+        verify(goalRepository).findById(goalId);
+    }
+
+    @Test
+    void testFindParentGoal_ShouldReturnNullIfParentIdIsNull() {
+        Goal parent = goalValidator.findParentGoal(null);
+        assertNull(parent);
+    }
+
+    @Test
+    void testFindParentGoal_ShouldReturnGoalIfParentIdExists() {
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+
+        Goal parent = goalValidator.findParentGoal(goalId);
+
+        assertNotNull(parent);
+        assertEquals(goal, parent);
         verify(goalRepository).findById(goalId);
     }
 

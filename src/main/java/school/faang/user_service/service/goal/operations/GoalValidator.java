@@ -17,6 +17,19 @@ public class GoalValidator {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
 
+
+    public Goal findGoalById(Long goalId) {
+        if (goalId == null) {
+            throw new DataValidationException("Goal ID cannot be null.");
+        }
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new DataValidationException("Goal not found with id: " + goalId));
+    }
+
+    public Goal findParentGoal(Long parentId) {
+        return (parentId != null) ? findGoalById(parentId) : null;
+    }
+
     public void validateActiveGoalsLimit(Long userId) {
         if (userId == null) {
             throw new DataValidationException("User ID cannot be null.");
@@ -35,14 +48,6 @@ public class GoalValidator {
         if (existingSkills != skillIds.size()) {
             throw new DataValidationException("One or more skills do not exist.");
         }
-    }
-
-    public Goal findGoalById(Long goalId) {
-        if (goalId == null) {
-            throw new DataValidationException("Goal ID cannot be null.");
-        }
-        return goalRepository.findById(goalId)
-                .orElseThrow(() -> new DataValidationException("Goal not found with id: " + goalId));
     }
 
     public void validateGoalUpdatable(Goal goal) {

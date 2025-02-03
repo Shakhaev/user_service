@@ -3,12 +3,15 @@ package school.faang.user_service.service.goal;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.goal.CreateGoalRequestDto;
 import school.faang.user_service.dto.goal.CreateGoalResponse;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalRequestDto;
 import school.faang.user_service.dto.goal.UpdateGoalResponse;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.goal.data.GoalDataFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -28,32 +31,33 @@ public class GoalService {
     private final GoalValidator goalValidator;
     private final GoalAssignmentHelper goalAssignmentHelper;
 
-    public CreateGoalResponse createGoal(Long userId, GoalDto goalDto) {
-        goalValidator.validateActiveGoalsLimit(userId);
-        goalValidator.validateSkillsExist(goalDto.getSkillIds());
+    @Transactional
+    public CreateGoalResponse createGoal(CreateGoalRequestDto request) {
+        goalValidator.validateActiveGoalsLimit(request.getUserId());
+        goalValidator.validateSkillsExist(request.getSkillIds());
 
-        Goal goal = goalMapper.toEntity(goalDto);
+        Goal goal = goalMapper.toEntity(request);
+        goal.setParent(goalValidator.findParentGoal(request.getParentId()));
+
         Goal createdGoal = goalRepository.save(goal);
 
-        goalAssignmentHelper.bindSkillsToGoal(goalDto.getSkillIds(), createdGoal);
+        goalAssignmentHelper.assignSkillsToGoal(createdGoal, request.getSkillIds());
 
         return goalMapper.toCreateResponse(createdGoal);
     }
 
     @Transactional
-    public UpdateGoalResponse updateGoal(Long goalId, GoalDto goalDto) {
-        Goal existingGoal = goalValidator.findGoalById(goalId);
+    public UpdateGoalResponse updateGoal(Long goalId, UpdateGoalRequestDto request) {
+        Goal existingGoal = getGoalById(goalId);
         goalValidator.validateGoalUpdatable(existingGoal);
-        goalValidator.validateSkillsExist(goalDto.getSkillIds());
+        goalValidator.validateSkillsExist(request.getSkillIds());
 
-        existingGoal.setTitle(goalDto.getTitle());
-        existingGoal.setDescription(goalDto.getDescription());
-        existingGoal.setStatus(goalDto.getStatus());
+        goalMapper.updateGoalFromDto(request, existingGoal);
 
-        goalAssignmentHelper.bindSkillsToGoal(goalDto.getSkillIds(), existingGoal);
+        goalAssignmentHelper.assignSkillsToGoal(existingGoal, request.getSkillIds());
 
-        if (goalDto.getStatus() == GoalStatus.COMPLETED) {
-            goalAssignmentHelper.assignSkillsToUsers(existingGoal, goalDto.getSkillIds());
+        if (request.getStatus() == GoalStatus.COMPLETED) {
+            goalAssignmentHelper.assignSkillsToUsers(existingGoal, request.getSkillIds());
         }
 
         goalRepository.save(existingGoal);
@@ -62,7 +66,7 @@ public class GoalService {
 
     @Transactional
     public void deleteGoal(long goalId) {
-        Goal goal = goalValidator.findGoalById(goalId);
+        Goal goal = getGoalById(goalId);
         goalRepository.delete(goal);
     }
 
@@ -88,5 +92,10 @@ public class GoalService {
                 )
                 .map(goalMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public Goal getGoalById(Long goalId) {
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new DataValidationException("Goal not found with id: " + goalId));
     }
 }
