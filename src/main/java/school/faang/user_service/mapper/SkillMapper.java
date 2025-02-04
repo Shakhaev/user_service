@@ -10,11 +10,11 @@ import school.faang.user_service.entity.Skill;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper {
-    SkillDto toDTO(Skill skill);
+    SkillDto toDto(Skill skill);
 
     @Mapping(target = "id", ignore = true)
     Skill toEntity(SkillDto skillDto);
 
     @Mapping(target = "offersAmount", ignore = true)
-    SkillCandidateDto toCandidateDTO(Skill skill);
+    SkillCandidateDto toCandidateDto(Skill skill);
 }

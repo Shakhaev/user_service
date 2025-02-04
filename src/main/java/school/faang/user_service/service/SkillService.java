@@ -1,15 +1,19 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidateException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
@@ -26,6 +30,8 @@ public class SkillService {
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserRepository userRepository;
+
     private final int MIN_SKILL_OFFERS = 3;
 
     public SkillDto create(SkillDto skillDto) {
@@ -35,14 +41,17 @@ public class SkillService {
         Skill skill = skillMapper.toEntity(skillDto);
         Skill savedSkill = skillRepository.save(skill);
 
-        return skillMapper.toDTO(savedSkill);
+        return skillMapper.toDto(savedSkill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new DataValidateException("User with ID " + userId + " not found.");
+        }
         List<Skill> userSkills = skillRepository.findAllByUserId(userId);
         return userSkills.stream()
-                .map(skillMapper::toDTO)
-                .collect(Collectors.toList());
+                .map(skillMapper::toDto)
+                .toList();
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
@@ -54,13 +63,14 @@ public class SkillService {
         return skillOffersCount.entrySet().stream()
                 .map(entry -> {
                     SkillCandidateDto dto = new SkillCandidateDto();
-                    dto.setSkill(skillMapper.toDTO(entry.getKey()));
+                    dto.setSkill(skillMapper.toDto(entry.getKey()));
                     dto.setOffersAmount(entry.getValue());
                     return dto;
                 })
                 .toList();
     }
 
+    @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
 
         Optional<Skill> existingSkill = skillRepository.findUserSkill(skillId, userId);
@@ -77,9 +87,10 @@ public class SkillService {
         addUserSkillGuarantee(offers);
         Skill skill = skillRepository.findById(skillId)
                 .orElseThrow(() -> new DataValidateException(String.format("Skill with id %d not found.", skillId)));
-        return skillMapper.toDTO(skill);
+        return skillMapper.toDto(skill);
     }
-    private void addUserSkillGuarantee(List<SkillOffer> offers){
+
+    public void addUserSkillGuarantee(List<SkillOffer> offers) {
         userSkillGuaranteeRepository.saveAll(offers.stream()
                 .map(offer -> UserSkillGuarantee.builder()
                         .user(offer.getRecommendation().getReceiver())
